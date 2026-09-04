@@ -119,14 +119,16 @@ export default function AboutPage() {
                 its how-to-choose section, and repeating a composition across pages is the same
                 template tell as repeating a component. */}
             <div className="md:col-span-8">
-              <ol className="grid gap-px border border-white-2 bg-white-2 md:grid-cols-3">
+              {/* lg, not md: three columns inside an 8-of-12 span give each paragraph about ten characters
+                  a line at 768. */}
+              <ol className="grid gap-px border border-white-2 bg-white-2 lg:grid-cols-3">
                 {method.map((step) => (
                   <li key={step.number} className="bg-white p-6">
                     <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
                       {step.number}
                     </span>
                     <h3 className="mt-3 type-h3 text-black">{step.title}</h3>
-                    <p className="mt-3 type-small text-grey">{step.body}</p>
+                    <p className="mt-3 type-body text-grey">{step.body}</p>
                   </li>
                 ))}
               </ol>

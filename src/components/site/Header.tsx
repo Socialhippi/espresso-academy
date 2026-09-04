@@ -29,18 +29,20 @@ export function Header() {
         */}
         <Link
           href="/"
-          className="-m-1.5 flex min-w-0 shrink items-center gap-2 p-1.5 md:gap-3"
+          className="-m-1.5 flex shrink-0 items-center gap-2 p-1.5 md:gap-3"
           aria-label="Espresso Academy India, home"
         >
-          <LogoMark className="h-8 w-auto md:h-10" sizes="(min-width: 768px) 40px, 32px" priority />
+          <LogoMark className="h-8 w-auto shrink-0 md:h-10" sizes="(min-width: 768px) 40px, 32px" priority />
           {/* Shown at every width. Hiding it on mobile would leave the mark alone, which is the
               exact legibility problem this composition exists to solve. */}
-          <span className="text-body font-medium tracking-wide text-black">
+          <span className="text-body font-medium tracking-wide whitespace-nowrap text-black">
             Espresso Academy India
           </span>
         </Link>
 
-        <nav aria-label="Primary" className="hidden md:block">
+        {/* lg, not md: at 768 the six nav items plus the two actions leave the brand lockup nothing to
+            sit in, and it collapses on top of the navigation. */}
+        <nav aria-label="Primary" className="hidden lg:block">
           <ul className="flex items-center gap-6 lg:gap-8">
             {primaryNav.map((item) => (
               <li key={item.href}>
@@ -56,12 +58,12 @@ export function Header() {
             href="/enquire"
             variant="primary"
             size="sm"
-            className="hidden md:inline-flex"
+            className="hidden lg:inline-flex"
             data-event="enquire_click_header"
           >
             Enquire
           </ButtonLink>
-          <div className="md:hidden">
+          <div className="lg:hidden">
             <MobileNav />
           </div>
         </div>

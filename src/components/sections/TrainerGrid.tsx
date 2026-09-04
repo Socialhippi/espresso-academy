@@ -67,7 +67,7 @@ interface TrainerGridProps {
 
 export function TrainerGrid({ trainers, className }: TrainerGridProps) {
   return (
-    <ul className={cn("grid gap-10 md:grid-cols-3 md:gap-8", className)}>
+    <ul className={cn("grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3", className)}>
       {trainers.map((trainer, index) => (
         <li key={trainer.slug}>
           <TrainerCard trainer={trainer} priority={index === 0} />

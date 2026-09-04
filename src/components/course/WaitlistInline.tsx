@@ -190,7 +190,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
         <Button
           type="submit"
           variant={onDark ? "light" : "primary"}
-          size="sm"
+          size="default"
           disabled={status === "sending"}
           data-event="waitlist_submit"
         >

@@ -150,15 +150,17 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             activeArea={activeArea}
           />
 
-          <p className="mt-8 measure type-small text-grey">
-            No fee or batch date is published yet. Where a course shows TBC below, the number is not
-            confirmed, so ask the academy for the current figure.
-          </p>
-
-          <h2 id="course-list-heading" className="sr-only">
-            Courses
-          </h2>
-          <p className="mt-10 type-label text-grey" aria-live="polite">
+          {/* The card grid is the page's main content and was the only band with no numbered
+              opener, so the section numbering started at 01 on a secondary block. */}
+          <SectionHeading
+            number="01"
+            eyebrow="The courses"
+            title="Every course at the campus"
+            id="course-list-heading"
+            className="mt-12"
+            description="No fee or batch date is published yet. Where a course shows TBC, the number is not confirmed, so ask the academy for the current figure."
+          />
+          <p className="mt-8 type-label text-grey" aria-live="polite">
             {courses.length} of {allCourses.length} courses
             {filterSummary ? `: ${filterSummary}` : ""}
           </p>
@@ -199,7 +201,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
               <SectionHeading
-                number="01"
+                number="02"
                 eyebrow="How to choose"
                 title="Which one is yours"
                 id="choose-heading"
@@ -237,7 +239,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
           <SectionHeading
-            number="02"
+            number="03"
             eyebrow="Levels"
             title="The two ladders"
             id="ladder-heading"
@@ -252,7 +254,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
               <SectionHeading
-                number="03"
+                number="04"
                 eyebrow="Fees"
                 title="What each course costs"
                 id="fees-heading"
@@ -264,16 +266,18 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 and takes the scroll container inside it along, so the table pushed the whole
                 document sideways at 390. */}
             <div className="min-w-0 md:col-span-8">
-              <p className="mt-4 type-small text-grey md:hidden">
+              <p className="mt-4 type-small text-grey xl:hidden">
                 Scroll the table sideways to reach the fee column.
               </p>
               <div className="table-scroll mt-4 md:mt-8">
-                <table className="w-full min-w-2xl border-collapse text-left">
+                <table className="w-full min-w-lg border-collapse text-left">
                   <caption className="sr-only">
                     Fee, level and duration for every course at the Bengaluru campus
                   </caption>
+                  {/* Sticky: the head scrolls away otherwise, and every row then shows two
+                      identical grey TBC pills with nothing to tell the columns apart. */}
                   <thead>
-                    <tr className="border-b border-white-2">
+                    <tr className="sticky top-0 z-10 border-b border-white-2 bg-white-3">
                       <th scope="col" className="py-3 pr-4 type-label text-grey">
                         Course
                       </th>
@@ -333,21 +337,21 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         </Container>
       </section>
 
-      <section className="bg-white-3 section-y" aria-labelledby="certs-heading">
+      <section className="section-y" aria-labelledby="certs-heading">
         <Container>
           <SectionHeading
-            number="04"
+            number="05"
             eyebrow="Certificates"
             title="What you walk out with"
             id="certs-heading"
           />
           <ul className="mt-10 grid gap-8 md:mt-14 md:grid-cols-2">
             {certifications.map((certification) => (
-              <li key={certification.slug} className="border border-white-2 bg-white p-6 md:p-8">
+              <li key={certification.slug} className="flex flex-col border border-white-2 bg-white p-6 md:p-8">
                 <h3 className="type-h3 text-black">{certification.name}</h3>
                 <p className="mt-2 type-label text-grey">Issued by {certification.issuer}</p>
                 <p className="mt-4 measure type-small text-grey">{certification.summary}</p>
-                <p className="mt-6">
+                <p className="mt-auto pt-6">
                   <Link
                     href={`/certifications/${certification.slug}`}
                     className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
@@ -366,7 +370,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
               <SectionHeading
-                number="05"
+                number="06"
                 eyebrow="Questions"
                 title="Courses and fees"
                 id="courses-faq-heading"
@@ -380,7 +384,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       </section>
 
       <FinalCta
-        number="06"
+        number="07"
         title="Not sure which one fits"
         body={
           <p>

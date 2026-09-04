@@ -437,6 +437,7 @@ export default function ComponentGalleryPage() {
           the only one; here it is the second, so the gallery is noindex and excluded from the
           one-H1 assertion in tests/routes.json. */}
       <HomeHero
+        eyebrow="Bengaluru"
         titleLead="Professional coffee training in Bengaluru,"
         titleAccent="the Florence way"
         subline="The hero specimen. The red gradient on text is allowed here and nowhere else."

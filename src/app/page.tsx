@@ -34,6 +34,7 @@ export default function HomePage() {
   return (
     <>
       <HomeHero
+        eyebrow="Bengaluru"
         titleLead="Professional coffee training in Bengaluru,"
         titleAccent="certified from Florence"
         subline={

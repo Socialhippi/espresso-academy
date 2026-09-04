@@ -5,6 +5,8 @@ import { Placeholder } from "@/components/site/Placeholder";
 import { cn } from "@/lib/utils";
 
 interface HomeHeroProps {
+  /** Red uppercase label above the H1, matching the numbered eyebrows further down the page. */
+  eyebrow?: string;
   /** Split so the gradient lands on the phrase that carries the meaning, not the whole line. */
   titleLead: string;
   titleAccent: string;
@@ -23,6 +25,7 @@ interface HomeHeroProps {
  * This is the one place in the site allowed to use the red gradient on text (design.md).
  */
 export function HomeHero({
+  eyebrow,
   titleLead,
   titleAccent,
   subline,
@@ -35,6 +38,7 @@ export function HomeHero({
       <Container>
         <div className="grid items-center gap-10 md:grid-cols-12 md:gap-12">
           <div className="md:col-span-7">
+            {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
             <h1 className="type-display text-black">
               {titleLead}{" "}
               <span className="hero-gradient-text">{titleAccent}</span>

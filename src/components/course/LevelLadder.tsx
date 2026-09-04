@@ -31,7 +31,9 @@ function Rung({ level, current, onDark }: RungProps) {
   const body = (
     <span
       className={cn(
-        "flex min-h-11 flex-1 flex-col justify-center gap-2 border p-4 transition-[color,background-color,border-color] duration-200",
+        // min-w-0 again: this is the flex child that actually holds the badge, and without it the
+        // rung cannot shrink below the badge's own width.
+        "flex min-h-11 min-w-0 flex-1 flex-col justify-center gap-2 border p-4 transition-[color,background-color,border-color] duration-200",
         onDark ? "border-black-2" : "border-white-2",
         current && (onDark ? "bg-black-2" : "bg-white-3"),
         first && !onDark && "hover:border-black",
@@ -46,7 +48,7 @@ function Rung({ level, current, onDark }: RungProps) {
           </span>
         )}
       </span>
-      <span className={cn("type-small", onDark ? "text-grey-2" : "text-grey")}>
+      <span className={cn("type-small text-balance", onDark ? "text-grey-2" : "text-grey")}>
         {courses.length === 1 && first
           ? first.title
           : `${courses.length} ${courses.length === 1 ? "course" : "courses"}`}
@@ -60,7 +62,9 @@ function Rung({ level, current, onDark }: RungProps) {
     <Link
       href={courses.length === 1 ? `/courses/${first.slug}` : `/courses?level=${level}`}
       aria-label={`${label}: ${courses.length === 1 && first ? first.title : `${courses.length} courses`}`}
-      className="flex flex-1"
+      // min-w-0: without it the rung inherits min-width:auto and cannot shrink below its badge,
+      // which pushed the whole document 17px wide at 768.
+      className="flex min-w-0 flex-1"
     >
       {body}
     </Link>

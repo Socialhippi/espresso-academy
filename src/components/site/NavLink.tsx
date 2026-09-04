@@ -22,7 +22,7 @@ export function NavLink({ href, children, className }: NavLinkProps) {
       href={href}
       aria-current={active ? "page" : undefined}
       className={cn(
-        "inline-flex items-center py-2 text-body font-medium transition-[color,background-color,border-color] duration-200",
+        "inline-flex min-h-11 min-w-11 items-center justify-center py-2 text-body font-medium transition-[color,background-color,border-color] duration-200",
         active ? "text-red" : "text-black hover:text-red",
         className,
       )}
