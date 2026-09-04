@@ -7,6 +7,9 @@ do. Updated at the end of every phase.
 
 Public, no login. Open it on a phone.
 
+> **This URL is serving an older build.** Work stopped before the final redeploy. See
+> "Where this stopped, and what to do next" below: redeploy before sending it to anyone.
+
 A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
 are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
 before it will render. The alias above is public and stable across redeploys, which is what a
@@ -225,6 +228,74 @@ three widths and the Playwright suite has an iPad Mini project.
   pair, and Lighthouse mobile 90 to 96 Performance with 100 across Accessibility, Best Practices
   and SEO.
 
+
+---
+
+## Where this stopped, and what to do next
+
+**Stopped mid-Phase 8b, at the fifth design-review round.** Everything through Phase 8 is complete,
+committed and verified. The work is on `main`; the tree is clean.
+
+### The one thing to know first
+
+**The deployed site is behind the code.** `https://espresso-academy-india.vercel.app` was last
+deployed before the final three rounds of design fixes, so it is missing:
+
+- the header fix (at 768 to 880 the deployed build crushes the logo to 5px wide and prints the
+  wordmark over the navigation)
+- the level-ladder overflow fix (the deployed build pushes the document 17px wide at 768)
+- the FAQ question size fix (14px questions above their own 16px answers)
+- the conditional faculty section, the courses-hub renumbering and the tablet layout fixes
+
+**Redeploy before showing anyone.** From the repo root:
+
+```
+pnpm build && pnpm test:e2e     # confirm green first
+vercel deploy --prod --yes      # puts the current build on the public alias
+```
+
+Then re-take the client screenshots, which are also from the older build:
+
+```
+node scripts/preview-screens.mjs
+```
+
+### Immediate next steps, in order
+
+1. **Redeploy** (above). Nothing else in this list is blocking.
+2. **Finish the fifth design-review round.** A `design-reviewer` subagent was mid-analysis when
+   work stopped; its verdict was never received. Re-run it against a rebuilt local server on
+   port 3000, reviewing `/`, `/courses`, `/courses/sca-barista-skills-foundation` and `/about` at
+   390, 768 and 1280. Round four scored 6.5 / 6.0 / 6.5 / 6.0 across all three widths; every one of
+   its findings has since been applied, but **the resulting scores are unverified**. The phase
+   target is 8/10 on every page. Treat the current scores as unknown, not as passing.
+3. **Run the `qa-runner` subagent.** This is Phase 9 step 1 and was never run. Everything it covers
+   has been run by hand and passes, so it is a confirmation pass rather than expected to find
+   anything.
+4. **Write `docs/CLIENT-REVIEW.md`'s covering note** and send it with the URL. The file is written;
+   it just needs the redeployed URL confirmed at the top.
+
+### What is verified as of this commit
+
+Run against a local production build (`pnpm build && pnpm start`):
+
+| Check | Result |
+|---|---|
+| `pnpm typecheck` | clean |
+| `pnpm lint` | clean |
+| `pnpm build` | clean, 43 routes generated |
+| `pnpm test:e2e` | **772 passing**, 0 failing, across chromium, webkit, Pixel 7, iPhone 14, iPad Mini |
+| `node scripts/check-overflow.mjs` | no overflow on any route at 390, 768 or 1280 |
+| `node scripts/check-brand-contrast.mjs` | no forbidden colour pair on any route |
+| `node scripts/check-target-size.mjs` | every standalone tap target at least 44px |
+| Lighthouse mobile | Performance 92 to 99, Accessibility 100, Best Practices 100, SEO 100 |
+
+### Nothing is half-finished in the code
+
+Every phase committed is complete in itself. There is no partial refactor, no stubbed function and
+no TODO that blocks a build. The `TODO(client)` comments throughout `src/` are deliberate markers
+for content the academy has not sent; each one has a visible TBC state on the page and a row in the
+"Needs client" table above.
 
 ---
 
