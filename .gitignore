@@ -49,3 +49,6 @@ next-env.d.ts
 
 # lighthouse
 /docs/audits/*.report.json
+
+# playwright mcp scratch
+/.playwright-mcp/
