@@ -1,0 +1,41 @@
+/* Espresso Academy India: web tokens derived from the brand guidelines (Sept 2026).
+   Paste this @theme block into src/app/globals.css after @import "tailwindcss". */
+@theme {
+  /* grounds */
+  --color-white: #FEFCFF;      /* Milk White, default ground */
+  --color-white-2: #E4E4E4;    /* alt sections, borders */
+  --color-white-3: #F4F3F5;    /* cards, inputs (derived midpoint) */
+  --color-black: #171717;      /* Cynical Black: text, one dark section, footer */
+  --color-black-2: #373737;    /* secondary on dark, hairlines on dark */
+  /* text */
+  --color-grey: #6B6B6B;       /* secondary text on white, 7.0:1 */
+  --color-grey-2: #C9C9C9;     /* secondary text on black */
+  /* accent */
+  --color-red: #B20003;        /* Burnt Red: primary CTA, links, eyebrows */
+  --color-red-deep: #640000;   /* hover, pressed, gradient end */
+  --color-red-tint: #EFCACD;   /* selected chips, highlight rows */
+  /* level badges only */
+  --color-mustard: #F1BD00;    /* Foundation, black text only */
+  --color-blue: #030696;       /* Intermediate, white text; also focus ring */
+  --color-purple: #490396;     /* Professional, white text */
+  --color-green: #1F6B3A;      /* interim "seats available"; replace when client confirms hex */
+  /* type */
+  --font-display: "Bebas Neue", "Impact", sans-serif;
+  --font-sans: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --text-display: 2.5rem;  --text-display--line-height: 0.95;
+  --text-h1: 2.25rem;      --text-h1--line-height: 1.0;
+  --text-h2: 1.75rem;      --text-h2--line-height: 1.15;
+  --text-h3: 1.25rem;      --text-h3--line-height: 1.2;
+  --text-body: 1rem;       --text-body--line-height: 1.6;
+  --text-label: 0.75rem;   --text-label--line-height: 1.2; --text-label--letter-spacing: 0.08em;
+  /* radius, shadow, motion */
+  --radius-xs: 4px; --radius-sm: 8px; --radius-pill: 999px;
+  --shadow-sm: 0 1px 2px rgb(23 23 23 / 0.08), 0 4px 12px rgb(23 23 23 / 0.06);
+  --ease-out-brand: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 150ms; --duration-base: 250ms; --duration-slow: 400ms;
+  /* layout */
+  --container-site: 1200px;
+}
+/* Desktop type scale: apply via md: variants in components (display 4.5rem, h1 3.5rem, h2 2.5rem, h3 1.5rem, body 1.0625rem). */
+/* Gradients: hero-gradient = linear-gradient(135deg, #B20003, #640000) on the homepage H1 only.
+   dark-wash = radial-gradient(at 80% 0%, rgb(100 0 0 / 0.25), transparent 60%) over --color-black on the one dark section per page. */
