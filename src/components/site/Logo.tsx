@@ -44,10 +44,12 @@ interface LogoMarkProps {
   className?: string;
   alt?: string;
   sizes?: string;
+  /** Set above the fold so the mark is not lazy-loaded into the LCP window. */
+  priority?: boolean;
 }
 
 /** The fleur-de-lis and portafilter mark on its own, for tight spaces and the photo placeholder. */
-export function LogoMark({ className, alt = "", sizes = "64px" }: LogoMarkProps) {
+export function LogoMark({ className, alt = "", sizes = "64px", priority = false }: LogoMarkProps) {
   return (
     <Image
       src="/logo/mark.png"
@@ -55,6 +57,7 @@ export function LogoMark({ className, alt = "", sizes = "64px" }: LogoMarkProps)
       width={682}
       height={1000}
       sizes={sizes}
+      priority={priority}
       className={cn("h-auto w-auto object-contain", className)}
     />
   );

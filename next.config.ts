@@ -14,6 +14,12 @@ const nextConfig: NextConfig = {
       cn: "./src/lib/cn.ts",
     },
   },
+  /*
+   * `experimental.inlineCss` was tried and reverted. It removes the render-blocking stylesheet
+   * request that Lighthouse costs at 130 to 150ms, but inlining the 12KB sheet into every document
+   * loses the cross-page cache and measured slightly worse: FCP 0.9s to 1.0s, and the course page
+   * dropped from 95 to 91.
+   */
   images: {
     // Only local files are served; no remote patterns are needed or allowed.
     formats: ["image/avif", "image/webp"],

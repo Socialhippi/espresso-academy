@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Container } from "@/components/site/Container";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { CallButton } from "@/components/site/CallButton";
@@ -14,17 +13,22 @@ const DESCRIPTION =
   "Ask about a barista or coffee course at the Bengaluru campus. Send your name and number and the academy replies with the fee incl. GST and the next batch date.";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Enquire About a Course",
+  title: "Enquire About a Barista Course",
   description: DESCRIPTION,
   path: "/enquire",
 });
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
 
 /**
  * The conversion page. Everything not needed to send an enquiry is left off: no section
  * navigation, no related links, no sticky bar (see routesWithoutStickyBar in src/lib/nav.ts).
  * The only ways out are the form, WhatsApp and the phone.
  */
-export default function EnquirePage() {
+export default async function EnquirePage({ searchParams }: PageProps<"/enquire">) {
+  const params = await searchParams;
   const courseOptions = getCourses().map((course) => ({
     slug: course.slug,
     title: course.title,
@@ -60,19 +64,13 @@ export default function EnquirePage() {
           </div>
 
           <div className="md:col-span-7">
-            <Suspense
-              fallback={
-                <p className="type-body text-grey" role="status">
-                  Loading the form
-                </p>
-              }
-            >
-              <EnquiryForm
-                variant="student"
-                courses={courseOptions}
-                replyPromise={siteSettings.replyPromise}
-              />
-            </Suspense>
+            <EnquiryForm
+              variant="student"
+              courses={courseOptions}
+              replyPromise={siteSettings.replyPromise}
+              defaultCourse={firstValue(params.course) ?? ""}
+              defaultBatch={firstValue(params.batch) ?? ""}
+            />
           </div>
         </div>
       </Container>

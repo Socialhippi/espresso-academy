@@ -3,9 +3,11 @@ import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
 import { Container } from "@/components/site/Container";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
+import { JsonLd } from "@/components/site/JsonLd";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { siteSettings } from "@/lib/content";
 import { formatPhone, telHref } from "@/lib/format";
+import { graph, webPageNode } from "@/lib/seo/schema";
 
 interface LegalPlaceholderProps {
   title: string;
@@ -26,6 +28,7 @@ interface LegalPlaceholderProps {
 export function LegalPlaceholder({ title, path, intro, children }: LegalPlaceholderProps) {
   return (
     <Container className="py-10 md:py-16" data-placeholder="true">
+      <JsonLd id="legal-jsonld" data={graph([webPageNode(path, title, intro)])} />
       <Breadcrumbs items={[{ label: title, href: path }]} />
 
       <h1 className="mt-6 type-h1 text-black md:mt-8">{title}</h1>

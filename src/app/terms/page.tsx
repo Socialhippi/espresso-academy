@@ -3,7 +3,7 @@ import { LegalPlaceholder, LegalSection } from "@/components/site/LegalPlacehold
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Terms",
+  title: "Terms of Use and Enrolment",
   description:
     "The terms this website is offered under, what an enquiry does and does not commit you to, and how course bookings at the Bengaluru campus are confirmed.",
   path: "/terms",

@@ -27,10 +27,20 @@ export async function generateMetadata({
   const trainer = getTrainer(slug);
   if (!trainer) return { title: "Trainer not found" };
 
+  /* seo.md's pattern is "{Name}, {Role}", but trainers[].role is null for all three, so the title
+     uses the one role fact that is supported: they are trainers at the academy. Names vary in
+     length, so take the longest variant that still fits the 50 to 60 character band. */
+  const SUFFIX_LENGTH = " | Espresso Academy India".length;
+  const titleCandidates = [
+    `${trainer.name}, Coffee Trainer, Bengaluru`,
+    `${trainer.name}, Coffee Trainer`,
+  ];
+  const title =
+    titleCandidates.find((candidate) => candidate.length + SUFFIX_LENGTH <= 60) ??
+    `${trainer.name}, Coffee Trainer`;
+
   return pageMetadata({
-    /* seo.md's pattern is "{Name}, {Role}", but trainers[].role is null for all three, so the
-       title uses the one role fact that is supported: they are trainers at the academy. */
-    title: `${trainer.name}, Coffee Trainer`,
+    title,
     description: clampDescription(trainer.bio),
     path: `/trainers/${trainer.slug}`,
     type: "article",

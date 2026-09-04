@@ -3,7 +3,7 @@ import { LegalPlaceholder, LegalSection } from "@/components/site/LegalPlacehold
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Privacy",
+  title: "Privacy and Your Personal Details",
   description:
     "What Espresso Academy India does with the name and phone number you send through the enquiry form, who sees it, and how to ask for it to be deleted.",
   path: "/privacy",

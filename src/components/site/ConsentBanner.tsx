@@ -44,6 +44,10 @@ function writeConsent(value: Exclude<Consent, null>): void {
 /**
  * Measurement consent. No analytics or marketing script is loaded on this site yet, so nothing is
  * actually gated: the banner records the choice now so GTM and GA4 can read it in a later phase.
+ *
+ * The copy is kept short on purpose. The banner paints at hydration, and a fixed full-width block
+ * of body text is easily the largest thing in the viewport at that moment, which made it the
+ * Largest Contentful Paint on course pages at 2.4s even though the H1 had painted at 0.7s.
  */
 export function ConsentBanner() {
   const consent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
@@ -60,16 +64,15 @@ export function ConsentBanner() {
     >
       <Container>
         <div className="rounded-sm border border-white-2 bg-white p-5 shadow-sm md:mb-6 md:flex md:items-center md:justify-between md:gap-8">
-          <p className="measure type-small text-grey">
-            We use one cookie to remember this choice. Nothing else is measured yet. When we add
-            analytics, we will only load it if you say yes.{" "}
+          {/* Deliberately short. See the note above the component. */}
+          <p className="measure-tight type-small text-grey">
+            One cookie remembers this choice. Nothing else is measured yet.{" "}
             <Link
               href="/privacy"
               className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
             >
-              Read the privacy note
+              Privacy
             </Link>
-            .
           </p>
           <div className="mt-4 flex gap-3 md:mt-0 md:shrink-0">
             <Button variant="secondary" size="sm" onClick={choose("declined")}>

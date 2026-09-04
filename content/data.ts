@@ -64,7 +64,7 @@ export interface Course {
   prerequisites: string | null;
   trainers: string[];        // trainer slugs; empty until client assigns
   nextInLadder: string | null;
-  faq: { q: string; a: string }[];
+  faq: { q: string; a: string; link?: { label: string; href: string } }[];
   instances: CourseInstance[];
   heroImage: string | null;  // public/images/courses/<slug>.jpg
   heroAlt: string;
@@ -174,10 +174,10 @@ export const trainers: Trainer[] = [
 
 const tbcInstance = (courseSlug: string): CourseInstance => ({ id: `${courseSlug}-tbc`, startDate: null, endDate: null, schedule: null, seatsAvailable: null, status: "tbc", paymentPageUrl: null });
 
-const courseFaqCommon = (name: string): { q: string; a: string }[] => [
-  { q: `Do I need experience before ${name}?`, a: "Prerequisites are listed above. If the field says TBC, message us on WhatsApp with your background and we will tell you plainly whether this is the right starting point." },
-  { q: "Is the certificate included in the fee?", a: "Fees and what they include are confirmed by the academy at enrolment. Where a certification body charges a separate fee, we say so before you pay." },
-  { q: "Where are classes held?", a: "At the Bengaluru campus, Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital." },
+const courseFaqCommon = (name: string): { q: string; a: string; link?: { label: string; href: string } }[] => [
+  { q: `Do I need experience before ${name}?`, a: "Prerequisites are listed above. If the field says TBC, message us on WhatsApp with your background and we will tell you plainly whether this is the right starting point.", link: { label: "See every course and level", href: "/courses" } },
+  { q: "Is the certificate included in the fee?", a: "Fees and what they include are confirmed by the academy at enrolment. Where a certification body charges a separate fee, we say so before you pay.", link: { label: "What the certificates are", href: "/certifications" } },
+  { q: "Where are classes held?", a: "At the Bengaluru campus, Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital.", link: { label: "Directions to the campus", href: "/contact" } },
 ];
 
 export const courses: Course[] = [
@@ -291,11 +291,11 @@ export const faqs: FaqItem[] = [
   { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with IBC Junior or Barista Skills Foundation. If you already pull shots daily, start at Intermediate or IBC Advanced. Message us on WhatsApp with your background and we will point you to the right one.", link: { label: "See all courses", href: "/courses" } },
   { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India offers it at Junior and Advanced levels.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
   { category: "certification", q: "Are your courses SCA certified?", a: "Our training is aligned to the SCA Coffee Skills Program across five modules at Foundation, Intermediate and Professional levels. Whether a batch is assessed for SCA certification, and the SCA fee involved, is confirmed at enrolment.", link: { label: "About the SCA program", href: "/certifications/sca-coffee-skills-program" } },
-  { category: "fees", q: "How much do the courses cost?", a: "Fees are confirmed by the academy for each batch and stated incl. GST before you pay. Message us on WhatsApp for the current fee sheet." },
-  { category: "schedule", q: "When is the next batch?", a: "Batch dates are announced on each course page and on the calendar. Join the batch alert on any course to be told first." },
+  { category: "fees", q: "How much do the courses cost?", a: "Fees are confirmed by the academy for each batch and stated incl. GST before you pay. Message us on WhatsApp for the current fee sheet.", link: { label: "See the fee table", href: "/courses" } },
+  { category: "schedule", q: "When is the next batch?", a: "Batch dates are announced on each course page and on the calendar. Join the batch alert on any course to be told first.", link: { label: "See the batch calendar", href: "/calendar" } },
   { category: "campus", q: "Where is the academy?", a: "Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
-  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. Our courses are built around machine time and assessment for that reason." },
-  { category: "courses", q: "Do you train cafe teams?", a: "Ask us. Message the academy on WhatsApp with your cafe, team size and goal and we will reply with options." },
+  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. Our courses are built around machine time and assessment for that reason.", link: { label: "Compare the two certificates", href: "/certifications" } },
+  { category: "courses", q: "Do you train cafe teams?", a: "Ask us. Message the academy on WhatsApp with your cafe, team size and goal and we will reply with options.", link: { label: "Ask about team training", href: "/contact?topic=cafe" } },
 ];
 
 export const stories: Story[] = []; // stays empty until real, permitted stories arrive

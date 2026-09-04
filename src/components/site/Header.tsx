@@ -32,7 +32,7 @@ export function Header() {
           className="-m-1 flex shrink-0 items-center gap-3 p-1"
           aria-label="Espresso Academy India, home"
         >
-          <LogoMark className="h-9 w-auto md:h-10" sizes="(min-width: 768px) 40px, 36px" />
+          <LogoMark className="h-9 w-auto md:h-10" sizes="(min-width: 768px) 40px, 36px" priority />
           <span className="hidden text-body font-medium tracking-wide text-black sm:inline">
             Espresso Academy India
           </span>

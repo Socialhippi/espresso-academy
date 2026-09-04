@@ -1,8 +1,10 @@
 /**
  * The enquiry contract, shared by the form and by /api/enquiry so the two can never drift.
- * Validation lives here; the route handler re-runs it because a client check is not a check.
+ *
+ * Deliberately zod-free: this module is imported by the client form, and anything it imports
+ * ships to the browser. The zod schema lives in src/lib/enquiry-schema.ts, which only the route
+ * handler imports. The route re-validates every field, because a client check is not a check.
  */
-import { z } from "zod";
 
 export const enquiryTypes = ["student", "waitlist", "cafe"] as const;
 export type EnquiryType = (typeof enquiryTypes)[number];
@@ -12,36 +14,6 @@ export const phoneRegex = /^[6-9]\d{9}$/;
 
 /** Anything faster than this was not typed by a person. */
 export const MIN_TIME_ON_FORM_MS = 2000;
-
-export const enquirySchema = z.object({
-  type: z.enum(enquiryTypes),
-  name: z
-    .string()
-    .trim()
-    .min(2, "Enter your name")
-    .max(80, "That name is longer than we can store"),
-  phone: z
-    .string()
-    .trim()
-    .regex(phoneRegex, "Enter a 10-digit Indian mobile number, without +91"),
-  course: z.string().trim().max(120).optional().or(z.literal("")),
-  batch: z.string().trim().max(120).optional().or(z.literal("")),
-  message: z.string().trim().max(1000, "Keep it under 1000 characters").optional().or(z.literal("")),
-  consent: z.literal(true, { error: "Tick the box so we can reply to you" }),
-  /**
-   * Honeypot. A real person never fills a field they cannot see. The schema accepts any value:
-   * rejecting it here would return a 400 naming the field, which tells a bot exactly what it
-   * tripped. The route handler drops a filled honeypot silently with a 200 instead.
-   */
-  company: z.string().max(200).optional(),
-  /** Milliseconds between the form mounting and the submit. */
-  elapsedMs: z.number().int().nonnegative(),
-  page: z.string().max(300).optional(),
-  referrer: z.string().max(500).optional(),
-  utm: z.record(z.string(), z.string()).optional(),
-});
-
-export type EnquiryInput = z.infer<typeof enquirySchema>;
 
 export interface EnquirySuccess {
   ok: true;

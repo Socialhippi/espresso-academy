@@ -1,11 +1,15 @@
 /**
- * The only place the app reads process.env.
+ * Environment validation. Server-side only, because it pulls in zod.
  *
  * Everything is optional in this draft phase: a missing RESEND_API_KEY must not crash the
  * build or the request, it just routes the enquiry form to the WhatsApp handoff instead.
- * NEXT_PUBLIC_* values are read as literals so Next can inline them into the client bundle.
+ * Client Components read the two public values from src/lib/public-env.ts instead, which has no
+ * dependencies; importing this file from the browser would ship zod with it.
  */
 import { z } from "zod";
+import { absoluteUrl, siteUrl } from "@/lib/public-env";
+
+export { absoluteUrl, siteUrl };
 
 const schema = z.object({
   NEXT_PUBLIC_SITE_URL: z.url().default("http://localhost:3000"),
@@ -43,13 +47,6 @@ const fallback = schema.parse({});
 
 export const env = parsed.success ? parsed.data : fallback;
 
-/** Absolute site origin with no trailing slash, used for canonicals, OG and JSON-LD. */
-export const siteUrl: string = env.NEXT_PUBLIC_SITE_URL.replace(/\/+$/, "");
-
 /** True when a lead email can actually be sent; otherwise the form hands off to WhatsApp. */
 export const canSendLeadEmail: boolean = Boolean(env.RESEND_API_KEY && env.LEAD_TO_EMAIL);
 
-/** Build an absolute URL for a site-relative path. */
-export function absoluteUrl(path: string): string {
-  return `${siteUrl}${path.startsWith("/") ? path : `/${path}`}`;
-}

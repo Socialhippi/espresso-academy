@@ -3,7 +3,7 @@
  * supplied fees, durations or dates yet and the site must show a TBC state, never a guess.
  */
 import { siteSettings } from "@content/data";
-import { env } from "@/lib/env";
+import { whatsappNumberOverride } from "@/lib/public-env";
 
 export const TBC_TITLE = "To be confirmed by the academy";
 
@@ -106,7 +106,7 @@ export function isoDate(iso: string | null): string | undefined {
 
 /** The WhatsApp number in use: the env override when set, otherwise the one in siteSettings. */
 export function whatsappNumber(): string {
-  return env.NEXT_PUBLIC_WHATSAPP_NUMBER ?? siteSettings.whatsappNumber;
+  return whatsappNumberOverride ?? siteSettings.whatsappNumber;
 }
 
 /** "+91 94481 06100" from "+919448106100", for display only. */

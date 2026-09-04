@@ -15,10 +15,10 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Espresso Academy has taught coffee in Florence since 2007 and in Bengaluru since 2023. Espresso Academy India is an Official Partner of Espresso Academy, Florence.";
+  "Espresso Academy has taught coffee in Florence since 2007 and in Bengaluru since 2023, as an Official Partner of Espresso Academy, Florence. Inside the academy.";
 
 export const metadata: Metadata = pageMetadata({
-  title: "About the Academy",
+  title: "About the Bengaluru Coffee Academy",
   description: DESCRIPTION,
   path: "/about",
 });

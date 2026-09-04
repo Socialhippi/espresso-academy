@@ -3,13 +3,8 @@ import { z } from "zod";
 import { Resend } from "resend";
 import { canSendLeadEmail, env } from "@/lib/env";
 import { whatsappUrl } from "@/lib/format";
-import {
-  MIN_TIME_ON_FORM_MS,
-  enquirySchema,
-  enquiryTypeLabel,
-  type EnquiryInput,
-  type EnquiryResponse,
-} from "@/lib/enquiry";
+import { MIN_TIME_ON_FORM_MS, enquiryTypeLabel, type EnquiryResponse } from "@/lib/enquiry";
+import { enquirySchema, type EnquiryInput } from "@/lib/enquiry-schema";
 
 export const runtime = "nodejs";
 /** The handler reads the request body, so it can never be prerendered. */

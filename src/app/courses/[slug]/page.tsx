@@ -29,6 +29,7 @@ import {
   type Course,
 } from "@/lib/content";
 import { clampDescription, pageMetadata } from "@/lib/seo/metadata";
+import { absoluteUrl } from "@/lib/env";
 import { courseNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 export function generateStaticParams(): { slug: string }[] {
@@ -46,17 +47,26 @@ function courseTitle(course: Course): string {
     `${course.title} Course in Bengaluru`,
     `${course.title} in Bengaluru`,
     course.title,
+    // Last resort for the longest names: the level label is the short form of the same thing.
+    `${course.levelLabel} Course in Bengaluru`,
   ];
-  return candidates.find((candidate) => candidate.length + SUFFIX_LENGTH <= 60) ?? course.title;
+  return (
+    candidates.find((candidate) => candidate.length + SUFFIX_LENGTH <= 60) ??
+    `${course.levelLabel} Course in Bengaluru`
+  );
 }
 
 function courseDescription(course: Course): string {
+  const base = `${course.outcome} Taught at the Bengaluru campus, ${course.levelLabel.toLowerCase()}.`;
   const certificate = course.certificateAwardedLabel
     ? ` Leads to the ${course.certificateAwardedLabel.split(",")[0]}.`
     : "";
-  return clampDescription(
-    `${course.outcome} Taught at the Bengaluru campus at ${course.levelLabel} level.${certificate}`,
-  );
+  /*
+   * Append the certificate clause only when the whole sentence still fits. Clamping the joined
+   * string instead truncated it mid-clause: /courses/brewing ended on "Leads to.".
+   */
+  const full = base + certificate;
+  return clampDescription(full.length <= 158 ? full : base);
 }
 
 export async function generateMetadata({
@@ -70,6 +80,8 @@ export async function generateMetadata({
     title: courseTitle(course),
     description: courseDescription(course),
     path: `/courses/${course.slug}`,
+    // This course's own card, from src/app/courses/[slug]/opengraph-image.tsx.
+    ogImage: absoluteUrl(`/courses/${course.slug}/opengraph-image`),
   });
 }
 

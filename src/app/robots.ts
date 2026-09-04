@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { absoluteUrl } from "@/lib/env";
+import { absoluteUrl, siteUrl } from "@/lib/env";
 
 /**
  * Everything is allowed, including the AI crawlers: this site wants to be quoted by an assistant
@@ -33,6 +33,7 @@ export default function robots(): MetadataRoute.Robots {
       ...aiCrawlers.map((userAgent) => ({ userAgent, allow: "/", disallow })),
     ],
     sitemap: absoluteUrl("/sitemap.xml"),
-    host: absoluteUrl("/"),
+    // A bare hostname: the directive takes no scheme and no trailing slash.
+    host: new URL(siteUrl).host,
   };
 }

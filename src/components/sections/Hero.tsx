@@ -57,7 +57,7 @@ export function HomeHero({
                 className="aspect-portrait w-full rounded-sm object-cover md:aspect-photo"
               />
             ) : (
-              <Placeholder slot="hero" aspect="portrait" className="md:aspect-photo" />
+              <Placeholder slot="hero" aspect="portrait" priority className="md:aspect-photo" />
             )}
           </div>
         </div>

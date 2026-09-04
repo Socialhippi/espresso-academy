@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { Container } from "@/components/site/Container";
@@ -243,13 +242,13 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
               )}
             </div>
             <div className="md:col-span-7">
-              <Suspense fallback={<p className="type-small text-grey">Loading the form</p>}>
-                <EnquiryForm
-                  variant={cafeTopic ? "cafe" : "student"}
-                  courses={courseOptions}
-                  replyPromise={siteSettings.replyPromise}
-                />
-              </Suspense>
+              <EnquiryForm
+                variant={cafeTopic ? "cafe" : "student"}
+                courses={courseOptions}
+                replyPromise={siteSettings.replyPromise}
+                defaultCourse={firstValue(params.course) ?? ""}
+                defaultBatch={firstValue(params.batch) ?? ""}
+              />
             </div>
           </div>
         </Container>

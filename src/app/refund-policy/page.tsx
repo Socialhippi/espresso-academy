@@ -3,7 +3,7 @@ import { LegalPlaceholder, LegalSection } from "@/components/site/LegalPlacehold
 import { pageMetadata } from "@/lib/seo/metadata";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Refund Policy",
+  title: "Refund and Cancellation Policy",
   description:
     "What happens to your fee if you cancel, if you cannot attend, or if Espresso Academy India moves or cancels a batch at the Bengaluru campus.",
   path: "/refund-policy",

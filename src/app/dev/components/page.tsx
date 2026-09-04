@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
 import { Container } from "@/components/site/Container";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { Button, ButtonLink } from "@/components/site/Button";
@@ -374,21 +373,17 @@ export default function ComponentGalleryPage() {
           note="Blur a field empty for the inline error. Submitting with an invalid phone moves focus to it. With no RESEND_API_KEY set, a valid submit returns the WhatsApp handoff."
         >
           <div className="md:max-w-xl">
-            <Suspense fallback={<p className="type-small text-grey">Loading the form</p>}>
-              <EnquiryForm variant="student" courses={courseOptions} />
-            </Suspense>
+            <EnquiryForm variant="student" courses={courseOptions} defaultCourse="latte-art" />
           </div>
         </Specimen>
 
         <Specimen title="Enquiry form, cafe">
           <div className="md:max-w-xl">
-            <Suspense fallback={<p className="type-small text-grey">Loading the form</p>}>
-              <EnquiryForm
-                variant="cafe"
-                courses={courseOptions}
-                replyPromise="We reply on WhatsApp during academy hours."
-              />
-            </Suspense>
+            <EnquiryForm
+              variant="cafe"
+              courses={courseOptions}
+              replyPromise="We reply on WhatsApp during academy hours."
+            />
           </div>
         </Specimen>
 

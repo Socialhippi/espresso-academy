@@ -4,7 +4,6 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
 import { Check, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
@@ -32,6 +31,13 @@ interface EnquiryFormProps {
   courses: CourseOption[];
   /** Trust line under the submit, e.g. siteSettings.replyPromise. */
   replyPromise?: string | null;
+  /**
+   * Course slug and batch label from the page's query string, read on the server. Deliberately
+   * not `useSearchParams`: that needs a Suspense boundary, which on a static page renders a
+   * fallback and then swaps the whole form in, shifting the page under the reader.
+   */
+  defaultCourse?: string;
+  defaultBatch?: string;
   className?: string;
 }
 
@@ -54,9 +60,10 @@ export function EnquiryForm({
   variant = "student",
   courses,
   replyPromise,
+  defaultCourse = "",
+  defaultBatch = "",
   className,
 }: EnquiryFormProps) {
-  const searchParams = useSearchParams();
   const ids = useId();
   const field = (name: string): string => `${ids}-${name}`;
 
@@ -65,8 +72,8 @@ export function EnquiryForm({
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
-  const [course, setCourse] = useState(searchParams.get("course") ?? "");
-  const [batch, setBatch] = useState(searchParams.get("batch") ?? "");
+  const [course, setCourse] = useState(defaultCourse);
+  const [batch, setBatch] = useState(defaultBatch);
   const [message, setMessage] = useState("");
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");

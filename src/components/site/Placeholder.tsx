@@ -9,6 +9,8 @@ interface PlaceholderProps {
   aspect?: PlaceholderAspect;
   /** Dark placeholders sit inside the one black section; light ones everywhere else. */
   tone?: "light" | "dark";
+  /** Set on an above-the-fold slot so its mark is not lazy-loaded into the LCP window. */
+  priority?: boolean;
   className?: string;
 }
 
@@ -28,6 +30,7 @@ export function Placeholder({
   slot,
   aspect = "photo",
   tone = "light",
+  priority = false,
   className,
 }: PlaceholderProps) {
   const dark = tone === "dark";
@@ -71,7 +74,11 @@ export function Placeholder({
       </svg>
 
       <div className="absolute inset-0 grid place-items-center">
-        <LogoMark className="h-2/5 w-auto opacity-20" sizes="(min-width: 768px) 160px, 96px" />
+        <LogoMark
+          className="h-2/5 w-auto opacity-20"
+          sizes="(min-width: 768px) 160px, 96px"
+          priority={priority}
+        />
       </div>
 
       <span

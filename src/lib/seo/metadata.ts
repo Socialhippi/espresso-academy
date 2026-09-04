@@ -4,6 +4,9 @@
  */
 import type { Metadata } from "next";
 import { absoluteUrl } from "@/lib/env";
+
+/** The site-wide Open Graph card, rendered by src/app/opengraph-image.tsx. */
+export const DEFAULT_OG_IMAGE = absoluteUrl("/opengraph-image");
 import { siteSettings } from "@/lib/content";
 
 export const TITLE_SUFFIX = " | Espresso Academy India";
@@ -14,7 +17,13 @@ interface PageMetadataInput {
   description: string;
   /** Site-relative, e.g. "/courses/latte-art". */
   path: string;
-  /** Defaults to the route's own opengraph-image, then to the site default. */
+  /**
+   * Absolute URL of this route's Open Graph card. Defaults to the site-wide one.
+   *
+   * Set explicitly rather than left to the `opengraph-image.tsx` file convention: that convention
+   * applies to the segment that declares it and is not inherited by sibling routes, so a single
+   * root card silently covered only the homepage.
+   */
   ogImage?: string;
   noindex?: boolean;
   type?: "website" | "article";
@@ -24,7 +33,7 @@ export function pageMetadata({
   title,
   description,
   path,
-  ogImage,
+  ogImage = DEFAULT_OG_IMAGE,
   noindex = false,
   type = "website",
 }: PageMetadataInput): Metadata {
@@ -46,12 +55,13 @@ export function pageMetadata({
       description,
       siteName: siteSettings.name,
       locale: "en_IN",
-      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+      images: [{ url: ogImage, width: 1200, height: 630, alt: `${title}${TITLE_SUFFIX}` }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${title}${TITLE_SUFFIX}`,
       description,
+      images: [ogImage],
     },
   };
 }

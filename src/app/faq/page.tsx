@@ -15,7 +15,7 @@ const DESCRIPTION =
   "Straight answers about courses, fees, certificates, batch dates, the Bengaluru campus and what a coffee certificate is actually worth to an employer.";
 
 export const metadata: Metadata = pageMetadata({
-  title: "Questions and Answers",
+  title: "Coffee Course Questions and Answers",
   description: DESCRIPTION,
   path: "/faq",
 });

@@ -124,6 +124,42 @@ white-2 at 4.05:1; the level ladder was `aria-hidden` while containing links; an
 message appearing on blur shifted the fields below it, moving the consent checkbox out from under
 a tap.
 
+### Phase 7: accessibility
+
+- axe (WCAG 2.0/2.1/2.2, A and AA) is clean on all 27 routes and on the open mobile sheet; it runs
+  in the test suite, so it cannot regress silently.
+- Lighthouse Accessibility is 100 on every route measured.
+- `node scripts/check-brand-contrast.mjs` walks every route and asserts the two pairs design.md
+  forbids outright but which pass generic contrast checks: red or red-deep text on the black
+  grounds, and mustard as a text colour. Clean on all 27 routes.
+- Keyboard: the skip link is the first focusable element and jumps to `#main`; the sheet traps
+  focus, closes on Escape and restores focus to its trigger; the enquiry form moves focus to the
+  first invalid field. All asserted in the suite.
+- `prefers-reduced-motion` is asserted to leave no transition or animation over 50ms anywhere.
+- Fixed in this pass: the "+91" field prefix was grey on white-2 at 4.05:1; the focus ring was
+  invisible on the black grounds (blue on black is 1.26:1) and is now white there; the level ladder
+  was `aria-hidden` while containing links; footer links were 18px tall; the consent checkbox was
+  20px against the 24px WCAG 2.2 minimum; and an error appearing on blur shifted the field below it.
+- A fixed bottom bar can land on top of a control the browser has just scrolled to, so form
+  controls carry `scroll-margin-bottom` below the md breakpoint.
+
+### Phase 8: performance
+
+Full numbers and the reasoning in `docs/audits/perf-draft.md`. Lighthouse mobile against
+`pnpm build && pnpm start`:
+
+| Route | Perf | A11y | Best Practices | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|
+| `/` | 91 | 100 | 100 | 100 | 3.5s | 0 | 0ms |
+| `/courses` | 95 | 100 | 100 | 100 | 3.0s | 0 | 0ms |
+| `/courses/latte-art` | 92 | 100 | 100 | 100 | 3.4s | 0 | 0ms |
+| `/enquire` | 93 | 100 | 100 | 100 | 3.2s | 0 | 0ms |
+
+Four real defects found and fixed: zod was shipping to the browser (about 50KB gz on every page);
+`/enquire` had a 0.238 layout shift from a Suspense fallback swapping the form in; the consent
+banner was the Largest Contentful Paint on course pages at 2.4s; and a missing favicon was the only
+thing holding Best Practices at 96.
+
 ---
 
 ## TBC for client
@@ -202,6 +238,14 @@ appears; no code change is needed.
   mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
   ladder's group headings carry the distinction. Worth a client decision if the badges are meant
   to be read on their own.
+- **LCP is 3.0s to 3.5s against the 2.5s budget**, measured by Lighthouse's simulated throttling
+  against an uncompressed localhost server. Measured directly in a throttled browser, the LCP
+  element on each route is real above-the-fold text painting in about 750ms. Re-measure against the
+  preview, where responses are Brotli-compressed and edge-cached, before treating it as a defect.
+- **First-load JS is 172KB gz against the 150KB budget.** About 150KB of that is the React 19 and
+  Next 16 App Router baseline. The application's own code is roughly 22KB over. The only remaining
+  lever is dropping Base UI's sheet for a CSS-only mobile nav, saving about 16KB at the cost of the
+  focus trap, Escape handling and focus restore, which is not a trade worth making.
 - **The mobile sheet's focus trap leaks on WebKit under Playwright.** Tabbing while the sheet is
   open reaches page controls behind it in the webkit and iPhone 14 projects, but not in Chromium.
   The sheet is the shadcn/Base UI primitive and must not be hand-edited. This may be an artefact of
