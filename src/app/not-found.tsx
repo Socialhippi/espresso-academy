@@ -26,7 +26,7 @@ export default function NotFound() {
         we will send you straight to it.
       </p>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         <ButtonLink href="/courses" variant="primary">
           See all courses
         </ButtonLink>

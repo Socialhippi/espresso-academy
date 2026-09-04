@@ -47,14 +47,14 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
           )}
         </div>
 
-        <div className="flex flex-1 flex-col p-5">
+        <div className="flex flex-1 flex-col p-6">
           <LevelBadge level={course.level} className="self-start" />
 
           <h3 className="mt-4 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
             {course.title}
           </h3>
 
-          <p className="mt-2 type-small text-grey">{course.outcome}</p>
+          <p className="mt-2 type-body text-grey">{course.outcome}</p>
 
           <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 type-small text-grey">
             <li className="flex items-center gap-2">

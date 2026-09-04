@@ -40,7 +40,7 @@ export function HomeHero({
               <span className="hero-gradient-text">{titleAccent}</span>
             </h1>
             <div className="mt-6 measure type-body text-grey">{subline}</div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
               {actions}
             </div>
           </div>
@@ -105,7 +105,7 @@ export function PageHero({
             <h1 className={cn("type-h1 text-black", eyebrow && "mt-3")}>{title}</h1>
             {intro && <div className="mt-5 measure type-body text-grey">{intro}</div>}
             {actions && (
-              <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
                 {actions}
               </div>
             )}

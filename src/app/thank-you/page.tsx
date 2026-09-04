@@ -41,7 +41,7 @@ export default function ThankYouPage() {
           "We reply on WhatsApp during academy hours. If you would rather not wait, open the chat below and we will pick it up there."}
       </p>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         <WhatsAppButton event="whatsapp_click_thankyou">Continue on WhatsApp</WhatsAppButton>
         <ButtonLink href="/courses" variant="secondary">
           See all courses

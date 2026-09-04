@@ -418,18 +418,8 @@
   max-width: 52ch;
 }
 
-/* Fade-up reveal, used sparingly and disabled under reduced motion by the base layer. */
-@utility reveal {
-  animation: reveal-fade-up var(--duration-slow) var(--ease-out-brand) both;
-}
-
-@keyframes reveal-fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
-}
+/* design.md allows a fade-up reveal on scroll. It is deliberately not implemented: it needs an
+   IntersectionObserver, which means another client component on a site already over its JS budget,
+   in exchange for decoration. The motion that does ship is CSS only, all of it tied to an
+   interaction the reader started: the arrow shift on a card, the underline on a link, the sheet,
+   the accordion and the sticky bar. All of it is disabled under prefers-reduced-motion. */

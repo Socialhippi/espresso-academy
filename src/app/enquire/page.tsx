@@ -55,7 +55,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
               {siteSettings.replyPromise ?? "We reply on WhatsApp during academy hours."}
             </p>
 
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
               <WhatsAppButton size="sm" event="whatsapp_click_enquire">
                 Or ask on WhatsApp
               </WhatsAppButton>

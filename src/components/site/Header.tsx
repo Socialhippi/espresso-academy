@@ -32,10 +32,10 @@ export function Header() {
           className="-m-1 flex min-w-0 shrink items-center gap-2 p-1 md:gap-3"
           aria-label="Espresso Academy India, home"
         >
-          <LogoMark className="h-9 w-auto md:h-10" sizes="(min-width: 768px) 40px, 36px" priority />
+          <LogoMark className="h-8 w-auto md:h-10" sizes="(min-width: 768px) 40px, 32px" priority />
           {/* Shown at every width. Hiding it on mobile would leave the mark alone, which is the
               exact legibility problem this composition exists to solve. */}
-          <span className="text-small font-medium tracking-wide text-black md:text-body">
+          <span className="text-body font-medium tracking-wide text-black">
             Espresso Academy India
           </span>
         </Link>

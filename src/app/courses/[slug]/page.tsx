@@ -112,7 +112,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               <LevelBadge level={course.level} />
               <h1 className="mt-4 type-h1 text-black">{course.title}</h1>
               <p className="mt-5 measure type-body text-grey">{course.outcome}</p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+              <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
                 <ButtonLink
                   href={`/enquire?course=${course.slug}`}
                   variant="primary"
@@ -134,7 +134,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
       </section>
 
       {/* Who it is for, and honestly who it is not. */}
-      <section className="section-y-sm" aria-labelledby="fit-heading">
+      <section className="section-y" aria-labelledby="fit-heading">
         <Container>
           <SectionHeading number="01" eyebrow="Fit" title="Is this the right one" id="fit-heading" />
           <div className="mt-10 grid gap-px border border-white-2 bg-white-2 md:grid-cols-2">
@@ -271,7 +271,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm" aria-labelledby="teach-heading">
+      <section className="section-y" aria-labelledby="teach-heading">
         <Container>
           <SectionHeading
             number="03"
@@ -362,21 +362,19 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm bg-white-3" aria-labelledby="course-faq-heading">
+      {/* Full width, not the 4/8 split: the ladder section directly above already uses it. */}
+      <section className="section-y bg-white-3" aria-labelledby="course-faq-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
-              <SectionHeading
-                number="06"
-                eyebrow="Questions"
-                title="About this course"
-                id="course-faq-heading"
-              />
-            </div>
-            <div className="md:col-span-8">
-              <FaqAccordion items={course.faq.map((item) => ({ ...item, category: "courses" }))} />
-            </div>
-          </div>
+          <SectionHeading
+            number="06"
+            eyebrow="Questions"
+            title="About this course"
+            id="course-faq-heading"
+          />
+          <FaqAccordion
+            className="mt-8"
+            items={course.faq.map((item) => ({ ...item, category: "courses" }))}
+          />
         </Container>
       </section>
 

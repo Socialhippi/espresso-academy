@@ -1,13 +1,9 @@
 # Performance audit, draft phase
 
-Lighthouse 12, mobile form factor, default simulated throttling (slow 4G, 4x CPU), run against
-`pnpm build && pnpm start` on localhost. Raw reports are the `lh-*.report.json` files beside this
-one.
-
-Localhost is the harshest realistic setting for these numbers: no CDN, no Brotli, no edge cache,
-and a cold Node server on the same machine as the headless browser. The preview deploy will be
-faster on every network-bound metric. Re-measure against the preview URL before treating any of
-this as final.
+Lighthouse 12, mobile form factor, default simulated throttling (slow 4G, 4x CPU). Measured twice:
+against `pnpm build && pnpm start` on localhost, and against the Vercel deployment. Both sets are
+below. Raw reports are the `lh-*.report.json` files beside this one; the deployment runs are
+`lh-deploy-*.report.json`.
 
 ## Scores
 
@@ -18,7 +14,19 @@ this as final.
 | `/courses/sca-barista-skills-foundation` (measured on `/courses/latte-art`) | **92** | **100** | **100** | **100** |
 | `/enquire` | **93** | **100** | **100** | **100** |
 
-## Core Web Vitals
+## Scores, against the Vercel deployment
+
+| Route | Performance | Accessibility | Best Practices | SEO | FCP | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|---|
+| `/` | **90** | **100** | **100** | **100** | 1.8s | 3.4s | **0** | **0ms** |
+| `/courses` | **96** | **100** | **100** | **100** | 1.0s | 2.8s | **0** | **0ms** |
+| `/courses/latte-art` | **90** | **100** | **100** | **100** | 1.5s | 3.3s | **0** | **0ms** |
+| `/enquire` | **94** | **100** | **100** | **100** | 0.9s | 3.0s | **0** | 10ms |
+
+The deployment is not materially faster than localhost, so the LCP figure below is a real
+measurement rather than an artefact of serving from a dev machine.
+
+## Core Web Vitals, localhost
 
 | Route | FCP | LCP | CLS | TBT | Speed Index |
 |---|---|---|---|---|---|
@@ -53,11 +61,24 @@ element and time on each route are:
 | `/courses/latte-art` | the course outcome paragraph | 744ms |
 | `/enquire` | the form standfirst | 724ms |
 
-So the element is real above-the-fold content and it paints in well under a second in a browser.
-The 3.0 to 3.5s figure is Lighthouse's *simulated* throttling model applied to an uncompressed
-localhost server. The gap should close substantially on the preview, where responses are
-Brotli-compressed and edge-cached. This needs re-measuring against the deployed URL, not treating
-as a code defect.
+So the element is real above-the-fold content, and in an actually-throttled browser it paints in
+well under a second. The 3.0 to 3.5s figure is Lighthouse's *simulated* throttling model, which
+charges the full simulated cost of every request on the critical path regardless of how fast the
+server answered.
+
+**The deployment measures the same**, 2.8s to 3.4s, so this is not a localhost artefact and should
+not be written off. What it is: a text LCP that has to wait for a font and a stylesheet on a
+simulated slow-4G connection. The levers left, in order of value:
+
+1. A real hero photograph will change the LCP element on the homepage from text to an image, which
+   can be preloaded and served as AVIF. Today it is a placeholder, so the H1 is the LCP.
+2. `font-display: optional` instead of `swap` would let the first paint use the metric-matched
+   fallback and never block, at the cost of the real face not appearing on a slow first visit.
+   Worth testing once real photography is in.
+3. Inlining the stylesheet was tried and measured worse. See below.
+
+None of these is worth doing before the client's photography lands, because the photography changes
+what the LCP element is on most pages.
 
 ### Initial JS: 172KB gz against a 150KB target
 

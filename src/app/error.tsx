@@ -27,7 +27,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         academy on WhatsApp. Someone will answer with whatever you were looking for.
       </p>
 
-      <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+      <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
         <Button variant="primary" onClick={reset}>
           Try again
         </Button>

@@ -249,7 +249,7 @@ export const courses: Course[] = [
   {
     slug: "latte-art",
     title: "Latte Art",
-    skillArea: "latte-art", level: "open", levelLabel: "All levels",
+    skillArea: "latte-art", level: "open", levelLabel: "Open level",
     certification: null, certificateAwardedLabel: null,
     format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
     outcome: "Steam, pour and control: from a clean heart to rosettas and tulips, with the milk science behind them.",
@@ -262,7 +262,7 @@ export const courses: Course[] = [
   {
     slug: "brewing",
     title: "Brewing",
-    skillArea: "brewing", level: "open", levelLabel: "All levels",
+    skillArea: "brewing", level: "open", levelLabel: "Open level",
     certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Brewing",
     format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
     outcome: "Understand extraction, ratios, grind and water across pour-over, immersion and batch brewing.",
@@ -275,7 +275,7 @@ export const courses: Course[] = [
   {
     slug: "roasting-and-cupping",
     title: "Roasting and Cupping",
-    skillArea: "roasting-cupping", level: "open", levelLabel: "All levels",
+    skillArea: "roasting-cupping", level: "open", levelLabel: "Open level",
     certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Roasting and Sensory Skills",
     format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
     outcome: "Roast profiles, defects and cupping protocol, taught by faculty with Q Grader and Q Processing credentials.",
@@ -306,5 +306,5 @@ export const levelBadge: Record<Level, { label: string; className: string }> = {
   professional: { label: "Professional", className: "bg-purple text-white" },
   junior: { label: "IBC Junior", className: "bg-mustard text-black" },
   advanced: { label: "IBC Advanced", className: "bg-blue text-white" },
-  open: { label: "All levels", className: "bg-white-2 text-black" },
+  open: { label: "Open level", className: "bg-white-2 text-black" },
 };

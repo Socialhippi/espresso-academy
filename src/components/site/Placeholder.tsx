@@ -83,7 +83,7 @@ export function Placeholder({
       */}
       <div className="absolute inset-0 grid place-items-center">
         <LogoMark
-          className={cn("h-2/5 w-auto", dark ? "opacity-20" : "opacity-10")}
+          className={cn("h-1/5 w-auto", dark ? "opacity-20" : "opacity-10")}
           sizes="(min-width: 768px) 160px, 96px"
           priority={priority}
         />

@@ -177,7 +177,7 @@ export function EnquiryForm({
             ? "It is with the academy now. Someone will reply on WhatsApp or call the number you gave us."
             : "It is logged. The fastest reply is on WhatsApp, so carry it over and the academy will answer there."}
         </p>
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+        <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <WhatsAppButton course={courseTitle} batch={batch || undefined} event="whatsapp_click_success">
             Continue on WhatsApp
           </WhatsAppButton>

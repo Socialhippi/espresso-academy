@@ -58,13 +58,12 @@ export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) 
           {doors.map((door) => (
             <li key={door.href} className="group bg-white">
               <Link href={door.href} className="flex h-full flex-col p-6 md:p-8">
-                <span className="type-numeral text-h2 text-red" aria-hidden="true">
-                  {door.number}
-                </span>
-                <h3 className="mt-4 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                {/* No card numeral: the section eyebrow already carries a red Bebas number, and
+                    two numbering systems in one section compete. */}
+                <h3 className="type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                   {door.title}
                 </h3>
-                <p className="mt-3 type-small text-grey">{door.body}</p>
+                <p className="mt-3 type-body text-grey">{door.body}</p>
                 <span className="mt-auto flex items-center gap-2 pt-8 type-label text-red">
                   {door.cta}
                   <ArrowRight

@@ -60,7 +60,9 @@ export function ConsentBanner() {
     <div
       role="region"
       aria-label="Cookie choices"
-      className="fixed inset-x-0 bottom-24 z-60 md:bottom-0"
+      // Flush to the bottom. Offsetting for the sticky bar left it floating above a gap of
+      // empty page, because the bar stays hidden until 300px of scroll.
+      className="fixed inset-x-0 bottom-0 z-60"
     >
       <Container>
         <div className="rounded-sm border border-white-2 bg-white p-5 shadow-sm md:mb-6 md:flex md:items-center md:justify-between md:gap-8">

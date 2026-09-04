@@ -78,9 +78,24 @@ export default function AboutPage() {
             </ButtonLink>
           </>
         }
+        aside={
+          <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
+            {[
+              { term: "Founded, Florence", value: String(siteSettings.foundedFlorence) },
+              { term: "Launched, Bengaluru", value: String(siteSettings.launchedBengaluru) },
+              { term: "Certificates", value: "2" },
+              { term: "Campus", value: "RMV 2nd Stage" },
+            ].map((fact) => (
+              <div key={fact.term} className="border-t border-white-2 pt-4">
+                <dt className="type-label text-grey">{fact.term}</dt>
+                <dd className="mt-2 type-numeral text-h2 text-black">{fact.value}</dd>
+              </div>
+            ))}
+          </dl>
+        }
       />
 
-      <section className="section-y-sm" aria-labelledby="method-heading">
+      <section className="section-y" aria-labelledby="method-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
@@ -131,7 +146,7 @@ export default function AboutPage() {
               <p className="mt-4 type-small text-grey">
                 The campus is on 80 Feet Road in RMV 2nd Stage, near Ramaiah Hospital.
               </p>
-              <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                 <ButtonLink href={siteSettings.address.mapsUrl} variant="secondary" size="sm" external>
                   Open in Google Maps
                 </ButtonLink>
@@ -155,7 +170,7 @@ export default function AboutPage() {
         </Container>
       </section>
 
-      <section className="section-y-sm" aria-labelledby="gallery-heading">
+      <section className="section-y" aria-labelledby="gallery-heading">
         <Container>
           <SectionHeading
             number="03"
@@ -164,10 +179,20 @@ export default function AboutPage() {
             id="gallery-heading"
             description="Photographs from the campus. The photoshoot is done and the files are pending, so these are labelled placeholders rather than stock images."
           />
-          <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {galleryslots.map((slot) => (
-              <li key={slot}>
-                <Placeholder slot={slot} aspect="photo" />
+          {/* A mosaic, not an even grid: the trainer grid directly below is already three even
+              columns, and two equal grids back to back is the layout repetition the de-template
+              pass exists to remove. */}
+          <ul className="mt-10 grid gap-4 md:grid-cols-6">
+            {galleryslots.map((slot, index) => (
+              <li
+                key={slot}
+                className={index === 0 ? "md:col-span-4 md:row-span-2" : "md:col-span-2"}
+              >
+                <Placeholder
+                  slot={slot}
+                  aspect={index === 0 ? "wide" : "photo"}
+                  className={index === 0 ? "md:h-full" : undefined}
+                />
               </li>
             ))}
           </ul>
@@ -192,7 +217,7 @@ export default function AboutPage() {
       </section>
 
       {/* The honesty paragraph, required by .claude/rules/content.md wherever certificates come up. */}
-      <section className="section-y-sm" aria-labelledby="honesty-heading">
+      <section className="section-y" aria-labelledby="honesty-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">

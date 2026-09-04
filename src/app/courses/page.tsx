@@ -10,6 +10,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { PageHero } from "@/components/sections/Hero";
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FinalCta } from "@/components/sections/FinalCta";
+import { Placeholder } from "@/components/site/Placeholder";
 import { CourseCard } from "@/components/course/CourseCard";
 import { CourseFilters } from "@/components/course/CourseFilters";
 import { LevelLadder } from "@/components/course/LevelLadder";
@@ -49,6 +50,28 @@ function parseArea(value: string | undefined, allowed: SkillArea[]): SkillArea |
 function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
+
+/** The three routes through the course list. Facts only; every gap is named as unpublished. */
+const howToChoose = [
+  {
+    title: "If you want a barista job",
+    body: "Start with IBC Junior or Barista Skills Foundation. IBC Junior leads to the Italian Barista Certificate (IBC), issued by Espresso Academy, Florence. Barista Skills Foundation is training aligned to the SCA Coffee Skills Program. Neither assumes you have used a machine before.",
+    href: "/courses?level=foundation",
+    cta: "See foundation courses",
+  },
+  {
+    title: "If you run or are opening a cafe",
+    body: "Barista Skills Intermediate and Professional are the upper two rungs. Roasting and Cupping covers the roasting and cupping side, and the faculty hold Q Grader and CQI Q Processing credentials. Whether the academy runs cafe or team training is not published, so ask.",
+    href: "/contact?topic=cafe",
+    cta: "Ask about team training",
+  },
+  {
+    title: "If you just love coffee",
+    body: "Latte Art and Brewing are open to any level, so you do not need to work in a cafe first. The fee, duration and dates for both are not published yet.",
+    href: "/courses?level=open",
+    cta: "See open-level courses",
+  },
+];
 
 export default async function CoursesPage({ searchParams }: PageProps<"/courses">) {
   const params = await searchParams;
@@ -112,6 +135,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             See the batch calendar
           </ButtonLink>
         }
+        aside={<Placeholder slot="courses-hub" aspect="photo" priority />}
       />
 
       <section className="section-y-sm" aria-labelledby="course-list-heading">
@@ -151,63 +175,43 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         </Container>
       </section>
 
+      {/*
+        Deliberately not a three-up card grid. That is what AudienceDoors is on the homepage, and
+        repeating the same module a section after the card grid above is the clearest template tell
+        on the site. The guidance is the same; the composition is heading-left, rows-right.
+      */}
       <section className="section-y bg-white-3" aria-labelledby="choose-heading">
         <Container>
-          <SectionHeading
-            number="01"
-            eyebrow="How to choose"
-            title="Which one is yours"
-            id="choose-heading"
-          />
-          <div className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 md:grid-cols-3">
-            <div className="bg-white p-6 md:p-8">
-              <h3 className="type-h3 text-black">If you want a barista job</h3>
-              <p className="mt-3 type-small text-grey">
-                Start with IBC Junior or Barista Skills Foundation. IBC Junior leads to the Italian
-                Barista Certificate (IBC), issued by Espresso Academy, Florence. Barista Skills
-                Foundation is training aligned to the SCA Coffee Skills Program. Neither assumes
-                you have used a machine before.
-              </p>
-              <p className="mt-4">
-                <Link
-                  href="/courses?level=foundation"
-                  className="type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                >
-                  See foundation courses
-                </Link>
-              </p>
+          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
+            <div className="md:col-span-4">
+              <SectionHeading
+                number="01"
+                eyebrow="How to choose"
+                title="Which one is yours"
+                id="choose-heading"
+                description="Three routes through the same eight courses. Pick the one that sounds like where you are now, not where you want to end up."
+              />
             </div>
-            <div className="bg-white p-6 md:p-8">
-              <h3 className="type-h3 text-black">If you run or are opening a cafe</h3>
-              <p className="mt-3 type-small text-grey">
-                Barista Skills Intermediate and Professional are the upper two rungs. Roasting and
-                Cupping covers the roasting and cupping side, and the faculty hold Q Grader and CQI
-                Q Processing credentials. Whether the academy runs cafe or team training is not
-                published, so ask.
-              </p>
-              <p className="mt-4">
-                <Link
-                  href="/contact?topic=cafe"
-                  className="type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                >
-                  Ask about team training
-                </Link>
-              </p>
-            </div>
-            <div className="bg-white p-6 md:p-8">
-              <h3 className="type-h3 text-black">If you just love coffee</h3>
-              <p className="mt-3 type-small text-grey">
-                Latte Art and Brewing are listed at all levels, so you do not need to work in a
-                cafe first. The fee, duration and dates for both are not published yet.
-              </p>
-              <p className="mt-4">
-                <Link
-                  href="/courses?level=open"
-                  className="type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                >
-                  See open-level courses
-                </Link>
-              </p>
+            <div className="md:col-span-8">
+              <ol className="divide-y divide-white-2 border-y border-white-2">
+                {howToChoose.map((route, index) => (
+                  <li key={route.href} className="flex gap-6 py-6 md:gap-8">
+                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
+                    <span>
+                      <span className="block type-h3 text-black">{route.title}</span>
+                      <span className="mt-2 block measure type-body text-grey">{route.body}</span>
+                      <Link
+                        href={route.href}
+                        className="mt-3 inline-flex min-h-11 items-center type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                      >
+                        {route.cta}
+                      </Link>
+                    </span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         </Container>
@@ -235,7 +239,10 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       <section className="section-y-sm" aria-labelledby="fees-heading">
         <Container>
           <SectionHeading number="03" eyebrow="Fees" title="What each course costs" id="fees-heading" />
-          <div className="mt-8 table-scroll">
+          <p className="mt-4 type-small text-grey md:hidden">
+            Scroll the table sideways to reach the fee column.
+          </p>
+          <div className="mt-4 table-scroll md:mt-8">
             <table className="w-full min-w-2xl border-collapse text-left">
               <caption className="sr-only">
                 Fee, level and duration for every course at the Bengaluru campus

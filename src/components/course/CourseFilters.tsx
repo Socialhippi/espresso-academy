@@ -45,9 +45,14 @@ export function CourseFilters({
   return (
     <div className={cn("flex flex-col gap-6", className)}>
       <div>
-        <h2 className="type-label text-grey" id="filter-level">
+        {/* The heading carries the structure; the visible label carries the style. An H2 set at
+            12px would be the smallest type on the page, which inverts the hierarchy. */}
+        <h2 className="sr-only" id="filter-level">
           Filter by level
         </h2>
+        <p aria-hidden="true" className="type-label text-grey">
+          Filter by level
+        </p>
         <ul aria-labelledby="filter-level" className="mt-3 flex flex-wrap gap-2">
           <li>
             <Link
@@ -76,9 +81,12 @@ export function CourseFilters({
       </div>
 
       <div>
-        <h2 className="type-label text-grey" id="filter-area">
+        <h2 className="sr-only" id="filter-area">
           Filter by skill area
         </h2>
+        <p aria-hidden="true" className="type-label text-grey">
+          Filter by skill area
+        </p>
         <ul aria-labelledby="filter-area" className="mt-3 flex flex-wrap gap-2">
           <li>
             <Link

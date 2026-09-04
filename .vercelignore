@@ -1,0 +1,16 @@
+# Nothing here is needed to build or serve the site; excluding it keeps the upload small.
+# content/, design/ and docs/*.md stay: content/ is the site's data and the others are the
+# reference a developer picking this up will look for first.
+docs/screens
+docs/audits
+tests
+scripts
+playwright.config.ts
+playwright-report
+test-results
+.playwright-mcp
+
+# Never upload local env files: .env.local pins NEXT_PUBLIC_SITE_URL to localhost, which would
+# make every canonical, OG image and JSON-LD @id on the deployment point at a dev machine. It also
+# now holds a VERCEL_OIDC_TOKEN.
+.env*.local

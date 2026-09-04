@@ -2,7 +2,7 @@ import Link from "next/link";
 import { TbcPill } from "@/components/site/TbcPill";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
-import { formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
+import { formatLabel, getCertification, getNextInstanceForCourse, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface SpecStripProps {
@@ -57,10 +57,12 @@ export function SpecStrip({ course, className }: SpecStripProps) {
             href={`/certifications/${course.certification}`}
             className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
           >
-            {course.certificateAwardedLabel ?? "Certificate details"}
+            {/* The short name: the full awarded label runs to four lines here against one-line
+                neighbours and breaks the strip. It is stated in full in the body. */}
+            {getCertification(course.certification)?.shortName ?? "Certificate"}
           </Link>
         ) : (
-          "None issued for this course"
+          "None issued"
         )}
       </Spec>
 

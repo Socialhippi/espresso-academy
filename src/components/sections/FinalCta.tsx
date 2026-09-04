@@ -49,7 +49,7 @@ export function FinalCta({
           </div>
           <div className="md:col-span-5">
             <div className="measure type-body text-grey-2">{body}</div>
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
               <ButtonLink href={href} variant="primary" data-event="enquire_click_final">
                 {ctaLabel}
               </ButtonLink>
