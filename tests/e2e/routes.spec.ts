@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import {
+  acceptConsent,
   allRoutes,
   horizontalOverflow,
   isMobileProject,
@@ -28,9 +29,12 @@ test.describe("every route", () => {
   }
 
   for (const route of routes) {
-    test(`${route.path} carries the sticky bar rule`, async ({ page }, testInfo) => {
+    test(`${route.path} carries the sticky bar rule`, async ({ page, context, baseURL }, testInfo) => {
       test.skip(!isMobileProject(testInfo), "The sticky bar is mobile only.");
 
+      // The bar holds itself back until the consent banner is gone: both are fixed to the same
+      // corner of the viewport, and the bar carries the primary actions.
+      await acceptConsent(context, baseURL as string);
       await page.goto(route.path);
       const bar = page.getByTestId("sticky-bar");
 
@@ -128,4 +132,31 @@ test.describe("headings", () => {
       }
     });
   }
+});
+
+test.describe("the consent banner and the sticky bar share the bottom of the viewport", () => {
+  test("the bar stays hidden until the choice is made, then appears", async ({ page }, testInfo) => {
+    test.skip(!isMobileProject(testInfo), "Both are mobile only.");
+
+    // No consent cookie: the banner is up.
+    await page.goto("/courses");
+    const banner = page.getByRole("region", { name: "Cookie choices" });
+    await expect(banner).toBeVisible();
+
+    const bar = page.getByTestId("sticky-bar");
+    await page.evaluate(() => window.scrollTo(0, 900));
+    await expect(
+      bar,
+      "the bar must not appear underneath the banner, which would hide WhatsApp, Call and Reserve",
+    ).toHaveAttribute("data-visible", "false");
+
+    await page.getByRole("button", { name: "That is fine" }).click();
+    await expect(banner).toHaveCount(0);
+    await expect(bar).toHaveAttribute("data-visible", "true");
+
+    // And the bar is genuinely on top of nothing: its three actions are hit-testable.
+    for (const name of ["WhatsApp", "Call", "Courses"]) {
+      await expect(bar.getByRole("link", { name, exact: true })).toBeVisible();
+    }
+  });
 });

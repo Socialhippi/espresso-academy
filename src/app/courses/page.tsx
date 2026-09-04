@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/Container";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ButtonLink } from "@/components/site/Button";
+import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { TbcPill } from "@/components/site/TbcPill";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { JsonLd } from "@/components/site/JsonLd";
@@ -131,11 +132,17 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
           </>
         }
         actions={
-          <ButtonLink href="/calendar" variant="secondary">
-            See the batch calendar
-          </ButtonLink>
+          <>
+            <ButtonLink href="/enquire" variant="primary" data-event="enquire_click_courses">
+              Ask which course fits
+            </ButtonLink>
+            <ButtonLink href="/calendar" variant="secondary">
+              See the batch calendar
+            </ButtonLink>
+          </>
         }
-        aside={<Placeholder slot="courses-hub" aspect="photo" priority />}
+        /* Portrait, not 3:2: a 315px frame against a 530px text column leaves a void beneath it. */
+        aside={<Placeholder slot="courses-hub" aspect="portrait" priority />}
       />
 
       <section className="section-y-sm" aria-labelledby="course-list-heading">
@@ -159,9 +166,12 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 Clear the filters to see every course, or ask the academy whether it runs what you
                 are looking for.
               </p>
-              <ButtonLink href="/courses" variant="primary" size="sm" className="mt-6">
-                Show all courses
-              </ButtonLink>
+              <div className="mt-6 flex flex-wrap gap-4">
+                <ButtonLink href="/courses" variant="primary" size="sm">
+                  Show all courses
+                </ButtonLink>
+                <WhatsAppButton size="sm" event="whatsapp_click_no_results" />
+              </div>
             </div>
           ) : (
             <ul className="mt-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -217,22 +227,18 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         </Container>
       </section>
 
+      {/* Full width. The section above it is already a 4/8 split, and the ladder's five badges
+          want the horizontal room. */}
       <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
-              <SectionHeading
-                number="02"
-                eyebrow="Levels"
-                title="The two ladders"
-                id="ladder-heading"
-                description="Foundation to Professional on the SCA side, Junior to Advanced on the IBC side. They run in parallel."
-              />
-            </div>
-            <div className="md:col-span-8">
-              <LevelLadder current={activeLevel ?? undefined} />
-            </div>
-          </div>
+          <SectionHeading
+            number="02"
+            eyebrow="Levels"
+            title="The two ladders"
+            id="ladder-heading"
+            description="Foundation to Professional on the SCA side, Junior to Advanced on the IBC side. They run in parallel."
+          />
+          <LevelLadder current={activeLevel ?? undefined} className="mt-10" />
         </Container>
       </section>
 
@@ -324,7 +330,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 <p className="mt-6">
                   <Link
                     href={`/certifications/${certification.slug}`}
-                    className="type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                    className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                   >
                     Read about the {certification.shortName}
                   </Link>

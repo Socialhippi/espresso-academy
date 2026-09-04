@@ -96,7 +96,7 @@ export default function CertificationsPage() {
                       <span className="block type-h3 text-black">{certification.name}</span>
                       <Link
                         href={`/certifications/${certification.slug}`}
-                        className="mt-2 inline-block type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                        className="mt-2 inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                       >
                         Read the full page
                       </Link>

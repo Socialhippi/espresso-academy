@@ -271,7 +271,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y" aria-labelledby="teach-heading">
+      <section className="section-y-sm" aria-labelledby="teach-heading">
         <Container>
           <SectionHeading
             number="03"
@@ -335,7 +335,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               {nextCourse ? (
                 <Link
                   href={`/courses/${nextCourse.slug}`}
-                  className="group mt-8 flex items-center justify-between gap-4 border border-white-2 p-5 transition-colors duration-200 hover:border-black"
+                  className="group mt-8 flex items-center justify-between gap-4 border border-white-2 p-5 transition-[color,background-color,border-color] duration-200 hover:border-black"
                 >
                   <span>
                     <span className="block type-label text-grey">Next in the ladder</span>
@@ -371,8 +371,9 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             title="About this course"
             id="course-faq-heading"
           />
+          {/* Capped: at 1200px a question's chevron sits a thousand pixels from its text. */}
           <FaqAccordion
-            className="mt-8"
+            className="mt-8 max-w-4xl"
             items={course.faq.map((item) => ({ ...item, category: "courses" }))}
           />
         </Container>

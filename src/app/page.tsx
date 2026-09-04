@@ -69,7 +69,7 @@ export default function HomePage() {
 
       <AudienceDoors number="01" />
 
-      <NextBatches number="02" />
+      <NextBatches number="02" className="section-y-sm" />
 
       {/* Asymmetric: the explanation holds the left, the ladder the right. */}
       <section className="section-y" aria-labelledby="ladder-heading">
@@ -96,7 +96,7 @@ export default function HomePage() {
         </Container>
       </section>
 
-      <section className="section-y bg-white-3" aria-labelledby="trainers-heading">
+      <section className="section-y-sm bg-white-3" aria-labelledby="trainers-heading">
         <Container>
           <SectionHeading
             number="04"
@@ -116,7 +116,7 @@ export default function HomePage() {
 
       <StoryGrid number="05" />
 
-      <section className="section-y bg-white-3" aria-labelledby="faq-heading">
+      <section className="section-y-sm bg-white-3" aria-labelledby="faq-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">

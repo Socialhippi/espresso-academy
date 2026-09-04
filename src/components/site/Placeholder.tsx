@@ -46,6 +46,9 @@ export function Placeholder({
         className,
       )}
     >
+      {/* preserveAspectRatio="none" stretches the geometry to the frame, which is what the corner
+          ticks want, but it also stretched the red rule to a different length in every frame. The
+          rule is drawn separately below, in real pixels. */}
       <svg
         aria-hidden="true"
         focusable="false"
@@ -61,18 +64,12 @@ export function Placeholder({
           className={dark ? "stroke-black-2" : "stroke-white-2"}
           vectorEffect="non-scaling-stroke"
         />
-        {/* The single red rule, at the top so it never runs through the slot label, which wraps
-            to two lines on a narrow card. On the dark tone it stays a rule, never text. */}
-        <line
-          x1="10"
-          y1="14"
-          x2="34"
-          y2="14"
-          strokeWidth="1"
-          className="stroke-red"
-          vectorEffect="non-scaling-stroke"
-        />
       </svg>
+
+      {/* The single red rule, the same length in every frame, at the top so it never runs through
+          the slot label, which wraps to two lines on a narrow card. On the dark tone it stays a
+          rule, never text. */}
+      <span aria-hidden="true" className="absolute top-6 left-3 block h-px w-10 bg-red" />
 
       {/*
         The master prompt specifies the mark at 20% opacity. That holds on the black ground, but on

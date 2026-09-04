@@ -10,7 +10,7 @@ import { cn } from "@/lib/utils";
 
 export const fieldControlClass =
   "w-full rounded-xs border border-white-2 bg-white-3 px-3 text-body text-black " +
-  "placeholder:text-grey transition-colors duration-200 " +
+  "placeholder:text-grey transition-[color,background-color,border-color] duration-200 " +
   "aria-[invalid=true]:border-red-deep aria-[invalid=true]:bg-white";
 
 export const fieldInputClass = cn(fieldControlClass, "h-12");

@@ -7,6 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ArrowRight, Phone } from "lucide-react";
 import { WhatsAppGlyph } from "@/components/site/WhatsAppGlyph";
+import { useConsent } from "@/lib/consent";
 import { shouldShowStickyBar } from "@/lib/nav";
 import { siteSettings } from "@/lib/content";
 import { telHref, whatsappUrl } from "@/lib/format";
@@ -30,7 +31,7 @@ interface StickyBarProps {
 const SHOW_AFTER_PX = 300;
 
 const segmentClass =
-  "flex h-16 flex-1 flex-col items-center justify-center gap-1 type-label transition-colors duration-200";
+  "flex h-16 flex-1 flex-col items-center justify-center gap-1 type-label transition-[color,background-color,border-color] duration-200";
 
 /**
  * Mobile-only bottom bar: WhatsApp, Call, and a contextual third action. Appears once the header
@@ -38,13 +39,14 @@ const segmentClass =
  */
 export function StickyBar({ courseBar }: StickyBarProps) {
   const pathname = usePathname();
-  const [visible, setVisible] = useState(false);
+  const consent = useConsent();
+  const [scrolledPast, setScrolledPast] = useState(false);
 
   useEffect(() => {
     let frame = 0;
     const update = (): void => {
       frame = 0;
-      setVisible(window.scrollY > SHOW_AFTER_PX);
+      setScrolledPast(window.scrollY > SHOW_AFTER_PX);
     };
     const onScroll = (): void => {
       if (frame === 0) frame = window.requestAnimationFrame(update);
@@ -58,6 +60,13 @@ export function StickyBar({ courseBar }: StickyBarProps) {
   }, []);
 
   if (!shouldShowStickyBar(pathname)) return null;
+
+  /*
+   * The consent banner is fixed to the same corner of the viewport. Whichever renders on top hides
+   * the other, and the bar carries WhatsApp, Call and Reserve, so it waits rather than competes.
+   * The banner is dismissed in one tap and never returns.
+   */
+  const visible = scrolledPast && consent !== null;
 
   const courseSlug = pathname.startsWith("/courses/") ? pathname.slice("/courses/".length) : null;
   const course = courseSlug ? courseBar[courseSlug] : undefined;

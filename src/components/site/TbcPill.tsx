@@ -16,7 +16,7 @@ export function TbcPill({ className, label = "TBC" }: TbcPillProps) {
     <span
       title={TBC_TITLE}
       className={cn(
-        "inline-flex items-center rounded-pill bg-white-2 px-2.5 py-1 type-label text-black",
+        "inline-flex items-center rounded-pill bg-white-2 px-3 py-1 type-label text-black",
         className,
       )}
     >

@@ -52,7 +52,7 @@ export const buttonClasses = cva(
         /** Fills the width of its column, used in the sheet and on mobile forms. */
         block: "h-12 w-full px-6 text-body",
         /** Text link. Vertical padding only, so it stays flush left and still clears 44px. */
-        inline: "h-auto py-2.5 text-body",
+        inline: "h-auto py-3 text-body",
       },
     },
     defaultVariants: { variant: "primary", size: "default" },

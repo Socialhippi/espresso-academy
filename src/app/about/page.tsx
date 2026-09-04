@@ -11,6 +11,7 @@ import { PageHero } from "@/components/sections/Hero";
 import { TrainerGrid } from "@/components/sections/TrainerGrid";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { getTrainers, siteSettings } from "@/lib/content";
+import { cn } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
@@ -81,14 +82,16 @@ export default function AboutPage() {
         aside={
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
             {[
-              { term: "Founded, Florence", value: String(siteSettings.foundedFlorence) },
-              { term: "Launched, Bengaluru", value: String(siteSettings.launchedBengaluru) },
-              { term: "Certificates", value: "2" },
-              { term: "Campus", value: "RMV 2nd Stage" },
+              { term: "Founded, Florence", value: String(siteSettings.foundedFlorence), word: false },
+              { term: "Launched, Bengaluru", value: String(siteSettings.launchedBengaluru), word: false },
+              { term: "Certificates", value: "2", word: false },
+              { term: "Campus", value: "RMV 2nd Stage", word: true },
             ].map((fact) => (
               <div key={fact.term} className="border-t border-white-2 pt-4">
                 <dt className="type-label text-grey">{fact.term}</dt>
-                <dd className="mt-2 type-numeral text-h2 text-black">{fact.value}</dd>
+                <dd className={fact.word ? "mt-2 type-h3 text-black" : "mt-2 type-numeral text-h2 text-black"}>
+                  {fact.value}
+                </dd>
               </div>
             ))}
           </dl>
@@ -106,17 +109,20 @@ export default function AboutPage() {
                 id="method-heading"
               />
             </div>
+            {/* Numerals inline with the heading, not in a left gutter: /courses already uses the
+                gutter form, and repeating a composition across pages is the same template tell as
+                repeating a component. */}
             <div className="md:col-span-8">
-              <ol className="divide-y divide-white-2 border-y border-white-2">
+              <ol className="flex flex-col gap-10">
                 {method.map((step) => (
-                  <li key={step.number} className="flex gap-6 py-6">
-                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
-                      {step.number}
-                    </span>
-                    <span>
-                      <span className="block type-h3 text-black">{step.title}</span>
-                      <span className="mt-2 block measure type-body text-grey">{step.body}</span>
-                    </span>
+                  <li key={step.number} className="hairline pt-5">
+                    <h3 className="flex items-baseline gap-4 type-h3 text-black">
+                      <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                        {step.number}
+                      </span>
+                      {step.title}
+                    </h3>
+                    <p className="mt-3 measure type-body text-grey">{step.body}</p>
                   </li>
                 ))}
               </ol>
@@ -186,7 +192,13 @@ export default function AboutPage() {
             {galleryslots.map((slot, index) => (
               <li
                 key={slot}
-                className={index === 0 ? "md:col-span-4 md:row-span-2" : "md:col-span-2"}
+                /* Only three frames on a phone: six stacked placeholders above the three trainer
+                   cards turned 42% of the page into identical empty boxes. All six return with
+                   the photography, where they are worth the scroll. */
+                className={cn(
+                  index === 0 ? "md:col-span-4 md:row-span-2" : "md:col-span-2",
+                  index > 2 && "max-md:hidden",
+                )}
               >
                 <Placeholder
                   slot={slot}

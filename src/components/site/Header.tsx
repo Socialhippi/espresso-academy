@@ -29,7 +29,7 @@ export function Header() {
         */}
         <Link
           href="/"
-          className="-m-1 flex min-w-0 shrink items-center gap-2 p-1 md:gap-3"
+          className="-m-1.5 flex min-w-0 shrink items-center gap-2 p-1.5 md:gap-3"
           aria-label="Espresso Academy India, home"
         >
           <LogoMark className="h-8 w-auto md:h-10" sizes="(min-width: 768px) 40px, 32px" priority />

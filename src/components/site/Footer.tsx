@@ -10,8 +10,8 @@ import { learnMoreNav, legalNav } from "@/lib/nav";
 
 /** min-h-11 keeps every footer link at the 44px touch target the a11y rules set. */
 const footerLinkClass =
-  "inline-flex min-h-11 items-center text-grey-2 underline decoration-black-2 underline-offset-4 " +
-  "transition-colors duration-200 hover:text-white hover:decoration-white";
+  "inline-flex min-h-11 min-w-11 items-center text-grey-2 underline decoration-black-2 underline-offset-4 " +
+  "transition-[color,background-color,border-color] duration-200 hover:text-white hover:decoration-white";
 
 /** Black ground with the on-black lockup. The footer is the second permitted dark area. */
 export function Footer() {

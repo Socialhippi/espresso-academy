@@ -31,7 +31,7 @@ function Rung({ level, current, onDark }: RungProps) {
   const body = (
     <span
       className={cn(
-        "flex min-h-11 flex-1 flex-col justify-center gap-2 border p-4 transition-colors duration-200",
+        "flex min-h-11 flex-1 flex-col justify-center gap-2 border p-4 transition-[color,background-color,border-color] duration-200",
         onDark ? "border-black-2" : "border-white-2",
         current && (onDark ? "bg-black-2" : "bg-white-3"),
         first && !onDark && "hover:border-black",

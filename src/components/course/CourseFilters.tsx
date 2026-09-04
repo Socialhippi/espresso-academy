@@ -13,7 +13,7 @@ interface CourseFiltersProps {
 }
 
 const chipClass =
-  "inline-flex h-11 items-center rounded-xs border px-4 type-label transition-colors duration-200";
+  "inline-flex h-11 items-center rounded-xs border px-4 type-label transition-[color,background-color,border-color] duration-200";
 
 const activeClass = "border-red bg-red-tint text-black";
 const restingClass = "border-white-2 bg-white text-grey hover:border-black hover:text-black";

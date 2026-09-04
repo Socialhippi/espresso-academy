@@ -24,12 +24,14 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
   const nextInstance = getNextInstanceForCourse(course);
   const hasFee = course.feeInclGst !== null;
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
+  const allSpecsUnknown =
+    !hasDuration && !hasFee && course.format === null && !nextInstance?.startDate;
 
   return (
     <article className={cn("group h-full", className)}>
       <Link
         href={`/courses/${course.slug}`}
-        className="flex h-full flex-col border border-white-2 bg-white transition-colors duration-200 hover:border-black"
+        className="flex h-full flex-col border border-white-2 bg-white transition-[color,background-color,border-color] duration-200 hover:border-black"
       >
         <div className="relative">
           {course.heroImage ? (
@@ -56,26 +58,37 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
 
           <p className="mt-2 type-body text-grey">{course.outcome}</p>
 
-          <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 type-small text-grey">
-            <li className="flex items-center gap-2">
-              <span className="type-label text-grey">Duration</span>
-              {hasDuration ? (
-                <span className="text-black">
-                  {formatDuration(course.durationDays, course.durationHours)}
-                </span>
-              ) : (
-                <TbcPill />
-              )}
-            </li>
-            <li className="flex items-center gap-2">
-              <span className="type-label text-grey">Format</span>
-              {course.format ? (
-                <span className="text-black">{formatLabel[course.format]}</span>
-              ) : (
-                <TbcPill />
-              )}
-            </li>
-          </ul>
+          {/*
+            When the academy has confirmed nothing, four grey pills per card times eight cards is
+            thirty-two pills across the hub, and the unknowns end up dominating the card. One line
+            says the same thing. The full spec row returns the moment any value lands.
+          */}
+          {allSpecsUnknown ? (
+            <p className="mt-4 flex flex-wrap items-center gap-2 type-small text-grey">
+              Duration, format, fee and dates <TbcPill />
+            </p>
+          ) : (
+            <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 type-small text-grey">
+              <li className="flex items-center gap-2">
+                <span className="type-label text-grey">Duration</span>
+                {hasDuration ? (
+                  <span className="text-black">
+                    {formatDuration(course.durationDays, course.durationHours)}
+                  </span>
+                ) : (
+                  <TbcPill />
+                )}
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="type-label text-grey">Format</span>
+                {course.format ? (
+                  <span className="text-black">{formatLabel[course.format]}</span>
+                ) : (
+                  <TbcPill />
+                )}
+              </li>
+            </ul>
+          )}
 
           <p className="mt-3 type-small text-grey">
             <span className="type-label text-grey">Certificate</span>{" "}
@@ -86,29 +99,33 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
 
           <div className="mt-auto flex items-end justify-between gap-4 pt-6">
             <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-              <p>
-                <span className="block type-label text-grey">Fee</span>
-                {hasFee ? (
-                  <span className="type-numeral text-h2 text-black">
-                    {formatFeeAmount(course.feeInclGst)}
-                  </span>
-                ) : (
-                  <TbcPill className="mt-1" />
-                )}
-              </p>
-              <p>
-                <span className="block type-label text-grey">Next batch</span>
-                {nextInstance?.startDate ? (
-                  <time
-                    dateTime={nextInstance.startDate}
-                    className="type-numeral text-h2 text-black"
-                  >
-                    {formatDate(nextInstance.startDate)}
-                  </time>
-                ) : (
-                  <TbcPill className="mt-1" />
-                )}
-              </p>
+              {!allSpecsUnknown && (
+                <>
+                  <p>
+                    <span className="block type-label text-grey">Fee</span>
+                    {hasFee ? (
+                      <span className="type-numeral text-h2 text-black">
+                        {formatFeeAmount(course.feeInclGst)}
+                      </span>
+                    ) : (
+                      <TbcPill className="mt-1" />
+                    )}
+                  </p>
+                  <p>
+                    <span className="block type-label text-grey">Next batch</span>
+                    {nextInstance?.startDate ? (
+                      <time
+                        dateTime={nextInstance.startDate}
+                        className="type-numeral text-h2 text-black"
+                      >
+                        {formatDate(nextInstance.startDate)}
+                      </time>
+                    ) : (
+                      <TbcPill className="mt-1" />
+                    )}
+                  </p>
+                </>
+              )}
             </div>
             <ArrowRight
               className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
