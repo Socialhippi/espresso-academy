@@ -1,0 +1,82 @@
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
+import { Container } from "@/components/site/Container";
+import { SectionHeading } from "@/components/site/SectionHeading";
+import { cn } from "@/lib/utils";
+
+interface Door {
+  number: string;
+  title: string;
+  body: string;
+  href: string;
+  cta: string;
+}
+
+const doors: Door[] = [
+  {
+    number: "01",
+    title: "I want to work as a barista",
+    body: "Start on a machine with a structured foundation and a certificate an employer can check.",
+    href: "/courses?level=foundation",
+    cta: "See foundation courses",
+  },
+  {
+    number: "02",
+    title: "I run or am opening a cafe",
+    body: "Train the team, set the standard on the bar, and get the sourcing and roasting side right.",
+    href: "/contact?topic=cafe",
+    cta: "Talk about team training",
+  },
+  {
+    number: "03",
+    title: "I love coffee and want to learn",
+    body: "Brewing, latte art and cupping, taught the same way as the professional courses.",
+    href: "/courses?level=open",
+    cta: "See open-level courses",
+  },
+];
+
+interface AudienceDoorsProps {
+  className?: string;
+  number?: string;
+}
+
+/** Three routes into the site, one per reader. Full-width on mobile, three-up from md. */
+export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) {
+  return (
+    <section className={cn("section-y", className)} aria-labelledby="doors-heading">
+      <Container>
+        <SectionHeading
+          number={number}
+          eyebrow="Where to start"
+          title="Three ways in"
+          id="doors-heading"
+          description="Pick the one that sounds like you. Each goes straight to the courses that fit."
+        />
+
+        <ul className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 md:grid-cols-3">
+          {doors.map((door) => (
+            <li key={door.href} className="group bg-white">
+              <Link href={door.href} className="flex h-full flex-col p-6 md:p-8">
+                <span className="type-numeral text-h2 text-red" aria-hidden="true">
+                  {door.number}
+                </span>
+                <h3 className="mt-4 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                  {door.title}
+                </h3>
+                <p className="mt-3 type-small text-grey">{door.body}</p>
+                <span className="mt-auto flex items-center gap-2 pt-8 type-label text-red">
+                  {door.cta}
+                  <ArrowRight
+                    className="size-4 transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
+                    aria-hidden="true"
+                  />
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  );
+}

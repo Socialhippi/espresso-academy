@@ -76,6 +76,15 @@
   --text-small--line-height: 1.5;
 }
 
+/* Photo frames. design/tokens.css does not name these, but design.md fixes the crops
+   ("Photography full-bleed or in 3:2 / 4:5 frames"), so they live here as tokens rather
+   than as arbitrary values scattered through the components. */
+@theme {
+  --aspect-photo: 3 / 2;
+  --aspect-portrait: 4 / 5;
+  --aspect-wide: 16 / 9;
+}
+
 /* ---------------------------------------------------------------------------
    Font families. `next/font/local` (src/lib/fonts.ts) self-hosts the same two
    typefaces the tokens name and exposes them as variables, so the token intent
@@ -162,6 +171,14 @@
     border-radius: var(--radius-xs);
   }
 
+  /* Blue #030696 on black measures 1.26:1, so the ring would be invisible in the footer and in
+     the one dark section per page. Those grounds take a white ring instead. */
+  footer :focus-visible,
+  .dark-wash :focus-visible,
+  .dark-wash:focus-visible {
+    outline-color: var(--color-white);
+  }
+
   ::selection {
     background-color: var(--color-red-tint);
     color: var(--color-black);
@@ -200,6 +217,17 @@
   }
 }
 
+/* Wrapper for a table too wide for a phone.
+   `position: relative` is load-bearing, not decoration: the tables carry screen-reader-only text
+   (TbcPill's expansion, a caption, a hidden column heading), and `sr-only` is absolutely
+   positioned. Without a positioned ancestor those spans resolve against a containing block
+   outside the scroll container, escape its clip, and push the whole document's scrollWidth past
+   the viewport at 390px even though nothing is visibly wider. */
+@utility table-scroll {
+  position: relative;
+  overflow-x: auto;
+}
+
 /* Section rhythm: 64px mobile, 128px desktop. */
 @utility section-y {
   padding-block: 4rem;
@@ -232,6 +260,12 @@
 /* Red is forbidden as text on the black grounds, so the eyebrow inverts to white. */
 @utility eyebrow-on-dark {
   color: var(--color-white);
+}
+
+/* The 1.5px outline design.md specifies for secondary buttons. Tailwind has no half-pixel
+   border step, so it lives here rather than as an arbitrary value in a component. */
+@utility border-outline {
+  border-width: 1.5px;
 }
 
 /* 1px rule that opens a section. */

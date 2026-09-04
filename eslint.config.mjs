@@ -4,10 +4,18 @@ import nextTs from "eslint-config-next/typescript";
 import jsxA11y from "eslint-plugin-jsx-a11y";
 
 // eslint-config-next already registers the jsx-a11y plugin, so re-adding its flat config
-// throws "Cannot redefine plugin". Take the recommended rule set only and raise it to error:
-// WCAG 2.2 AA is a non-negotiable in CLAUDE.md, so a11y findings must fail the build.
+// throws "Cannot redefine plugin". Take the recommended rule set only and raise every rule the
+// plugin actually enables to error: WCAG 2.2 AA is a non-negotiable in CLAUDE.md, so a11y
+// findings must fail the build. Rules the plugin ships as "off" stay off; they are off because
+// they cannot see a label passed through a component boundary and fire on correct markup.
+const severityOf = (setting) => (Array.isArray(setting) ? setting[0] : setting);
 const a11yRules = Object.fromEntries(
-  Object.keys(jsxA11y.flatConfigs.recommended.rules ?? {}).map((rule) => [rule, "error"]),
+  Object.entries(jsxA11y.flatConfigs.recommended.rules ?? {})
+    .filter(([, setting]) => severityOf(setting) !== "off" && severityOf(setting) !== 0)
+    .map(([rule, setting]) => [
+      rule,
+      Array.isArray(setting) ? ["error", ...setting.slice(1)] : "error",
+    ]),
 );
 
 const eslintConfig = defineConfig([

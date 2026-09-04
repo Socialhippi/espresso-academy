@@ -26,6 +26,46 @@ do. Updated at the end of every phase.
 - ESLint with the full `jsx-a11y` recommended set raised to error; Prettier with the Tailwind
   class sorter.
 
+### Phase 1: foundation components
+
+- `src/components/site/`, `course/`, `sections/` and `forms/` built, with a gallery at
+  `/dev/components` (noindex) rendering every component in its default, empty, loading, error and
+  TBC states.
+- Design review run at 390 and 1280. Screenshots in `docs/screens/`. Score before fixes: 5/10.
+  Every critical and high finding is fixed:
+  - **The class merger was deleting colour classes.** `cn` read this project's `text-body` and
+    `text-small` tokens as colours, so it dropped the `text-white` next to them: every WhatsApp
+    button rendered black-on-black (1:1) and every red pill black-on-red (2.47:1). Fixed in
+    `src/lib/cn.ts` by registering the custom theme scales, and aliased in `next.config.ts` so the
+    shadcn primitives get the corrected merger without being hand-edited.
+  - **237px of horizontal overflow at 390** from the three-rung level ladder. It now stacks below md.
+  - **Tables pushed the document 209px wide at 390.** The screen-reader-only text inside them is
+    absolutely positioned and escaped the scroll container. New `.table-scroll` utility.
+  - Focus ring was invisible on the black grounds (blue on black is 1.26:1); it is white there now.
+  - `outline-none` on the waitlist inputs removed the focus ring entirely.
+  - Footer TBC pills rendered white-on-white-2; footer links were 18px tall, now 44px.
+  - The sticky bar covered the footer legal row.
+  - Bebas numerals were rendering at 20px, below the 24px floor.
+  - Disabled primary buttons read as a selected chip; they are now grey.
+- Verified: no route overflows at 390 (`node scripts/check-overflow.mjs`).
+
+### Phase 2: layout, home, error pages
+
+- Root layout: skip link, header, main, footer, sticky bar, consent banner, site-wide
+  `EducationalOrganization` + `LocalBusiness` + `WebSite` JSON-LD, metadata defaults, `#FEFCFF`
+  theme colour.
+- Homepage in the specified order, with the red gradient used on the H1 and nowhere else.
+- `not-found.tsx`, `error.tsx` and `/thank-you` (noindex), all three linking to the courses and
+  to WhatsApp.
+
+### Phase 3: courses hub, course pages, calendar
+
+- `/courses` with server-rendered `?level=` and `?area=` filtering, canonical always `/courses`.
+- `/courses/[slug]` for all 8 courses, each with `Course` + `BreadcrumbList` + `FAQPage` JSON-LD
+  and its own Open Graph image route.
+- `/calendar`, which currently renders the "dates being finalised" state with a per-course batch
+  alert, because no instance in `content/data.ts` carries a date.
+
 ---
 
 ## TBC for client
@@ -87,11 +127,23 @@ appears; no code change is needed.
 | Desktop type sizes added as `--text-*-lg` tokens | `design/tokens.css` states the desktop scale in a trailing comment rather than as tokens; promoting it keeps the scale in one place instead of scattering `md:` sizes through components. |
 | `.env.local` and the `.DS_Store` files were removed from git tracking | `.claude/rules/git.md` forbids committing `.env.local`; the files held no secrets, only the empty template. `.env.example` is force-included so it stays committed. |
 | Node 24 used rather than the Node 22 in `.node-version` | That is what is installed on the build machine and Next 16 supports it. |
+| **The header uses the standalone mark plus the academy name set in Montserrat, not the supplied lockup. Needs client sign-off.** | design.md assumes a horizontal lockup exists. The only supplied lockup is stacked and roughly square: at a header-sized 48px its wordmark renders about 5.6px tall and "INDIA" about 3.2px, so the academy's name is illegible on mobile and desktop alike. Reaching a readable 9px wordmark would need a 78px logo and a 95px header. The supplied artwork is untouched (no crop, recolour or rotation) and the full stacked lockup still runs in the footer, where 80px gives the wordmark room. This composes a new lockup, which is a brand decision, so it is flagged here rather than shipped quietly. Sending the SVG (item 18) or a horizontal lockup resolves it. |
+| The enquiry form uses a native `<select>` rather than the shadcn/Base UI `Select` | The form is the site's only conversion path on a 64%-mobile audience. A native select opens the OS picker, needs no JavaScript, and cannot break. The shadcn `Select` is installed and demonstrated in the component gallery. |
+| Course filters are links, not buttons | Every filtered view is rendered on the server, so it works with JavaScript off, reads correctly without ARIA, never flashes an unfiltered list, and canonicalises back to `/courses`. |
+| `@fontsource/montserrat` added as a dependency | The Open Graph image renderer needs WOFF, and the variable package ships only WOFF2. Used at build time only; nothing extra reaches the browser. |
+| The course-page title drops seo.md's `{Course} \| {Level} Barista Course in Bengaluru` pattern | That pattern runs to 73 characters for most of these course names, well past the 50 to 60 ceiling in the same rule. The ceiling wins, because it is what a search result actually displays; the longest variant of the pattern that fits is used. |
 
 ---
 
 ## Known limitations
 
+- **The logo raster's red samples as `#AA1916`, not the `#B20003` token.** Visible where the mark
+  sits beside a red button. This is the supplied artwork, and design.md forbids recolouring it, so
+  nothing is done in code. The SVG (client item 18) resolves it.
+- **Badge colours no longer identify a level uniquely.** `levelBadge` in `content/data.ts` gives
+  mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
+  ladder's group headings carry the distinction. Worth a client decision if the badges are meant
+  to be read on their own.
 - **Context7 MCP is unavailable.** `CONTEXT7_API_KEY` is empty in `.env.local`, so every
   `create-next-app`, shadcn, Tailwind and Next API used here was verified against each tool's own
   `--help` output and its installed package instead. If a newer API exists, this is where it would

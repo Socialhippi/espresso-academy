@@ -1,0 +1,424 @@
+"use client";
+
+// Client: controlled fields, blur validation, focus management and a fetch to /api/enquiry.
+
+import { useEffect, useId, useMemo, useRef, useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { Check, Loader2 } from "lucide-react";
+import { Button, ButtonLink } from "@/components/site/Button";
+import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { Field, FieldError, fieldControlClass, fieldInputClass } from "@/components/forms/Field";
+import {
+  MIN_TIME_ON_FORM_MS,
+  phoneRegex,
+  readUtm,
+  type EnquiryResponse,
+  type EnquiryType,
+} from "@/lib/enquiry";
+import { whatsappUrl } from "@/lib/format";
+import { cn } from "@/lib/utils";
+
+/** The minimum a course needs to appear in the picker. Passed from the server. */
+export interface CourseOption {
+  slug: string;
+  title: string;
+  /** Batch labels for this course. Empty while no instance carries a date. */
+  batches: string[];
+}
+
+interface EnquiryFormProps {
+  variant?: EnquiryType;
+  courses: CourseOption[];
+  /** Trust line under the submit, e.g. siteSettings.replyPromise. */
+  replyPromise?: string | null;
+  className?: string;
+}
+
+type FieldName = "name" | "phone" | "course" | "batch" | "message" | "consent";
+type Errors = Partial<Record<FieldName | "form", string>>;
+
+const heading: Record<EnquiryType, string> = {
+  student: "Ask about a course",
+  waitlist: "Get the batch alert",
+  cafe: "Train your cafe team",
+};
+
+const submitLabel: Record<EnquiryType, string> = {
+  student: "Send my enquiry",
+  waitlist: "Tell me when dates are set",
+  cafe: "Send my enquiry",
+};
+
+export function EnquiryForm({
+  variant = "student",
+  courses,
+  replyPromise,
+  className,
+}: EnquiryFormProps) {
+  const searchParams = useSearchParams();
+  const ids = useId();
+  const field = (name: string): string => `${ids}-${name}`;
+
+  const mountedAt = useRef<number>(0);
+  const formRef = useRef<HTMLFormElement>(null);
+
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [course, setCourse] = useState(searchParams.get("course") ?? "");
+  const [batch, setBatch] = useState(searchParams.get("batch") ?? "");
+  const [message, setMessage] = useState("");
+  const [consent, setConsent] = useState(false);
+  const [company, setCompany] = useState("");
+
+  const [errors, setErrors] = useState<Errors>({});
+  const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">("idle");
+  const [delivery, setDelivery] = useState<"email" | "whatsapp">("whatsapp");
+
+  useEffect(() => {
+    mountedAt.current = Date.now();
+  }, []);
+
+  const selected = useMemo(
+    () => courses.find((option) => option.slug === course),
+    [courses, course],
+  );
+  const courseTitle = selected?.title ?? null;
+
+  function validate(only?: FieldName): Errors {
+    const next: Errors = {};
+    if (!only || only === "name") {
+      if (name.trim().length < 2) next.name = "Enter your name";
+    }
+    if (!only || only === "phone") {
+      if (!phoneRegex.test(phone.trim())) {
+        next.phone = "Enter a 10-digit Indian mobile number, without +91";
+      }
+    }
+    if (!only || only === "consent") {
+      if (!consent) next.consent = "Tick the box so we can reply to you";
+    }
+    return next;
+  }
+
+  function onBlur(name: FieldName) {
+    return () => {
+      const found = validate(name);
+      setErrors((current) => ({ ...current, [name]: found[name] }));
+    };
+  }
+
+  async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+    event.preventDefault();
+    const found = validate();
+    setErrors(found);
+
+    const order: FieldName[] = ["name", "phone", "consent"];
+    const firstBad = order.find((key) => found[key]);
+    if (firstBad) {
+      const element = formRef.current?.querySelector<HTMLElement>(`#${CSS.escape(field(firstBad))}`);
+      element?.focus();
+      return;
+    }
+
+    setStatus("sending");
+    try {
+      const response = await fetch("/api/enquiry", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          type: variant,
+          name: name.trim(),
+          phone: phone.trim(),
+          course: courseTitle ?? course,
+          batch,
+          message: message.trim(),
+          consent: true,
+          company,
+          elapsedMs: Date.now() - mountedAt.current,
+          page: window.location.pathname,
+          referrer: document.referrer,
+          utm: readUtm(window.location.search),
+        }),
+      });
+      const result = (await response.json()) as EnquiryResponse;
+      if (result.ok) {
+        setDelivery(result.delivery);
+        setStatus("done");
+      } else {
+        setErrors({ ...result.errors, form: result.errors.form });
+        setStatus("failed");
+      }
+    } catch {
+      setStatus("failed");
+      setErrors({ form: "We could not send that just now." });
+    }
+  }
+
+  if (status === "done") {
+    return (
+      <div className={cn("border border-white-2 bg-white-3 p-6 md:p-8", className)}>
+        <p className="flex items-center gap-3 type-h3 text-black">
+          <Check className="size-6 shrink-0 text-green" aria-hidden="true" />
+          We have your enquiry
+        </p>
+        <p aria-live="polite" className="mt-4 measure type-body text-grey">
+          {delivery === "email"
+            ? "It is with the academy now. Someone will reply on WhatsApp or call the number you gave us."
+            : "It is logged. The fastest reply is on WhatsApp, so carry it over and the academy will answer there."}
+        </p>
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+          <WhatsAppButton course={courseTitle} batch={batch || undefined} event="whatsapp_click_success">
+            Continue on WhatsApp
+          </WhatsAppButton>
+          <ButtonLink href="/courses" variant="secondary">
+            Back to the courses
+          </ButtonLink>
+          <ButtonLink href="/calendar" variant="tertiary" size="inline">
+            See the batch calendar
+          </ButtonLink>
+        </div>
+      </div>
+    );
+  }
+
+  const showBatch = (selected?.batches.length ?? 0) > 0;
+
+  return (
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      noValidate
+      className={cn("flex flex-col gap-6", className)}
+      aria-labelledby={field("heading")}
+    >
+      <h2 id={field("heading")} className="sr-only">
+        {heading[variant]}
+      </h2>
+
+      <Field
+        id={field("name")}
+        label="Your name"
+        required
+        error={errors.name}
+        errorId={field("name-error")}
+      >
+        <input
+          id={field("name")}
+          name="name"
+          type="text"
+          autoComplete="name"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          onBlur={onBlur("name")}
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? field("name-error") : undefined}
+          className={fieldInputClass}
+        />
+      </Field>
+
+      <Field
+        id={field("phone")}
+        label="Mobile number"
+        required
+        hint="We reply on WhatsApp, so use the number WhatsApp is on."
+        hintId={field("phone-hint")}
+        error={errors.phone}
+        errorId={field("phone-error")}
+      >
+        <div className="flex">
+          <span
+            aria-hidden="true"
+            className="flex h-12 items-center rounded-l-xs border border-r-0 border-white-2 bg-white-2 px-3 type-body text-grey"
+          >
+            +91
+          </span>
+          <input
+            id={field("phone")}
+            name="phone"
+            type="tel"
+            inputMode="numeric"
+            autoComplete="tel-national"
+            maxLength={10}
+            value={phone}
+            onChange={(event) => setPhone(event.target.value.replace(/\D/g, "").slice(0, 10))}
+            onBlur={onBlur("phone")}
+            aria-invalid={Boolean(errors.phone)}
+            aria-describedby={cn(
+              field("phone-hint"),
+              errors.phone ? field("phone-error") : "",
+            ).trim()}
+            className={cn(fieldInputClass, "rounded-l-none")}
+          />
+        </div>
+      </Field>
+
+      {variant !== "cafe" && (
+        <Field id={field("course")} label="Which course" error={errors.course}>
+          <select
+            id={field("course")}
+            name="course"
+            value={course}
+            onChange={(event) => {
+              setCourse(event.target.value);
+              setBatch("");
+            }}
+            className={cn(fieldControlClass, "h-12")}
+          >
+            <option value="">I am not sure yet, help me choose</option>
+            {courses.map((option) => (
+              <option key={option.slug} value={option.slug}>
+                {option.title}
+              </option>
+            ))}
+          </select>
+        </Field>
+      )}
+
+      {variant !== "cafe" &&
+        (showBatch ? (
+          <Field id={field("batch")} label="Which batch">
+            <select
+              id={field("batch")}
+              name="batch"
+              value={batch}
+              onChange={(event) => setBatch(event.target.value)}
+              className={cn(fieldControlClass, "h-12")}
+            >
+              <option value="">Any batch, tell me what is next</option>
+              {selected?.batches.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
+          </Field>
+        ) : (
+          /* TODO(client): batch dates. No instance in content/data.ts carries a start date. */
+          <p className="type-small text-grey">
+            Batch dates are being finalised. Send this and the academy will tell you the next one
+            first.
+          </p>
+        ))}
+
+      <Field
+        id={field("message")}
+        label={
+          variant === "cafe"
+            ? "Your cafe, team size and what you want them to be able to do"
+            : "Anything we should know"
+        }
+        error={errors.message}
+      >
+        <textarea
+          id={field("message")}
+          name="message"
+          rows={4}
+          maxLength={1000}
+          value={message}
+          onChange={(event) => setMessage(event.target.value)}
+          className={cn(fieldControlClass, "py-3")}
+        />
+      </Field>
+
+      {/* Honeypot. Hidden from sight and from assistive tech; only a bot fills it. */}
+      <div aria-hidden="true" className="sr-only">
+        <label htmlFor={field("company")}>Company</label>
+        <input
+          id={field("company")}
+          name="company"
+          type="text"
+          tabIndex={-1}
+          autoComplete="off"
+          value={company}
+          onChange={(event) => setCompany(event.target.value)}
+        />
+      </div>
+
+      <div className="flex flex-col gap-2">
+        <div className="flex items-start gap-3">
+          <input
+            id={field("consent")}
+            name="consent"
+            type="checkbox"
+            checked={consent}
+            onChange={(event) => setConsent(event.target.checked)}
+            onBlur={onBlur("consent")}
+            aria-invalid={Boolean(errors.consent)}
+            aria-describedby={errors.consent ? field("consent-error") : undefined}
+            // size-6 is the 24px WCAG 2.2 target minimum; the associated label extends the hit area.
+            className="mt-0.5 size-6 shrink-0 rounded-xs border border-white-2 accent-red"
+          />
+          <label htmlFor={field("consent")} className="type-small text-grey">
+            The academy may contact me about this enquiry on WhatsApp, phone or email (required).
+            See the{" "}
+            <Link
+              href="/privacy"
+              className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+            >
+              privacy note
+            </Link>
+            .
+          </label>
+        </div>
+        <FieldError id={field("consent-error")} message={errors.consent} />
+      </div>
+
+      {status === "failed" && (
+        <div
+          role="alert"
+          className="border border-red-deep bg-white p-4"
+        >
+          <p className="type-body text-red-deep">
+            {errors.form ?? "We could not send that just now."}
+          </p>
+          <p className="mt-2 type-small text-grey">
+            Nothing is lost. Send the same message on WhatsApp and the academy will answer there.
+          </p>
+          <WhatsAppButton
+            className="mt-4"
+            size="sm"
+            course={courseTitle}
+            batch={batch || undefined}
+            event="whatsapp_click_form_fallback"
+          />
+        </div>
+      )}
+
+      <div className="flex flex-col gap-3">
+        <Button
+          type="submit"
+          variant="primary"
+          size="block"
+          disabled={status === "sending"}
+          data-event={`enquiry_submit_${variant}`}
+          className="sm:w-auto"
+        >
+          {status === "sending" && <Loader2 className="size-5 animate-spin" aria-hidden="true" />}
+          {status === "sending" ? "Sending" : submitLabel[variant]}
+        </Button>
+        <p className="type-small text-grey">
+          {/* TODO(client): siteSettings.replyPromise. Reply time is not confirmed. */}
+          {replyPromise ?? "We reply on WhatsApp during academy hours."}
+        </p>
+        <noscript>
+          <p className="type-small text-grey">
+            This form needs JavaScript. Message the academy on{" "}
+            <a
+              href={whatsappUrl()}
+              className="text-red underline decoration-1 underline-offset-4"
+            >
+              WhatsApp
+            </a>{" "}
+            instead and you will get the same reply.
+          </p>
+        </noscript>
+      </div>
+
+      <p className="sr-only" aria-live="polite">
+        {status === "sending" ? "Sending your enquiry" : ""}
+      </p>
+      <input type="hidden" name="minTime" value={MIN_TIME_ON_FORM_MS} readOnly />
+    </form>
+  );
+}

@@ -1,0 +1,141 @@
+import Link from "next/link";
+import { ChevronRight } from "lucide-react";
+import { LevelBadge } from "@/components/site/LevelBadge";
+import { getCoursesByLevel, levelBadge, type Level } from "@/lib/content";
+import { cn } from "@/lib/utils";
+
+interface LevelLadderProps {
+  /** Marks the rung the reader is on, e.g. on a course page. */
+  current?: Level;
+  className?: string;
+  /** Inverts the rules and text for the one black section. */
+  onDark?: boolean;
+}
+
+const scaRungs: Level[] = ["foundation", "intermediate", "professional"];
+const ibcRungs: Level[] = ["junior", "advanced"];
+
+interface RungProps {
+  level: Level;
+  current: boolean;
+  onDark: boolean;
+}
+
+function Rung({ level, current, onDark }: RungProps) {
+  const courses = getCoursesByLevel(level);
+  const first = courses[0];
+  const label = levelBadge[level].label;
+
+  const body = (
+    <span
+      className={cn(
+        "flex min-h-11 flex-1 flex-col justify-center gap-2 border p-4 transition-colors duration-200",
+        onDark ? "border-black-2" : "border-white-2",
+        current && (onDark ? "bg-black-2" : "bg-white-3"),
+        first && !onDark && "hover:border-black",
+        first && onDark && "hover:border-white",
+      )}
+    >
+      <span className="flex items-center gap-3">
+        <LevelBadge level={level} />
+        {current && (
+          <span className={cn("type-label", onDark ? "text-white" : "text-red")}>You are here</span>
+        )}
+      </span>
+      <span className={cn("type-small", onDark ? "text-grey-2" : "text-grey")}>
+        {courses.length === 1 && first
+          ? first.title
+          : `${courses.length} ${courses.length === 1 ? "course" : "courses"}`}
+      </span>
+    </span>
+  );
+
+  if (!first) return body;
+
+  return (
+    <Link
+      href={courses.length === 1 ? `/courses/${first.slug}` : `/courses?level=${level}`}
+      aria-label={`${label}: ${courses.length === 1 && first ? first.title : `${courses.length} courses`}`}
+      className="flex flex-1"
+    >
+      {body}
+    </Link>
+  );
+}
+
+/**
+ * Foundation to Professional on one row, the IBC pair on a second. The visual ladder is hidden
+ * from assistive tech and replaced by the plain list below it, per .claude/rules/a11y.md.
+ */
+export function LevelLadder({ current, className, onDark = false }: LevelLadderProps) {
+  return (
+    <div className={className}>
+      <div aria-hidden="true" className="flex flex-col gap-6">
+        <div>
+          <p className={cn("type-label", onDark ? "text-grey-2" : "text-grey")}>
+            SCA Coffee Skills Program
+          </p>
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-stretch">
+            {scaRungs.map((level, index) => (
+              <div key={level} className="flex min-w-0 flex-1 items-stretch gap-2">
+                {index > 0 && (
+                  <ChevronRight
+                    className={cn(
+                      "mt-4 hidden size-5 shrink-0 self-start md:block",
+                      onDark ? "text-black-2" : "text-white-2",
+                    )}
+                  />
+                )}
+                <Rung level={level} current={current === level} onDark={onDark} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <p className={cn("type-label", onDark ? "text-grey-2" : "text-grey")}>
+            Italian Barista Certificate
+          </p>
+          <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-stretch">
+            {ibcRungs.map((level, index) => (
+              <div key={level} className="flex min-w-0 flex-1 items-stretch gap-2">
+                {index > 0 && (
+                  <ChevronRight
+                    className={cn(
+                      "mt-4 hidden size-5 shrink-0 self-start md:block",
+                      onDark ? "text-black-2" : "text-white-2",
+                    )}
+                  />
+                )}
+                <Rung level={level} current={current === level} onDark={onDark} />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="sr-only">
+        <h3>The levels, as a list</h3>
+        <p>
+          The SCA Coffee Skills Program runs from Foundation to Intermediate to Professional. The
+          Italian Barista Certificate runs from Junior to Advanced. The two ladders are separate;
+          you do not have to finish one before starting the other.
+        </p>
+        <ul>
+          {[...scaRungs, ...ibcRungs].map((level) => {
+            const courses = getCoursesByLevel(level);
+            return (
+              <li key={level}>
+                {levelBadge[level].label}
+                {current === level ? " (you are here)" : ""}:{" "}
+                {courses.length > 0
+                  ? courses.map((course) => course.title).join(", ")
+                  : "no course listed yet"}
+              </li>
+            );
+          })}
+        </ul>
+      </div>
+    </div>
+  );
+}
