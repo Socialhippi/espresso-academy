@@ -55,7 +55,7 @@ export function SpecStrip({ course, className }: SpecStripProps) {
         {course.certification ? (
           <Link
             href={`/certifications/${course.certification}`}
-            className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+            className="inline-flex min-h-11 items-center text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
           >
             {/* The short name: the full awarded label runs to four lines here against one-line
                 neighbours and breaks the strip. It is stated in full in the body. */}

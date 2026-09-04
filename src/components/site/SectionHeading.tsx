@@ -44,7 +44,9 @@ export function SectionHeading({
         className,
       )}
     >
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between md:gap-8">
+      {/* items-baseline, not items-end: with items-end the action floated to the middle of a
+          section that had a description and sat under the heading on one that did not. */}
+      <div className="flex flex-col gap-4 md:flex-row md:items-baseline md:justify-between md:gap-8">
         <div className="min-w-0">
           {(eyebrow || number) && (
             <p className={cn("eyebrow", onDark && "eyebrow-on-dark")}>

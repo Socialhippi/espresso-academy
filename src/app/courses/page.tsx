@@ -102,7 +102,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
     <>
       <PageHero
         above={<Breadcrumbs items={[{ label: "Courses", href: "/courses" }]} />}
-        eyebrow="Courses"
+        eyebrow="Eight courses, two ladders"
         title="Barista and coffee courses in Bengaluru"
         intro={
           <>
@@ -124,10 +124,6 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 training aligned to the SCA Coffee Skills Program
               </Link>{" "}
               at Foundation, Intermediate and Professional level.
-            </p>
-            <p className="mt-4">
-              No fee or batch date is published yet. Where a course shows TBC below, the number is
-              not confirmed, so ask the academy for the current figure.
             </p>
           </>
         }
@@ -154,10 +150,18 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             activeArea={activeArea}
           />
 
-          <h2 id="course-list-heading" className="mt-10 type-label text-grey" aria-live="polite">
+          <p className="mt-8 measure type-small text-grey">
+            No fee or batch date is published yet. Where a course shows TBC below, the number is not
+            confirmed, so ask the academy for the current figure.
+          </p>
+
+          <h2 id="course-list-heading" className="sr-only">
+            Courses
+          </h2>
+          <p className="mt-10 type-label text-grey" aria-live="polite">
             {courses.length} of {allCourses.length} courses
             {filterSummary ? `: ${filterSummary}` : ""}
-          </h2>
+          </p>
 
           {courses.length === 0 ? (
             <div className="mt-6 border border-white-2 bg-white-3 p-6 md:p-10">
@@ -190,7 +194,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         repeating the same module a section after the card grid above is the clearest template tell
         on the site. The guidance is the same; the composition is heading-left, rows-right.
       */}
-      <section className="section-y bg-white-3" aria-labelledby="choose-heading">
+      <section className="bg-white-3 section-y" aria-labelledby="choose-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
@@ -200,6 +204,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 title="Which one is yours"
                 id="choose-heading"
                 description="Three routes through the same eight courses. Pick the one that sounds like where you are now, not where you want to end up."
+                className="md:sticky md:top-28"
               />
             </div>
             <div className="md:col-span-8">
@@ -242,78 +247,93 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         </Container>
       </section>
 
-      <section className="section-y-sm" aria-labelledby="fees-heading">
+      <section className="bg-white-3 section-y-sm" aria-labelledby="fees-heading">
         <Container>
-          <SectionHeading number="03" eyebrow="Fees" title="What each course costs" id="fees-heading" />
-          <p className="mt-4 type-small text-grey md:hidden">
-            Scroll the table sideways to reach the fee column.
-          </p>
-          <div className="mt-4 table-scroll md:mt-8">
-            <table className="w-full min-w-2xl border-collapse text-left">
-              <caption className="sr-only">
-                Fee, level and duration for every course at the Bengaluru campus
-              </caption>
-              <thead>
-                <tr className="border-b border-white-2">
-                  <th scope="col" className="py-3 pr-4 type-label text-grey">
-                    Course
-                  </th>
-                  <th scope="col" className="py-3 pr-4 type-label text-grey">
-                    Level
-                  </th>
-                  <th scope="col" className="py-3 pr-4 type-label text-grey">
-                    Duration
-                  </th>
-                  <th scope="col" className="py-3 type-label text-grey">
-                    Fee incl. GST
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {allCourses.map((course) => (
-                  <tr key={course.slug} className="border-b border-white-2">
-                    <th scope="row" className="py-4 pr-4 type-body font-medium">
-                      <Link
-                        href={`/courses/${course.slug}`}
-                        className="text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
-                      >
-                        {course.title}
-                      </Link>
-                    </th>
-                    <td className="py-4 pr-4">
-                      <LevelBadge level={course.level} />
-                    </td>
-                    <td className="py-4 pr-4 type-small text-grey">
-                      {course.durationDays === null && course.durationHours === null ? (
-                        <TbcPill />
-                      ) : (
-                        formatDuration(course.durationDays, course.durationHours)
-                      )}
-                    </td>
-                    <td className="py-4">
-                      {course.feeInclGst === null ? (
-                        <TbcPill />
-                      ) : (
-                        <span className="type-numeral text-h3-lg text-black">
-                          {formatFeeAmount(course.feeInclGst)}
-                        </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
+            <div className="md:col-span-4">
+              <SectionHeading
+                number="03"
+                eyebrow="Fees"
+                title="What each course costs"
+                id="fees-heading"
+                description="Stated incl. GST, always, and confirmed before you pay. Nothing here is published yet."
+                className="md:sticky md:top-28"
+              />
+            </div>
+            {/* min-w-0: a grid item defaults to min-width:auto, which lets it grow to its content
+                and takes the scroll container inside it along, so the table pushed the whole
+                document sideways at 390. */}
+            <div className="min-w-0 md:col-span-8">
+              <p className="mt-4 type-small text-grey md:hidden">
+                Scroll the table sideways to reach the fee column.
+              </p>
+              <div className="table-scroll mt-4 md:mt-8">
+                <table className="w-full min-w-2xl border-collapse text-left">
+                  <caption className="sr-only">
+                    Fee, level and duration for every course at the Bengaluru campus
+                  </caption>
+                  <thead>
+                    <tr className="border-b border-white-2">
+                      <th scope="col" className="py-3 pr-4 type-label text-grey">
+                        Course
+                      </th>
+                      <th scope="col" className="py-3 pr-4 type-label text-grey">
+                        Level
+                      </th>
+                      <th scope="col" className="py-3 pr-4 type-label text-grey">
+                        Duration
+                      </th>
+                      <th scope="col" className="py-3 type-label text-grey">
+                        Fee incl. GST
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {allCourses.map((course) => (
+                      <tr key={course.slug} className="border-b border-white-2">
+                        <th scope="row" className="py-4 pr-4 type-body font-medium">
+                          <Link
+                            href={`/courses/${course.slug}`}
+                            className="inline-flex min-h-11 items-center text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                          >
+                            {course.title}
+                          </Link>
+                        </th>
+                        <td className="py-4 pr-4">
+                          <LevelBadge level={course.level} />
+                        </td>
+                        <td className="py-4 pr-4 type-small text-grey">
+                          {course.durationDays === null && course.durationHours === null ? (
+                            <TbcPill />
+                          ) : (
+                            formatDuration(course.durationDays, course.durationHours)
+                          )}
+                        </td>
+                        <td className="py-4">
+                          {course.feeInclGst === null ? (
+                            <TbcPill />
+                          ) : (
+                            <span className="type-numeral text-h3-lg text-black">
+                              {formatFeeAmount(course.feeInclGst)}
+                            </span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {/* TODO(client): no fee is published for any course. Every cell is a TBC pill. */}
+              <p className="mt-4 measure type-small text-grey">
+                Whether a certification body charges its own fee on top of the course fee is not
+                published either, so ask before you pay.
+              </p>
+            </div>
           </div>
-          {/* TODO(client): no fee is published for any course. Every cell above is a TBC pill. */}
-          <p className="mt-4 measure type-small text-grey">
-            Fees are stated incl. GST. No fee is published yet, so every figure above is waiting
-            on the academy. Whether a certification body charges its own fee on top is not
-            published either, so ask before you pay.
-          </p>
         </Container>
       </section>
 
-      <section className="section-y bg-white-3" aria-labelledby="certs-heading">
+      <section className="bg-white-3 section-y" aria-labelledby="certs-heading">
         <Container>
           <SectionHeading
             number="04"
@@ -364,8 +384,8 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         title="Not sure which one fits"
         body={
           <p>
-            Send your background in one message and ask where to start. The fee and the batch
-            dates are confirmed with you before you pay for anything.
+            Send your background in one message and ask where to start. The fee and the batch dates
+            are confirmed with you before you pay for anything.
           </p>
         }
       />

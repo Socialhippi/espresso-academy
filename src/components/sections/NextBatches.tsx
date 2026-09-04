@@ -11,17 +11,22 @@ interface NextBatchesProps {
   count?: number;
   className?: string;
   number?: string;
+  /** Uses the shorter section padding, for pages that need to vary their rhythm. */
+  compact?: boolean;
 }
 
 /**
  * The soonest scheduled batches. content/data.ts has no dated instance yet, so what actually
  * renders today is the honest empty state with a batch alert, not an empty list.
  */
-export function NextBatches({ count = 4, className, number = "02" }: NextBatchesProps) {
+export function NextBatches({ count = 4, className, number = "02", compact = false }: NextBatchesProps) {
   const next = getNextInstances(count);
 
   return (
-    <section className={cn("section-y bg-white-3", className)} aria-labelledby="batches-heading">
+    <section
+      className={cn(compact ? "section-y-sm" : "section-y", "bg-white-3", className)}
+      aria-labelledby="batches-heading"
+    >
       <Container>
         <SectionHeading
           number={number}

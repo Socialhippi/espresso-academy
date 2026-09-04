@@ -12,6 +12,11 @@ import { createCn } from "cn/config";
  * The same happened to `border-outline` against `border-black`, and to `rounded-pill` against
  * `rounded-none`. The visible result was every WhatsApp button rendering as black-on-black.
  *
+ * The same trap catches the `type-*` utilities. Those are `@utility` blocks, not theme values, so
+ * the merger cannot see them as font sizes at all: hand `type-h3` to a shadcn component whose base
+ * carries `text-sm` and both survive, with CSS order deciding. Inside src/components/ui/ use the
+ * `text-*` names below; `type-*` is for our own elements, where nothing competes.
+ *
  * Registering the custom theme scales below makes the merger classify them correctly:
  * `text-body` is a font size, `border-outline` a border width, `rounded-pill` a radius. Any token
  * added to `@theme` in globals.css under one of these namespaces belongs in the matching list.

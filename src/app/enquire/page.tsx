@@ -50,12 +50,9 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
               right starting point for you.
             </p>
 
-            <p className="mt-8 hairline pt-6 type-small text-grey">
-              {/* TODO(client): siteSettings.replyPromise is null, so no reply time is promised. */}
-              {siteSettings.replyPromise ?? "We reply on WhatsApp during academy hours."}
-            </p>
-
-            <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
+            {/* The reply promise is not repeated here: the form states it directly above its
+                submit button, which is where it is actually load-bearing. */}
+            <div className="mt-8 hairline flex flex-col gap-4 pt-6 sm:flex-row sm:flex-wrap">
               <WhatsAppButton size="sm" event="whatsapp_click_enquire">
                 Or ask on WhatsApp
               </WhatsAppButton>

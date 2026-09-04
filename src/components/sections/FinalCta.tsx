@@ -53,6 +53,9 @@ export function FinalCta({
               <ButtonLink href={href} variant="primary" data-event="enquire_click_final">
                 {ctaLabel}
               </ButtonLink>
+              {/* design.md gives the WhatsApp button a black ground so red stays singular on a
+                  white page. On the one black section per page that would be invisible, so it
+                  inverts to a white outline. Red is still the only filled accent here. */}
               <WhatsAppButton
                 course={course}
                 event="whatsapp_click_final"

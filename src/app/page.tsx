@@ -69,7 +69,7 @@ export default function HomePage() {
 
       <AudienceDoors number="01" />
 
-      <NextBatches number="02" className="section-y-sm" />
+      <NextBatches number="02" compact />
 
       {/* Asymmetric: the explanation holds the left, the ladder the right. */}
       <section className="section-y" aria-labelledby="ladder-heading">

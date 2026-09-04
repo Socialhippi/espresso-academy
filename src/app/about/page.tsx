@@ -89,7 +89,13 @@ export default function AboutPage() {
             ].map((fact) => (
               <div key={fact.term} className="border-t border-white-2 pt-4">
                 <dt className="type-label text-grey">{fact.term}</dt>
-                <dd className={fact.word ? "mt-2 type-h3 text-black" : "mt-2 type-numeral text-h2 text-black"}>
+                <dd
+                  className={
+                    fact.word
+                      ? "mt-2 type-body font-medium text-black"
+                      : "mt-2 type-numeral text-h2 text-black"
+                  }
+                >
                   {fact.value}
                 </dd>
               </div>
@@ -109,20 +115,18 @@ export default function AboutPage() {
                 id="method-heading"
               />
             </div>
-            {/* Numerals inline with the heading, not in a left gutter: /courses already uses the
-                gutter form, and repeating a composition across pages is the same template tell as
-                repeating a component. */}
+            {/* A three-column band, not a stack of numbered rows: /courses uses the row form for
+                its how-to-choose section, and repeating a composition across pages is the same
+                template tell as repeating a component. */}
             <div className="md:col-span-8">
-              <ol className="flex flex-col gap-10">
+              <ol className="grid gap-px border border-white-2 bg-white-2 md:grid-cols-3">
                 {method.map((step) => (
-                  <li key={step.number} className="hairline pt-5">
-                    <h3 className="flex items-baseline gap-4 type-h3 text-black">
-                      <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
-                        {step.number}
-                      </span>
-                      {step.title}
-                    </h3>
-                    <p className="mt-3 measure type-body text-grey">{step.body}</p>
+                  <li key={step.number} className="bg-white p-6">
+                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                      {step.number}
+                    </span>
+                    <h3 className="mt-3 type-h3 text-black">{step.title}</h3>
+                    <p className="mt-3 type-small text-grey">{step.body}</p>
                   </li>
                 ))}
               </ol>
@@ -161,7 +165,7 @@ export default function AboutPage() {
                 </ButtonLink>
               </div>
 
-              <h3 className="mt-10 type-label text-grey">Equipment</h3>
+              <p className="mt-10 type-label text-grey">Equipment</p>
               {/* TODO(client): no machine, grinder or roaster models are published anywhere. */}
               <p className="mt-3 flex flex-wrap items-center gap-3 type-body text-black">
                 <TbcPill />

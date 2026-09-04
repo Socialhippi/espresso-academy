@@ -91,8 +91,8 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
           )}
 
           <p className="mt-3 type-small text-grey">
-            <span className="type-label text-grey">Certificate</span>{" "}
-            <span className="text-black">
+            <span className="block type-label text-grey">Certificate</span>
+            <span className="mt-1 block text-black">
               {course.certificateAwardedLabel ?? "No certificate is issued for this course"}
             </span>
           </p>

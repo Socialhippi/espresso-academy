@@ -38,10 +38,12 @@ function Rung({ level, current, onDark }: RungProps) {
         first && onDark && "hover:border-white",
       )}
     >
-      <span className="flex items-center gap-3">
+      <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <LevelBadge level={level} />
         {current && (
-          <span className={cn("type-label", onDark ? "text-white" : "text-red")}>You are here</span>
+          <span className={cn("type-label whitespace-nowrap", onDark ? "text-white" : "text-red")}>
+            You are here
+          </span>
         )}
       </span>
       <span className={cn("type-small", onDark ? "text-grey-2" : "text-grey")}>

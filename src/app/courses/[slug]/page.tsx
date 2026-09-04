@@ -164,7 +164,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm bg-white-3" aria-labelledby="learn-heading">
+      <section className="section-y bg-white-3" aria-labelledby="learn-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-5">
@@ -175,7 +175,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 id="learn-heading"
               />
               <div className="mt-8 border border-white-2 bg-white p-6">
-                <h3 className="type-label text-grey">What you get</h3>
+                <p className="type-label text-grey">What you get</p>
                 {course.certificateAwardedLabel ? (
                   <p className="mt-3 type-body text-black">
                     {course.certificateAwardedLabel}
@@ -197,7 +197,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                     piece of paper.
                   </p>
                 )}
-                <h3 className="mt-6 type-label text-grey">What the fee includes</h3>
+                <p className="mt-6 type-label text-grey">What the fee includes</p>
                 <div className="mt-3">
                   {course.includes && course.includes.length > 0 ? (
                     <ul className="flex flex-col gap-2 type-body text-black">
@@ -249,7 +249,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               )}
 
               <div className="mt-8 border border-white-2 bg-white p-6">
-                <h3 className="type-label text-grey">Before you start</h3>
+                <p className="type-label text-grey">Before you start</p>
                 <p className="mt-3 type-body text-black">
                   {course.prerequisites ?? "Prerequisites for this course are not published yet."}
                 </p>
@@ -303,7 +303,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm bg-white-3" aria-labelledby="dates-heading">
+      <section className="section-y bg-white-3" aria-labelledby="dates-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-7">
