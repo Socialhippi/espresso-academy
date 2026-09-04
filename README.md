@@ -17,10 +17,10 @@ pnpm typecheck      # tsc --noEmit
 pnpm lint           # eslint, jsx-a11y at error
 pnpm build          # must pass before any commit touching src/
 pnpm start          # serve the production build
-pnpm test:e2e       # 639 Playwright tests: chromium, webkit, Pixel 7, iPhone 14
+pnpm test:e2e       # 641 Playwright tests: chromium, webkit, Pixel 7, iPhone 14
 ```
 
-Two extra checks that are not part of the Playwright run, both expecting a server on port 3000:
+Three extra checks that are not part of the Playwright run, each expecting a server on port 3000:
 
 ```
 node scripts/check-overflow.mjs        # every route, no horizontal overflow at 390
