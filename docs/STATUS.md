@@ -188,21 +188,33 @@ thing holding Best Practices at 96.
 
 ### Phase 8b: de-template
 
-Two full design-review rounds at 390 and 1280 on `/`, `/courses`, a course page and `/about`.
-Screenshots in `docs/screens/`. First round scored 8 / 6.5 / 7 / 7. Everything it found is fixed,
-including one outright bug: the level filter rendered two chips both reading "All levels", the
-reset and the `open` level.
+Five design-review rounds on `/`, `/courses`, a course page and `/about`, the last three at 390,
+768 and 1280. Screenshots in `docs/screens/`. Round one scored 8 / 6.5 / 7 / 7.
 
-The structural fixes, which were the ones that mattered:
+The defects that mattered, in the order they were found:
 
-- "Which one is yours" on `/courses` was `AudienceDoors` a second time, one section below another
-  equal-column grid. The master prompt requires that guidance, so the content stayed and the
-  composition became a 4/8 split with numbered rows.
-- `/courses` and `/about` opened on desktop with half the viewport blank: neither passed an `aside`
-  to `PageHero`, so the 7/5 grid was never built.
-- The course page ran two identical 4/8 splits back to back, and `/about` put an even gallery grid
-  directly above an even trainer grid. Both resolved; section padding now alternates.
-- Nine identical placeholder marks on `/about` read as a wireframe. The mark is halved and at 10%.
+- **The level filter rendered two chips both reading "All levels"**, the reset and the `open` level.
+  The level is "Open level" now.
+- **"Which one is yours" on `/courses` was `AudienceDoors` a second time**, one section below
+  another equal-column grid: the clearest template tell on the site. The master prompt requires
+  that guidance, so the content stayed and the composition became a 4/8 split with numbered rows.
+- **`/courses` and `/about` opened on desktop with half the viewport blank**: neither passed an
+  `aside` to `PageHero`, so the 7/5 grid was never built.
+- **The consent banner covered the mobile sticky bar**, hiding WhatsApp, Call and Reserve on every
+  page. My own regression, from moving the banner flush to the bottom. Both now read one store and
+  the bar waits for the choice. A test asserts it.
+- **Every FAQ question rendered at 14px**, smaller than its own 16px answer, on three pages. Same
+  class of bug as the original class-merge failure, one level deeper: `type-h3` is an `@utility`,
+  which the merger cannot classify as a font size at all, so it and shadcn's `text-sm` both
+  survived and CSS order decided.
+- **At 768 the header collapsed.** The six nav items plus two actions starved the brand link, which
+  carried `shrink`: the mark squashed to 5px wide against its own 682:1000 ratio and the wordmark
+  wrapped to three lines printed over the "Courses" nav link. The nav moves to `lg`.
+- **At 768 the level ladder pushed the document 17px wide**, the same `min-width: auto` cause
+  already fixed on the fee table and not swept into the component.
+
+Both 768 defects existed because nothing tested 768. `scripts/check-overflow.mjs` now runs at all
+three widths and the Playwright suite has an iPad Mini project.
 
 ### Phase 9: deploy
 
