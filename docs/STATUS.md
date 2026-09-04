@@ -173,9 +173,9 @@ Full numbers and the reasoning in `docs/audits/perf-draft.md`. Lighthouse mobile
 
 | Route | Perf | A11y | Best Practices | SEO | LCP | CLS | TBT |
 |---|---|---|---|---|---|---|---|
-| `/` | 91 | 100 | 100 | 100 | 3.5s | 0 | 0ms |
-| `/courses` | 95 | 100 | 100 | 100 | 3.0s | 0 | 0ms |
-| `/courses/latte-art` | 92 | 100 | 100 | 100 | 3.4s | 0 | 0ms |
+| `/` | 99 | 100 | 100 | 100 | 2.1s | 0 | 0ms |
+| `/courses` | 92 | 100 | 100 | 100 | 3.4s | 0 | 0ms |
+| `/courses/sca-barista-skills-foundation` | 92 | 100 | 100 | 100 | 3.4s | 0 | 0ms |
 | `/enquire` | 93 | 100 | 100 | 100 | 3.2s | 0 | 0ms |
 
 Four real defects found and fixed: zod was shipping to the browser (about 50KB gz on every page);
@@ -334,8 +334,10 @@ appears; no code change is needed.
   mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
   ladder's group headings carry the distinction. Worth a client decision if the badges are meant
   to be read on their own.
-- **LCP is 3.0s to 3.5s against the 2.5s budget.** Measured twice, on localhost and on the
-  deployment, with the same result, so it is not an artefact of serving from a dev machine.
+- **LCP misses the 2.5s budget on three of the four measured routes.** The homepage meets it at
+  2.1s; `/courses`, a course page and `/enquire` sit at 3.1s to 3.4s across repeat runs. Measured
+  on localhost and on the deployment with the same result, so it is not an artefact of serving from
+  a dev machine.
   Measured directly in a throttled browser rather than through Lighthouse's simulation, the LCP
   element on each route is real above-the-fold text painting in about 750ms. What it is: a text
   LCP waiting on a font and a stylesheet on a simulated slow-4G connection. The best lever is the

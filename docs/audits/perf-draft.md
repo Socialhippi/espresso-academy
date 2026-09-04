@@ -5,14 +5,19 @@ against `pnpm build && pnpm start` on localhost, and against the Vercel deployme
 below. Raw reports are the `lh-*.report.json` files beside this one; the deployment runs are
 `lh-deploy-*.report.json`.
 
-## Scores
+## Scores, localhost
 
-| Route | Performance | Accessibility | Best Practices | SEO |
-|---|---|---|---|---|
-| `/` | **91** | **100** | **100** | **100** |
-| `/courses` | **95** | **100** | **100** | **100** |
-| `/courses/sca-barista-skills-foundation` (measured on `/courses/latte-art`) | **92** | **100** | **100** | **100** |
-| `/enquire` | **93** | **100** | **100** | **100** |
+| Route | Performance | Accessibility | Best Practices | SEO | FCP | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|---|
+| `/` | **99** | **100** | **100** | **100** | 0.9s | **2.1s** | **0** | **0ms** |
+| `/courses` | **92** | **100** | **100** | **100** | 0.9s | 3.4s | **0** | **0ms** |
+| `/courses/sca-barista-skills-foundation` | **92** | **100** | **100** | **100** | 0.9s | 3.4s | **0** | **0ms** |
+| `/enquire` | **93** | **100** | **100** | **100** | 0.8s | 3.2s | **0** | **0ms** |
+
+The homepage clears the 2.5s LCP target. Repeat runs put `/courses` stably at 3.1 to 3.4s, so the
+difference between them is real rather than noise: home's LCP is a three-line Bebas H1, while the
+other three are six-line Montserrat paragraphs, which need more of the font resolved before they
+can paint.
 
 ## Scores, against the Vercel deployment
 
@@ -26,30 +31,21 @@ below. Raw reports are the `lh-*.report.json` files beside this one; the deploym
 The deployment is not materially faster than localhost, so the LCP figure below is a real
 measurement rather than an artefact of serving from a dev machine.
 
-## Core Web Vitals, localhost
-
-| Route | FCP | LCP | CLS | TBT | Speed Index |
-|---|---|---|---|---|---|
-| `/` | 0.9s | 3.5s | **0** | **0ms** | 0.9s |
-| `/courses` | 0.9s | 3.0s | **0** | **0ms** | 0.9s |
-| `/courses/latte-art` | 0.9s | 3.4s | **0** | **0ms** | 0.9s |
-| `/enquire` | 0.8s | 3.2s | **0** | **0ms** | 0.8s |
-
 ## Against the budget in CLAUDE.md
 
 | Budget | Target | Actual | |
 |---|---|---|---|
-| Lighthouse Performance, mobile | >= 90 | 91 to 95 | **pass** |
+| Lighthouse Performance, mobile | >= 90 | 92 to 99 | **pass** |
 | Accessibility | 100 | 100 | **pass** |
 | Best Practices | >= 95 | 100 | **pass** |
 | SEO | 100 | 100 | **pass** |
 | CLS | <= 0.05 | 0 on every route | **pass** |
-| LCP | <= 2.5s | 3.0s to 3.5s simulated | **miss**, see below |
+| LCP | <= 2.5s | 2.1s on `/`, 3.1s to 3.4s elsewhere | **partial**, see below |
 | Initial JS | <= 150KB gz | 172KB gz | **miss**, see below |
 
 ## The two misses
 
-### LCP: 3.0s to 3.5s against a 2.5s target
+### LCP: met on `/`, 3.1s to 3.4s on the other three
 
 Measured directly in a throttled Chromium (1.6 Mbps, 4x CPU) with a `PerformanceObserver`, the LCP
 element and time on each route are:
