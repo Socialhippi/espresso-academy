@@ -220,11 +220,48 @@ export default function ComponentGalleryPage() {
           </div>
         </Specimen>
 
-        <Specimen title="Course card">
+        <Specimen
+          title="Course card, nothing confirmed"
+          note="What the hub shows today. With duration, format, fee and dates all unknown, the card states that once rather than carrying four separate TBC pills."
+        >
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {courses.slice(0, 3).map((course) => (
               <CourseCard key={course.slug} course={course} />
             ))}
+          </div>
+        </Specimen>
+
+        <Specimen
+          title="Course card, values confirmed"
+          note="The same component once the academy sends its numbers. The full spec row and the Bebas fee and date numerals return with no code change."
+        >
+          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {first && (
+              <CourseCard
+                course={{
+                  ...first,
+                  feeInclGst: 25300,
+                  durationDays: 3,
+                  format: "in-person",
+                  instances: [
+                    {
+                      id: "demo-card",
+                      startDate: "2026-10-12",
+                      endDate: "2026-10-14",
+                      schedule: "10am to 5pm",
+                      seatsAvailable: 6,
+                      status: "open",
+                      paymentPageUrl: null,
+                    },
+                  ],
+                }}
+              />
+            )}
+            {courses[1] && (
+              <CourseCard
+                course={{ ...courses[1], feeInclGst: 18500, durationHours: 12, format: "hybrid" }}
+              />
+            )}
           </div>
         </Specimen>
 

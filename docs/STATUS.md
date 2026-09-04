@@ -3,7 +3,16 @@
 Running log of what is built, what is waiting on the client, and what a developer still has to
 do. Updated at the end of every phase.
 
-**Preview URL:** _pending (Phase 9)_
+**Review URL: https://espresso-academy-india.vercel.app**
+
+Public, no login. Open it on a phone.
+
+A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
+are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
+before it will render. The alias above is public and stable across redeploys, which is what a
+client review needs. Turning preview protection off is a setting on the whole team, so it is left
+alone: **Project Settings, Deployment Protection** if you would rather share a per-deployment
+preview link, or use the dashboard's "Share" button on a deployment for a 23-hour bypass link.
 
 ---
 

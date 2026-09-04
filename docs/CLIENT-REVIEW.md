@@ -1,6 +1,6 @@
 # Espresso Academy India: draft website for review
 
-**Preview URL:** _added on deploy, see the top of docs/STATUS.md_
+**Review URL: https://espresso-academy-india.vercel.app**
 
 Please open it **on your phone**, not a laptop. Around two thirds of the people who will use this
 site are on a phone, and it is designed for that first.
