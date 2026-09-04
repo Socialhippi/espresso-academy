@@ -1,0 +1,69 @@
+/**
+ * Metadata helpers. Every indexable route gets a self-referencing absolute canonical, an OG image
+ * and a description inside the 140 to 160 character band that .claude/rules/seo.md sets.
+ */
+import type { Metadata } from "next";
+import { absoluteUrl } from "@/lib/env";
+import { siteSettings } from "@/lib/content";
+
+export const TITLE_SUFFIX = " | Espresso Academy India";
+
+interface PageMetadataInput {
+  /** Without the suffix: the root layout's template appends it. */
+  title: string;
+  description: string;
+  /** Site-relative, e.g. "/courses/latte-art". */
+  path: string;
+  /** Defaults to the route's own opengraph-image, then to the site default. */
+  ogImage?: string;
+  noindex?: boolean;
+  type?: "website" | "article";
+}
+
+export function pageMetadata({
+  title,
+  description,
+  path,
+  ogImage,
+  noindex = false,
+  type = "website",
+}: PageMetadataInput): Metadata {
+  const url = absoluteUrl(path);
+  /* Set the title absolutely rather than leaning on the root layout's template: the template
+     does not apply to the segment that defines it, so app/page.tsx would silently lose the
+     suffix. Every page carrying its own full title removes that trap. */
+  return {
+    title: { absolute: `${title}${TITLE_SUFFIX}` },
+    description,
+    alternates: { canonical: url },
+    robots: noindex
+      ? { index: false, follow: false, nocache: true }
+      : { index: true, follow: true },
+    openGraph: {
+      type,
+      url,
+      title: `${title}${TITLE_SUFFIX}`,
+      description,
+      siteName: siteSettings.name,
+      locale: "en_IN",
+      images: ogImage ? [{ url: ogImage, width: 1200, height: 630 }] : undefined,
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `${title}${TITLE_SUFFIX}`,
+      description,
+    },
+  };
+}
+
+/**
+ * Trim a description to the 160-character ceiling on a word boundary. Used where the copy is
+ * assembled from content/data.ts rather than written by hand.
+ */
+export function clampDescription(text: string, max = 158): string {
+  const collapsed = text.replace(/\s+/g, " ").trim();
+  if (collapsed.length <= max) return collapsed;
+  const cut = collapsed.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 0 ? lastSpace : max).replace(/[,.;:]$/, "")}.`;
+}
