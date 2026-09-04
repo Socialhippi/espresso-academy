@@ -334,10 +334,13 @@ appears; no code change is needed.
   mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
   ladder's group headings carry the distinction. Worth a client decision if the badges are meant
   to be read on their own.
-- **LCP is 3.0s to 3.5s against the 2.5s budget**, measured by Lighthouse's simulated throttling
-  against an uncompressed localhost server. Measured directly in a throttled browser, the LCP
-  element on each route is real above-the-fold text painting in about 750ms. Re-measure against the
-  preview, where responses are Brotli-compressed and edge-cached, before treating it as a defect.
+- **LCP is 3.0s to 3.5s against the 2.5s budget.** Measured twice, on localhost and on the
+  deployment, with the same result, so it is not an artefact of serving from a dev machine.
+  Measured directly in a throttled browser rather than through Lighthouse's simulation, the LCP
+  element on each route is real above-the-fold text painting in about 750ms. What it is: a text
+  LCP waiting on a font and a stylesheet on a simulated slow-4G connection. The best lever is the
+  client's photography, which will change the LCP element on most pages from text to an image that
+  can be preloaded and served as AVIF. Full reasoning in `docs/audits/perf-draft.md`.
 - **First-load JS is 172KB gz against the 150KB budget.** About 150KB of that is the React 19 and
   Next 16 App Router baseline. The application's own code is roughly 22KB over. The only remaining
   lever is dropping Base UI's sheet for a CSS-only mobile nav, saving about 16KB at the cost of the
