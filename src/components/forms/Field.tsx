@@ -61,10 +61,14 @@ interface FieldErrorProps {
   message?: string;
 }
 
-/** Always in the DOM so the live region can announce a message appearing in it. */
+/**
+ * Always in the DOM, and always the same height, so the live region can announce a message
+ * appearing in it and so showing an error on blur does not push the next field out from under
+ * the reader's finger.
+ */
 export function FieldError({ id, message }: FieldErrorProps) {
   return (
-    <p id={id} aria-live="polite" className="empty:hidden">
+    <p id={id} aria-live="polite" className="min-h-5">
       {message && (
         <span className="flex items-center gap-2 type-small text-red-deep">
           <AlertCircle className="size-4 shrink-0" aria-hidden="true" />

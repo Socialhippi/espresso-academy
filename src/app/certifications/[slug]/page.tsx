@@ -50,17 +50,17 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
       question: "Who issues it?",
       body: isIbc ? (
         <p>
-          Espresso Academy in Florence issues it. The diploma is printed in Italy and sent to the
-          authorised partner school that taught you, which in Bengaluru is Espresso Academy India.
-          The academy is listed by Florence as its Official Partner in India. The teaching happens
-          here; the certificate comes from there.
+          Espresso Academy in Florence issues it. The diploma is issued in Italy and sent to the
+          authorised partner school that taught you, which in Bengaluru is Espresso Academy India,
+          an Official Partner of Espresso Academy, Florence. Espresso Academy also lists a partner
+          in New Delhi. The teaching happens here; the certificate comes from there.
         </p>
       ) : (
         <p>
-          The Specialty Coffee Association issues it, not the school. An authorised trainer runs
-          the assessment and the SCA records the result. The academy teaches training aligned to
-          the program. Whether a given batch is assessed for SCA certification is confirmed at
-          enrolment, so ask before you book if that is what you are after.
+          The Specialty Coffee Association issues it, not the school. The academy teaches training
+          aligned to the SCA Coffee Skills Program. Whether a given batch is assessed for SCA
+          certification, and who runs that assessment, is confirmed at enrolment, so ask before you
+          book if the certificate is what you are after.
         </p>
       ),
     },
@@ -71,8 +71,8 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
         <p>
           {certification.levels.join(" and ")}
           {isIbc
-            ? ". Junior assumes no machine experience and starts at the grinder. Advanced assumes you already pull consistent shots and works on refinement, milk texture and bar workflow. There is no level above Advanced."
-            : ". Foundation is an introduction, Intermediate goes into extraction theory and sensory work, and Professional is aimed at head baristas and trainers. Each module carries its own three levels."}
+            ? ". The academy offers it at Junior and Advanced level, and there is no level above Advanced. IBC Junior assumes no machine experience; IBC Advanced is for people already working on a bar. The full syllabus for each level is not published yet."
+            : ". The program is taught across five modules, each at Foundation, Intermediate and Professional level. The academy offers training aligned to it across those five modules. The syllabus for each is not published yet."}
         </p>
       ),
     },
@@ -86,11 +86,11 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
             <TbcPill label="Fee TBC" />
           </p>
           <p className="mt-4">
-            No fee is published for this certificate or for the courses that lead to it. The academy
-            confirms the figure incl. GST for each batch before you pay.{" "}
+            No fee is published for this certificate or for the courses that lead to it. The
+            academy confirms the figure incl. GST for each batch before you pay.{" "}
             {isIbc
-              ? "Ask on WhatsApp and you will be told the current number."
-              : "Where the SCA charges its own assessment and certificate fee on top of the course fee, the academy says so before you pay."}
+              ? "Ask on WhatsApp for the current figure."
+              : "Whether the SCA charges its own assessment and certificate fee on top of the course fee is confirmed at enrolment."}
           </p>
         </>
       ),
@@ -103,9 +103,9 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
           {courseCount === 1
             ? "One course at the Bengaluru campus leads to it."
             : `${courseCount} courses at the Bengaluru campus lead to it.`}{" "}
-          They are listed below with the level each one sits at. If you are not sure which rung
-          matches what you can already do, send a message describing your experience and you will
-          get a straight answer rather than an upsell.
+          Each is listed below with the level it sits at. If you are not sure which rung matches
+          what you can already do, send a message describing your experience and ask which level to
+          start at.
         </p>
       ),
     },
@@ -129,7 +129,7 @@ export async function generateMetadata({
   if (!certification) return { title: "Certification not found" };
 
   return pageMetadata({
-    title: `${certification.shortName}: What It Is and What It Costs`,
+    title: `${certification.shortName}: What It Is and Who Issues It`,
     description: clampDescription(certification.summary),
     path: `/certifications/${certification.slug}`,
     type: "article",
@@ -276,8 +276,8 @@ export default async function CertificationPage({ params }: PageProps<"/certific
         title={`Ask whether the ${certification.shortName} is right for you`}
         body={
           <p>
-            Send your background in one message. You will get an honest answer about whether this
-            certificate helps you, and which course to start on if it does.
+            Send your background in one message and ask whether this certificate helps you, and
+            which course to start on if it does. The fee is not published yet.
           </p>
         }
       />

@@ -77,6 +77,9 @@ export function EnquiryForm({
 
   useEffect(() => {
     mountedAt.current = Date.now();
+    // The fields are controlled, so anything typed before this point is discarded on the first
+    // React render. The attribute marks the form as genuinely interactive.
+    formRef.current?.setAttribute("data-hydrated", "true");
   }, []);
 
   const selected = useMemo(
@@ -229,7 +232,7 @@ export function EnquiryForm({
         <div className="flex">
           <span
             aria-hidden="true"
-            className="flex h-12 items-center rounded-l-xs border border-r-0 border-white-2 bg-white-2 px-3 type-body text-grey"
+            className="flex h-12 items-center rounded-l-xs border border-r-0 border-white-2 bg-white-2 px-3 type-body text-black"
           >
             +91
           </span>

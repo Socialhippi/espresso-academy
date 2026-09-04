@@ -15,7 +15,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "The Italian Barista Certificate and the SCA Coffee Skills Program compared: who issues each, which levels exist, what they cost and which Bengaluru courses lead to them.";
+  "The Italian Barista Certificate and the SCA Coffee Skills Program compared: who issues each, which levels exist, and which Bengaluru courses lead to them.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Coffee Certifications Explained",
@@ -27,18 +27,18 @@ export const metadata: Metadata = pageMetadata({
 const comparison = [
   {
     label: "Who issues it",
-    ibc: "Espresso Academy, Florence. Diplomas are printed in Italy and sent to authorised partner schools.",
-    sca: "The Specialty Coffee Association, on completion of an assessed module with an authorised trainer.",
+    ibc: "Espresso Academy, Florence. Diplomas are issued in Italy and sent to authorised partner schools.",
+    sca: "The Specialty Coffee Association, not the school. The academy teaches training aligned to the program; whether a batch is assessed for SCA certification is confirmed at enrolment.",
   },
   {
     label: "Levels",
     ibc: "Junior, then Advanced.",
-    sca: "Foundation, Intermediate, then Professional, across six modules.",
+    sca: "Foundation, Intermediate, then Professional, across five modules.",
   },
   {
     label: "Who it suits",
-    ibc: "People who want the Italian espresso method and one certificate that says so, start to finish.",
-    sca: "People who want a modular, internationally recognised pathway they can add to over years.",
+    ibc: "People who want one certificate, issued by Espresso Academy, Florence, start to finish.",
+    sca: "People who want a modular program they can add to, module by module, over years.",
   },
   {
     label: "What it costs",
@@ -47,8 +47,8 @@ const comparison = [
   },
   {
     label: "How it fits the ladder",
-    ibc: "Two rungs. Junior assumes nothing; Advanced assumes you already pull consistent shots.",
-    sca: "Three rungs per module. You can enter at the level that matches what you can already do.",
+    ibc: "Two rungs, Junior then Advanced. IBC Junior assumes no machine experience.",
+    sca: "Three levels per module. Which level suits you is agreed with the academy first.",
   },
 ];
 
@@ -142,14 +142,14 @@ export default function CertificationsPage() {
                 A certificate helps you get an interview. Your skills get you the job.
               </p>
               <p className="mt-5 measure type-body text-grey">
-                Both of these are recognised by people who know what they are, and neither is a
-                licence to practise. What an employer tests at a trial shift is whether you can dial
-                in under pressure, texture milk consistently and keep a bar moving. That is why the
-                courses are built around machine time and assessment rather than lectures.
+                Neither certificate is a licence to practise, and neither replaces what you can do
+                on a bar. What an employer tests at a trial shift is whether you can dial in under
+                pressure, texture milk consistently and keep a bar moving.
               </p>
               <p className="mt-4 measure type-body text-grey">
-                Ask us which employers in your city recognise a given certificate and you will get a
-                plain answer, including when the answer is that we do not know.
+                The academy does not publish a list of employers who recognise either certificate,
+                and it does not publish a placement rate. Ask before you book if that matters to
+                you, including when the answer is that nobody knows.
               </p>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function CertificationsPage() {
                 eyebrow="Levels"
                 title="The two ladders"
                 id="ladder-heading"
-                description="Neither ladder blocks the other. Plenty of students take IBC Junior first and pick up SCA modules later."
+                description="Neither ladder depends on the other. The IBC runs at Junior and Advanced; the SCA-aligned training runs at Foundation, Intermediate and Professional."
               />
             </div>
             <div className="md:col-span-8">
@@ -244,8 +244,8 @@ export default function CertificationsPage() {
         title="Ask which certificate fits your plan"
         body={
           <p>
-            Tell us what you want to be doing in a year. We will say which certificate helps and
-            which one is beside the point for you.
+            Tell the academy what you want to be doing in a year, and ask which certificate helps
+            and which one is beside the point. The fee for both is not published yet.
           </p>
         }
       />

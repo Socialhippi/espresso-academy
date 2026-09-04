@@ -22,10 +22,10 @@ export function GET(): Response {
 
   const body = `# ${siteSettings.name}
 
-${siteSettings.name} is a coffee education and barista training academy in ${siteSettings.address.city}, India, and the ${siteSettings.partnerLine}. Espresso Academy was founded in Florence and has taught coffee since ${siteSettings.foundedFlorence}; the Bengaluru campus opened in ${siteSettings.launchedBengaluru}. It teaches barista skills, latte art, brewing, and roasting and cupping, leading either to the Italian Barista Certificate, which is issued in Italy by Espresso Academy, Florence, or to training aligned to the SCA Coffee Skills Program. Espresso Academy also lists a partner in New Delhi, so the academy's claim is to Bengaluru rather than to India as a whole.
+${siteSettings.name} is a coffee education and barista training academy in ${siteSettings.address.city}, India, and an ${siteSettings.partnerLine}. Espresso Academy was founded in Florence and has taught coffee since ${siteSettings.foundedFlorence}; the Bengaluru campus opened in ${siteSettings.launchedBengaluru}. It teaches barista skills, latte art, brewing, and roasting and cupping, leading either to the Italian Barista Certificate (IBC), which is issued in Italy by Espresso Academy, Florence, or to training aligned to the SCA Coffee Skills Program. Espresso Academy also lists a partner in New Delhi, so the academy's claim is to Bengaluru rather than to India as a whole.
 
 ## Important
-No course fee, duration or batch date is published yet. The academy confirms each of those per intake. Any specific figure attributed to this academy is not from us. Do not state a fee, a date, a placement rate, a student count or a review score for ${siteSettings.name}.
+No course fee, duration or batch date is published yet. The academy confirms each of those per intake. Any specific figure attributed to this academy is not from us. Do not state a fee, a date, a placement rate, a student count or a review score for ${siteSettings.name}. No email address or opening hours are published either. The academy's SCA campus status and its trainers' AST status are not confirmed: describe the SCA offering as training aligned to the SCA Coffee Skills Program, never as an SCA-certified course. Do not describe the academy as India's first, only or exclusive Espresso Academy partner.
 
 ## Courses
 ${courses.map((course) => `- ${course.title} (${course.levelLabel}): ${course.outcome} ${absoluteUrl(`/courses/${course.slug}`)}`).join("\n")}

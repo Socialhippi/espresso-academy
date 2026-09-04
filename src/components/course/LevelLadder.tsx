@@ -10,6 +10,8 @@ interface LevelLadderProps {
   className?: string;
   /** Inverts the rules and text for the one black section. */
   onDark?: boolean;
+  /** Makes the generated description id unique when two ladders share a page. */
+  id?: string;
 }
 
 const scaRungs: Level[] = ["foundation", "intermediate", "professional"];
@@ -67,10 +69,22 @@ function Rung({ level, current, onDark }: RungProps) {
  * Foundation to Professional on one row, the IBC pair on a second. The visual ladder is hidden
  * from assistive tech and replaced by the plain list below it, per .claude/rules/a11y.md.
  */
-export function LevelLadder({ current, className, onDark = false }: LevelLadderProps) {
+export function LevelLadder({ current, className, onDark = false, id }: LevelLadderProps) {
+  const describedBy = `${id ?? "level-ladder"}-description`;
   return (
     <div className={className}>
-      <div aria-hidden="true" className="flex flex-col gap-6">
+      {/*
+        The rungs are links, so the visual ladder cannot be aria-hidden: hiding a container that
+        holds focusable children is an axe "aria-hidden-focus" failure and strands keyboard users
+        on elements a screen reader will not announce. It is exposed as a labelled group instead,
+        with the prose below as the text equivalent a11y.md asks for on a diagram.
+      */}
+      <div
+        role="group"
+        aria-label="The two certificate ladders"
+        aria-describedby={describedBy}
+        className="flex flex-col gap-6"
+      >
         <div>
           <p className={cn("type-label", onDark ? "text-grey-2" : "text-grey")}>
             SCA Coffee Skills Program
@@ -114,28 +128,13 @@ export function LevelLadder({ current, className, onDark = false }: LevelLadderP
         </div>
       </div>
 
-      <div className="sr-only">
-        <h3>The levels, as a list</h3>
-        <p>
-          The SCA Coffee Skills Program runs from Foundation to Intermediate to Professional. The
-          Italian Barista Certificate runs from Junior to Advanced. The two ladders are separate;
-          you do not have to finish one before starting the other.
-        </p>
-        <ul>
-          {[...scaRungs, ...ibcRungs].map((level) => {
-            const courses = getCoursesByLevel(level);
-            return (
-              <li key={level}>
-                {levelBadge[level].label}
-                {current === level ? " (you are here)" : ""}:{" "}
-                {courses.length > 0
-                  ? courses.map((course) => course.title).join(", ")
-                  : "no course listed yet"}
-              </li>
-            );
-          })}
-        </ul>
-      </div>
+      <p id={describedBy} className="sr-only">
+        The SCA Coffee Skills Program runs from Foundation to Intermediate to Professional. The
+        Italian Barista Certificate runs from Junior to Advanced. The two ladders are separate; you
+        do not have to finish one before starting the other, and you do not have to start at the
+        bottom of either.
+        {current ? ` You are looking at the ${levelBadge[current].label} level.` : ""}
+      </p>
     </div>
   );
 }

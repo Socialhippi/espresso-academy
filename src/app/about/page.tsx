@@ -15,7 +15,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Espresso Academy has taught coffee in Florence since 2007 and in Bengaluru since 2023, as the Official Partner of Espresso Academy, Florence. Here is how it teaches.";
+  "Espresso Academy has taught coffee in Florence since 2007 and in Bengaluru since 2023. Espresso Academy India is an Official Partner of Espresso Academy, Florence.";
 
 export const metadata: Metadata = pageMetadata({
   title: "About the Academy",
@@ -23,22 +23,22 @@ export const metadata: Metadata = pageMetadata({
   path: "/about",
 });
 
-/** The method. Each step describes how the courses are run; no claim beyond content/facts.md. */
+/** Three statements about the set-up. No claim beyond content/facts.md; gaps stay TBC. */
 const method = [
   {
     number: "01",
-    title: "Machine time, not slides",
-    body: "The courses are built around time on a professional machine. You are pulling shots in the first session, not watching someone else pull them.",
+    title: "Taught at the Bengaluru campus",
+    body: "Every course runs at the RMV 2nd Stage campus, near Ramaiah Hospital. The session format for each course, including the hours on a machine, is confirmed with you before you book.",
   },
   {
     number: "02",
-    title: "The Florence method",
-    body: "Espresso Academy has taught coffee in Florence since 2007. The Bengaluru campus teaches to the same method, and the Italian Barista Certificate is issued in Italy and sent here.",
+    title: "The Florence link",
+    body: "Espresso Academy has taught coffee in Florence since 2007. Espresso Academy India is an Official Partner of Espresso Academy, Florence, and the Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy and sent to its authorised partner schools.",
   },
   {
     number: "03",
-    title: "Assessed, not attended",
-    body: "Certificates are awarded on assessment. That is what makes them worth something to an employer, and it is why we say plainly when a course is not the right starting point for you.",
+    title: "Two ladders, not one",
+    body: "The IBC runs at Junior and Advanced level. The other courses are training aligned to the SCA Coffee Skills Program at Foundation, Intermediate and Professional level. Neither ladder depends on the other.",
   },
 ];
 
@@ -59,14 +59,13 @@ export default function AboutPage() {
       <PageHero
         above={<Breadcrumbs items={[{ label: "About", href: "/about" }]} />}
         eyebrow="About"
-        title="A Florence coffee school, teaching in Bengaluru"
+        title="Florence since 2007. Bengaluru since 2023."
         intro={
           <p>
             Espresso Academy was founded in Florence and has focused on coffee education since{" "}
             {siteSettings.foundedFlorence}. Espresso Academy India launched in Bengaluru in{" "}
-            {siteSettings.launchedBengaluru} and is the {siteSettings.partnerLine.toLowerCase()}.
-            Espresso Academy also lists a partner in New Delhi, so what we claim is Bengaluru, not
-            India.
+            {siteSettings.launchedBengaluru} and is an {siteSettings.partnerLine}. Espresso
+            Academy also lists a partner in New Delhi, so the claim here is Bengaluru, not India.
           </p>
         }
         actions={
@@ -87,8 +86,8 @@ export default function AboutPage() {
             <div className="md:col-span-4">
               <SectionHeading
                 number="01"
-                eyebrow="The method"
-                title="How the teaching works"
+                eyebrow="The set-up"
+                title="How the academy is put together"
                 id="method-heading"
               />
             </div>
@@ -163,7 +162,7 @@ export default function AboutPage() {
             eyebrow="Gallery"
             title="Inside the academy"
             id="gallery-heading"
-            description="Photographs from the campus. The shoot is done and the files are on their way; until they land, these are labelled placeholders rather than stock images."
+            description="Photographs from the campus. The photoshoot is done and the files are pending, so these are labelled placeholders rather than stock images."
           />
           <ul className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {galleryslots.map((slot) => (
@@ -209,15 +208,17 @@ export default function AboutPage() {
                 A certificate helps you get an interview. Your skills get you the job.
               </p>
               <p className="mt-5 measure type-body text-grey">
-                The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence,
-                and sent to its authorised partner schools. Our other courses are training aligned
-                to the SCA Coffee Skills Program; whether a given batch is assessed for SCA
-                certification, and what the SCA charges for that, is confirmed at enrolment.
+                The Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy,
+                Florence, and sent to its authorised partner schools. The other courses are
+                training aligned to the SCA Coffee Skills Program; whether a given batch is
+                assessed for SCA certification, and what the SCA charges for that, is confirmed at
+                enrolment.
               </p>
               <p className="mt-4 measure type-body text-grey">
-                We do not claim to be the first, the only or the best coffee school in India, and
-                we do not publish a placement rate. What we will do is tell you honestly whether a
-                course is the right one for you, including when the answer is no.{" "}
+                The academy does not claim to be the first, the only or the best coffee school in
+                India, and no placement rate, student count or rating is published here. Ask
+                whether a course fits your experience and you will get a straight answer, including
+                when the answer is no.{" "}
                 <Link
                   href="/certifications"
                   className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
@@ -238,8 +239,8 @@ export default function AboutPage() {
         href="/contact"
         body={
           <p>
-            You are welcome to visit the campus before you book anything. Message the academy and
-            someone will tell you when a class is running so you can see one in progress.
+            You are welcome to visit the campus before you book anything. Opening hours are not
+            published yet, so message the academy first and ask when a class is running.
           </p>
         }
       />
@@ -247,7 +248,7 @@ export default function AboutPage() {
       <JsonLd
         id="about-jsonld"
         data={graph([
-          webPageNode("/about", "A Florence coffee school, teaching in Bengaluru", DESCRIPTION),
+          webPageNode("/about", "Florence since 2007. Bengaluru since 2023.", DESCRIPTION),
         ])}
       />
     </>

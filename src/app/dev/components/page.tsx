@@ -352,7 +352,10 @@ export default function ComponentGalleryPage() {
           <div className="flex flex-wrap items-center gap-4">
             <ShadcnButton>shadcn Button</ShadcnButton>
             <Select>
-              <SelectTrigger className="h-12 min-w-56 rounded-xs border-white-2 bg-white-3 text-body">
+              <SelectTrigger
+                aria-label="Pick a course, shadcn Select specimen"
+                className="h-12 min-w-56 rounded-xs border-white-2 bg-white-3 text-body"
+              >
                 <SelectValue placeholder="shadcn Select" />
               </SelectTrigger>
               <SelectContent>

@@ -221,9 +221,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                   </div>
                   <p className="mt-4 type-h3 text-black">Syllabus being finalised</p>
                   <p className="mt-3 measure type-body text-grey">
-                    The academy is confirming the session-by-session outline for this course. Ask
-                    on WhatsApp for the current outline and you will get what the trainers are
-                    teaching this month, not a version written a year ago.
+                    The session-by-session outline for this course is not published yet. Ask on
+                    WhatsApp and the academy will send the current one.
                   </p>
                   <WhatsAppButton
                     className="mt-6"
@@ -240,7 +239,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               <div className="mt-8 border border-white-2 bg-white p-6">
                 <h3 className="type-label text-grey">Before you start</h3>
                 <p className="mt-3 type-body text-black">
-                  {course.prerequisites ?? "Prerequisites are confirmed by the academy at enrolment."}
+                  {course.prerequisites ?? "Prerequisites for this course are not published yet."}
                 </p>
                 {previousCourse && (
                   <p className="mt-3 type-small text-grey">
@@ -279,14 +278,14 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           ) : (
             /* TODO(client): courses[].trainers is empty for this course. */
             <p className="mt-8 measure type-body text-grey">
-              Taught by the academy&rsquo;s certified faculty, assigned per batch.{" "}
+              The trainer for this course is set per batch and is not listed yet.{" "}
               <Link
                 href="/trainers"
                 className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
               >
                 Read the trainer profiles
               </Link>{" "}
-              to see who you might be learning from.
+              to see who teaches at the academy.
             </p>
           )}
         </Container>
@@ -402,8 +401,9 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         course={course.title}
         body={
           <p>
-            Send your name and number. The academy replies with the fee incl. GST, the next batch
-            date and an honest answer on whether {course.title} is the right starting point for you.
+            Send your name and number with a line about your experience, and ask whether{" "}
+            {course.title} is the right starting point. The fee incl. GST and the batch dates are
+            confirmed with you before you pay.
           </p>
         }
       />

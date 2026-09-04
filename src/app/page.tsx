@@ -19,7 +19,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Barista, latte art, brewing and roasting courses in Bengaluru. Take the Italian Barista Certificate, issued in Florence, or train to the SCA program.";
+  "Barista, latte art, brewing and roasting courses in Bengaluru. Take the Italian Barista Certificate, or training aligned to the SCA Coffee Skills Program.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Barista Training in Bengaluru",
@@ -35,10 +35,10 @@ export default function HomePage() {
     <>
       <HomeHero
         titleLead="Professional coffee training in Bengaluru,"
-        titleAccent="the Florence way"
+        titleAccent="certified from Florence"
         subline={
           <p>
-            Learn on professional machines at the RMV 2nd Stage campus. Take the{" "}
+            Learn at the RMV 2nd Stage campus. Take the{" "}
             <Link
               href="/certifications/italian-barista-certificate"
               className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
@@ -81,7 +81,7 @@ export default function HomePage() {
                 eyebrow="Levels"
                 title="Where you start, where you finish"
                 id="ladder-heading"
-                description="Two ladders run side by side. You do not have to finish one before starting the other, and you do not have to start at the bottom of either."
+                description="Two ladders run side by side. The Italian Barista Certificate runs at Junior and Advanced. The SCA-aligned training runs at Foundation, Intermediate and Professional. Which rung you start on is set with you, not by a rule."
               />
               <p className="mt-6">
                 <ButtonLink href="/certifications" variant="tertiary" size="inline">
@@ -144,8 +144,8 @@ export default function HomePage() {
         title="Tell us where you are starting from"
         body={
           <p>
-            Send one message with your background and what you want to be able to do. You will get
-            a straight answer about which course fits and what it costs, before you commit to
+            Send one message with your background and what you want to be able to do. Fees and
+            batch dates are not published yet, so ask for the current figures before you commit to
             anything.
           </p>
         }

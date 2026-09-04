@@ -189,6 +189,19 @@
     scroll-margin-top: 6rem;
   }
 
+  /* The mobile sticky bar is fixed to the bottom of the viewport, so a control the browser has
+     just scrolled into view can end up underneath it. This leaves room for the bar. */
+  @media (width < 48rem) {
+    input,
+    select,
+    textarea,
+    button,
+    summary,
+    a {
+      scroll-margin-bottom: 7rem;
+    }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *,
     ::before,

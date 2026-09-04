@@ -31,6 +31,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
   const phoneId = useId();
   const errorId = useId();
   const mountedAt = useRef<number>(0);
+  const formRef = useRef<HTMLFormElement>(null);
   const phoneRef = useRef<HTMLInputElement>(null);
   const nameRef = useRef<HTMLInputElement>(null);
 
@@ -41,6 +42,8 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
 
   useEffect(() => {
     mountedAt.current = Date.now();
+    // Controlled fields: anything typed before React attaches is discarded on the first render.
+    formRef.current?.setAttribute("data-hydrated", "true");
   }, []);
 
   async function onSubmit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
@@ -114,7 +117,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
   const labelClass = cn("type-label", onDark ? "text-grey-2" : "text-grey");
 
   return (
-    <form onSubmit={onSubmit} noValidate className={cn("flex flex-col gap-4", className)}>
+    <form ref={formRef} onSubmit={onSubmit} noValidate className={cn("flex flex-col gap-4", className)}>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label htmlFor={nameId} className={labelClass}>
@@ -145,7 +148,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
                 "flex h-12 items-center rounded-l-xs border border-r-0 px-3 type-body",
                 onDark
                   ? "border-black-2 bg-black text-grey-2"
-                  : "border-white-2 bg-white-2 text-grey",
+                  : "border-white-2 bg-white-2 text-black",
               )}
             >
               +91

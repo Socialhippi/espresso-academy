@@ -17,8 +17,8 @@ const items: ProofItem[] = [
   { figure: String(siteSettings.foundedFlorence), label: "Coffee education in Florence since 2007" },
   { figure: String(siteSettings.launchedBengaluru), label: "Teaching in Bengaluru since 2023" },
   { figure: "Partner", label: "Official Partner of Espresso Academy, Florence" },
-  { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to the campus" },
-  { figure: "Q Grader", label: "Faculty hold Q Grader and Q Processing credentials" },
+  { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to partner schools" },
+  { figure: "Q Grader", label: "Faculty hold Q Grader and CQI Q Processing credentials" },
 ];
 
 interface ProofStripProps {

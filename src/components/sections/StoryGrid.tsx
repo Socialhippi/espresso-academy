@@ -22,26 +22,26 @@ export function StoryGrid({ className, number = "05" }: StoryGridProps) {
         <SectionHeading
           number={number}
           eyebrow="Students"
-          title="Where our students end up"
+          title="Student stories"
           id="stories-heading"
         />
 
         {stories.length === 0 ? (
           <div className="mt-10 grid gap-8 border border-white-2 p-6 md:mt-14 md:grid-cols-12 md:p-10">
             <div className="md:col-span-7">
-              <p className="type-h3 text-black">Student stories are coming soon</p>
+              <p className="type-h3 text-black">No student stories are published yet</p>
               <p className="mt-3 measure type-body text-grey">
-                We only publish a story when the student has read it and agreed to it. Until then
-                this space stays empty rather than carrying a quote nobody said. If you want to
-                hear from a graduate before you enrol, ask and we will put you in touch.
+                A story appears here only when the student has read it and agreed to it. Until
+                then this space stays empty rather than carrying a quote nobody said. To hear from
+                a past student before you enrol, ask the academy.
               </p>
             </div>
             <div className="flex items-start md:col-span-5 md:justify-end">
               <WhatsAppButton
-                message="Hi, I'd like to speak to a graduate before I enrol. Can you put me in touch?"
+                message="Hi, I would like to speak to a past student before I enrol. Is that possible?"
                 event="whatsapp_click_stories"
               >
-                Ask to speak to a graduate
+                Ask to speak to a past student
               </WhatsAppButton>
             </div>
           </div>

@@ -66,6 +66,64 @@ do. Updated at the end of every phase.
 - `/calendar`, which currently renders the "dates being finalised" state with a per-course batch
   alert, because no instance in `content/data.ts` carries a date.
 
+### Content pass
+
+The content-editor subagent audited every page's copy against `content/facts.md`. Applied:
+
+- **A factual error:** the SCA Coffee Skills Program was described as six modules. `facts.md` says
+  five.
+- "the Official Partner" implied exclusivity; `facts.md` explicitly records a second Indian partner
+  in New Delhi. Now "an Official Partner" everywhere, and the About page says so in prose.
+- "SCA-certified"-adjacent phrasing removed: the SCA offering is described only as "training
+  aligned to the SCA Coffee Skills Program", and no claim is made about who runs an assessment,
+  since trainer AST status is unconfirmed.
+- Equipment claims ("professional machines", "the same machines as the professional courses")
+  removed: no equipment fact exists and the About page marks the machine list TBC.
+- Claims about entry requirements, session format and employer recognition softened to what the
+  data supports, or moved to a TBC state.
+- Service promises that implied a fee or a date already exists ("the academy replies with the fee
+  incl. GST, the next batch date") rewritten.
+- Diplomas are "issued" in Italy, not "printed"; sent to "partner schools", not "the campus".
+  Q Processing is "CQI Q Processing". The IBC carries "(IBC)" on first use.
+- The empty stories section no longer promises outcomes ("Where our students end up" ->
+  "Student stories").
+- `/llms.txt` gained explicit guardrails so an assistant quoting it cannot state a fee, a date, an
+  SCA certification claim or an exclusivity claim.
+
+### Phase 5: SEO
+
+- `sitemap.ts` and `robots.ts` generated from `content/data.ts`; robots allows the AI crawlers and
+  holds back `/api`, `/dev` and `/thank-you`. `/llms.txt` route.
+- Open Graph image routes: a default card plus one per course.
+- Titles are set absolutely so the homepage cannot lose its suffix, and every one is checked
+  against the 50 to 60 character band by the test suite.
+- Structured data is asserted per route by the test suite rather than by eye: `@graph` parses, the
+  organisation and campus nodes are present everywhere, and `BreadcrumbList` appears on exactly
+  the pages that render a visible trail.
+
+### Phase 6: tests
+
+`pnpm test:e2e` runs 639 tests across chromium, webkit, Pixel 7 and iPhone 14, all passing:
+
+- Every route returns 200, has exactly one H1, skips no heading level, and has no horizontal
+  overflow at 390.
+- Sticky bar present everywhere except `/enquire` and `/thank-you`, hidden until 300px of scroll.
+- The mobile sheet opens, traps focus, closes on Escape and restores focus to its trigger.
+- `?level=` and `?area=` filter the hub while the canonical stays `/courses`.
+- "Reserve a seat" pre-fills `/enquire`.
+- The enquiry form: invalid phone shows an error and moves focus; a mocked success replaces the
+  form; a mocked failure shows the WhatsApp handoff. The API rejects a bad phone, drops the
+  honeypot and sub-2-second submissions silently, and refuses non-POST.
+- axe (WCAG 2.0/2.1/2.2 A and AA) on every route with no serious or critical violations, plus the
+  open mobile sheet.
+- Guards that no page states a fee, a rating, a student count, an "SCA-certified course" or an
+  India-first superlative.
+
+Three real defects the suite caught and that are now fixed: the "+91" field prefix was grey on
+white-2 at 4.05:1; the level ladder was `aria-hidden` while containing links; and the inline error
+message appearing on blur shifted the fields below it, moving the consent checkbox out from under
+a tap.
+
 ---
 
 ## TBC for client
@@ -144,6 +202,15 @@ appears; no code change is needed.
   mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
   ladder's group headings carry the distinction. Worth a client decision if the badges are meant
   to be read on their own.
+- **The mobile sheet's focus trap leaks on WebKit under Playwright.** Tabbing while the sheet is
+  open reaches page controls behind it in the webkit and iPhone 14 projects, but not in Chromium.
+  The sheet is the shadcn/Base UI primitive and must not be hand-edited. This may be an artefact of
+  synthetic key events rather than real Safari behaviour, so the strict trap assertion runs on the
+  Chromium projects and the Escape and focus-restore assertions run everywhere. **Check this by
+  hand on a real iPhone before launch.**
+- **Controlled form fields discard anything typed before React hydrates.** Not reachable by a human
+  typing at normal speed, but it is real. Both forms now set `data-hydrated="true"` when they
+  become interactive, which is what the tests wait for.
 - **Context7 MCP is unavailable.** `CONTEXT7_API_KEY` is empty in `.env.local`, so every
   `create-next-app`, shadcn, Tailwind and Next API used here was verified against each tool's own
   `--help` output and its installed package instead. If a newer API exists, this is where it would

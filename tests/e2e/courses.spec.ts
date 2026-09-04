@@ -1,0 +1,134 @@
+import { expect, test } from "@playwright/test";
+import { acceptConsent } from "./helpers";
+
+test.beforeEach(async ({ context, baseURL }) => {
+  await acceptConsent(context, baseURL as string);
+});
+
+test.describe("course hub filters", () => {
+  test("unfiltered, every course is listed", async ({ page }) => {
+    await page.goto("/courses");
+    await expect(page.getByRole("heading", { level: 3 }).first()).toBeVisible();
+    const grid = page.locator("ul > li > article");
+    await expect(grid).toHaveCount(8);
+  });
+
+  test("?level=foundation narrows the grid and keeps the canonical on /courses", async ({ page }) => {
+    await page.goto("/courses?level=foundation");
+
+    const grid = page.locator("ul > li > article");
+    await expect(grid).toHaveCount(1);
+    await expect(grid.first()).toContainText("Barista Skills, Foundation");
+
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+    expect(new URL(canonical as string).pathname).toBe("/courses");
+    expect(canonical).not.toContain("level=");
+
+    // The chosen chip is marked as current.
+    await expect(page.getByRole("link", { name: "Foundation", exact: true })).toHaveAttribute(
+      "aria-current",
+      "true",
+    );
+  });
+
+  test("?area=latte-art narrows the grid", async ({ page }) => {
+    await page.goto("/courses?area=latte-art");
+    const grid = page.locator("ul > li > article");
+    await expect(grid).toHaveCount(1);
+    await expect(grid.first()).toContainText("Latte Art");
+  });
+
+  test("a combination with no match shows the empty state, not an empty page", async ({ page }) => {
+    await page.goto("/courses?level=professional&area=brewing");
+    await expect(page.locator("ul > li > article")).toHaveCount(0);
+    await expect(page.getByText("Nothing matches that combination yet")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Show all courses" })).toBeVisible();
+  });
+
+  test("an unknown filter value is ignored rather than emptying the page", async ({ page }) => {
+    await page.goto("/courses?level=not-a-level");
+    await expect(page.locator("ul > li > article")).toHaveCount(8);
+  });
+});
+
+test.describe("course page", () => {
+  test("Reserve a seat pre-fills the enquiry form with the course", async ({ page }) => {
+    await page.goto("/courses/latte-art");
+    await page.getByRole("link", { name: "Reserve a seat" }).first().click();
+
+    await expect(page).toHaveURL(/\/enquire\?course=latte-art/);
+    const select = page.getByLabel("Which course (optional)");
+    await expect(select).toHaveValue("latte-art");
+  });
+
+  test("shows the TBC state for fee, duration and dates rather than a number", async ({ page }) => {
+    await page.goto("/courses/sca-barista-skills-foundation");
+
+    // Every TBC pill announces itself; there is no invented figure anywhere on the page.
+    await expect(page.getByTitle("To be confirmed by the academy").first()).toBeVisible();
+    await expect(page.getByText("Batch dates are being finalised").first()).toBeVisible();
+    await expect(page.getByText("Syllabus being finalised")).toBeVisible();
+
+    const body = (await page.locator("body").innerText()).toLowerCase();
+    expect(body, "no rupee figure should appear while fees are unpublished").not.toMatch(/₹\s?\d/);
+  });
+
+  test("links to the certification, the hub and the next rung", async ({ page }) => {
+    await page.goto("/courses/italian-barista-certificate-junior");
+    // The header nav is hidden below md, so assert a visible instance exists rather than that the
+    // first match in DOM order happens to be the visible one.
+    for (const href of [
+      "/certifications/italian-barista-certificate",
+      "/courses",
+      "/courses/italian-barista-certificate-advanced",
+    ]) {
+      const links = page.locator(`a[href="${href}"]`);
+      await expect(links.first()).toHaveCount(1);
+      const visible = await links.evaluateAll((nodes) =>
+        nodes.some((node) => (node as HTMLElement).offsetParent !== null),
+      );
+      expect(visible, `${href} should have at least one visible link`).toBe(true);
+    }
+  });
+});
+
+test.describe("calendar", () => {
+  test("shows the dates-being-finalised state with a per-course alert", async ({ page }) => {
+    await page.goto("/calendar");
+    await expect(page.getByRole("heading", { name: "Batch dates are being finalised" })).toBeVisible();
+
+    const details = page.locator("details");
+    await expect(details).toHaveCount(8);
+
+    await details.first().locator("summary").click();
+    await expect(details.first().getByLabel("Mobile number (required)")).toBeVisible();
+  });
+});
+
+test.describe("no invented facts", () => {
+  const paths = ["/", "/courses", "/calendar", "/certifications", "/trainers", "/about"];
+  for (const path of paths) {
+    test(`${path} states no fee, rating or student count`, async ({ page }) => {
+      await page.goto(path);
+      const body = await page.locator("body").innerText();
+      expect(body, "no rupee figure").not.toMatch(/₹\s?\d/);
+      expect(body, "no star rating").not.toMatch(/\d(\.\d)?\s*\/\s*5/);
+      // Shapes an invented count actually takes. A bare "05 Students" is the numbered section
+      // eyebrow sitting next to its label, not a claim.
+      expect(body, "no student or graduate count claim").not.toMatch(
+        /(\b\d{3,}[\d,]*|\b\d[\d,]*\+)\s*(students|graduates|reviews|placements)\b/i,
+      );
+      expect(body, "no trained-N claim").not.toMatch(
+        /\b(over|more than|trained|taught|placed)\s+\d[\d,]*\s+(students|graduates|baristas|people)\b/i,
+      );
+      // A trainer being SCA certified is supported by content/facts.md. A *course* being
+      // "SCA certified" is not, and content.md forbids it until AST status is confirmed.
+      expect(body, 'no "SCA certified course" phrasing').not.toMatch(
+        /SCA[- ]certified\s+(course|courses|programme?|training|batch)/i,
+      );
+      expect(body, "no India-first superlative").not.toMatch(
+        /India'?s (first|only|best|leading)/i,
+      );
+    });
+  }
+});
