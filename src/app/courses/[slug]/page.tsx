@@ -96,6 +96,11 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
   const previousCourse = getPreviousInLadder(course);
   const certification = course.certification ? getCertification(course.certification) : undefined;
 
+  /* The faculty section only exists when trainers are assigned, so the numerals are counted
+     rather than written in: a gap in the sequence reads as a mistake. */
+  let sectionNumber = 0;
+  const next = (): string => String(++sectionNumber).padStart(2, "0");
+
   return (
     <>
       <section className="border-b border-white-2 pt-6 pb-10 md:pt-8 md:pb-16">
@@ -136,7 +141,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
       {/* Who it is for, and honestly who it is not. */}
       <section className="section-y" aria-labelledby="fit-heading">
         <Container>
-          <SectionHeading number="01" eyebrow="Fit" title="Is this the right one" id="fit-heading" />
+          <SectionHeading number={next()} eyebrow="Fit" title="Is this the right one" id="fit-heading" />
           <div className="mt-10 grid gap-px border border-white-2 bg-white-2 md:grid-cols-2">
             <div className="bg-white p-6 md:p-8">
               <h3 className="type-h3 text-black">Who this is for</h3>
@@ -169,7 +174,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-5">
               <SectionHeading
-                number="02"
+                number={next()}
                 eyebrow="Syllabus"
                 title="What you will learn"
                 id="learn-heading"
@@ -253,6 +258,19 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 <p className="mt-3 type-body text-black">
                   {course.prerequisites ?? "Prerequisites for this course are not published yet."}
                 </p>
+                {trainers.length === 0 && (
+                  /* TODO(client): courses[].trainers is empty for this course. */
+                  <p className="mt-4 type-small text-grey">
+                    The trainer is set per batch and is not listed yet.{" "}
+                    <Link
+                      href="/trainers"
+                      className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                    >
+                      Read the trainer profiles
+                    </Link>
+                    .
+                  </p>
+                )}
                 {previousCourse && (
                   <p className="mt-3 type-small text-grey">
                     The rung below is{" "}
@@ -271,44 +289,35 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm" aria-labelledby="teach-heading">
-        <Container>
-          <SectionHeading
-            number="03"
-            eyebrow="Faculty"
-            title="Who teaches it"
-            id="teach-heading"
-          />
-          {trainers.length > 0 ? (
-            <ul className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+      {/* Only a section when there is something to show. With courses[].trainers empty this was a
+          numbered full-width band carrying two lines of "not listed yet"; the line now sits with
+          the other unknowns in the syllabus card above. */}
+      {trainers.length > 0 && (
+        <section className="section-y-sm" aria-labelledby="teach-heading">
+          <Container>
+            <SectionHeading
+              number={next()}
+              eyebrow="Faculty"
+              title="Who teaches it"
+              id="teach-heading"
+            />
+            <ul className="mt-10 grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3">
               {trainers.map((trainer, index) => (
                 <li key={trainer.slug}>
                   <TrainerCard trainer={trainer} priority={index === 0} />
                 </li>
               ))}
             </ul>
-          ) : (
-            /* TODO(client): courses[].trainers is empty for this course. */
-            <p className="mt-8 measure type-body text-grey">
-              The trainer for this course is set per batch and is not listed yet.{" "}
-              <Link
-                href="/trainers"
-                className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-              >
-                Read the trainer profiles
-              </Link>{" "}
-              to see who teaches at the academy.
-            </p>
-          )}
-        </Container>
-      </section>
+          </Container>
+        </section>
+      )}
 
       <section className="section-y bg-white-3" aria-labelledby="dates-heading">
         <Container>
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-7">
               <SectionHeading
-                number="04"
+                number={next()}
                 eyebrow="Dates"
                 title="Next batches"
                 id="dates-heading"
@@ -327,7 +336,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           <div className="grid gap-10 md:grid-cols-12 md:gap-12">
             <div className="md:col-span-4">
               <SectionHeading
-                number="05"
+                number={next()}
                 eyebrow="Ladder"
                 title="Where this sits"
                 id="ladder-heading"
@@ -366,7 +375,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
       <section className="section-y bg-white-3" aria-labelledby="course-faq-heading">
         <Container>
           <SectionHeading
-            number="06"
+            number={next()}
             eyebrow="Questions"
             title="About this course"
             id="course-faq-heading"
@@ -383,7 +392,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         <section className="section-y-sm" aria-labelledby="related-heading">
           <Container>
             <SectionHeading
-              number="07"
+              number={next()}
               eyebrow="Related"
               title="Other courses to look at"
               id="related-heading"
@@ -405,7 +414,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
       )}
 
       <FinalCta
-        number="08"
+        number={next()}
         title="Reserve a seat on this course"
         ctaLabel="Reserve a seat"
         href={`/enquire?course=${course.slug}`}
