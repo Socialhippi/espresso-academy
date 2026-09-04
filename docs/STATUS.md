@@ -66,6 +66,16 @@ do. Updated at the end of every phase.
 - `/calendar`, which currently renders the "dates being finalised" state with a per-course batch
   alert, because no instance in `content/data.ts` carries a date.
 
+### Phase 4: the remaining pages
+
+- `/certifications` and `/certifications/[slug]`, `/trainers` and `/trainers/[slug]`, `/about`,
+  `/faq`, `/contact`, `/enquire`, `/thank-you`, `/privacy`, `/terms`, `/refund-policy`.
+- `/api/enquiry`: zod validation, honeypot and a two-second timing floor both dropped silently with
+  a 200 so a bot learns nothing, Resend when both env vars exist, and the pre-filled WhatsApp
+  handoff otherwise. It never throws at the reader.
+- `sitemap.ts`, `robots.ts` (AI crawlers allowed; `/api`, `/dev` and `/thank-you` held back),
+  `/llms.txt`, a default Open Graph card and one per course.
+
 ### Content pass
 
 The content-editor subagent audited every page's copy against `content/facts.md`. Applied:
@@ -160,6 +170,73 @@ Four real defects found and fixed: zod was shipping to the browser (about 50KB g
 banner was the Largest Contentful Paint on course pages at 2.4s; and a missing favicon was the only
 thing holding Best Practices at 96.
 
+### Phase 8b: de-template
+
+Two full design-review rounds at 390 and 1280 on `/`, `/courses`, a course page and `/about`.
+Screenshots in `docs/screens/`. First round scored 8 / 6.5 / 7 / 7. Everything it found is fixed,
+including one outright bug: the level filter rendered two chips both reading "All levels", the
+reset and the `open` level.
+
+The structural fixes, which were the ones that mattered:
+
+- "Which one is yours" on `/courses` was `AudienceDoors` a second time, one section below another
+  equal-column grid. The master prompt requires that guidance, so the content stayed and the
+  composition became a 4/8 split with numbered rows.
+- `/courses` and `/about` opened on desktop with half the viewport blank: neither passed an `aside`
+  to `PageHero`, so the 7/5 grid was never built.
+- The course page ran two identical 4/8 splits back to back, and `/about` put an even gallery grid
+  directly above an even trainer grid. Both resolved; section padding now alternates.
+- Nine identical placeholder marks on `/about` read as a wireframe. The mark is halved and at 10%.
+
+### Phase 9: deploy
+
+- Deployed to Vercel under `social-hippi/espresso-academy-india`.
+- Canonicals, Open Graph images and JSON-LD `@id`s fall back to `NEXT_PUBLIC_VERCEL_URL`, so a
+  preview describes itself rather than claiming production's URL.
+- Verified on the deployment: every route 200, no horizontal overflow at 390, no forbidden colour
+  pair, and Lighthouse mobile 90 to 96 Performance with 100 across Accessibility, Best Practices
+  and SEO.
+
+
+---
+
+## Every route built
+
+| Route | Indexed | Sticky bar | Notes |
+|---|---|---|---|
+| `/` | yes | yes | Home. The only place the red gradient is used on text. |
+| `/courses` | yes | yes | Server-rendered `?level=` and `?area=` filters; canonical always `/courses`. |
+| `/courses/italian-barista-certificate-junior` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/italian-barista-certificate-advanced` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/sca-barista-skills-foundation` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/sca-barista-skills-intermediate` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/sca-barista-skills-professional` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/latte-art` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/brewing` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/courses/roasting-and-cupping` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
+| `/calendar` | yes | yes | Currently the dates-being-finalised state with a per-course batch alert. |
+| `/certifications` | yes | yes | IBC and SCA compared, plus the honesty clause. |
+| `/certifications/italian-barista-certificate` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
+| `/certifications/sca-coffee-skills-program` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
+| `/trainers` | yes | yes | Three profiles. |
+| `/trainers/akanksha-gupta` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
+| `/trainers/sowmya-r` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
+| `/trainers/nirupam-ranjan` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
+| `/about` | yes | yes | Florence 2007, Bengaluru 2023, method, campus, gallery, team, honesty. |
+| `/faq` | yes | yes | Every question grouped by category, FAQPage JSON-LD. |
+| `/contact` | yes | yes | Switches the form to the cafe variant on `?topic=cafe`. |
+| `/enquire` | yes | no | The conversion page. No section navigation, no sticky bar. |
+| `/thank-you` | **no** | no | Post-submit. noindex. |
+| `/privacy` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
+| `/terms` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
+| `/refund-policy` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
+| `/dev/components` | **no** | no | Internal component gallery, every state of every component. |
+
+Non-page routes: `/api/enquiry` (POST only), `/sitemap.xml`, `/robots.txt`, `/llms.txt`,
+`/opengraph-image`, `/courses/[slug]/opengraph-image`, `/icon.png`, `/apple-icon.png`.
+
+**26 indexable routes**, plus the non-indexed gallery.
+
 ---
 
 ## TBC for client
@@ -188,7 +265,8 @@ appears; no code change is needed.
 | 15 | Photos for every slot in `docs/images-manifest.md` | Hero, course cards, trainer profiles, about gallery, contact | no files in `public/images/` |
 | 16 | Testimonials with written permission | Student stories section | `stories` is empty and stays empty until then |
 | 17 | Legal copy: privacy, terms, refund policy | `/privacy`, `/terms`, `/refund-policy` | placeholder text marked `data-placeholder="true"` |
-| 18 | Logo as SVG | Header, footer, OG images | only raster renders in `public/logo/` |
+| 18 | Logo as SVG, and ideally a **horizontal lockup** | Header, footer, OG images | only raster renders in `public/logo/`, and the only lockup is stacked |
+| 18a | **Sign-off on the header composition.** The supplied stacked lockup's wordmark renders about 5.6px tall at header size, so the header pairs the supplied standalone mark with the academy name set in Montserrat 500. The artwork is untouched, but composing a lockup is a brand decision. A horizontal lockup makes this moot. | Header, every page | design.md assumes a horizontal lockup that was not supplied |
 | 19 | Gotham web licence | Site-wide type | Montserrat is the interim substitute |
 | 20 | Correct "Forest Green" hex | Seat-availability state | brochure prints `#89392B`, which is a brown |
 | 21 | Correct plot number and map pin | `/contact`, footer, JSON-LD | site says Plot No. 72, brochure says 9; map pin points at "Siddarth Plaza" |

@@ -1,17 +1,82 @@
-# Espresso Academy India website: starter kit
+# Espresso Academy India
 
-This folder is dropped into an EMPTY repo before the first Claude Code prompt. It contains the rules, agents, facts, content, tokens and the single master prompt. Nothing here is site code; the prompt builds the site.
+Marketing and enrolment website for Espresso Academy India, a coffee education and barista training
+academy in Bengaluru and an Official Partner of Espresso Academy, Florence.
 
-## Steps (15 minutes of your time, then walk away)
-1. `mkdir espresso-academy && cd espresso-academy && git init` then copy the contents of this kit into it (including the hidden `.claude/` folder and `.mcp.json`).
-2. Put the client's photos into `public/images/` per `docs/images-manifest.md` if you have them. If not, skip; placeholders render.
-3. Copy `.env.example` to `.env.local`. Fill `LEAD_TO_EMAIL` and `RESEND_API_KEY` if you want the form to email (optional for the draft). Fill `CONTEXT7_API_KEY` (free key from context7.com) so the agent reads current Next 16 / Tailwind 4 docs.
-4. Make sure `pnpm`, Node 22 and Claude Code are installed, and `npx vercel login` has been run once so the preview deploy works. Run `claude mcp login vercel` once if prompted.
-5. Open the folder in Cursor, open the terminal, run `claude --permission-mode acceptEdits`, and paste the prompt from `docs/MASTER-PROMPT.md` (everything below the line).
-6. Come back in 2 to 4 hours. Read `docs/STATUS.md` and open the preview URL on your phone. Send the client `docs/CLIENT-REVIEW.md`.
+Next.js 16 (App Router), TypeScript strict, Tailwind v4, shadcn/ui on the Base UI base, pnpm.
 
-## What you get
-Every public page, the brand applied, verified facts only, TBC states for everything the client has not supplied, working enquiry form (email or WhatsApp handoff), metadata and structured data on every page, Playwright + axe tests, Lighthouse >= 90 mobile, a Vercel preview URL.
+## Running it
 
-## What is deliberately not in the draft
-Sanity CMS, Google Sheet lead log, GTM/GA4/Clarity, Turnstile, Razorpay, Cal.com, guides/blog, the reel. These follow client approval; see the execution strategy in the project.
+```
+pnpm install
+pnpm dev            # http://localhost:3000
+```
+
+```
+pnpm typecheck      # tsc --noEmit
+pnpm lint           # eslint, jsx-a11y at error
+pnpm build          # must pass before any commit touching src/
+pnpm start          # serve the production build
+pnpm test:e2e       # 639 Playwright tests: chromium, webkit, Pixel 7, iPhone 14
+```
+
+Two extra checks that are not part of the Playwright run, both expecting a server on port 3000:
+
+```
+node scripts/check-overflow.mjs        # every route, no horizontal overflow at 390
+node scripts/check-brand-contrast.mjs  # no red text on black, no mustard text, anywhere
+```
+
+## Where things are
+
+| Path | What it is |
+|---|---|
+| `content/facts.md` | **The only facts the site may state.** Anything not here is a TBC state on the page. |
+| `content/data.ts` | Typed content: courses, trainers, certifications, FAQs, site settings. Shaped 1:1 to a future Sanity schema. |
+| `design/tokens.css` | The brand tokens, pasted verbatim into `src/app/globals.css`. |
+| `.claude/rules/*.md` | Path-scoped rules for design, content, a11y, SEO, code and git. Non-negotiable. |
+| `docs/STATUS.md` | What is done, what is waiting on the client, the decisions taken, the known limitations. **Start here.** |
+| `docs/CLIENT-REVIEW.md` | The ten-minute review script to send the client with the preview link. |
+| `docs/images-manifest.md` | Where each photo goes and what its slot is called. |
+| `docs/audits/perf-draft.md` | Lighthouse numbers, what was fixed to get them, and what was tried and reverted. |
+| `src/lib/content.ts` | Typed accessors over `content/data.ts`. Pages never import the data module directly. |
+| `src/lib/format.ts` | Fee, duration and date formatting. Every function has a defined output for `null`. |
+| `src/lib/seo/` | Metadata helpers and the JSON-LD `@graph` builders. |
+| `tests/routes.json` | Every route the site ships. Drives the test suite. |
+
+## Adding the client's content, without writing code
+
+- **Fees, durations, dates, seats:** edit `content/data.ts`. Replace a `null` with a value, for
+  example `feeInclGst: 25300`. The TBC pills disappear on their own.
+- **Photos:** drop the files into `public/images/` with the names in `docs/images-manifest.md`.
+  The placeholders disappear. No code change.
+- **WhatsApp number, email, hours, reply promise:** `siteSettings` at the top of `content/data.ts`.
+- **Testimonials:** add to `stories` with `permission: true`. The empty state switches off by itself.
+- **A new fact of any kind:** add the line to `content/facts.md` first, with its source and date.
+  That file is the site's contract with the truth.
+
+## Two things to know before changing anything
+
+**Do not edit `src/components/ui/*` by hand.** Those are generated by the shadcn CLI; regenerate
+them instead. They import `cn` from the package, which `next.config.ts` aliases to `src/lib/cn.ts`
+so they get the merger configured with this project's theme. Without that alias the merger reads
+`text-body` as a colour and deletes the `text-white` beside it, which turned every WhatsApp button
+black-on-black once already.
+
+**Never invent a fact.** No fee, date, duration, count, rating, testimonial or superlative appears
+anywhere unless `content/facts.md` supports it. The test suite asserts this: it fails the build if a
+rupee figure, a star rating, a student count, the phrase "SCA certified course" or an
+India-first superlative appears on any page.
+
+## Environment
+
+Everything is optional. Copy `.env.example` to `.env.local`. Without `RESEND_API_KEY` and
+`LEAD_TO_EMAIL` the enquiry form hands the reader to WhatsApp with the message pre-filled, which is
+a working conversion path, not a failure state. On a Vercel preview, leave `NEXT_PUBLIC_SITE_URL`
+unset: the build falls back to that deployment's own URL so its canonicals describe itself.
+
+## What is deliberately not here
+
+Sanity, the Google Sheet lead log, GTM/GA4/Clarity, Turnstile, Razorpay, Cal.com, the guides and the
+reel. All follow client approval. The `data-event` attributes the analytics layer will need are
+already on every call to action.
