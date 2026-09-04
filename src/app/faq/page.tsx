@@ -53,7 +53,7 @@ export default function FaqPage() {
                     <li key={category}>
                       <Link
                         href={`#${category}`}
-                        className="inline-flex min-h-11 items-center type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                        className="inline-flex min-h-11 min-w-11 items-center type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
                       >
                         {faqCategoryLabel[category]}
                       </Link>

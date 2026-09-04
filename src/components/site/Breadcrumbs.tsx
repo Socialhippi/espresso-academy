@@ -51,7 +51,7 @@ export function Breadcrumbs({ items, className }: BreadcrumbsProps) {
                 ) : (
                   <Link
                     href={crumb.href}
-                    className="inline-flex min-h-11 items-center underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                    className="inline-flex min-h-11 min-w-11 items-center underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
                   >
                     {crumb.label}
                   </Link>

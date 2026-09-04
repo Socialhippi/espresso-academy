@@ -126,7 +126,9 @@ export function EnquiryForm({
     const order: FieldName[] = ["name", "phone", "consent"];
     const firstBad = order.find((key) => found[key]);
     if (firstBad) {
-      const element = formRef.current?.querySelector<HTMLElement>(`#${CSS.escape(field(firstBad))}`);
+      const element = formRef.current?.querySelector<HTMLElement>(
+        `#${CSS.escape(field(firstBad))}`,
+      );
       element?.focus();
       return;
     }
@@ -178,7 +180,11 @@ export function EnquiryForm({
             : "It is logged. The fastest reply is on WhatsApp, so carry it over and the academy will answer there."}
         </p>
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          <WhatsAppButton course={courseTitle} batch={batch || undefined} event="whatsapp_click_success">
+          <WhatsAppButton
+            course={courseTitle}
+            batch={batch || undefined}
+            event="whatsapp_click_success"
+          >
             Continue on WhatsApp
           </WhatsAppButton>
           <ButtonLink href="/courses" variant="secondary">
@@ -346,7 +352,10 @@ export function EnquiryForm({
       </div>
 
       <div className="flex flex-col gap-2">
-        <div className="flex items-start gap-3">
+        {/* The box is 24px, the WCAG 2.2 AA minimum for a target. The real hit area is the row:
+            the label beside it is associated by htmlFor, so tapping the sentence toggles the box.
+            Padding the input itself does nothing, because padding around an input is not clickable. */}
+        <div className="flex min-h-11 items-start gap-3">
           <input
             id={field("consent")}
             name="consent"
@@ -375,10 +384,7 @@ export function EnquiryForm({
       </div>
 
       {status === "failed" && (
-        <div
-          role="alert"
-          className="border border-red-deep bg-white p-4"
-        >
+        <div role="alert" className="border border-red-deep bg-white p-4">
           <p className="type-body text-red-deep">
             {errors.form ?? "We could not send that just now."}
           </p>
@@ -414,10 +420,7 @@ export function EnquiryForm({
         <noscript>
           <p className="type-small text-grey">
             This form needs JavaScript. Message the academy on{" "}
-            <a
-              href={whatsappUrl()}
-              className="text-red underline decoration-1 underline-offset-4"
-            >
+            <a href={whatsappUrl()} className="text-red underline decoration-1 underline-offset-4">
               WhatsApp
             </a>{" "}
             instead and you will get the same reply.

@@ -190,7 +190,7 @@ export default async function CertificationPage({ params }: PageProps<"/certific
                     <li key={answer.id}>
                       <Link
                         href={`#${answer.id}`}
-                        className="type-small text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                        className="inline-flex min-h-11 items-center type-small text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
                       >
                         {answer.question}
                       </Link>

@@ -175,7 +175,7 @@ export default function CertificationsPage() {
                       <li key={course.slug} className="border-t border-white-2 pt-3">
                         <Link
                           href={`/courses/${course.slug}`}
-                          className="type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                          className="inline-flex min-h-11 items-center type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
                         >
                           {course.title}
                         </Link>

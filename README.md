@@ -25,7 +25,11 @@ Two extra checks that are not part of the Playwright run, both expecting a serve
 ```
 node scripts/check-overflow.mjs        # every route, no horizontal overflow at 390
 node scripts/check-brand-contrast.mjs  # no red text on black, no mustard text, anywhere
+node scripts/check-target-size.mjs     # every standalone tap target at least 44px
 ```
+
+Each takes an optional base URL, so they run against a deployment too:
+`node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app`.
 
 ## Where things are
 

@@ -151,6 +151,10 @@ a tap.
 - `node scripts/check-brand-contrast.mjs` walks every route and asserts the two pairs design.md
   forbids outright but which pass generic contrast checks: red or red-deep text on the black
   grounds, and mustard as a text colour. Clean on all 27 routes.
+- `node scripts/check-target-size.mjs` walks every route and asserts the 44px target rule, which is
+  stricter than the 24px WCAG 2.2 floor that axe enforces. Four design-review rounds each found
+  more links between those two numbers, so it is a script now rather than a thing to keep spotting.
+  An input is measured together with the label that toggles it, which is the real target.
 - Keyboard: the skip link is the first focusable element and jumps to `#main`; the sheet traps
   focus, closes on Escape and restores focus to its trigger; the enquiry form moves focus to the
   first invalid field. All asserted in the suite.
