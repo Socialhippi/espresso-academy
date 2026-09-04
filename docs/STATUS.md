@@ -122,10 +122,13 @@ The content-editor subagent audited every page's copy against `content/facts.md`
 
 ### Phase 6: tests
 
-`pnpm test:e2e` runs 639 tests across chromium, webkit, Pixel 7 and iPhone 14, all passing:
+`pnpm test:e2e` runs 772 tests across chromium, webkit, Pixel 7, iPhone 14 and iPad Mini, all
+passing. The iPad Mini project exists because 768 is the middle width `design.md` names and nothing
+was covering it: a design review found a crushed header and a 17px document overflow living there
+while 390 and 1280 had been clean the whole time.
 
 - Every route returns 200, has exactly one H1, skips no heading level, and has no horizontal
-  overflow at 390.
+  overflow at any of the five viewports.
 - Sticky bar present everywhere except `/enquire` and `/thank-you`, hidden until 300px of scroll.
 - The mobile sheet opens, traps focus, closes on Escape and restores focus to its trigger.
 - `?level=` and `?area=` filter the hub while the canonical stays `/courses`.

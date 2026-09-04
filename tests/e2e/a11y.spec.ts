@@ -8,12 +8,10 @@ import { allRoutes, isMobileProject } from "./helpers";
  * is identical between chromium and webkit, and running it four times only slows the suite.
  */
 test.describe("axe", () => {
-  test.beforeEach(async ({ page }, testInfo) => {
-    test.skip(
-      testInfo.project.name === "webkit" || testInfo.project.name === "iPhone 14",
-      "Covered by the chromium and Pixel 7 projects.",
-    );
-    void page;
+  test.beforeEach(async ({ browserName }) => {
+    // The rendered DOM is identical across engines, so running axe on all five projects only
+    // makes the suite slower. Chromium desktop and Pixel 7 cover both layouts.
+    test.skip(browserName === "webkit", "Covered by the chromium and Pixel 7 projects.");
   });
 
   for (const route of allRoutes) {

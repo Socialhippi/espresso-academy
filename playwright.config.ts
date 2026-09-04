@@ -31,6 +31,10 @@ export default defineConfig({
     { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1280, height: 800 } } },
     { name: "Pixel 7", use: { ...devices["Pixel 7"] } },
     { name: "iPhone 14", use: { ...devices["iPhone 14"] } },
+    /* 768 is the middle width design.md names, and it was the one nothing covered: a design review
+       found a crushed header and a 17px document overflow living there while 390 and 1280 were
+       clean the whole time. */
+    { name: "iPad Mini", use: { ...devices["iPad Mini"] } },
   ],
 
   webServer: {

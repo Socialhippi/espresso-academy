@@ -19,12 +19,12 @@ test.describe("every route", () => {
       const expectedH1s = route.path === "/dev/components" ? 2 : 1;
       await expect(page.locator("h1")).toHaveCount(expectedH1s);
 
-      if (isMobileProject(testInfo)) {
-        expect(
-          await horizontalOverflow(page),
-          `${route.path} overflows horizontally at ${testInfo.project.use.viewport?.width}px`,
-        ).toBeLessThanOrEqual(0);
-      }
+      // Checked on every project, not just the phones: the tablet width is where the two defects
+      // that neither 390 nor 1280 caught were living.
+      expect(
+        await horizontalOverflow(page),
+        `${route.path} overflows horizontally at ${testInfo.project.use.viewport?.width}px`,
+      ).toBeLessThanOrEqual(0);
     });
   }
 

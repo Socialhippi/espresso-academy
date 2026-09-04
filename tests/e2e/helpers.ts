@@ -15,10 +15,11 @@ export const routes: RouteEntry[] = manifest.routes;
 /** Indexable routes plus the noindex component gallery. */
 export const allRoutes: RouteEntry[] = [...manifest.routes, ...manifest.nonIndexedRoutes];
 
-/** True for the two device projects, which are the ones the 390px rules apply to. */
+/** The phone projects: the sticky bar, the sheet and the 390px rules apply to these. */
 export function isMobileProject(testInfo: TestInfo): boolean {
   return testInfo.project.name === "Pixel 7" || testInfo.project.name === "iPhone 14";
 }
+
 
 /** Parse every JSON-LD block on the page. Throws if any block is not valid JSON. */
 export async function readJsonLd(page: Page): Promise<unknown[]> {

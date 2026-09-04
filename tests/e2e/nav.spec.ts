@@ -39,7 +39,7 @@ test.describe("mobile navigation sheet", () => {
     // Tabbing right through the sheet cannot escape it.
     // WebKit is excluded: under Playwright's synthetic Tab, focus leaks past Base UI's guards into
     // the page behind the sheet. Recorded in docs/STATUS.md as a manual check on a real device.
-    const tabs = testInfo.project.name === "webkit" || testInfo.project.name === "iPhone 14" ? 0 : 14;
+    const tabs = testInfo.project.name === "iPhone 14" ? 0 : 14;
     for (let i = 0; i < tabs; i++) {
       await page.keyboard.press("Tab");
       expect(await focusedInsideDialog(), `Focus escaped the sheet after ${i + 1} tabs`).toBe(true);
@@ -60,9 +60,12 @@ test.describe("mobile navigation sheet", () => {
 });
 
 test.describe("skip link", () => {
-  test("is the first thing keyboard focus reaches and jumps to main", async ({ page }, testInfo) => {
+  test("is the first thing keyboard focus reaches and jumps to main", async ({
+    page,
+    browserName,
+  }) => {
     test.skip(
-      testInfo.project.name === "webkit" || testInfo.project.name === "iPhone 14",
+      browserName === "webkit",
       "WebKit does not move Tab focus to links unless the OS 'Full Keyboard Access' setting is on.",
     );
     await page.goto("/");

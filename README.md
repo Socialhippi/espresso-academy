@@ -17,13 +17,13 @@ pnpm typecheck      # tsc --noEmit
 pnpm lint           # eslint, jsx-a11y at error
 pnpm build          # must pass before any commit touching src/
 pnpm start          # serve the production build
-pnpm test:e2e       # 641 Playwright tests: chromium, webkit, Pixel 7, iPhone 14
+pnpm test:e2e       # 772 tests: chromium, webkit, Pixel 7, iPhone 14, iPad Mini
 ```
 
 Three extra checks that are not part of the Playwright run, each expecting a server on port 3000:
 
 ```
-node scripts/check-overflow.mjs        # every route, no horizontal overflow at 390
+node scripts/check-overflow.mjs        # every route, no overflow at 390, 768 or 1280
 node scripts/check-brand-contrast.mjs  # no red text on black, no mustard text, anywhere
 node scripts/check-target-size.mjs     # every standalone tap target at least 44px
 ```
