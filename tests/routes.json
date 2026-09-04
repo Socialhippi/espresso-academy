@@ -1,0 +1,34 @@
+{
+  "$comment": "Every HTML route the site ships. Consumed by tests/e2e (Phase 6) and by the SEO audit. stickyBar is false only where a competing CTA would confuse the page.",
+  "routes": [
+    { "path": "/", "name": "Home", "index": true, "stickyBar": true },
+    { "path": "/courses", "name": "Courses hub", "index": true, "stickyBar": true },
+    { "path": "/courses/italian-barista-certificate-junior", "name": "Course: IBC Junior", "index": true, "stickyBar": true },
+    { "path": "/courses/italian-barista-certificate-advanced", "name": "Course: IBC Advanced", "index": true, "stickyBar": true },
+    { "path": "/courses/sca-barista-skills-foundation", "name": "Course: Barista Skills Foundation", "index": true, "stickyBar": true },
+    { "path": "/courses/sca-barista-skills-intermediate", "name": "Course: Barista Skills Intermediate", "index": true, "stickyBar": true },
+    { "path": "/courses/sca-barista-skills-professional", "name": "Course: Barista Skills Professional", "index": true, "stickyBar": true },
+    { "path": "/courses/latte-art", "name": "Course: Latte Art", "index": true, "stickyBar": true },
+    { "path": "/courses/brewing", "name": "Course: Brewing", "index": true, "stickyBar": true },
+    { "path": "/courses/roasting-and-cupping", "name": "Course: Roasting and Cupping", "index": true, "stickyBar": true },
+    { "path": "/calendar", "name": "Calendar", "index": true, "stickyBar": true },
+    { "path": "/certifications", "name": "Certifications hub", "index": true, "stickyBar": true },
+    { "path": "/certifications/italian-barista-certificate", "name": "Certification: IBC", "index": true, "stickyBar": true },
+    { "path": "/certifications/sca-coffee-skills-program", "name": "Certification: SCA", "index": true, "stickyBar": true },
+    { "path": "/trainers", "name": "Trainers", "index": true, "stickyBar": true },
+    { "path": "/trainers/akanksha-gupta", "name": "Trainer: Akanksha Gupta", "index": true, "stickyBar": true },
+    { "path": "/trainers/sowmya-r", "name": "Trainer: Sowmya R", "index": true, "stickyBar": true },
+    { "path": "/trainers/nirupam-ranjan", "name": "Trainer: Nirupam Ranjan", "index": true, "stickyBar": true },
+    { "path": "/about", "name": "About", "index": true, "stickyBar": true },
+    { "path": "/faq", "name": "FAQ", "index": true, "stickyBar": true },
+    { "path": "/contact", "name": "Contact", "index": true, "stickyBar": true },
+    { "path": "/enquire", "name": "Enquire", "index": true, "stickyBar": false },
+    { "path": "/thank-you", "name": "Thank you", "index": false, "stickyBar": false },
+    { "path": "/privacy", "name": "Privacy", "index": true, "stickyBar": true },
+    { "path": "/terms", "name": "Terms", "index": true, "stickyBar": true },
+    { "path": "/refund-policy", "name": "Refund policy", "index": true, "stickyBar": true }
+  ],
+  "nonIndexedRoutes": [
+    { "path": "/dev/components", "name": "Component gallery", "index": false, "stickyBar": false }
+  ]
+}

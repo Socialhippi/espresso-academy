@@ -1,0 +1,388 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* The site is light-only. shadcn primitives ship `dark:` classes; binding the dark variant to an
+   explicit `.dark` ancestor (which we never set) keeps them inert instead of firing on a viewer's
+   OS preference and breaking the white-dominant brand. */
+@custom-variant dark (&:is(.dark *));
+
+/* ---------------------------------------------------------------------------
+   Brand tokens. Pasted verbatim from design/tokens.css. Never invent a colour.
+   --------------------------------------------------------------------------- */
+@theme {
+  /* grounds */
+  --color-white: #fefcff; /* Milk White, default ground */
+  --color-white-2: #e4e4e4; /* alt sections, borders */
+  --color-white-3: #f4f3f5; /* cards, inputs (derived midpoint) */
+  --color-black: #171717; /* Cynical Black: text, one dark section, footer */
+  --color-black-2: #373737; /* secondary on dark, hairlines on dark */
+  /* text */
+  --color-grey: #6b6b6b; /* secondary text on white, 7.0:1 */
+  --color-grey-2: #c9c9c9; /* secondary text on black */
+  /* accent */
+  --color-red: #b20003; /* Burnt Red: primary CTA, links, eyebrows */
+  --color-red-deep: #640000; /* hover, pressed, gradient end */
+  --color-red-tint: #efcacd; /* selected chips, highlight rows */
+  /* level badges only */
+  --color-mustard: #f1bd00; /* Foundation, black text only */
+  --color-blue: #030696; /* Intermediate, white text; also focus ring */
+  --color-purple: #490396; /* Professional, white text */
+  --color-green: #1f6b3a; /* interim "seats available"; replace when client confirms hex */
+  /* type */
+  --font-display: "Bebas Neue", "Impact", sans-serif;
+  --font-sans: "Montserrat", "Helvetica Neue", Arial, sans-serif;
+  --text-display: 2.5rem;
+  --text-display--line-height: 0.95;
+  --text-h1: 2.25rem;
+  --text-h1--line-height: 1;
+  --text-h2: 1.75rem;
+  --text-h2--line-height: 1.15;
+  --text-h3: 1.25rem;
+  --text-h3--line-height: 1.2;
+  --text-body: 1rem;
+  --text-body--line-height: 1.6;
+  --text-label: 0.75rem;
+  --text-label--line-height: 1.2;
+  --text-label--letter-spacing: 0.08em;
+  /* radius, shadow, motion */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-pill: 999px;
+  --shadow-sm:
+    0 1px 2px rgb(23 23 23 / 0.08), 0 4px 12px rgb(23 23 23 / 0.06);
+  --ease-out-brand: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  /* layout */
+  --container-site: 1200px;
+}
+
+/* Desktop half of the scale, from the note at the foot of design/tokens.css
+   ("display 4.5rem, h1 3.5rem, h2 2.5rem, h3 1.5rem, body 1.0625rem").
+   Consumed by the .type-* utilities below so the scale lives in exactly one place. */
+@theme {
+  --text-display-lg: 4.5rem;
+  --text-display-lg--line-height: 0.92;
+  --text-h1-lg: 3.5rem;
+  --text-h1-lg--line-height: 1;
+  --text-h2-lg: 2.5rem;
+  --text-h2-lg--line-height: 1.1;
+  --text-h3-lg: 1.5rem;
+  --text-h3-lg--line-height: 1.25;
+  --text-body-lg: 1.0625rem;
+  --text-body-lg--line-height: 1.6;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------
+   Font families. `next/font/local` (src/lib/fonts.ts) self-hosts the same two
+   typefaces the tokens name and exposes them as variables, so the token intent
+   is unchanged: --font-sans is still Montserrat, --font-display still Bebas Neue.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --font-sans: var(--font-montserrat), "Helvetica Neue", Arial, sans-serif;
+  --font-display: var(--font-bebas-neue), "Impact", sans-serif;
+}
+
+/* ---------------------------------------------------------------------------
+   shadcn/Base UI semantic aliases, every one mapped onto a brand token so a
+   primitive can never introduce an off-brand colour.
+   --------------------------------------------------------------------------- */
+@theme inline {
+  --color-background: var(--color-white);
+  --color-foreground: var(--color-black);
+  --color-card: var(--color-white);
+  --color-card-foreground: var(--color-black);
+  --color-popover: var(--color-white);
+  --color-popover-foreground: var(--color-black);
+  --color-primary: var(--color-red);
+  --color-primary-foreground: var(--color-white);
+  --color-secondary: var(--color-white-3);
+  --color-secondary-foreground: var(--color-black);
+  --color-muted: var(--color-white-3);
+  --color-muted-foreground: var(--color-grey);
+  --color-accent: var(--color-white-3);
+  --color-accent-foreground: var(--color-black);
+  --color-destructive: var(--color-red-deep);
+  --color-destructive-foreground: var(--color-white);
+  --color-border: var(--color-white-2);
+  --color-input: var(--color-white-2);
+  --color-ring: var(--color-blue);
+  --radius: var(--radius-sm);
+  --radius-md: var(--radius-xs);
+  --radius-lg: var(--radius-sm);
+  --radius-xl: var(--radius-sm);
+}
+
+/* ---------------------------------------------------------------------------
+   Base
+   --------------------------------------------------------------------------- */
+@layer base {
+  *,
+  ::before,
+  ::after {
+    border-color: var(--color-white-2);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: var(--color-white);
+    color: var(--color-black);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 500;
+    text-wrap: balance;
+  }
+
+  p {
+    text-wrap: pretty;
+  }
+
+  /* One visible focus treatment everywhere, per .claude/rules/a11y.md. */
+  :focus-visible {
+    outline: 2px solid var(--color-blue);
+    outline-offset: 2px;
+    border-radius: var(--radius-xs);
+  }
+
+  ::selection {
+    background-color: var(--color-red-tint);
+    color: var(--color-black);
+  }
+
+  /* Targets of in-page anchors clear the sticky header. */
+  :target {
+    scroll-margin-top: 6rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Layout utilities
+   --------------------------------------------------------------------------- */
+
+/* 1200px container, 20px gutters on mobile and 32px from the md breakpoint. */
+@utility container-site {
+  width: 100%;
+  max-width: calc(var(--container-site) + 2 * 20px);
+  margin-inline: auto;
+  padding-inline: 20px;
+  @media (width >= 48rem) {
+    max-width: calc(var(--container-site) + 2 * 32px);
+    padding-inline: 32px;
+  }
+}
+
+/* Section rhythm: 64px mobile, 128px desktop. */
+@utility section-y {
+  padding-block: 4rem;
+  @media (width >= 48rem) {
+    padding-block: 8rem;
+  }
+}
+
+@utility section-y-sm {
+  padding-block: 3rem;
+  @media (width >= 48rem) {
+    padding-block: 5rem;
+  }
+}
+
+/* Numbered red eyebrow label above a section heading. */
+@utility eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: 500;
+  text-transform: uppercase;
+  color: var(--color-red);
+}
+
+/* Red is forbidden as text on the black grounds, so the eyebrow inverts to white. */
+@utility eyebrow-on-dark {
+  color: var(--color-white);
+}
+
+/* 1px rule that opens a section. */
+@utility hairline {
+  border-top: 1px solid var(--color-white-2);
+}
+
+@utility hairline-on-dark {
+  border-top: 1px solid var(--color-black-2);
+}
+
+/* The single dark section per page: black ground with a red-deep radial glow. */
+@utility dark-wash {
+  background-color: var(--color-black);
+  background-image: radial-gradient(
+    at 80% 0%,
+    rgb(100 0 0 / 0.25),
+    transparent 60%
+  );
+  color: var(--color-white);
+}
+
+/* The red gradient on text. Allowed exactly once: the homepage hero H1. */
+@utility hero-gradient-text {
+  background-image: linear-gradient(
+    135deg,
+    var(--color-red),
+    var(--color-red-deep)
+  );
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+  @media (forced-colors: active) {
+    background-image: none;
+    color: CanvasText;
+    -webkit-text-fill-color: CanvasText;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Type scale utilities. Each carries its own desktop step so the mobile and
+   desktop scales stay together and no component hard-codes a size.
+   --------------------------------------------------------------------------- */
+@utility type-display {
+  font-family: var(--font-display);
+  font-size: var(--text-display);
+  line-height: var(--text-display--line-height);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  @media (width >= 48rem) {
+    font-size: var(--text-display-lg);
+    line-height: var(--text-display-lg--line-height);
+  }
+}
+
+@utility type-h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-h1);
+  line-height: var(--text-h1--line-height);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  @media (width >= 48rem) {
+    font-size: var(--text-h1-lg);
+    line-height: var(--text-h1-lg--line-height);
+  }
+}
+
+@utility type-h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-h2);
+  line-height: var(--text-h2--line-height);
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  @media (width >= 48rem) {
+    font-size: var(--text-h2-lg);
+    line-height: var(--text-h2-lg--line-height);
+  }
+}
+
+/* H3 sits below the 24px Bebas floor on mobile, so it is Montserrat 500. */
+@utility type-h3 {
+  font-family: var(--font-sans);
+  font-size: var(--text-h3);
+  line-height: var(--text-h3--line-height);
+  font-weight: 500;
+  @media (width >= 48rem) {
+    font-size: var(--text-h3-lg);
+    line-height: var(--text-h3-lg--line-height);
+  }
+}
+
+@utility type-body {
+  font-family: var(--font-sans);
+  font-size: var(--text-body);
+  line-height: var(--text-body--line-height);
+  font-weight: 400;
+  @media (width >= 48rem) {
+    font-size: var(--text-body-lg);
+    line-height: var(--text-body-lg--line-height);
+  }
+}
+
+@utility type-small {
+  font-family: var(--font-sans);
+  font-size: var(--text-small);
+  line-height: var(--text-small--line-height);
+  font-weight: 400;
+}
+
+@utility type-label {
+  font-family: var(--font-sans);
+  font-size: var(--text-label);
+  line-height: var(--text-label--line-height);
+  letter-spacing: var(--text-label--letter-spacing);
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+/* Bebas numerals for facts: fees, dates, counts. */
+@utility type-numeral {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Body copy holds a comfortable measure. */
+@utility measure {
+  max-width: 68ch;
+}
+
+@utility measure-tight {
+  max-width: 52ch;
+}
+
+/* Fade-up reveal, used sparingly and disabled under reduced motion by the base layer. */
+@utility reveal {
+  animation: reveal-fade-up var(--duration-slow) var(--ease-out-brand) both;
+}
+
+@keyframes reveal-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
