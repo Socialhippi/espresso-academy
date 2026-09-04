@@ -47,6 +47,8 @@ const eslintConfig = defineConfig([
   },
   globalIgnores([
     ".next/**",
+    // Scratch scripts written by the Playwright MCP during a review run; not project source.
+    ".playwright-mcp/**",
     "out/**",
     "build/**",
     "next-env.d.ts",

@@ -12,7 +12,18 @@ function blankToUndefined(value: string | undefined): string | undefined {
   return trimmed === "" ? undefined : trimmed;
 }
 
-const rawSiteUrl = blankToUndefined(process.env.NEXT_PUBLIC_SITE_URL) ?? "http://localhost:3000";
+/**
+ * On a Vercel preview the deployment URL is not known until the deployment exists, so setting
+ * NEXT_PUBLIC_SITE_URL by hand would always be a step behind. Vercel exposes the deployment's own
+ * host as NEXT_PUBLIC_VERCEL_URL at build time, which keeps every canonical, OG image and JSON-LD
+ * @id on a preview pointing at that preview rather than at production.
+ */
+const vercelUrl = blankToUndefined(process.env.NEXT_PUBLIC_VERCEL_URL);
+
+const rawSiteUrl =
+  blankToUndefined(process.env.NEXT_PUBLIC_SITE_URL) ??
+  (vercelUrl ? `https://${vercelUrl}` : undefined) ??
+  "http://localhost:3000";
 
 /** Absolute site origin with no trailing slash, used for canonicals, OG and JSON-LD. */
 export const siteUrl: string = rawSiteUrl.replace(/\/+$/, "");

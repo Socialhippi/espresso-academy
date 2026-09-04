@@ -61,21 +61,29 @@ export function Placeholder({
           className={dark ? "stroke-black-2" : "stroke-white-2"}
           vectorEffect="non-scaling-stroke"
         />
-        {/* The single red rule. On the dark tone it stays a rule, never text. */}
+        {/* The single red rule, at the top so it never runs through the slot label, which wraps
+            to two lines on a narrow card. On the dark tone it stays a rule, never text. */}
         <line
           x1="10"
-          y1="66"
+          y1="14"
           x2="34"
-          y2="66"
+          y2="14"
           strokeWidth="1"
           className="stroke-red"
           vectorEffect="non-scaling-stroke"
         />
       </svg>
 
+      {/*
+        The master prompt specifies the mark at 20% opacity. That holds on the black ground, but on
+        white-3 the red artwork at 20% renders as a distinct pink, and with a placeholder in every
+        course card and trainer card it becomes the only pastel note on the page, which is exactly
+        the "AI template" register design.md rules out. Halved on the light ground; the intent, a
+        faint watermark, is unchanged.
+      */}
       <div className="absolute inset-0 grid place-items-center">
         <LogoMark
-          className="h-2/5 w-auto opacity-20"
+          className={cn("h-2/5 w-auto", dark ? "opacity-20" : "opacity-10")}
           sizes="(min-width: 768px) 160px, 96px"
           priority={priority}
         />
@@ -84,7 +92,7 @@ export function Placeholder({
       <span
         aria-hidden="true"
         className={cn(
-          "absolute bottom-3 left-3 type-label",
+          "absolute inset-x-3 bottom-3 type-label leading-tight text-balance",
           dark ? "text-grey-2" : "text-grey",
         )}
       >
