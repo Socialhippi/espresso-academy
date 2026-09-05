@@ -300,6 +300,47 @@ carry it. Content stays parked; every TBC state is untouched. Plan: `docs/plans/
 
 Gate: typecheck, lint and build clean; `pnpm test:e2e` 932 passing.
 
+### Phase 1: Sanity — done
+
+Project `msmxj36z`, dataset `production`, **private**. Studio at
+[espresso-academy-india.sanity.studio](https://espresso-academy-india.sanity.studio) and, embedded,
+at `/studio` on the site.
+
+- **The dataset is private, not public.** Bookings and enquiries hold names, phone numbers and
+  email addresses, and they live in the same dataset as the content because a booking references a
+  batch. A public dataset would let anyone with the project id read them. Every read therefore
+  carries a token, including published content; the token is server-side only and never reaches
+  the browser.
+- Fourteen document types in `sanity/schemaTypes/`, mapping 1:1 to `content/data.ts` plus `venue`,
+  `guide`, `page`, `landingPage`, `redirect`, `booking` and `enquiry`.
+- `seatsAvailable` is derived in GROQ (`seatsMax - seatsBooked`), never stored. `seatsBooked` is
+  read-only in the Studio and maintained by the payment webhook. A `booking` is read-only except
+  for `status` and `notes`: it mirrors something that happened at a payment gateway, and an editor
+  changing an amount after the fact would make the two disagree with no way to tell which is right.
+- Studio structure built around the two questions the academy opens it to answer: what is running
+  when, and who has paid. **Every batch has a roster view** listing its paid bookings and its
+  waitlist enquiries.
+- `sanity/seed/from-data.ts` created 31 documents from `content/data.ts` in one transaction, with
+  deterministic ids so re-running it is safe. Every null stayed null: no TBC was filled in.
+- `src/lib/content.ts` reads GROQ and returns the same shapes, so no component changed with the
+  data source. Fetches are tagged; `/api/revalidate` turns a signed Sanity publish into
+  `revalidateTag`, with a one-hour floor underneath in case the webhook is ever wrong. The webhook
+  is created and points at `https://espresso-academy-india.vercel.app/api/revalidate`.
+- `src/lib/sanity/image.ts` plus a `SanityPhoto` component: Sanity's CDN does the transform
+  (`auto=format` gives AVIF or WebP), with its LQIP as the blur placeholder. The branded
+  placeholder branch is unchanged, so a missing photograph still prints its slot name.
+- Redirect documents are read by `next.config.ts` at build time. A failure there is logged, not
+  fatal: a site that will not build because a CMS was briefly unreachable is the worse outcome.
+
+**Parity evidence:** the 932-test Playwright suite passes unchanged against the Sanity-backed
+build, and the three standing scripts are clean at 360, 390, 768, 1024 and 1280.
+
+Two build failures worth recording, both Turbopack export-condition problems rather than bugs in
+this code: the Studio pulled `sanity` into the Server Components graph, where `swr`'s
+`react-server` build has no default export (fixed by putting the Studio config behind a client
+boundary, which is where a single-page application belongs); and `@sanity/icons` v5 exports only
+`Icon` and `icons` from its root, so each icon is imported from its own subpath.
+
 ---
 
 ## Where this stands, and what to do next
