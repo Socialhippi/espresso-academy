@@ -7,8 +7,9 @@ do. Updated at the end of every phase.
 
 Public, no login. Open it on a phone.
 
-> **This URL is serving an older build**, from before four rounds of design fixes. See
-> "Where this stands, and what to do next" below: redeploy before sending it to anyone.
+> **Up to date.** Deployed from `cc5c0f0` and verified on the deployment itself: every route
+> returns 200, nothing overflows at 360, 390, 768, 1024 or 1280, no forbidden colour pair renders,
+> and every standalone tap target clears 44px. Safe to send.
 
 A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
 are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
@@ -261,50 +262,53 @@ suite has a Laptop 1024 project beside the iPad Mini one.
 
 ### Phase 9: deploy
 
-- Deployed to Vercel under `social-hippi/espresso-academy-india`.
+- Deployed to Vercel under `social-hippi/espresso-academy-india`, serving `cc5c0f0`.
 - Canonicals, Open Graph images and JSON-LD `@id`s fall back to `NEXT_PUBLIC_VERCEL_URL`, so a
   preview describes itself rather than claiming production's URL.
-- Verified on the deployment: every route 200, no horizontal overflow at 390, no forbidden colour
-  pair, and Lighthouse mobile 90 to 96 Performance with 100 across Accessibility, Best Practices
-  and SEO.
+- `.vercelignore` holds back `.env*.local`, which pins `NEXT_PUBLIC_SITE_URL` to localhost and now
+  also carries a `VERCEL_OIDC_TOKEN`. Uploading it would point every canonical at a dev machine.
+- The `qa-runner` pass ran before deploying: typecheck, lint, build, 932 tests and the three
+  standing scripts all green; Lighthouse mobile Accessibility 100, Best Practices 100, SEO 100,
+  CLS 0 on all four measured routes.
+- Verified against the deployment itself, not just localhost: every route 200, no horizontal
+  overflow at **360, 390, 768, 1024 or 1280**, no forbidden colour pair, every standalone tap
+  target at least 44px. Client screenshots re-taken from this build into `docs/screens/preview-*.png`.
 
 
 ---
 
 ## Where this stands, and what to do next
 
-**Phase 8b is complete and the design gate is met.** The design-reviewer scores
+**All ten phases are complete.** The design gate is met: the design-reviewer scores
 **8.5 / 8.0 / 8.5 / 8.0** on `/`, `/courses`, a course page and `/about`, against a target of 8,
-with no critical or high finding left open. Phase 9 step 1 (the `qa-runner` pass) has been run.
-The work is on `main`.
+with no critical or high finding left open. The `qa-runner` pass is green on every command. The
+site is deployed and verified on the deployment itself. The work is on `main`.
 
-### The one thing to know first
+### The draft is deployed and nothing is outstanding
 
-**The deployed site is behind the code.** `https://espresso-academy-india.vercel.app` was last
-deployed before four rounds of design fixes. It still has, among other things, the 1024px header
-overflow, the 360px overflow on every route, no primary call to action between 768 and 1023, the
-unpadded skip link, and a certificate cell that reads `Certificate: SCA`.
+`https://espresso-academy-india.vercel.app` serves `cc5c0f0`. `docs/CLIENT-REVIEW.md` carries that
+same URL and needs no edit, so the link can go to the client as it stands.
 
-**Redeploy before showing anyone.** From the repo root:
+To redeploy after any further change, from the repo root:
 
 ```
-pnpm build && pnpm test:e2e     # confirm green first
-vercel deploy --prod --yes      # puts the current build on the public alias
+pnpm build && pnpm test:e2e                                    # confirm green first
+npx vercel deploy --prod --yes                                 # the public alias
+node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app
+node scripts/preview-screens.mjs https://espresso-academy-india.vercel.app
 ```
 
-Then re-take the client screenshots, which are also from the older build:
+Run the three standing scripts against the deployment, not only against localhost. A per-deployment
+preview URL is not a substitute: those 302 to a Vercel login on this team, which is why the alias
+is the thing to share.
 
-```
-node scripts/preview-screens.mjs
-```
+### What the client's answers unblock
 
-### Immediate next steps, in order
-
-1. **Redeploy** (above). This is the only blocking item left.
-2. **Re-verify on the deployment**, not just locally: `node scripts/check-overflow.mjs <url>`,
-   `check-brand-contrast.mjs <url>`, `check-target-size.mjs <url>`.
-3. **Confirm the URL at the top of `docs/CLIENT-REVIEW.md`** and send it. The file is otherwise
-   written and needs no edits.
+Nothing in the "Needs client" table below blocks a build or a deploy; every row already has a
+visible TBC state. The two that change the most on arrival are the photography (item 15), which
+turns roughly a fifth of `/about` and every card frame from placeholder into content, and the fees
+and dates (items 1 and 4), which switch the `/courses` fee table, the spec strips and the sticky
+bar's context row back on by themselves.
 
 ### What is verified as of this commit
 
