@@ -19,8 +19,8 @@ interface NextBatchesProps {
  * The soonest scheduled batches. content/data.ts has no dated instance yet, so what actually
  * renders today is the honest empty state with a batch alert, not an empty list.
  */
-export function NextBatches({ count = 4, className, number = "02", compact = false }: NextBatchesProps) {
-  const next = getNextInstances(count);
+export async function NextBatches({ count = 4, className, number = "02", compact = false }: NextBatchesProps) {
+  const next = await getNextInstances(count);
 
   return (
     <section

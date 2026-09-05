@@ -34,8 +34,8 @@ function Spec({ label, children }: SpecProps) {
  * given batch is assessed is not confirmed. The certification's own `status` carries the
  * distinction already, so it drives the label rather than a slug hard-coded here.
  */
-function certificateCell(course: Course): { label: string; value: React.ReactNode } {
-  const certification = course.certification ? getCertification(course.certification) : null;
+async function certificateCell(course: Course): Promise<{ label: string; value: React.ReactNode }> {
+  const certification = course.certification ? await getCertification(course.certification) : null;
   if (!certification) return { label: "Certificate", value: "None issued" };
 
   return {
@@ -57,7 +57,7 @@ function certificateCell(course: Course): { label: string; value: React.ReactNod
  * The six facts a reader wants before anything else. Every one that the client has not confirmed
  * shows a TBC pill rather than an assumption.
  */
-export function SpecStrip({ course, className }: SpecStripProps) {
+export async function SpecStrip({ course, className }: SpecStripProps) {
   const nextInstance = getNextInstanceForCourse(course);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
 
@@ -70,7 +70,7 @@ export function SpecStrip({ course, className }: SpecStripProps) {
   const unknownSpecs = !hasDuration && course.format === null && course.feeInclGst === null
     && !nextInstance?.startDate;
 
-  const certificate = certificateCell(course);
+  const certificate = await certificateCell(course);
 
   if (unknownSpecs) {
     return (

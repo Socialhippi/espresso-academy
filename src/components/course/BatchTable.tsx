@@ -15,6 +15,7 @@ const statusLabel: Record<CourseInstance["status"], string> = {
   open: "Open",
   waitlist: "Waitlist",
   soldout: "Full",
+  completed: "Finished",
   tbc: "Dates being finalised",
 };
 

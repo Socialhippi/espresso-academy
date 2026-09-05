@@ -52,10 +52,18 @@ const comparison = [
   },
 ];
 
-export default function CertificationsPage() {
-  const certifications = getCertifications();
+export default async function CertificationsPage() {
+  const certifications = await getCertifications();
+  /* Resolved up here rather than inside the map: a map callback cannot await, and one pass over
+     the courses is cheaper than one request per certification anyway. */
+  const coursesByCertification = await Promise.all(
+    certifications.map(async (certification) => ({
+      certification,
+      courses: await getCoursesForCertification(certification.slug),
+    })),
+  );
   const [ibc, sca] = certifications;
-  const faqs = getFaqs("certification");
+  const faqs = await getFaqs("certification");
 
   return (
     <>
@@ -165,8 +173,7 @@ export default function CertificationsPage() {
             id="courses-heading"
           />
           <div className="mt-10 grid gap-8 md:grid-cols-2">
-            {certifications.map((certification) => {
-              const courses = getCoursesForCertification(certification.slug);
+            {coursesByCertification.map(({ certification, courses }) => {
               return (
                 <div key={certification.slug} className="border border-white-2 p-6 md:p-8">
                   <h3 className="type-h3 text-black">{certification.name}</h3>

@@ -21,8 +21,8 @@ export const metadata: Metadata = pageMetadata({
   path: "/trainers",
 });
 
-export default function TrainersPage() {
-  const trainers = getTrainers();
+export default async function TrainersPage() {
+  const trainers = await getTrainers();
 
   return (
     <>

@@ -4,7 +4,7 @@ import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { CallButton } from "@/components/site/CallButton";
 import { JsonLd } from "@/components/site/JsonLd";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
-import { getCourses, siteSettings } from "@/lib/content";
+import { getCourses, getSiteSettings } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
@@ -28,8 +28,9 @@ function firstValue(value: string | string[] | undefined): string | undefined {
  * The only ways out are the form, WhatsApp and the phone.
  */
 export default async function EnquirePage({ searchParams }: PageProps<"/enquire">) {
+  const settings = await getSiteSettings();
   const params = await searchParams;
-  const courseOptions = getCourses().map((course) => ({
+  const courseOptions = (await getCourses()).map((course) => ({
     slug: course.slug,
     title: course.title,
     batches: course.instances
@@ -56,7 +57,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
               <WhatsAppButton size="sm" event="whatsapp_click_enquire">
                 Or ask on WhatsApp
               </WhatsAppButton>
-              <CallButton size="sm" />
+              <CallButton phone={settings.phonePrimary} size="sm" />
             </div>
           </div>
 
@@ -64,7 +65,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
             <EnquiryForm
               variant="student"
               courses={courseOptions}
-              replyPromise={siteSettings.replyPromise}
+              replyPromise={settings.replyPromise}
               defaultCourse={firstValue(params.course) ?? ""}
               defaultBatch={firstValue(params.batch) ?? ""}
             />

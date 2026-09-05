@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/Container";
 import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
-import { siteSettings } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { formatPhone, telHref } from "@/lib/format";
 
 export const metadata: Metadata = {
@@ -30,14 +30,16 @@ const steps = [
   },
 ];
 
-export default function ThankYouPage() {
+export default async function ThankYouPage() {
+  const settings = await getSiteSettings();
+
   return (
     <Container className="py-16 md:py-28">
       <p className="eyebrow">Enquiry sent</p>
       <h1 className="mt-4 type-h1 text-black">We have your enquiry</h1>
       <p className="mt-5 measure type-body text-grey">
-        {/* TODO(client): siteSettings.replyPromise is null, so no reply time is promised here. */}
-        {siteSettings.replyPromise ??
+        {/* TODO(client): settings.replyPromise is null, so no reply time is promised here. */}
+        {settings.replyPromise ??
           "We reply on WhatsApp during academy hours. If you would rather not wait, open the chat below and we will pick it up there."}
       </p>
 
@@ -71,10 +73,10 @@ export default function ThankYouPage() {
       <p className="mt-12 type-small text-grey">
         In a hurry? Call{" "}
         <a
-          href={telHref(siteSettings.phonePrimary)}
+          href={telHref(settings.phonePrimary)}
           className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
         >
-          {formatPhone(siteSettings.phonePrimary)}
+          {formatPhone(settings.phonePrimary)}
         </a>{" "}
         or read the{" "}
         <Link

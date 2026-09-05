@@ -10,7 +10,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
 import { TrainerGrid } from "@/components/sections/TrainerGrid";
 import { FinalCta } from "@/components/sections/FinalCta";
-import { getTrainers, siteSettings } from "@/lib/content";
+import { getTrainers, getSiteSettings } from "@/lib/content";
 import { cn } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
@@ -52,8 +52,8 @@ const galleryslots = [
   "about-campus-6",
 ];
 
-export default function AboutPage() {
-  const trainers = getTrainers();
+export default async function AboutPage() {
+  const [trainers, settings] = await Promise.all([getTrainers(), getSiteSettings()]);
 
   return (
     <>
@@ -64,8 +64,8 @@ export default function AboutPage() {
         intro={
           <p>
             Espresso Academy was founded in Florence and has focused on coffee education since{" "}
-            {siteSettings.foundedFlorence}. Espresso Academy India launched in Bengaluru in{" "}
-            {siteSettings.launchedBengaluru} and is an {siteSettings.partnerLine}. Espresso
+            {settings.foundedFlorence}. Espresso Academy India launched in Bengaluru in{" "}
+            {settings.launchedBengaluru} and is an {settings.partnerLine}. Espresso
             Academy also lists a partner in New Delhi, so the claim here is Bengaluru, not India.
           </p>
         }
@@ -82,8 +82,8 @@ export default function AboutPage() {
         aside={
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
             {[
-              { term: "Founded, Florence", value: String(siteSettings.foundedFlorence), word: false },
-              { term: "Launched, Bengaluru", value: String(siteSettings.launchedBengaluru), word: false },
+              { term: "Founded, Florence", value: String(settings.foundedFlorence), word: false },
+              { term: "Launched, Bengaluru", value: String(settings.launchedBengaluru), word: false },
               { term: "Certificates", value: "2", word: false },
               { term: "Campus", value: "RMV 2nd Stage", word: true },
             ].map((fact) => (
@@ -144,20 +144,24 @@ export default function AboutPage() {
                 id="campus-heading"
               />
               <address className="mt-8 type-body text-black not-italic">
-                {siteSettings.address.line1}
+                {settings.address.line1}
                 <br />
-                {siteSettings.address.line2}
+                {settings.address.line2}
                 <br />
-                {siteSettings.address.city} {siteSettings.address.postalCode}
+                {settings.address.city} {settings.address.postalCode}
               </address>
               {/* TODO(client): the plot number is not confirmed and the current map pin is wrong. */}
               <p className="mt-4 type-small text-grey">
                 The campus is on 80 Feet Road in RMV 2nd Stage, near Ramaiah Hospital.
               </p>
               <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-                <ButtonLink href={siteSettings.address.mapsUrl} variant="secondary" size="sm" external>
-                  Open in Google Maps
-                </ButtonLink>
+                {/* The map link is optional in the schema: without a confirmed pin there is
+                    nothing honest to link to, and a wrong pin is worse than no button. */}
+                {settings.address.mapsUrl ? (
+                  <ButtonLink href={settings.address.mapsUrl} variant="secondary" size="sm" external>
+                    Open in Google Maps
+                  </ButtonLink>
+                ) : null}
                 <ButtonLink href="/contact" variant="tertiary" size="inline">
                   Phone numbers and directions
                 </ButtonLink>

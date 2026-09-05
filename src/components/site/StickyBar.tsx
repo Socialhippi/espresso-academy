@@ -9,7 +9,7 @@ import { ArrowRight, Phone } from "lucide-react";
 import { WhatsAppGlyph } from "@/components/site/WhatsAppGlyph";
 import { useConsent } from "@/lib/consent";
 import { shouldShowStickyBar } from "@/lib/nav";
-import { siteSettings } from "@/lib/content";
+import { useSiteConfig } from "@/lib/site-config";
 import { telHref, whatsappUrl } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
@@ -42,6 +42,7 @@ const segmentClass =
 export function StickyBar({ courseBar }: StickyBarProps) {
   const pathname = usePathname();
   const consent = useConsent();
+  const config = useSiteConfig();
   const [scrolledPast, setScrolledPast] = useState(false);
 
   useEffect(() => {
@@ -109,7 +110,7 @@ export function StickyBar({ courseBar }: StickyBarProps) {
         </a>
 
         <a
-          href={telHref(siteSettings.phonePrimary)}
+          href={telHref(config.phonePrimary)}
           data-event="call_click_sticky"
           className={cn(segmentClass, "border-x border-white-2 bg-white text-black")}
         >

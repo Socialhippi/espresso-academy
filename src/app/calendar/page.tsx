@@ -11,7 +11,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { WaitlistInline } from "@/components/course/WaitlistInline";
-import { getCourses, getNextInstances, siteSettings, type DatedInstance } from "@/lib/content";
+import { getCourses, getNextInstances, getSiteSettings, type DatedInstance } from "@/lib/content";
 import { formatDateRange, formatMonthYear, isoDate, monthKey } from "@/lib/format";
 import { absoluteUrl } from "@/lib/env";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -43,10 +43,11 @@ function groupByMonth(entries: DatedInstance[]): MonthGroup[] {
   return [...groups.values()].sort((a, b) => a.key.localeCompare(b.key));
 }
 
-export default function CalendarPage() {
-  const dated = getNextInstances();
+export default async function CalendarPage() {
+  const settings = await getSiteSettings();
+  const dated = await getNextInstances();
   const months = groupByMonth(dated);
-  const courses = getCourses();
+  const courses = await getCourses();
 
   return (
     <>
@@ -221,7 +222,7 @@ export default function CalendarPage() {
           ...dated.map(({ course, instance, startDate }) => ({
             "@type": "Event",
             "@id": absoluteUrl(`/calendar#${instance.id}`),
-            name: `${course.title} at ${siteSettings.name}`,
+            name: `${course.title} at ${settings.name}`,
             startDate: isoDate(startDate),
             ...(instance.endDate ? { endDate: isoDate(instance.endDate) } : {}),
             eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",

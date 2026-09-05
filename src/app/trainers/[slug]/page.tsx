@@ -1,30 +1,29 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import { notFound } from "next/navigation";
 import { Container } from "@/components/site/Container";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ButtonLink } from "@/components/site/Button";
 import { TbcPill } from "@/components/site/TbcPill";
-import { Placeholder } from "@/components/site/Placeholder";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { TrainerCard } from "@/components/sections/TrainerGrid";
 import { CourseCard } from "@/components/course/CourseCard";
+import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { getCoursesForTrainer, getTrainer, getTrainerSlugs, getTrainers } from "@/lib/content";
 import { clampDescription, pageMetadata } from "@/lib/seo/metadata";
 import { graph, trainerNode, webPageNode } from "@/lib/seo/schema";
 
-export function generateStaticParams(): { slug: string }[] {
-  return getTrainerSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return (await getTrainerSlugs()).map((slug) => ({ slug }));
 }
 
 export async function generateMetadata({
   params,
 }: PageProps<"/trainers/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const trainer = getTrainer(slug);
+  const trainer = await getTrainer(slug);
   if (!trainer) return { title: "Trainer not found" };
 
   /* seo.md's pattern is "{Name}, {Role}", but trainers[].role is null for all three, so the title
@@ -49,11 +48,11 @@ export async function generateMetadata({
 
 export default async function TrainerPage({ params }: PageProps<"/trainers/[slug]">) {
   const { slug } = await params;
-  const trainer = getTrainer(slug);
+  const trainer = await getTrainer(slug);
   if (!trainer) notFound();
 
-  const courses = getCoursesForTrainer(trainer.slug);
-  const others = getTrainers().filter((candidate) => candidate.slug !== trainer.slug);
+  const courses = await getCoursesForTrainer(trainer.slug);
+  const others = (await getTrainers()).filter((candidate) => candidate.slug !== trainer.slug);
 
   return (
     <>
@@ -68,19 +67,16 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
 
           <div className="mt-6 grid gap-10 md:mt-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              {trainer.image ? (
-                <Image
-                  src={trainer.image}
-                  alt={`${trainer.name}, trainer at Espresso Academy India`}
-                  width={800}
-                  height={1000}
-                  priority
-                  sizes="(min-width: 768px) 460px, 100vw"
-                  className="aspect-portrait w-full rounded-sm object-cover"
-                />
-              ) : (
-                <Placeholder slot={`trainer-${trainer.slug}`} aspect="portrait" />
-              )}
+              {/* Placeholder branch preserved by SanityPhoto: no photograph is invented. */}
+              <SanityPhoto
+                image={trainer.image}
+                slot={`trainer-${trainer.slug}`}
+                fallbackAlt={`${trainer.name}, trainer at Espresso Academy India`}
+                aspect="portrait"
+                priority
+                sizes="(min-width: 768px) 460px, 100vw"
+                className="rounded-sm"
+              />
             </div>
 
             <div className="lg:col-span-7">

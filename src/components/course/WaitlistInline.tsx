@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/site/Button";
-import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { WhatsAppButtonClient } from "@/components/site/WhatsAppButtonClient";
 import { phoneRegex, readUtm, type EnquiryResponse } from "@/lib/enquiry";
 import { cn } from "@/lib/utils";
 
@@ -199,7 +199,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
           )}
           {status === "sending" ? "Sending" : "Tell me when dates are set"}
         </Button>
-        {status === "failed" && <WhatsAppButton size="sm" course={course} batch={batch} />}
+        {status === "failed" && <WhatsAppButtonClient size="sm" course={course} batch={batch} />}
       </div>
 
       <p className={cn("type-small", onDark ? "text-grey-2" : "text-grey")}>

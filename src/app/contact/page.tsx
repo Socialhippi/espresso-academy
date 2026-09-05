@@ -11,7 +11,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
-import { getCourses, siteSettings } from "@/lib/content";
+import { getCourses, getSiteSettings } from "@/lib/content";
 import { formatDate, formatPhone, telHref } from "@/lib/format";
 import { absoluteUrl } from "@/lib/env";
 import { pageMetadata } from "@/lib/seo/metadata";
@@ -31,10 +31,11 @@ function firstValue(value: string | string[] | undefined): string | undefined {
 }
 
 export default async function ContactPage({ searchParams }: PageProps<"/contact">) {
+  const settings = await getSiteSettings();
   const params = await searchParams;
   const cafeTopic = firstValue(params.topic) === "cafe";
 
-  const courseOptions = getCourses().map((course) => ({
+  const courseOptions = (await getCourses()).map((course) => ({
     slug: course.slug,
     title: course.title,
     batches: course.instances
@@ -57,9 +58,11 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         actions={
           <>
             <WhatsAppButton event="whatsapp_click_contact" />
-            <ButtonLink href={siteSettings.address.mapsUrl} variant="secondary" external>
-              Open in Google Maps
-            </ButtonLink>
+            {settings.address.mapsUrl ? (
+              <ButtonLink href={settings.address.mapsUrl} variant="secondary" external>
+                Open in Google Maps
+              </ButtonLink>
+            ) : null}
           </>
         }
       />
@@ -80,12 +83,12 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                   <dt className="type-label text-grey">Address</dt>
                   <dd className="mt-2">
                     <address className="type-body text-black not-italic">
-                      {siteSettings.address.line1}
+                      {settings.address.line1}
                       <br />
-                      {siteSettings.address.line2}
+                      {settings.address.line2}
                       <br />
-                      {siteSettings.address.city} {siteSettings.address.postalCode},{" "}
-                      {siteSettings.address.region}
+                      {settings.address.city} {settings.address.postalCode},{" "}
+                      {settings.address.region}
                     </address>
                     {/* TODO(client): plot number unconfirmed, and the current map pin points at
                         a different building. Both are in docs/STATUS.md. */}
@@ -96,26 +99,28 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                   <dt className="type-label text-grey">Phone</dt>
                   <dd className="mt-2 flex flex-col">
                     <a
-                      href={telHref(siteSettings.phonePrimary)}
+                      href={telHref(settings.phonePrimary)}
                       data-event="call_click_contact"
                       className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                     >
-                      {formatPhone(siteSettings.phonePrimary)}
+                      {formatPhone(settings.phonePrimary)}
                     </a>
-                    <a
-                      href={telHref(siteSettings.phoneSecondary)}
-                      data-event="call_click_contact_secondary"
-                      className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                    >
-                      {formatPhone(siteSettings.phoneSecondary)}
-                    </a>
+                    {settings.phoneSecondary ? (
+                      <a
+                        href={telHref(settings.phoneSecondary)}
+                        data-event="call_click_contact_secondary"
+                        className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                      >
+                        {formatPhone(settings.phoneSecondary)}
+                      </a>
+                    ) : null}
                   </dd>
                 </div>
 
                 <div className="border-t border-white-2 py-5">
                   <dt className="type-label text-grey">WhatsApp</dt>
                   <dd className="mt-2">
-                    {/* TODO(client): siteSettings.whatsappConfirmed is false. Until the academy
+                    {/* TODO(client): settings.whatsappConfirmed is false. Until the academy
                         confirms which number is on WhatsApp, both call and chat use the primary. */}
                     <WhatsAppButton size="sm" event="whatsapp_click_contact_details">
                       Message the academy
@@ -126,13 +131,13 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 <div className="border-t border-white-2 py-5">
                   <dt className="type-label text-grey">Email</dt>
                   <dd className="mt-2 flex items-center gap-3">
-                    {/* TODO(client): siteSettings.email is null. No address is published. */}
-                    {siteSettings.email ? (
+                    {/* TODO(client): settings.email is null. No address is published. */}
+                    {settings.email ? (
                       <a
-                        href={`mailto:${siteSettings.email}`}
+                        href={`mailto:${settings.email}`}
                         className="type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                       >
-                        {siteSettings.email}
+                        {settings.email}
                       </a>
                     ) : (
                       <>
@@ -148,9 +153,9 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 <div className="border-t border-b border-white-2 py-5">
                   <dt className="type-label text-grey">Hours</dt>
                   <dd className="mt-2 flex items-center gap-3">
-                    {/* TODO(client): siteSettings.hours is null. */}
-                    {siteSettings.hours ? (
-                      <span className="type-body text-black">{siteSettings.hours}</span>
+                    {/* TODO(client): settings.hours is null. */}
+                    {settings.hours ? (
+                      <span className="type-body text-black">{settings.hours}</span>
                     ) : (
                       <>
                         <TbcPill />
@@ -182,23 +187,25 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                   The campus
                 </p>
                 <address className="relative type-h3 text-black not-italic">
-                  {siteSettings.address.line1}
+                  {settings.address.line1}
                   <br />
-                  {siteSettings.address.line2}
+                  {settings.address.line2}
                   <br />
-                  {siteSettings.address.city} {siteSettings.address.postalCode}
+                  {settings.address.city} {settings.address.postalCode}
                 </address>
-                <div className="relative">
-                  <ButtonLink
-                    href={siteSettings.address.mapsUrl}
-                    variant="secondary"
-                    size="sm"
-                    external
-                    data-event="maps_click_contact"
-                  >
-                    Open in Google Maps
-                  </ButtonLink>
-                </div>
+                {settings.address.mapsUrl ? (
+                  <div className="relative">
+                    <ButtonLink
+                      href={settings.address.mapsUrl}
+                      variant="secondary"
+                      size="sm"
+                      external
+                      data-event="maps_click_contact"
+                    >
+                      Open in Google Maps
+                    </ButtonLink>
+                  </div>
+                ) : null}
               </div>
 
               <div className="mt-6 border border-white-2 p-6">
@@ -245,7 +252,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
               <EnquiryForm
                 variant={cafeTopic ? "cafe" : "student"}
                 courses={courseOptions}
-                replyPromise={siteSettings.replyPromise}
+                replyPromise={settings.replyPromise}
                 defaultCourse={firstValue(params.course) ?? ""}
                 defaultBatch={firstValue(params.batch) ?? ""}
               />
@@ -263,26 +270,30 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
             id="elsewhere-heading"
           />
           <ul className="mt-8 flex flex-wrap gap-x-8 gap-y-3">
-            <li>
-              <a
-                href={siteSettings.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-              >
-                Instagram, @espressoacademyindia
-              </a>
-            </li>
-            <li>
-              <a
-                href={siteSettings.florencePartnerPage}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-              >
-                The Espresso Academy partner list, Florence
-              </a>
-            </li>
+            {settings.instagram ? (
+              <li>
+                <a
+                  href={settings.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                >
+                  Instagram, @espressoacademyindia
+                </a>
+              </li>
+            ) : null}
+            {settings.florencePartnerPage ? (
+              <li>
+                <a
+                  href={settings.florencePartnerPage}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                >
+                  The Espresso Academy partner list, Florence
+                </a>
+              </li>
+            ) : null}
             <li>
               <Link
                 href="/faq"

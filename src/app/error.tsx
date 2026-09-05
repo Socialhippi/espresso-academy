@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import Link from "next/link";
 import { Container } from "@/components/site/Container";
 import { Button, ButtonLink } from "@/components/site/Button";
-import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { WhatsAppButtonClient } from "@/components/site/WhatsAppButtonClient";
 
 interface ErrorPageProps {
   error: Error & { digest?: string };
@@ -34,7 +34,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
         <ButtonLink href="/courses" variant="secondary">
           See all courses
         </ButtonLink>
-        <WhatsAppButton event="whatsapp_click_error" />
+        <WhatsAppButtonClient event="whatsapp_click_error" />
       </div>
 
       {error.digest && (

@@ -4,7 +4,7 @@ import { InstagramGlyph } from "@/components/site/InstagramGlyph";
 import { Logo } from "@/components/site/Logo";
 import { TbcValue } from "@/components/site/TbcPill";
 import { WhatsAppGlyph } from "@/components/site/WhatsAppGlyph";
-import { getCertifications, getCourses, siteSettings } from "@/lib/content";
+import { getCertifications, getCourses, getSiteSettings } from "@/lib/content";
 import { formatPhone, telHref, whatsappUrl } from "@/lib/format";
 import { learnMoreNav, legalNav } from "@/lib/nav";
 
@@ -14,9 +14,12 @@ const footerLinkClass =
   "transition-[color,background-color,border-color] duration-200 hover:text-white hover:decoration-white";
 
 /** Black ground with the on-black lockup. The footer is the second permitted dark area. */
-export function Footer() {
-  const courses = getCourses();
-  const certifications = getCertifications();
+export async function Footer() {
+  const [courses, certifications, settings] = await Promise.all([
+    getCourses(),
+    getCertifications(),
+    getSiteSettings(),
+  ]);
   const year = new Date().getFullYear();
 
   return (
@@ -29,8 +32,8 @@ export function Footer() {
               <Logo on="black" alt="" className="h-20 md:h-24" />
             </Link>
             <p className="mt-5 max-w-xs type-small text-grey-2">
-              {siteSettings.partnerLine}. Coffee education since {siteSettings.foundedFlorence},
-              in Bengaluru since {siteSettings.launchedBengaluru}.
+              {settings.partnerLine}. Coffee education since {settings.foundedFlorence},
+              in Bengaluru since {settings.launchedBengaluru}.
             </p>
           </div>
 
@@ -81,20 +84,24 @@ export function Footer() {
             <h2 className="type-label text-white">Contact</h2>
             <address className="mt-2 flex flex-col gap-1 type-small text-grey-2 not-italic">
               <span className="py-2">
-                {siteSettings.address.line1}
+                {settings.address.line1}
                 <br />
-                {siteSettings.address.line2}
+                {settings.address.line2}
                 <br />
-                {siteSettings.address.city} {siteSettings.address.postalCode}
+                {settings.address.city} {settings.address.postalCode}
               </span>
-              <a href={telHref(siteSettings.phonePrimary)} className={footerLinkClass}>
-                {formatPhone(siteSettings.phonePrimary)}
+              <a href={telHref(settings.phonePrimary)} className={footerLinkClass}>
+                {formatPhone(settings.phonePrimary)}
               </a>
-              <a href={telHref(siteSettings.phoneSecondary)} className={footerLinkClass}>
-                {formatPhone(siteSettings.phoneSecondary)}
-              </a>
+              {/* Optional in the schema: the academy publishes two numbers today, but a second
+                  number is not something the site should invent a row for if it is ever removed. */}
+              {settings.phoneSecondary ? (
+                <a href={telHref(settings.phoneSecondary)} className={footerLinkClass}>
+                  {formatPhone(settings.phoneSecondary)}
+                </a>
+              ) : null}
               <a
-                href={whatsappUrl()}
+                href={whatsappUrl({ number: settings.whatsappNumber, template: settings.whatsappText })}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`inline-flex items-center gap-2 ${footerLinkClass}`}
@@ -103,30 +110,32 @@ export function Footer() {
                 <WhatsAppGlyph className="size-4" />
                 WhatsApp the academy
               </a>
-              <a
-                href={siteSettings.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`inline-flex items-center gap-2 ${footerLinkClass}`}
-              >
-                <InstagramGlyph className="size-4" />
-                Instagram
-              </a>
+              {settings.instagram ? (
+                <a
+                  href={settings.instagram}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`inline-flex items-center gap-2 ${footerLinkClass}`}
+                >
+                  <InstagramGlyph className="size-4" />
+                  Instagram
+                </a>
+              ) : null}
               {/* TODO(client): public email address and opening hours are not published yet. */}
               <span className="flex items-center gap-2">
-                Email: <TbcValue value={siteSettings.email} className="text-white" />
+                Email: <TbcValue value={settings.email} className="text-white" />
               </span>
               <span className="flex items-center gap-2">
-                Hours: <TbcValue value={siteSettings.hours} className="text-white" />
+                Hours: <TbcValue value={settings.hours} className="text-white" />
               </span>
             </address>
           </div>
         </div>
 
         <div className="mt-12 flex flex-col gap-4 hairline-on-dark pt-6 type-small text-grey-2 md:mt-16 md:flex-row md:items-center md:justify-between">
-          {/* TODO(client): legal entity name. siteSettings.legalName is null. */}
+          {/* TODO(client): legal entity name. settings.legalName is null. */}
           <p>
-            &copy; {year} {siteSettings.legalName ?? siteSettings.name}. {siteSettings.partnerLine}.
+            &copy; {year} {settings.legalName ?? settings.name}. {settings.partnerLine}.
           </p>
           <ul className="flex flex-wrap gap-x-6">
             {legalNav.map((item) => (

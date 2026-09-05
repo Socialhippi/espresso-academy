@@ -7,9 +7,14 @@ import { absoluteUrl } from "@/lib/env";
 
 /** The site-wide Open Graph card, rendered by src/app/opengraph-image.tsx. */
 export const DEFAULT_OG_IMAGE = absoluteUrl("/opengraph-image");
-import { siteSettings } from "@/lib/content";
 
-export const TITLE_SUFFIX = " | Espresso Academy India";
+/**
+ * The suffix is the site name, and `generateMetadata` runs before any request in a static build,
+ * so this one string stays a literal rather than an await on Sanity. Everything else on a page's
+ * metadata comes from the document being rendered.
+ */
+export const SITE_NAME = "Espresso Academy India";
+export const TITLE_SUFFIX = ` | ${SITE_NAME}`;
 
 interface PageMetadataInput {
   /** Without the suffix: the root layout's template appends it. */
@@ -53,7 +58,7 @@ export function pageMetadata({
       url,
       title: `${title}${TITLE_SUFFIX}`,
       description,
-      siteName: siteSettings.name,
+      siteName: SITE_NAME,
       locale: "en_IN",
       images: [{ url: ogImage, width: 1200, height: 630, alt: `${title}${TITLE_SUFFIX}` }],
     },

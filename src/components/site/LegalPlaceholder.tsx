@@ -5,7 +5,7 @@ import { Container } from "@/components/site/Container";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
-import { siteSettings } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { formatPhone, telHref } from "@/lib/format";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
@@ -25,7 +25,9 @@ interface LegalPlaceholderProps {
  * saying so. .claude/rules/content.md allows placeholder copy only inside a marked component that
  * is listed in docs/STATUS.md; all three are listed there under "needs client".
  */
-export function LegalPlaceholder({ title, path, intro, children }: LegalPlaceholderProps) {
+export async function LegalPlaceholder({ title, path, intro, children }: LegalPlaceholderProps) {
+  const settings = await getSiteSettings();
+
   return (
     <Container className="py-10 md:py-16" data-placeholder="true">
       <JsonLd id="legal-jsonld" data={graph([webPageNode(path, title, intro)])} />
@@ -63,13 +65,13 @@ export function LegalPlaceholder({ title, path, intro, children }: LegalPlacehol
         <p>
           Questions about this page go to the academy at{" "}
           <a
-            href={telHref(siteSettings.phonePrimary)}
+            href={telHref(settings.phonePrimary)}
             className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
           >
-            {formatPhone(siteSettings.phonePrimary)}
+            {formatPhone(settings.phonePrimary)}
           </a>
-          , or in person at {siteSettings.address.line1}, {siteSettings.address.line2},{" "}
-          {siteSettings.address.city} {siteSettings.address.postalCode}.
+          , or in person at {settings.address.line1}, {settings.address.line2},{" "}
+          {settings.address.city} {settings.address.postalCode}.
         </p>
         <p className="mt-3">
           See also{" "}

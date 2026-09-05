@@ -1,3 +1,6 @@
 allowBuilds:
+  # esbuild is what `sanity exec` and `sanity build` compile TypeScript with; without its install
+  # script the CLI refuses to run at all.
+  esbuild: true
   sharp: false
   unrs-resolver: false

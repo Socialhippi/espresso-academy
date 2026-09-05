@@ -6,7 +6,7 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/site/Button";
-import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { WhatsAppButtonClient } from "@/components/site/WhatsAppButtonClient";
 import { Field, FieldError, fieldControlClass, fieldInputClass } from "@/components/forms/Field";
 import {
   MIN_TIME_ON_FORM_MS,
@@ -180,13 +180,13 @@ export function EnquiryForm({
             : "It is logged. The fastest reply is on WhatsApp, so carry it over and the academy will answer there."}
         </p>
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
-          <WhatsAppButton
+          <WhatsAppButtonClient
             course={courseTitle}
             batch={batch || undefined}
             event="whatsapp_click_success"
           >
             Continue on WhatsApp
-          </WhatsAppButton>
+          </WhatsAppButtonClient>
           <ButtonLink href="/courses" variant="secondary">
             Back to the courses
           </ButtonLink>
@@ -391,7 +391,7 @@ export function EnquiryForm({
           <p className="mt-2 type-small text-grey">
             Nothing is lost. Send the same message on WhatsApp and the academy will answer there.
           </p>
-          <WhatsAppButton
+          <WhatsAppButtonClient
             className="mt-4"
             size="sm"
             course={courseTitle}

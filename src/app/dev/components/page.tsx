@@ -37,6 +37,7 @@ import {
   getCourses,
   getFaqs,
   getLevels,
+  getSiteSettings,
   getSkillAreas,
   getTrainers,
   type Level,
@@ -77,10 +78,11 @@ function Specimen({ title, note, children, dark = false }: SpecimenProps) {
   );
 }
 
-export default function ComponentGalleryPage() {
-  const courses = getCourses();
-  const trainers = getTrainers();
-  const faqs = getFaqs();
+export default async function ComponentGalleryPage() {
+  const settings = await getSiteSettings();
+  const courses = await getCourses();
+  const trainers = await getTrainers();
+  const faqs = await getFaqs();
   const first = courses[0];
   const courseOptions = courses.map((course) => ({
     slug: course.slug,
@@ -144,8 +146,8 @@ export default function ComponentGalleryPage() {
             <WhatsAppButton />
             <WhatsAppButton size="icon" />
             <WhatsAppButton size="sm" course="Barista Skills, Foundation" />
-            <CallButton />
-            <CallButton size="icon" />
+            <CallButton phone={settings.phonePrimary} />
+            <CallButton phone={settings.phonePrimary} size="icon" />
           </div>
           <p className="mt-4 type-small text-grey">
             Pre-filled WhatsApp text: <code className="break-all text-black">{whatsappUrl({ course: "Latte Art" })}</code>
@@ -249,9 +251,12 @@ export default function ComponentGalleryPage() {
                       startDate: "2026-10-12",
                       endDate: "2026-10-14",
                       schedule: "10am to 5pm",
+                      seatsMax: 8,
+                      seatsBooked: 0,
+                      priceOverride: null,
+                      venue: null,
                       seatsAvailable: 6,
                       status: "open",
-                      paymentPageUrl: null,
                     },
                   ],
                 }}
@@ -303,18 +308,24 @@ export default function ComponentGalleryPage() {
                       startDate: "2026-10-12",
                       endDate: "2026-10-14",
                       schedule: "10am to 5pm",
+                      seatsMax: 8,
+                      seatsBooked: 0,
+                      priceOverride: null,
+                      venue: null,
                       seatsAvailable: 6,
                       status: "open",
-                      paymentPageUrl: null,
                     },
                     {
                       id: "demo-2",
                       startDate: "2026-11-09",
                       endDate: null,
                       schedule: null,
+                      seatsMax: 8,
+                      seatsBooked: 0,
+                      priceOverride: null,
+                      venue: null,
                       seatsAvailable: null,
                       status: "waitlist",
-                      paymentPageUrl: null,
                     },
                   ],
                 }}
@@ -340,13 +351,13 @@ export default function ComponentGalleryPage() {
         </Specimen>
 
         <Specimen title="Course filters, nothing selected">
-          <CourseFilters levels={getLevels()} skillAreas={getSkillAreas()} />
+          <CourseFilters levels={await getLevels()} skillAreas={await getSkillAreas()} />
         </Specimen>
 
         <Specimen title="Course filters, a level selected">
           <CourseFilters
-            levels={getLevels()}
-            skillAreas={getSkillAreas()}
+            levels={await getLevels()}
+            skillAreas={await getSkillAreas()}
             activeLevel="foundation"
           />
         </Specimen>

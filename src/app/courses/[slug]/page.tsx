@@ -32,8 +32,8 @@ import { clampDescription, pageMetadata } from "@/lib/seo/metadata";
 import { absoluteUrl } from "@/lib/env";
 import { courseNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
-export function generateStaticParams(): { slug: string }[] {
-  return getCourseSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return (await getCourseSlugs()).map((slug) => ({ slug }));
 }
 
 /**
@@ -73,7 +73,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/courses/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const course = getCourse(slug);
+  const course = await getCourse(slug);
   if (!course) return { title: "Course not found" };
 
   return pageMetadata({
@@ -87,14 +87,14 @@ export async function generateMetadata({
 
 export default async function CoursePage({ params }: PageProps<"/courses/[slug]">) {
   const { slug } = await params;
-  const course = getCourse(slug);
+  const course = await getCourse(slug);
   if (!course) notFound();
 
-  const trainers = getCourseTrainers(course);
-  const related = getRelatedCourses(course);
-  const nextCourse = course.nextInLadder ? getCourse(course.nextInLadder) : undefined;
-  const previousCourse = getPreviousInLadder(course);
-  const certification = course.certification ? getCertification(course.certification) : undefined;
+  const trainers = await getCourseTrainers(course);
+  const related = await getRelatedCourses(course);
+  const nextCourse = course.nextInLadder ? await getCourse(course.nextInLadder) : undefined;
+  const previousCourse = await getPreviousInLadder(course);
+  const certification = course.certification ? await getCertification(course.certification) : undefined;
 
   /* The faculty section only exists when trainers are assigned, so the numerals are counted
      rather than written in: a gap in the sequence reads as a mistake. */
@@ -429,7 +429,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         id="course-jsonld"
         data={graph([
           webPageNode(`/courses/${course.slug}`, course.title, courseDescription(course)),
-          courseNode(course),
+          await courseNode(course),
           faqNode(
             course.faq.map((item) => ({ ...item, category: "courses" as const })),
             `/courses/${course.slug}`,

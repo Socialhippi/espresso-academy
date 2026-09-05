@@ -27,9 +27,9 @@ export const metadata: Metadata = pageMetadata({
   path: "/",
 });
 
-export default function HomePage() {
-  const trainers = getTrainers();
-  const faqs = getFaqs().slice(0, 4);
+export default async function HomePage() {
+  const trainers = await getTrainers();
+  const faqs = (await getFaqs()).slice(0, 4);
 
   return (
     <>

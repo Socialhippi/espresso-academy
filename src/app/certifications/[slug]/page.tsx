@@ -21,8 +21,8 @@ import {
 import { clampDescription, pageMetadata } from "@/lib/seo/metadata";
 import { certificationArticleNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
-export function generateStaticParams(): { slug: string }[] {
-  return getCertificationSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return (await getCertificationSlugs()).map((slug) => ({ slug }));
 }
 
 /**
@@ -125,7 +125,7 @@ export async function generateMetadata({
   params,
 }: PageProps<"/certifications/[slug]">): Promise<Metadata> {
   const { slug } = await params;
-  const certification = getCertification(slug);
+  const certification = await getCertification(slug);
   if (!certification) return { title: "Certification not found" };
 
   return pageMetadata({
@@ -138,13 +138,13 @@ export async function generateMetadata({
 
 export default async function CertificationPage({ params }: PageProps<"/certifications/[slug]">) {
   const { slug } = await params;
-  const certification = getCertification(slug);
+  const certification = await getCertification(slug);
   if (!certification) notFound();
 
-  const courses = getCoursesForCertification(certification.slug);
+  const courses = await getCoursesForCertification(certification.slug);
   const answers = answersFor(certification, courses.length);
-  const faqs = getFaqs("certification");
-  const other = getCertification(
+  const faqs = await getFaqs("certification");
+  const other = await getCertification(
     certification.slug === "italian-barista-certificate"
       ? "sca-coffee-skills-program"
       : "italian-barista-certificate",

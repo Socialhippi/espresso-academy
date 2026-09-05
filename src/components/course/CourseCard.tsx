@@ -1,8 +1,7 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { LevelBadge } from "@/components/site/LevelBadge";
-import { Placeholder } from "@/components/site/Placeholder";
+import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { TbcPill } from "@/components/site/TbcPill";
 import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
 import { formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
@@ -34,19 +33,15 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         className="flex h-full flex-col border border-white-2 bg-white transition-[color,background-color,border-color] duration-200 hover:border-black"
       >
         <div className="relative">
-          {course.heroImage ? (
-            <Image
-              src={course.heroImage}
-              alt={course.heroAlt}
-              width={1200}
-              height={800}
-              priority={priority}
-              sizes="(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw"
-              className="aspect-photo w-full object-cover"
-            />
-          ) : (
-            <Placeholder slot={`course-${course.slug}`} aspect="photo" className="rounded-none border-0 border-b" />
-          )}
+          <SanityPhoto
+            image={course.heroImage}
+            slot={`course-${course.slug}`}
+            fallbackAlt={course.heroAlt}
+            aspect="photo"
+            priority={priority}
+            sizes="(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw"
+            placeholderClassName="rounded-none border-0 border-b"
+          />
         </div>
 
         <div className="flex flex-1 flex-col p-6">

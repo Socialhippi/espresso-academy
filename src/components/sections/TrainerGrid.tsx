@@ -1,7 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowRight } from "lucide-react";
-import { Placeholder } from "@/components/site/Placeholder";
+import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { TbcPill } from "@/components/site/TbcPill";
 import type { Trainer } from "@/lib/content";
 import { cn } from "@/lib/utils";
@@ -20,19 +19,15 @@ export function TrainerCard({ trainer, className, priority = false }: TrainerCar
        is every width from 768 to 1079. CourseCard already pairs `group h-full` with `mt-auto`. */
     <article className={cn("group h-full", className)}>
       <Link href={`/trainers/${trainer.slug}`} className="flex h-full flex-col">
-        {trainer.image ? (
-          <Image
-            src={trainer.image}
-            alt={`${trainer.name}, trainer at Espresso Academy India`}
-            width={800}
-            height={1000}
-            priority={priority}
-            sizes="(min-width: 1024px) 360px, (min-width: 768px) 30vw, 90vw"
-            className="aspect-portrait w-full rounded-sm object-cover"
-          />
-        ) : (
-          <Placeholder slot={`trainer-${trainer.slug}`} aspect="portrait" />
-        )}
+        <SanityPhoto
+          image={trainer.image}
+          slot={`trainer-${trainer.slug}`}
+          fallbackAlt={`${trainer.name}, trainer at Espresso Academy India`}
+          aspect="portrait"
+          priority={priority}
+          sizes="(min-width: 1024px) 360px, (min-width: 768px) 30vw, 90vw"
+          className="rounded-sm"
+        />
 
         <h3 className="mt-5 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
           {trainer.name}

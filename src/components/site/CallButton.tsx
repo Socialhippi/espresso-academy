@@ -1,12 +1,15 @@
 import { Phone } from "lucide-react";
 import { ButtonLink } from "@/components/site/Button";
-import { siteSettings } from "@/lib/content";
 import { formatPhone, telHref } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
 interface CallButtonProps {
-  /** Defaults to the primary number published on the current site. */
-  phone?: string;
+  /**
+   * Required, and read from settings by the caller. It used to default to a module constant, which
+   * stopped being possible when the number moved to Sanity: this component is rendered inside the
+   * mobile sheet, which is a Client Component and cannot await it.
+   */
+  phone: string;
   children?: React.ReactNode;
   className?: string;
   size?: "default" | "sm" | "icon" | "block";
@@ -15,7 +18,7 @@ interface CallButtonProps {
 }
 
 export function CallButton({
-  phone = siteSettings.phonePrimary,
+  phone,
   children,
   className,
   size = "default",

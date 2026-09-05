@@ -17,10 +17,16 @@ import { Button, ButtonLink } from "@/components/site/Button";
 import { CallButton } from "@/components/site/CallButton";
 import { TbcValue } from "@/components/site/TbcPill";
 import { primaryNav } from "@/lib/nav";
-import { siteSettings } from "@/lib/content";
+import type { SiteSettings } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
-export function MobileNav() {
+interface MobileNavProps {
+  phone: string;
+  address: SiteSettings["address"];
+  hours: string | null;
+}
+
+export function MobileNav({ phone, address, hours }: MobileNavProps) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
@@ -83,21 +89,21 @@ export function MobileNav() {
           >
             Enquire
           </ButtonLink>
-          <CallButton size="block" variant="secondary" />
+          <CallButton phone={phone} size="block" variant="secondary" />
         </div>
 
         <div className="border-t border-white-2 px-5 py-5 type-small text-grey">
           <p className="font-medium text-black">Bengaluru campus</p>
           <address className="mt-1 not-italic">
-            {siteSettings.address.line1}
+            {address.line1}
             <br />
-            {siteSettings.address.line2}
+            {address.line2}
             <br />
-            {siteSettings.address.city} {siteSettings.address.postalCode}
+            {address.city} {address.postalCode}
           </address>
-          {/* TODO(client): opening hours. siteSettings.hours is null until the academy confirms. */}
+          {/* TODO(client): opening hours. `hours` is null until the academy confirms them. */}
           <p className="mt-3 flex items-center gap-2">
-            Hours: <TbcValue value={siteSettings.hours} className="text-black" />
+            Hours: <TbcValue value={hours} className="text-black" />
           </p>
         </div>
       </SheetContent>

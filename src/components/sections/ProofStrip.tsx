@@ -1,5 +1,5 @@
 import { Container } from "@/components/site/Container";
-import { siteSettings } from "@/lib/content";
+import { getSiteSettings } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface ProofItem {
@@ -14,28 +14,36 @@ interface ProofItem {
 /**
  * Five facts, each traceable to content/facts.md. No counts, no ratings, no awards: the file
  * carries none of those, so neither does the site.
+ *
+ * The two years come from settings rather than from a literal, so the day the academy corrects one
+ * it is corrected here too. The other three are statements, not values, and have no field.
  */
-const items: ProofItem[] = [
-  {
-    figure: String(siteSettings.foundedFlorence),
-    numeral: true,
-    label: "Coffee education in Florence since 2007",
-  },
-  {
-    figure: String(siteSettings.launchedBengaluru),
-    numeral: true,
-    label: "Teaching in Bengaluru since 2023",
-  },
-  { figure: "Partner", label: "Official Partner of Espresso Academy, Florence" },
-  { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to partner schools" },
-  { figure: "Q Grader", label: "Faculty hold Q Grader and CQI Q Processing credentials" },
-];
+function buildItems(foundedFlorence: number, launchedBengaluru: number): ProofItem[] {
+  return [
+    {
+      figure: String(foundedFlorence),
+      numeral: true,
+      label: `Coffee education in Florence since ${foundedFlorence}`,
+    },
+    {
+      figure: String(launchedBengaluru),
+      numeral: true,
+      label: `Teaching in Bengaluru since ${launchedBengaluru}`,
+    },
+    { figure: "Partner", label: "Official Partner of Espresso Academy, Florence" },
+    { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to partner schools" },
+    { figure: "Q Grader", label: "Faculty hold Q Grader and CQI Q Processing credentials" },
+  ];
+}
 
 interface ProofStripProps {
   className?: string;
 }
 
-export function ProofStrip({ className }: ProofStripProps) {
+export async function ProofStrip({ className }: ProofStripProps) {
+  const settings = await getSiteSettings();
+  const items = buildItems(settings.foundedFlorence, settings.launchedBengaluru);
+
   return (
     <section className={cn("border-b border-white-2 bg-white-3", className)} aria-labelledby="proof-heading">
       <Container className="py-10 md:py-14">

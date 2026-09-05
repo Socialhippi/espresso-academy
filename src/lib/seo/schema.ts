@@ -9,10 +9,11 @@ import { formatDate, isoDate, whatsappNumber } from "@/lib/format";
 import {
   getCertification,
   getCourseTrainers,
-  siteSettings,
+  getSiteSettings,
   type Certification,
   type Course,
   type FaqItem,
+  type SiteSettings,
   type Trainer,
 } from "@/lib/content";
 
@@ -22,43 +23,47 @@ const ORGANISATION_ID = `${siteUrl}/#organisation`;
 const WEBSITE_ID = `${siteUrl}/#website`;
 const PLACE_ID = `${siteUrl}/#campus`;
 
-function postalAddress(): JsonLdNode {
+function postalAddress(settings: SiteSettings): JsonLdNode {
   return {
     "@type": "PostalAddress",
-    streetAddress: `${siteSettings.address.line1}, ${siteSettings.address.line2}`,
-    addressLocality: siteSettings.address.city,
-    addressRegion: siteSettings.address.region,
-    postalCode: siteSettings.address.postalCode,
-    addressCountry: siteSettings.address.country,
+    streetAddress: [settings.address.line1, settings.address.line2].filter(Boolean).join(", "),
+    addressLocality: settings.address.city,
+    addressRegion: settings.address.region,
+    postalCode: settings.address.postalCode,
+    addressCountry: settings.address.country,
   };
 }
 
-function sameAs(): string[] {
-  return [siteSettings.instagram, siteSettings.florencePartnerPage];
+function sameAs(settings: SiteSettings): string[] {
+  return [settings.instagram, settings.florencePartnerPage].filter(
+    (url): url is string => typeof url === "string" && url.length > 0,
+  );
 }
 
 /**
  * The site-wide nodes: the academy as an EducationalOrganization, the campus as a LocalBusiness,
  * and the WebSite. Rendered once, in the root layout.
  */
-export function organisationGraph(): JsonLdNode[] {
+export async function organisationGraph(): Promise<JsonLdNode[]> {
+  const settings = await getSiteSettings();
+
   const organisation: JsonLdNode = {
     "@type": "EducationalOrganization",
     "@id": ORGANISATION_ID,
-    name: siteSettings.name,
+    name: settings.name,
     url: siteUrl,
-    description: `${siteSettings.partnerLine}. Barista and coffee courses in ${siteSettings.address.city}.`,
-    foundingDate: String(siteSettings.foundedFlorence),
-    address: postalAddress(),
-    telephone: siteSettings.phonePrimary,
-    sameAs: sameAs(),
+    description: `${settings.partnerLine}. Barista and coffee courses in ${settings.address.city}.`,
+    foundingDate: String(settings.foundedFlorence),
+    address: postalAddress(settings),
+    telephone: settings.phonePrimary,
+    sameAs: sameAs(settings),
     logo: {
       "@type": "ImageObject",
       url: absoluteUrl("/logo/lockup-on-white.png"),
       width: 1000,
       height: 998,
     },
-    areaServed: { "@type": "City", name: siteSettings.address.city },
+    areaServed: { "@type": "City", name: settings.address.city },
     parentOrganization: {
       "@type": "Organization",
       name: "Espresso Academy",
@@ -71,31 +76,31 @@ export function organisationGraph(): JsonLdNode[] {
     },
   };
 
-  // TODO(client): siteSettings.email and siteSettings.hours are null, so no email or
+  // TODO(client): settings.email and settings.hours are null, so no email or
   // openingHoursSpecification is emitted. Adding a guess here would be a fabricated fact.
   const campus: JsonLdNode = {
     "@type": "LocalBusiness",
     "@id": PLACE_ID,
-    name: `${siteSettings.name}, ${siteSettings.address.city} campus`,
+    name: `${settings.name}, ${settings.address.city} campus`,
     url: absoluteUrl("/contact"),
     parentOrganization: { "@id": ORGANISATION_ID },
-    address: postalAddress(),
-    telephone: siteSettings.phonePrimary,
-    sameAs: sameAs(),
-    hasMap: siteSettings.address.mapsUrl,
+    address: postalAddress(settings),
+    telephone: settings.phonePrimary,
+    sameAs: sameAs(settings),
+    hasMap: settings.address.mapsUrl,
     image: absoluteUrl("/logo/lockup-on-white.png"),
     contactPoint: [
       {
         "@type": "ContactPoint",
         contactType: "admissions",
-        telephone: siteSettings.phonePrimary,
+        telephone: settings.phonePrimary,
         areaServed: "IN",
         availableLanguage: ["en", "hi", "kn"],
       },
       {
         "@type": "ContactPoint",
         contactType: "customer support",
-        telephone: `+${whatsappNumber()}`,
+        telephone: `+${whatsappNumber(settings.whatsappNumber)}`,
         contactOption: "TollFree",
         areaServed: "IN",
       },
@@ -106,7 +111,7 @@ export function organisationGraph(): JsonLdNode[] {
     "@type": "WebSite",
     "@id": WEBSITE_ID,
     url: siteUrl,
-    name: siteSettings.name,
+    name: settings.name,
     inLanguage: "en-IN",
     publisher: { "@id": ORGANISATION_ID },
   };
@@ -115,9 +120,9 @@ export function organisationGraph(): JsonLdNode[] {
 }
 
 /** Course, with hasCourseInstance only for dated batches and Offer only for confirmed fees. */
-export function courseNode(course: Course): JsonLdNode {
-  const certification = course.certification ? getCertification(course.certification) : undefined;
-  const trainers = getCourseTrainers(course);
+export async function courseNode(course: Course): Promise<JsonLdNode> {
+  const certification = course.certification ? await getCertification(course.certification) : undefined;
+  const trainers = await getCourseTrainers(course);
 
   const instances = course.instances
     .filter((instance) => instance.startDate !== null)

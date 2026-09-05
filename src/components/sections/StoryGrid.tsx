@@ -13,8 +13,8 @@ interface StoryGridProps {
  * Student stories. content/facts.md forbids any testimonial until a real, permitted one arrives,
  * so this section stays in its empty state. Never fill it with a plausible quote.
  */
-export function StoryGrid({ className, number = "05" }: StoryGridProps) {
-  const stories = getStories();
+export async function StoryGrid({ className, number = "05" }: StoryGridProps) {
+  const stories = await getStories();
 
   return (
     <section className={cn("section-y", className)} aria-labelledby="stories-heading">

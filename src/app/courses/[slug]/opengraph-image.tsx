@@ -6,8 +6,8 @@ export const alt = "Course at Espresso Academy India, Bengaluru";
 export const size = OG_SIZE;
 export const contentType = OG_CONTENT_TYPE;
 
-export function generateStaticParams(): { slug: string }[] {
-  return getCourseSlugs().map((slug) => ({ slug }));
+export async function generateStaticParams(): Promise<{ slug: string }[]> {
+  return (await getCourseSlugs()).map((slug) => ({ slug }));
 }
 
 export default async function CourseOpengraphImage({
@@ -16,7 +16,7 @@ export default async function CourseOpengraphImage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = await params;
-  const course = getCourse(slug);
+  const course = await getCourse(slug);
   if (!course) notFound();
 
   return ogCard({

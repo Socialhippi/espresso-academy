@@ -1,36 +1,197 @@
-/**
- * Typed accessors over content/data.ts. Pages and components read content through here and
- * never import the data module directly, so the day this moves to Sanity only this file changes.
- */
-import {
-  certifications,
-  courses,
-  faqs,
-  levelBadge,
-  siteSettings,
-  stories,
-  trainers,
-  type Certification,
-  type Course,
-  type CourseInstance,
-  type FaqItem,
-  type Level,
-  type SkillArea,
-  type Story,
-  type Trainer,
-} from "@content/data";
+import "server-only";
 
-export type {
-  Certification,
-  Course,
-  CourseInstance,
-  FaqItem,
-  Level,
-  SkillArea,
-  Story,
-  Trainer,
-};
-export { levelBadge, siteSettings };
+/**
+ * The site's content layer.
+ *
+ * Build 1 read `content/data.ts` synchronously. This reads Sanity, so every accessor that touches
+ * the network is now `async`; the return shapes are unchanged, which is why the components did not
+ * have to be rewritten with the data source. `content/data.ts` remains in the repo as the seed of
+ * record for `sanity/seed/from-data.ts` and is no longer imported from `src/`.
+ *
+ * Three things stay synchronous on purpose:
+ *
+ * - the label maps at the bottom, which are presentation, not content;
+ * - the helpers that operate on an object a caller already has (`getNextInstanceForCourse`);
+ * - the types.
+ *
+ * Every fetch is tagged. `/api/revalidate` turns a Sanity publish into a `revalidateTag` call, so
+ * an edit is live in seconds without the site polling for it. The one-hour `revalidate` underneath
+ * is a floor, not the mechanism: it only matters if the webhook is ever misconfigured.
+ */
+import { cache } from "react";
+import { readClient } from "@/lib/sanity/client";
+import type { SanityImage } from "@/lib/sanity/image";
+import {
+  certificationsQuery,
+  courseBySlugQuery,
+  coursesQuery,
+  courseSlugsQuery,
+  datedInstancesQuery,
+  faqsQuery,
+  siteSettingsQuery,
+  storiesQuery,
+  trainerBySlugQuery,
+  trainersQuery,
+} from "@/lib/sanity/queries";
+
+/* ---------------------------------------------------------------------------------------------
+ * Types. These were in content/data.ts; they live here now because src/ no longer imports it.
+ * ------------------------------------------------------------------------------------------- */
+
+export type Level = "foundation" | "intermediate" | "professional" | "junior" | "advanced" | "open";
+export type Format = "in-person" | "hybrid" | "online";
+export type SkillArea =
+  | "barista-skills"
+  | "latte-art"
+  | "brewing"
+  | "roasting-cupping"
+  | "sensory"
+  | "green-coffee"
+  | "mixology"
+  | "cafe-management";
+
+export type CertificationSlug = "italian-barista-certificate" | "sca-coffee-skills-program";
+
+export interface Certification {
+  slug: CertificationSlug;
+  name: string;
+  shortName: string;
+  issuer: string;
+  summary: string;
+  levels: string[];
+  recognitionNote: string;
+  status: "confirmed" | "wording-pending";
+}
+
+export interface Trainer {
+  slug: string;
+  name: string;
+  role: string | null;
+  credentials: { name: string; issuer: string | null }[];
+  bio: string;
+  philosophy: string | null;
+  image: SanityImage | null;
+  sameAs: string[];
+}
+
+export interface Venue {
+  id: string;
+  name: string;
+  city: string;
+  mapsUrl: string | null;
+  address: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    postalCode: string;
+    region: string;
+    country: string;
+  } | null;
+}
+
+export type InstanceStatus = "open" | "waitlist" | "soldout" | "completed" | "tbc";
+
+export interface CourseInstance {
+  /** The Sanity document id. It is also the path segment of /book/[instanceId]. */
+  id: string;
+  startDate: string | null;
+  endDate: string | null;
+  schedule: string | null;
+  status: InstanceStatus;
+  seatsMax: number | null;
+  seatsBooked: number;
+  /** Derived in GROQ as seatsMax - seatsBooked. Null while the academy has not set seatsMax. */
+  seatsAvailable: number | null;
+  /** Overrides the course fee for this batch only, in whole rupees. */
+  priceOverride: number | null;
+  venue: Venue | null;
+}
+
+export interface CourseFaq {
+  q: string;
+  a: string;
+  link?: { label: string; href: string } | null;
+}
+
+export interface Course {
+  slug: string;
+  title: string;
+  skillArea: SkillArea;
+  level: Level;
+  levelLabel: string;
+  isWorkshop: boolean;
+  certification: CertificationSlug | null;
+  certificateAwardedLabel: string | null;
+  format: Format | null;
+  durationDays: number | null;
+  durationHours: number | null;
+  feeInclGst: number | null;
+  emiAvailable: boolean | null;
+  seatsMax: number | null;
+  outcome: string;
+  forWhom: string[];
+  notForWhom: string[];
+  modules: string[] | null;
+  includes: string[] | null;
+  prerequisites: string | null;
+  trainers: string[];
+  nextInLadder: string | null;
+  faq: CourseFaq[];
+  /** Fetched with the course through `references(^._id)`, soonest dated batch first. */
+  instances: CourseInstance[];
+  heroImage: SanityImage | null;
+  heroAlt: string;
+  priority: number;
+}
+
+export interface FaqItem {
+  q: string;
+  a: string;
+  category: "courses" | "fees" | "certification" | "schedule" | "campus" | "careers";
+  link?: { label: string; href: string } | null;
+}
+
+export interface Story {
+  id: string;
+  name: string;
+  course: string | null;
+  outcome: string | null;
+  quote: string;
+  image: SanityImage | null;
+  permission: boolean;
+}
+
+export interface SiteSettings {
+  name: string;
+  legalName: string | null;
+  tagline: string | null;
+  partnerLine: string;
+  foundedFlorence: number;
+  launchedBengaluru: number;
+  address: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    postalCode: string;
+    region: string;
+    country: string;
+    plotNumberConfirmed: boolean;
+    mapsUrl: string | null;
+  };
+  phonePrimary: string;
+  phoneSecondary: string | null;
+  whatsappNumber: string;
+  whatsappConfirmed: boolean;
+  whatsappText: string | null;
+  email: string | null;
+  hours: string | null;
+  replyPromise: string | null;
+  instagram: string | null;
+  florencePartnerPage: string | null;
+  razorpayDisplayName: string | null;
+  metaPixelIdOverride: string | null;
+  announcements: string[] | null;
+}
 
 /** A course instance paired with the course it belongs to. */
 export interface DatedInstance {
@@ -40,44 +201,101 @@ export interface DatedInstance {
   startDate: string;
 }
 
-/** Every course, lowest priority number first. */
-export function getCourses(): Course[] {
-  return [...courses].sort((a, b) => a.priority - b.priority);
+/* ---------------------------------------------------------------------------------------------
+ * Fetching
+ * ------------------------------------------------------------------------------------------- */
+
+/**
+ * One hour. Not the mechanism by which an edit goes live (that is the publish webhook calling
+ * revalidateTag), just the floor if the webhook is ever wrong.
+ */
+const REVALIDATE_SECONDS = 3600;
+
+type Tag =
+  | "course"
+  | "courseInstance"
+  | "trainer"
+  | "certification"
+  | "faqItem"
+  | "story"
+  | "siteSettings"
+  | "guide"
+  | "page"
+  | "landingPage"
+  | "redirect";
+
+async function query<T>(groq: string, params: Record<string, unknown>, tags: Tag[]): Promise<T> {
+  return readClient.fetch<T>(groq, params, {
+    next: { revalidate: REVALIDATE_SECONDS, tags },
+  });
 }
 
-export function getCourse(slug: string): Course | undefined {
-  return courses.find((course) => course.slug === slug);
+/** An empty array from an editor who cleared a field means "nothing to show", same as unset. */
+function nullIfEmpty<T>(value: T[] | null | undefined): T[] | null {
+  return value && value.length > 0 ? value : null;
 }
 
-export function getCourseSlugs(): string[] {
-  return getCourses().map((course) => course.slug);
+function normaliseCourse(raw: Course): Course {
+  return {
+    ...raw,
+    isWorkshop: raw.isWorkshop ?? false,
+    forWhom: raw.forWhom ?? [],
+    notForWhom: raw.notForWhom ?? [],
+    modules: nullIfEmpty(raw.modules),
+    includes: nullIfEmpty(raw.includes),
+    trainers: (raw.trainers ?? []).filter((slug): slug is string => Boolean(slug)),
+    faq: raw.faq ?? [],
+  };
 }
 
-export function getCoursesByLevel(level: Level): Course[] {
-  return getCourses().filter((course) => course.level === level);
+/**
+ * `cache` dedupes within one render pass: a course page that asks for the course, then the
+ * related courses, then the ladder, makes one request rather than three.
+ */
+export const getCourses = cache(async (): Promise<Course[]> => {
+  const courses = await query<Course[]>(coursesQuery, {}, ["course", "courseInstance"]);
+  return courses.map(normaliseCourse);
+});
+
+export const getCourse = cache(async (slug: string): Promise<Course | undefined> => {
+  const course = await query<Course | null>(courseBySlugQuery, { slug }, ["course", "courseInstance"]);
+  return course ? normaliseCourse(course) : undefined;
+});
+
+export const getCourseSlugs = cache(async (): Promise<string[]> => {
+  return query<string[]>(courseSlugsQuery, {}, ["course"]);
+});
+
+export async function getCoursesByLevel(level: Level): Promise<Course[]> {
+  return (await getCourses()).filter((course) => course.level === level);
 }
 
-export function getCoursesBySkillArea(skillArea: SkillArea): Course[] {
-  return getCourses().filter((course) => course.skillArea === skillArea);
+export async function getCoursesBySkillArea(skillArea: SkillArea): Promise<Course[]> {
+  return (await getCourses()).filter((course) => course.skillArea === skillArea);
 }
 
-export function getCoursesForCertification(slug: Certification["slug"]): Course[] {
-  return getCourses().filter((course) => course.certification === slug);
+export async function getCoursesForCertification(slug: CertificationSlug): Promise<Course[]> {
+  return (await getCourses()).filter((course) => course.certification === slug);
 }
 
-export function getCoursesForTrainer(trainerSlug: string): Course[] {
-  return getCourses().filter((course) => course.trainers.includes(trainerSlug));
+export async function getCoursesForTrainer(trainerSlug: string): Promise<Course[]> {
+  return (await getCourses()).filter((course) => course.trainers.includes(trainerSlug));
+}
+
+/** Courses that run as a short workshop rather than as a rung of the ladder. */
+export async function getWorkshops(): Promise<Course[]> {
+  return (await getCourses()).filter((course) => course.isWorkshop);
 }
 
 /** The skill areas that actually have a course, in hub order. */
-export function getSkillAreas(): SkillArea[] {
+export async function getSkillAreas(): Promise<SkillArea[]> {
   const seen = new Set<SkillArea>();
-  for (const course of getCourses()) seen.add(course.skillArea);
+  for (const course of await getCourses()) seen.add(course.skillArea);
   return [...seen];
 }
 
 /** The levels that actually have a course, in ladder order. */
-export function getLevels(): Level[] {
+export async function getLevels(): Promise<Level[]> {
   const ladder: Level[] = [
     "foundation",
     "intermediate",
@@ -86,98 +304,159 @@ export function getLevels(): Level[] {
     "advanced",
     "open",
   ];
-  const present = new Set(getCourses().map((course) => course.level));
+  const present = new Set((await getCourses()).map((course) => course.level));
   return ladder.filter((level) => present.has(level));
 }
 
-export function getTrainers(): Trainer[] {
-  return trainers;
+export const getTrainers = cache(async (): Promise<Trainer[]> => {
+  const trainers = await query<Trainer[]>(trainersQuery, {}, ["trainer"]);
+  return trainers.map((trainer) => ({
+    ...trainer,
+    credentials: trainer.credentials ?? [],
+    sameAs: trainer.sameAs ?? [],
+  }));
+});
+
+export const getTrainer = cache(async (slug: string): Promise<Trainer | undefined> => {
+  const trainer = await query<Trainer | null>(trainerBySlugQuery, { slug }, ["trainer"]);
+  if (!trainer) return undefined;
+  return { ...trainer, credentials: trainer.credentials ?? [], sameAs: trainer.sameAs ?? [] };
+});
+
+export async function getTrainerSlugs(): Promise<string[]> {
+  return (await getTrainers()).map((trainer) => trainer.slug);
 }
 
-export function getTrainer(slug: string): Trainer | undefined {
-  return trainers.find((trainer) => trainer.slug === slug);
-}
-
-export function getTrainerSlugs(): string[] {
-  return trainers.map((trainer) => trainer.slug);
-}
-
-/** Trainers assigned to a course, in the order the data lists them. */
-export function getCourseTrainers(course: Course): Trainer[] {
+/** Trainers assigned to a course, in the order the course lists them. */
+export async function getCourseTrainers(course: Course): Promise<Trainer[]> {
+  const all = await getTrainers();
   return course.trainers
-    .map((slug) => getTrainer(slug))
+    .map((slug) => all.find((trainer) => trainer.slug === slug))
     .filter((trainer): trainer is Trainer => trainer !== undefined);
 }
 
-export function getCertifications(): Certification[] {
-  return certifications;
+export const getCertifications = cache(async (): Promise<Certification[]> => {
+  return query<Certification[]>(certificationsQuery, {}, ["certification"]);
+});
+
+export async function getCertification(slug: string): Promise<Certification | undefined> {
+  return (await getCertifications()).find((certification) => certification.slug === slug);
 }
 
-export function getCertification(slug: string): Certification | undefined {
-  return certifications.find((certification) => certification.slug === slug);
+export async function getCertificationSlugs(): Promise<CertificationSlug[]> {
+  return (await getCertifications()).map((certification) => certification.slug);
 }
 
-export function getCertificationSlugs(): Certification["slug"][] {
-  return certifications.map((certification) => certification.slug);
-}
+export const getAllFaqs = cache(async (): Promise<FaqItem[]> => {
+  return query<FaqItem[]>(faqsQuery, {}, ["faqItem"]);
+});
 
-export function getFaqs(category?: FaqItem["category"]): FaqItem[] {
+export async function getFaqs(category?: FaqItem["category"]): Promise<FaqItem[]> {
+  const faqs = await getAllFaqs();
   return category ? faqs.filter((faq) => faq.category === category) : faqs;
 }
 
-export function getFaqsByCategories(categories: FaqItem["category"][]): FaqItem[] {
-  return faqs.filter((faq) => categories.includes(faq.category));
+export async function getFaqsByCategories(categories: FaqItem["category"][]): Promise<FaqItem[]> {
+  return (await getAllFaqs()).filter((faq) => categories.includes(faq.category));
 }
 
-/** FAQ categories in the order they first appear in the data. */
-export function getFaqCategories(): FaqItem["category"][] {
+/** FAQ categories in the order they first appear. */
+export async function getFaqCategories(): Promise<FaqItem["category"][]> {
   const seen = new Set<FaqItem["category"]>();
-  for (const faq of faqs) seen.add(faq.category);
+  for (const faq of await getAllFaqs()) seen.add(faq.category);
   return [...seen];
 }
 
+/** Only stories the subject has given permission to publish. The query already filters. */
+export const getStories = cache(async (): Promise<Story[]> => {
+  return query<Story[]>(storiesQuery, {}, ["story"]);
+});
+
 /**
- * The next n scheduled instances across all courses, soonest first.
- * Instances without a start date are not scheduled, so they never appear here; a caller that
- * gets an empty array renders the "dates being finalised" state.
+ * The next n scheduled instances across all courses, soonest first. An instance without a start
+ * date is not scheduled, so it never appears here and the caller renders the "dates being
+ * finalised" state instead.
  */
-export function getNextInstances(n?: number): DatedInstance[] {
+export const getNextInstances = cache(async (n?: number): Promise<DatedInstance[]> => {
+  const rows = await query<(CourseInstance & { course: Course })[]>(datedInstancesQuery, {}, [
+    "courseInstance",
+    "course",
+  ]);
   const dated: DatedInstance[] = [];
-  for (const course of getCourses()) {
-    for (const instance of course.instances) {
-      if (instance.startDate) {
-        dated.push({ course, instance, startDate: instance.startDate });
-      }
-    }
+  for (const row of rows) {
+    const { course, ...instance } = row;
+    if (!course || !instance.startDate) continue;
+    dated.push({ course: normaliseCourse(course), instance, startDate: instance.startDate });
   }
-  dated.sort((a, b) => a.startDate.localeCompare(b.startDate));
   return typeof n === "number" ? dated.slice(0, n) : dated;
+});
+
+/** False while the academy has not published a single batch date. */
+export async function hasAnyDates(): Promise<boolean> {
+  return (await getNextInstances(1)).length > 0;
 }
 
+export const getSiteSettings = cache(async (): Promise<SiteSettings> => {
+  const settings = await query<SiteSettings | null>(siteSettingsQuery, {}, ["siteSettings"]);
+  if (!settings) {
+    throw new Error(
+      "No siteSettings document in Sanity. Run `pnpm sanity:seed` to create it from content/data.ts.",
+    );
+  }
+  return settings;
+});
+
+/* ---------------------------------------------------------------------------------------------
+ * Helpers over objects a caller already holds. Synchronous by design.
+ * ------------------------------------------------------------------------------------------- */
+
 /** The soonest scheduled instance for one course, or undefined when none is dated. */
-export function getNextInstanceForCourse(course: Course): CourseInstance | undefined {
-  return [...course.instances]
+export function getNextInstanceForCourse(course: {
+  instances?: CourseInstance[];
+}): CourseInstance | undefined {
+  return [...(course.instances ?? [])]
     .filter((instance): instance is CourseInstance & { startDate: string } =>
       Boolean(instance.startDate),
     )
     .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
 }
 
-/** False while the client has not supplied a single batch date. */
-export function hasAnyDates(): boolean {
-  return getNextInstances(1).length > 0;
+/** Seats left on a batch, or null while the academy has not set a seat count. */
+export function seatsLeft(instance: CourseInstance): number | null {
+  if (instance.seatsAvailable === null || instance.seatsAvailable === undefined) return null;
+  return Math.max(0, instance.seatsAvailable);
 }
 
-/** Only stories the subject has given permission to publish. Empty until real ones arrive. */
-export function getStories(): Story[] {
-  return stories.filter((story) => story.permission);
+/** The fee this batch charges, in whole rupees: its override, else the course fee, else null. */
+export function feeForInstance(
+  course: Pick<Course, "feeInclGst">,
+  instance: Pick<CourseInstance, "priceOverride">,
+): number | null {
+  return instance.priceOverride ?? course.feeInclGst ?? null;
 }
 
 /**
- * Courses to show alongside this one: same skill area first, then the adjacent rung of the
- * ladder, then the next highest priority. Never includes the course itself.
+ * What the batch row's button should be. One function so the course page, the calendar and the
+ * workshops page cannot disagree about whether a batch is bookable.
  */
-export function getRelatedCourses(course: Course, limit = 3): Course[] {
+export function batchAction(
+  course: Pick<Course, "feeInclGst">,
+  instance: CourseInstance,
+): "book" | "waitlist" | "enquire" {
+  if (feeForInstance(course, instance) === null) return "enquire";
+  if (instance.status === "completed" || instance.status === "tbc") return "enquire";
+  if (instance.status === "soldout" || instance.status === "waitlist") return "waitlist";
+  const left = seatsLeft(instance);
+  if (left !== null && left <= 0) return "waitlist";
+  return "book";
+}
+
+/**
+ * Courses to show alongside this one: same skill area first, then the adjacent rung of the ladder,
+ * then the next highest priority. Never includes the course itself.
+ */
+export async function getRelatedCourses(course: Course, limit = 3): Promise<Course[]> {
+  const all = await getCourses();
   const picked = new Map<string, Course>();
   const add = (candidate: Course | undefined): void => {
     if (candidate && candidate.slug !== course.slug && !picked.has(candidate.slug)) {
@@ -185,12 +464,14 @@ export function getRelatedCourses(course: Course, limit = 3): Course[] {
     }
   };
 
-  if (course.nextInLadder) add(getCourse(course.nextInLadder));
-  for (const sibling of getCoursesBySkillArea(course.skillArea)) add(sibling);
-  for (const sibling of getCourses()) {
+  if (course.nextInLadder) add(all.find((candidate) => candidate.slug === course.nextInLadder));
+  for (const sibling of all) {
+    if (sibling.skillArea === course.skillArea) add(sibling);
+  }
+  for (const sibling of all) {
     if (sibling.nextInLadder === course.slug) add(sibling);
   }
-  for (const sibling of getCourses()) {
+  for (const sibling of all) {
     if (picked.size >= limit) break;
     add(sibling);
   }
@@ -199,11 +480,23 @@ export function getRelatedCourses(course: Course, limit = 3): Course[] {
 }
 
 /** The course whose ladder points at this one, used for the "previous level" link. */
-export function getPreviousInLadder(course: Course): Course | undefined {
-  return getCourses().find((candidate) => candidate.nextInLadder === course.slug);
+export async function getPreviousInLadder(course: Course): Promise<Course | undefined> {
+  return (await getCourses()).find((candidate) => candidate.nextInLadder === course.slug);
 }
 
-/** Human label for a skill area, used on filter chips and spec strips. */
+/* ---------------------------------------------------------------------------------------------
+ * Presentation maps. Not content: these are how the site words a stored value.
+ * ------------------------------------------------------------------------------------------- */
+
+export const levelBadge: Record<Level, { label: string; className: string }> = {
+  foundation: { label: "Foundation", className: "bg-mustard text-black" },
+  intermediate: { label: "Intermediate", className: "bg-blue text-white" },
+  professional: { label: "Professional", className: "bg-purple text-white" },
+  junior: { label: "IBC Junior", className: "bg-mustard text-black" },
+  advanced: { label: "IBC Advanced", className: "bg-blue text-white" },
+  open: { label: "Open level", className: "bg-white-2 text-black" },
+};
+
 export const skillAreaLabel: Record<SkillArea, string> = {
   "barista-skills": "Barista skills",
   "latte-art": "Latte art",
@@ -215,14 +508,12 @@ export const skillAreaLabel: Record<SkillArea, string> = {
   "cafe-management": "Cafe management",
 };
 
-/** Human label for a delivery format. */
-export const formatLabel: Record<NonNullable<Course["format"]>, string> = {
+export const formatLabel: Record<Format, string> = {
   "in-person": "In person",
   hybrid: "Hybrid",
   online: "Online",
 };
 
-/** Human label for an FAQ category, used as the group heading on /faq. */
 export const faqCategoryLabel: Record<FaqItem["category"], string> = {
   courses: "Courses",
   fees: "Fees",

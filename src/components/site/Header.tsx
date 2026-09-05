@@ -5,13 +5,16 @@ import { MobileNav } from "@/components/site/MobileNav";
 import { NavLink } from "@/components/site/NavLink";
 import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { getSiteSettings } from "@/lib/content";
 import { primaryNav } from "@/lib/nav";
 
 /**
  * Server Component. Only the mobile sheet and the active-link marker are client-side.
  * Sticky from md up, where there is no bottom bar carrying the actions instead.
  */
-export function Header() {
+export async function Header() {
+  const settings = await getSiteSettings();
+
   return (
     <header className="relative z-40 border-b border-white-2 bg-white md:sticky md:top-0">
       <Container className="flex items-center justify-between gap-4 py-3">
@@ -77,7 +80,13 @@ export function Header() {
             Enquire
           </ButtonLink>
           <div className="nav:hidden">
-            <MobileNav />
+            {/* The sheet is a Client Component, so the address and hours it prints are passed in
+                rather than read: it cannot await Sanity itself. */}
+            <MobileNav
+              phone={settings.phonePrimary}
+              address={settings.address}
+              hours={settings.hours}
+            />
           </div>
         </div>
       </Container>

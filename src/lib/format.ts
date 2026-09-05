@@ -2,7 +2,6 @@
  * Formatting helpers. Every one has a defined output for null, because the client has not
  * supplied fees, durations or dates yet and the site must show a TBC state, never a guess.
  */
-import { siteSettings } from "@content/data";
 import { whatsappNumberOverride } from "@/lib/public-env";
 
 export const TBC_TITLE = "To be confirmed by the academy";
@@ -104,9 +103,18 @@ export function isoDate(iso: string | null): string | undefined {
   return date ? iso.slice(0, 10) : undefined;
 }
 
-/** The WhatsApp number in use: the env override when set, otherwise the one in siteSettings. */
-export function whatsappNumber(): string {
-  return whatsappNumberOverride ?? siteSettings.whatsappNumber;
+/**
+ * The WhatsApp number to dial: the env override when set, otherwise the one the caller read from
+ * settings.
+ *
+ * The number used to be a module constant, which worked while it lived in a file the bundler could
+ * inline. It comes from Sanity now, and a Client Component cannot await Sanity, so the number is
+ * passed in: Server Components read it from `getSiteSettings()`, the two Client Components that
+ * need it (the sticky bar and the enquiry form) take it as a prop. `NEXT_PUBLIC_WHATSAPP_NUMBER`
+ * still wins when it is set, which is how a staging deployment points at a test handset.
+ */
+export function whatsappNumber(fromSettings?: string | null): string {
+  return whatsappNumberOverride ?? fromSettings ?? "";
 }
 
 /** "+91 94481 06100" from "+919448106100", for display only. */
@@ -123,20 +131,32 @@ export interface WhatsAppMessageOptions {
   batch?: string | null;
   /** Overrides the generated message entirely. */
   message?: string;
+  /** The number to open, from settings. The env override still wins when it is set. */
+  number?: string | null;
+  /** The academy's template from settings, with {course} and {batch} placeholders. */
+  template?: string | null;
 }
 
 /** The pre-filled message text, without URL encoding. */
-export function whatsappMessage({ course, batch, message }: WhatsAppMessageOptions = {}): string {
+export function whatsappMessage({
+  course,
+  batch,
+  message,
+  template,
+}: WhatsAppMessageOptions = {}): string {
   if (message) return message;
   const subject = course ? course : "a course at Espresso Academy India";
   const when = batch ? ` on ${batch.includes("-") ? formatDate(batch) : batch}` : "";
+  if (template) {
+    return template.replace(/\{course\}/g, subject).replace(/\{batch\}/g, when.trim());
+  }
   return `Hi, I'm interested in ${subject}${when}. Please share fees and next batch.`;
 }
 
 /** https://wa.me/<number>?text=<url-encoded pre-filled message> */
 export function whatsappUrl(options: WhatsAppMessageOptions = {}): string {
   const text = encodeURIComponent(whatsappMessage(options));
-  return `https://wa.me/${whatsappNumber()}?text=${text}`;
+  return `https://wa.me/${whatsappNumber(options.number)}?text=${text}`;
 }
 
 /** tel: href from an E.164 number. */

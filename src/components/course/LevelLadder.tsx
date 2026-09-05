@@ -23,8 +23,8 @@ interface RungProps {
   onDark: boolean;
 }
 
-function Rung({ level, current, onDark }: RungProps) {
-  const courses = getCoursesByLevel(level);
+async function Rung({ level, current, onDark }: RungProps) {
+  const courses = await getCoursesByLevel(level);
   const first = courses[0];
   const label = levelBadge[level].label;
 
@@ -76,6 +76,8 @@ function Rung({ level, current, onDark }: RungProps) {
  * from assistive tech and replaced by the plain list below it, per .claude/rules/a11y.md.
  */
 export function LevelLadder({ current, className, onDark = false, id }: LevelLadderProps) {
+  /* Rung is async because it reads the courses at that level. React renders an async child in a
+     Server Component tree directly, so the ladder itself stays synchronous. */
   const describedBy = `${id ?? "level-ladder"}-description`;
   return (
     <div className={className}>

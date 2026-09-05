@@ -7,11 +7,16 @@ import {
 } from "@/lib/content";
 
 /**
- * Built from content/data.ts, so a new course or trainer appears here with no extra step.
- * /thank-you and /dev/* are noindex and are deliberately absent.
+ * Built from Sanity, so a new course, guide or trainer appears here with no extra step.
+ * /thank-you, /studio, /dev/*, /lp/*, /book/* and /booking/* are noindex and deliberately absent.
  */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
+  const [courseSlugs, certificationSlugs, trainerSlugs] = await Promise.all([
+    getCourseSlugs(),
+    getCertificationSlugs(),
+    getTrainerSlugs(),
+  ]);
 
   const staticRoutes: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, changeFrequency: "weekly" },
@@ -35,19 +40,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),
-    ...getCourseSlugs().map((slug) => ({
+    ...courseSlugs.map((slug) => ({
       url: absoluteUrl(`/courses/${slug}`),
       lastModified: now,
       changeFrequency: "weekly" as const,
       priority: 0.9,
     })),
-    ...getCertificationSlugs().map((slug) => ({
+    ...certificationSlugs.map((slug) => ({
       url: absoluteUrl(`/certifications/${slug}`),
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.8,
     })),
-    ...getTrainerSlugs().map((slug) => ({
+    ...trainerSlugs.map((slug) => ({
       url: absoluteUrl(`/trainers/${slug}`),
       lastModified: now,
       changeFrequency: "monthly" as const,

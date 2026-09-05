@@ -76,20 +76,20 @@ const howToChoose = [
 
 export default async function CoursesPage({ searchParams }: PageProps<"/courses">) {
   const params = await searchParams;
-  const levels = getLevels();
-  const skillAreas = getSkillAreas();
+  const levels = await getLevels();
+  const skillAreas = await getSkillAreas();
   const activeLevel = parseLevel(firstValue(params.level), levels);
   const activeArea = parseArea(firstValue(params.area), skillAreas);
 
-  const allCourses = getCourses();
+  const allCourses = await getCourses();
   const courses = allCourses.filter(
     (course) =>
       (activeLevel === null || course.level === activeLevel) &&
       (activeArea === null || course.skillArea === activeArea),
   );
 
-  const faqs = getFaqsByCategories(["courses", "fees"]);
-  const certifications = getCertifications();
+  const faqs = await getFaqsByCategories(["courses", "fees"]);
+  const certifications = await getCertifications();
 
   /* The fee section renders its list only when there is something in it to read. */
   const anyFeeOrDuration = allCourses.some(

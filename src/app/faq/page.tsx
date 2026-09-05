@@ -20,9 +20,9 @@ export const metadata: Metadata = pageMetadata({
   path: "/faq",
 });
 
-export default function FaqPage() {
-  const categories = getFaqCategories();
-  const allFaqs = getFaqs();
+export default async function FaqPage() {
+  const categories = await getFaqCategories();
+  const allFaqs = await getFaqs();
 
   return (
     <>
@@ -65,7 +65,9 @@ export default function FaqPage() {
 
             <div className="lg:col-span-9">
               {categories.map((category, index) => {
-                const items = getFaqs(category);
+                /* Already fetched above: filtering the list in place keeps this a plain map
+                   rather than a fan-out of one request per category. */
+                const items = allFaqs.filter((faq) => faq.category === category);
                 return (
                   <div key={category} className={index > 0 ? "mt-14" : undefined}>
                     <SectionHeading
