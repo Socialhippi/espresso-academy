@@ -429,6 +429,57 @@ batch link and its campaign; that a honeypot and a too-fast submit create nothin
 survives both optional destinations being absent — not mocked, because this environment genuinely
 has neither.
 
+### Phase 4: remaining pages and templates — done
+
+Six routes, and a section library the academy can build a page from without a developer.
+
+| Route | What it is |
+|---|---|
+| `/workshops` | Calendar-first. A workshop is a course with `isWorkshop` ticked, not a new type. |
+| `/calendar` | Course and venue filters, seats left, Book/Waitlist/Enquire per row, Event JSON-LD. |
+| `/for-cafes` | From a `page` document, with a hand-written fallback of the same shape until one exists. |
+| `/guides`, `/guides/[slug]` | Answer-first, question H2s, evidence table, FAQ block, Article + FAQPage. |
+| `/lp/[slug]` | Campaign page. Always noindex, logo and phone only. |
+| `/student-stories` | Empty until a story has written permission, and that is enforced in the query. |
+
+- **The calendar's facets are built from the batches that exist**, so no chip leads to an empty
+  list, and the venue strip stays hidden while there is one campus. Counts describe the whole
+  calendar rather than the current view. The canonical stays `/calendar` and the Event JSON-LD
+  describes the unfiltered page, so a facet never competes with the page it filters.
+- **A guide names its author, names its reviewer and carries both dates.** That is the difference
+  between an answer and a claim, and it is what lets a search result or an assistant quote it.
+- **`/lp/*` keeps the landmark rules** without moving every route into a `(site)` route group:
+  `SiteChrome` gates the site header and footer off, so a campaign page has exactly one `header`,
+  one `main`, one `h1` and no `nav`.
+- **Nothing seeded states a fact.** `pnpm sanity:seed:templates` creates two guides, the for-cafes
+  page and one landing page, every body paragraph marked `PLACEHOLDER`, and no fee, date, duration
+  or SCA claim anywhere in them. The four real values in the landing page's proof section all trace
+  to `content/facts.md`.
+
+**Five defects found and fixed, four of them by the standing scripts:**
+
+1. **`/courses/latte-art` went 19px wide at 360 the moment a batch first had a date.** A grid item
+   defaults to `min-width: auto`, so it cannot shrink below its content and the scroll container
+   inside it never got to scroll. This is the third instance of that root cause in this codebase;
+   `.table-scroll` is defensive now as well as the wrapper.
+2. **Seven tap targets under 44px** on `/calendar` and both guides.
+3. **A `<dl>` on `/book` and `/booking` had an icon `<span>` as a direct child** of the dt/dd group,
+   which axe reports as a serious `definition-list` failure. The icon lives inside the `<dt>` now.
+4. **`check-brand-contrast` and `check-target-size` waited for `networkidle`**, which never settles
+   on a page carrying Turnstile, so `/for-cafes` hung until they timed out. Both wait for `load` and
+   the fonts now. Playwright deprecates `networkidle` for exactly this reason.
+5. **The seat increment committed to Sanity with `visibility: "async"`**, which returns before the
+   change is queryable, so the next `/api/orders` read could still see the last seat as free and
+   sell it twice. A few hundred milliseconds is exactly long enough for the second person clicking
+   Book on a nearly-full batch. It commits synchronously now.
+
+The calendar test asserted the empty state, so it failed the day a batch first got a date — the day
+it should have been most useful. It branches on the data now and asserts whichever state it finds
+is complete.
+
+Gate: typecheck, lint and build clean; **1461 e2e tests passing, 0 failing**; the three standing
+scripts clean at 360, 390, 768, 1024 and 1280.
+
 ---
 
 ## Where this stands, and what to do next
