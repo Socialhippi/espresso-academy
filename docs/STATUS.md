@@ -965,6 +965,13 @@ an account or a decision from the academy first, not development:
 
 ### Carried into launch from build 2
 
+- **CI has never run.** `.github/workflows/*` is written, committed and correct as far as reading it
+  goes, but this repository has no git remote, so no workflow has ever executed. Every command it
+  runs has been run by hand here and is green; that is not the same as the pipeline being green.
+  Push to GitHub and watch the first run before trusting it. The `e2e` job in particular needs the
+  Sanity, Razorpay and Turnstile secrets added as repository secrets, and deliberately does **not**
+  get `RESEND_API_KEY` or the Sheets credentials.
+
 - **The rate limiter is per-instance.** Serverless functions do not share memory, so the real limit
   is roughly the configured number times the number of running instances. Deliberate at this
   traffic: the honeypot, the two-second floor and Turnstile are what actually stop a bot, and a

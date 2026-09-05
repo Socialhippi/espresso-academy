@@ -144,5 +144,7 @@ These are recorded rather than fixed, with the reasoning in `docs/STATUS.md`:
   is not. The cause is understood and the largest remaining lever is the client's photography.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships.
+- **CI has never run.** The workflows are written and committed but the repository has no remote.
+  Push it, add the repository secrets, and watch the first run before relying on it.
 - **The mobile sheet's focus trap leaks on WebKit under Playwright.** May be an artefact of
   synthetic key events. Check by hand on a real iPhone before launch.
