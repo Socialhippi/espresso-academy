@@ -20,6 +20,11 @@ export interface CourseBarEntry {
   nextDateLabel: string;
   /** False while both the fee and the next date are unknown, which hides the strip entirely. */
   hasFacts: boolean;
+  /**
+   * The batch to send someone to when the third button says "Book". Null when nothing on this
+   * course is bookable, and the button falls back to the enquiry form.
+   */
+  bookableInstanceId: string | null;
 }
 
 interface StickyBarProps {
@@ -99,7 +104,14 @@ export function StickyBar({ courseBar }: StickyBarProps) {
 
       <div className="flex border-t border-black-2">
         <a
-          href={whatsappUrl(course ? { course: course.title } : {})}
+          /* The number and the template come from settings through the config context. Omitting
+             them produced https://wa.me/?text=… , a link that opens WhatsApp with no recipient:
+             the most-tapped button on a 64%-mobile site, silently broken. */
+          href={whatsappUrl({
+            course: course?.title,
+            number: config.whatsappNumber,
+            template: config.whatsappText,
+          })}
           target="_blank"
           rel="noopener noreferrer"
           data-event="whatsapp_click_sticky"
@@ -118,7 +130,18 @@ export function StickyBar({ courseBar }: StickyBarProps) {
           Call
         </a>
 
-        {courseSlug ? (
+        {courseSlug && course?.bookableInstanceId ? (
+          /* A course with a bookable batch gets a Book button, because "Reserve" pointing at an
+             enquiry form when a seat can actually be paid for is a step nobody needs. */
+          <Link
+            href={`/book/${course.bookableInstanceId}`}
+            data-event="book_click_sticky"
+            className={cn(segmentClass, "bg-red text-white")}
+          >
+            <ArrowRight className="size-5" aria-hidden="true" />
+            Book
+          </Link>
+        ) : courseSlug ? (
           <Link
             href={`/enquire?course=${courseSlug}`}
             data-event="reserve_click_sticky"

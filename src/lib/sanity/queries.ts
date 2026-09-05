@@ -38,6 +38,7 @@ const INSTANCE_FIELDS = /* groq */ `
 `;
 
 const COURSE_FIELDS = /* groq */ `
+  "id": _id,
   "slug": slug.current,
   title,
   skillArea,

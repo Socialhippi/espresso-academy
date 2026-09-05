@@ -150,7 +150,7 @@ export default async function ComponentGalleryPage() {
             <CallButton phone={settings.phonePrimary} size="icon" />
           </div>
           <p className="mt-4 type-small text-grey">
-            Pre-filled WhatsApp text: <code className="break-all text-black">{whatsappUrl({ course: "Latte Art" })}</code>
+            Pre-filled WhatsApp text: <code className="break-all text-black">{whatsappUrl({ course: "Latte Art", number: settings.whatsappNumber, template: settings.whatsappText })}</code>
           </p>
         </Specimen>
 

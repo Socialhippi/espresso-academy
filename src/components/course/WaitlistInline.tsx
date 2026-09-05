@@ -15,6 +15,12 @@ interface WaitlistInlineProps {
   course?: string;
   /** Batch label when the reader is asking about one specific instance. */
   batch?: string;
+  /**
+   * The batch's Sanity id, when the reader is waiting for one specific batch rather than for the
+   * course in general. It is what puts them on that batch's roster view in the Studio, so the
+   * academy can message the right list when a seat frees up.
+   */
+  instanceId?: string;
   className?: string;
   /** Inverts the field colours for the one black section. */
   onDark?: boolean;
@@ -26,7 +32,7 @@ type Status = "idle" | "sending" | "done" | "failed";
  * The short form under an empty batch table: tell me when dates are announced. It posts the same
  * contract as the full enquiry form so the academy gets one lead format, not two.
  */
-export function WaitlistInline({ course, batch, className, onDark = false }: WaitlistInlineProps) {
+export function WaitlistInline({ course, batch, instanceId, className, onDark = false }: WaitlistInlineProps) {
   const nameId = useId();
   const phoneId = useId();
   const errorId = useId();
@@ -71,6 +77,7 @@ export function WaitlistInline({ course, batch, className, onDark = false }: Wai
           phone: phone.trim(),
           course: course ?? "",
           batch: batch ?? "",
+          instanceId: instanceId ?? "",
           consent: true,
           company: "",
           elapsedMs: Date.now() - mountedAt.current,

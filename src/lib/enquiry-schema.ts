@@ -19,6 +19,8 @@ export const enquirySchema = z.object({
     .regex(phoneRegex, "Enter a 10-digit Indian mobile number, without +91"),
   course: z.string().trim().max(120).optional().or(z.literal("")),
   batch: z.string().trim().max(120).optional().or(z.literal("")),
+  /** The batch document id, when the enquiry is about one specific batch. */
+  instanceId: z.string().trim().max(120).optional().or(z.literal("")),
   message: z.string().trim().max(1000, "Keep it under 1000 characters").optional().or(z.literal("")),
   consent: z.literal(true, { error: "Tick the box so we can reply to you" }),
   /**

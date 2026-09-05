@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { bebasNeue, montserrat } from "@/lib/fonts";
 import { siteUrl } from "@/lib/env";
-import { getCourses, getNextInstanceForCourse, getSiteSettings } from "@/lib/content";
+import { batchAction, getCourses, getNextInstanceForCourse, getSiteSettings } from "@/lib/content";
 import { formatDate, formatFee } from "@/lib/format";
 import { SkipLink } from "@/components/site/SkipLink";
 import { Header } from "@/components/site/Header";
@@ -56,6 +56,9 @@ async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
   const entries: Record<string, CourseBarEntry> = {};
   for (const course of await getCourses()) {
     const next = getNextInstanceForCourse(course);
+    // The soonest batch someone could actually pay for. Null on every course today, because no
+    // batch has a fee yet, and the bar falls back to the enquiry form.
+    const bookable = course.instances.find((instance) => batchAction(course, instance) === "book");
     entries[course.slug] = {
       title: course.title,
       feeLabel: formatFee(course.feeInclGst),
@@ -63,6 +66,7 @@ async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
       /* Nothing to say is not worth a line. While both are null the bar would pin
          "Fee: TBC / Next batch: TBC" to the bottom of every course page for the whole scroll. */
       hasFacts: course.feeInclGst !== null || Boolean(next?.startDate),
+      bookableInstanceId: bookable?.id ?? null,
     };
   }
   return entries;

@@ -160,3 +160,29 @@ test.describe("the consent banner and the sticky bar share the bottom of the vie
     }
   });
 });
+
+/**
+ * Every WhatsApp link on the page has a recipient.
+ *
+ * The number moved from a module constant to a Sanity field, and a caller that forgot to pass it
+ * produced `https://wa.me/?text=…`: a link that opens WhatsApp with the message written and nobody
+ * to send it to. It shipped on the mobile sticky bar, which is the most-tapped control on a
+ * 64%-mobile site, and it looks completely normal until you tap it. One assertion per route is
+ * cheaper than remembering.
+ */
+test.describe("WhatsApp links", () => {
+  for (const route of allRoutes) {
+    test(`${route.path} has no recipientless wa.me link`, async ({ page }) => {
+      await page.goto(route.path);
+      const hrefs = await page.locator('a[href*="wa.me"]').evaluateAll((links) =>
+        links.map((link) => link.getAttribute("href") ?? ""),
+      );
+      expect(hrefs.length).toBeGreaterThan(0);
+      for (const href of hrefs) {
+        expect(href, `${href} has no phone number after wa.me/`).toMatch(
+          /^https:\/\/wa\.me\/\d{10,15}(\?|$)/,
+        );
+      }
+    });
+  }
+});

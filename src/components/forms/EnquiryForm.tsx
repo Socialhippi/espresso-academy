@@ -16,6 +16,7 @@ import {
   type EnquiryType,
 } from "@/lib/enquiry";
 import { whatsappUrl } from "@/lib/format";
+import { useSiteConfig } from "@/lib/site-config";
 import { cn } from "@/lib/utils";
 
 /** The minimum a course needs to appear in the picker. Passed from the server. */
@@ -64,6 +65,7 @@ export function EnquiryForm({
   defaultBatch = "",
   className,
 }: EnquiryFormProps) {
+  const config = useSiteConfig();
   const ids = useId();
   const field = (name: string): string => `${ids}-${name}`;
 
@@ -420,7 +422,10 @@ export function EnquiryForm({
         <noscript>
           <p className="type-small text-grey">
             This form needs JavaScript. Message the academy on{" "}
-            <a href={whatsappUrl()} className="text-red underline decoration-1 underline-offset-4">
+            <a
+              href={whatsappUrl({ number: config.whatsappNumber, template: config.whatsappText })}
+              className="text-red underline decoration-1 underline-offset-4"
+            >
               WhatsApp
             </a>{" "}
             instead and you will get the same reply.

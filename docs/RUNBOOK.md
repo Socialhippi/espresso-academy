@@ -1,94 +1,207 @@
-# Step-by-step: from the kit to a client preview
+# Runbook
 
-Total hands-on time: about 15 minutes before the run, 20 minutes after. The run itself takes 2 to 4 hours unattended.
+How to operate this site. Every command runs from the repo root.
 
-## Part A. One-time setup (skip any step already done)
+---
 
-1. Install Node 22 and pnpm.
-   - macOS: `brew install node@22 pnpm` (or use nvm: `nvm install 22 && nvm use 22`, then `npm i -g pnpm`).
-   - Windows: install Node 22 from nodejs.org, then `npm i -g pnpm`.
-   - Check: `node -v` prints v22.x; `pnpm -v` prints a version.
-2. Install Claude Code: `npm i -g @anthropic-ai/claude-code`. Check: `claude --version`.
-3. Log in to Claude Code with your Max account: run `claude` once in any folder, follow the browser login, then type `/exit`.
-4. Install Git if missing (`git --version`). Set your name and email: `git config --global user.name "Ashrith"` and `git config --global user.email "ashrith@socialhippi.com"`.
-5. Install Cursor if missing. No Cursor-specific configuration is needed; Cursor is only the editor and terminal.
-6. Vercel: `npm i -g vercel` then `vercel login` once (browser login). This lets the agent deploy the preview under your account.
-7. Context7 key: sign up at context7.com, copy the free API key. This gives the agent current Next 16 and Tailwind 4 docs.
-8. Playwright browsers: `npx playwright install chromium webkit` (takes a few minutes; the agent needs them for screenshots and tests).
+## Razorpay: the webhook
 
-## Part B. Prepare the repo (5 minutes)
+**This has to be done by hand once, in the Razorpay dashboard.** Everything else about payments is
+already wired; nothing marks a booking paid reliably until this exists.
 
-9. Create the folder and repo:
+1. Razorpay Dashboard → **Account & Settings → Webhooks → Add New Webhook**.
+2. **Webhook URL**
+
    ```
-   mkdir espresso-academy && cd espresso-academy && git init
+   https://espresso-academy-india.vercel.app/api/webhooks/razorpay
    ```
-10. Unzip `espresso-academy-kit.zip` INTO this folder so that `CLAUDE.md` sits at the root and the hidden `.claude/` folder and `.mcp.json` are present. Check:
-    ```
-    ls -la
-    ```
-    You should see `.claude`, `.mcp.json`, `CLAUDE.md`, `content`, `design`, `docs`, `public`, `README.md`, `.env.example`.
-11. Create the env file:
-    ```
-    cp .env.example .env.local
-    ```
-    Open `.env.local` and fill:
-    - `CONTEXT7_API_KEY=` your key from step 7.
-    - `LEAD_TO_EMAIL=` your email (optional; without it the form hands off to WhatsApp).
-    - `RESEND_API_KEY=` only if you have one (optional for the draft).
-    - Leave `NEXT_PUBLIC_SITE_URL` as is.
-12. Photos, if you have them: copy the shoot files into `public/images/` using the exact names in `docs/images-manifest.md` (for example `public/images/hero.jpg`, `public/images/trainers/akanksha-gupta.jpg`). If you do not have them yet, skip this; the site renders branded placeholders and you add the photos later without touching code.
-13. First commit:
-    ```
-    git add -A && git commit -m "chore: starter kit"
-    ```
 
-## Part C. Run the agent (2 minutes of typing, then leave it)
+   (On a custom domain later: `https://<domain>/api/webhooks/razorpay`. Add a second webhook rather
+   than editing the first, so the alias keeps working while DNS propagates.)
 
-14. Open the folder in Cursor: `cursor .` (or File > Open Folder).
-15. Open Cursor's terminal (Ctrl+` or View > Terminal). Confirm you are in the repo root (`pwd` shows `.../espresso-academy`).
-16. Start Claude Code in the mode that does not stop for routine permissions:
-    ```
-    claude --permission-mode acceptEdits
-    ```
-    The allow-list in `.claude/settings.json` covers pnpm, npx, git and the MCPs. If it asks about the MCP servers on first start, approve them.
-17. Log in to the Vercel MCP once when asked: type `/mcp` in Claude Code, choose vercel, complete the browser login. (If you skip this, the agent falls back to the Vercel CLI, which you logged into in step 6.)
-18. Open `docs/MASTER-PROMPT.md`, copy everything below the horizontal line, paste it into Claude Code as one message, press Enter.
-19. Watch the first five minutes. You should see it read the rules, write `docs/plans/00-scaffold.md`, and run `create-next-app`. If it stops to ask anything, answer once (usually "yes") and it continues. After that, leave it.
+3. **Secret** — paste the value of `RAZORPAY_WEBHOOK_SECRET` from `.env.local`. It is also set on
+   the Vercel project. The two must match exactly or every delivery is rejected with a 400, which
+   is the correct behaviour and also exactly what a misconfiguration looks like.
 
-## Part D. While it runs
+   Read the current value with:
 
-20. Do not open Cursor's own AI agent (Composer/Agent) on this repo; one agent at a time.
-21. Do not edit files in the repo while it runs. If you must add photos mid-run, drop them into `public/images/` only; nothing else.
-22. Chase the client for the five inputs that turn TBC into real content: course list with fees and dates, WhatsApp number and hours, "Official Partner" wording confirmation, logo SVG, testimonials with permission.
+   ```
+   grep RAZORPAY_WEBHOOK_SECRET .env.local
+   ```
 
-## Part E. When it finishes (20 minutes)
+   It is deliberately not written down here. `.claude/rules/git.md` forbids committing a secret,
+   and this file is in git.
 
-23. Read the final message: it prints the preview URL and `docs/STATUS.md`. If a phase is listed under Known limitations, that is what to fix first.
-24. Open the preview URL on your phone. Walk `docs/review-script.md` yourself before the client does. Submit one test enquiry.
-25. If something is wrong, do not fix it by hand. In the same Claude Code session type a scoped instruction, for example: "On /courses at 390px the filter chips overflow. Fix and re-run the design-reviewer on /courses." Commit when done (`git add -A && git commit -m "fix(courses): chips overflow"`).
-26. If the deploy did not happen, run `vercel` in the terminal, accept the defaults, and use the URL it prints. For a password-protected preview, enable Deployment Protection in the Vercel project settings (Pro plan).
-27. Send the client the preview URL and `docs/CLIENT-REVIEW.md`. Ask for one consolidated list of changes from one decision-maker.
+4. **Active events** — tick exactly these four:
 
-## Part F. Adding the client's content later (no code)
+   - `payment.captured`
+   - `payment.failed`
+   - `refund.created`
+   - `refund.processed`
 
-28. Fees, durations, dates, seats: edit `content/data.ts`. Replace `null` with values, for example `feeInclGst: 25300`, `durationDays: 3`, and in `instances` replace the tbc instance with `{ id: "sca-foundation-2026-10", startDate: "2026-10-12", endDate: "2026-10-14", schedule: "10am to 5pm", seatsAvailable: 8, status: "open", paymentPageUrl: null }`. Save, commit, push or run `vercel`. TBC pills disappear automatically.
-29. WhatsApp number, email, hours, reply promise: edit `siteSettings` in `content/data.ts`.
-30. Photos: drop files into `public/images/` per the manifest. Placeholders disappear.
-31. Testimonials: add entries to `stories` in `content/data.ts` with `permission: true`. The stories section switches from its empty state.
-32. New facts (partner wording, SCA status, brochure claims): add the line to `content/facts.md` first, then ask the agent to update the copy: "facts.md now confirms AST status for Akanksha Gupta; update the SCA wording site-wide per content.md."
-33. Logo SVG: place `public/logo/lockup-on-white.svg`, `lockup-on-black.svg`, `mark.svg` and ask the agent: "Switch the Logo component to the SVG files."
+   Anything else is answered with a 200 and ignored, so ticking more does no harm; ticking fewer
+   means a seat is never taken.
 
-## Part G. Troubleshooting
+5. Save, then use **Send Test Webhook** on `payment.captured`. The delivery log should show a 200.
+   A 400 means the secret does not match. A 503 means `RAZORPAY_WEBHOOK_SECRET` is not set on the
+   deployment at all.
 
-- `claude: command not found`: the npm global bin is not on PATH. Run `npm bin -g` and add that folder to PATH, or reinstall with `npm i -g @anthropic-ai/claude-code`.
-- Claude Code keeps asking permission for pnpm or npx: confirm `.claude/settings.json` is in the repo root and you started `claude` from the root.
-- MCP "playwright" fails to start: run `npx @playwright/mcp@latest --help` once to fetch it, then restart Claude Code.
-- `create-next-app` refuses because the folder is not empty: tell the agent "scaffold into a temp folder and move src, package files and config into the root without overwriting the kit files"; the prompt already covers this but some versions insist.
-- Build fails on fonts: the agent should use `@fontsource/bebas-neue` and `@fontsource-variable/montserrat`; if it used next/font/google and your network blocks Google, say "switch to the fontsource packages per the prompt."
-- Vercel deploy asks for a scope: pick your personal account or team; the project name is `espresso-academy-india`.
-- Lighthouse below 90: ask "run /perf phase again on the failing route and explain the top three causes from the Lighthouse JSON."
-- The agent invented a fee or a date: this is the one thing to treat as a bug. Say "content/facts.md has no fee for X; revert to the TBC state and run content-editor on that page." Then check `docs/STATUS.md` lists it.
+### What the webhook does
 
-## Part H. After client approval (the next run)
+Verifies the signature over the raw body, then, for `payment.captured`, marks the booking paid and
+increments the batch's `seatsBooked` inside one Sanity transaction guarded by the batch's revision
+id. It is idempotent: Razorpay retries anything that does not answer 2xx, and the browser's verify
+call races it, so a second delivery of the same event answers 200 and changes nothing.
 
-The strategy document in the project covers this. In short, the next prompts add Sanity (content/data.ts migrates 1:1), the Google Sheet lead log and auto-reply, GTM/GA4/Clarity, Turnstile, Razorpay Payment Pages, Cal.com, the eight guides, full QA and the launch cutover. Roughly eight working days.
+If the seat increment would take the batch past `seatsMax` — two people paying for the last seat
+inside the same revision window — the booking is **still marked paid** and flagged `overbooked`,
+and an email goes to `BOOKING_TO_EMAIL`. Taking money and then having no record of it is worse than
+an overbooking a human can resolve. Overbooked bookings have their own list in the Studio, under
+Bookings → "Needs attention: overbooked".
+
+---
+
+## Razorpay: switching from test keys to live keys
+
+1. In the Razorpay dashboard, switch the toggle to **Live** and generate live API keys.
+2. Set on Vercel (Production only — leave Preview on the test keys):
+   - `RAZORPAY_KEY_ID`
+   - `RAZORPAY_KEY_SECRET`
+   - `NEXT_PUBLIC_RAZORPAY_KEY_ID` (same value as `RAZORPAY_KEY_ID`)
+3. Add a **second webhook** on the live mode with the same URL and a **new** secret, and set
+   `RAZORPAY_WEBHOOK_SECRET` to it. Test-mode and live-mode webhooks are configured separately and
+   do not share a secret.
+4. Delete the test batches: `pnpm sanity:seed:test-batch -- --delete`. They are labelled
+   "TEST BATCH, do not book" and priced at ₹1; on live keys a mis-click really does charge a rupee.
+5. Redeploy. `NEXT_PUBLIC_RAZORPAY_KEY_ID` is inlined into the browser bundle at build time, so
+   changing it without a rebuild changes nothing.
+
+---
+
+## Razorpay: the manual checkout test
+
+Checkout.js is a third-party iframe on a third-party origin. The automated suite covers everything
+on this side of it — the page, the form, the order, the webhook, the seat, the confirmation — and
+this is the part that is run by hand after any change to the checkout.
+
+1. `pnpm sanity:seed:test-batch` (creates a ₹1 batch with 40 seats, plus a one-seat batch for the
+   sold-out path).
+2. Open `/book/instance-e2e-test-batch`, fill the form, press **Pay ₹1 and book the seat**.
+3. Pay with a **domestic** test card:
+
+   | Field | Value |
+   |---|---|
+   | Card | `5267 3181 8797 5449` |
+   | Expiry | any future date, e.g. `12 / 30` |
+   | CVV | any three digits |
+   | OTP | `1234` |
+
+   **Do not use `4111 1111 1111 1111`.** It is an international test card, and this account has
+   international payments disabled, so it fails with "International cards are not supported". That
+   is the account behaving correctly, not a bug in the site.
+
+4. UPI does not appear in the test-mode options on this account. Enable it in the dashboard under
+   Payment Methods if the academy wants it; nothing in the code needs to change, because Checkout.js
+   renders whatever the account has enabled.
+5. Expect a redirect to `/booking/<id>` reading "Your seat is booked", and the batch's seat count
+   down by one.
+
+Screenshots of a passing run: `docs/screens/razorpay-checkout-390.png`,
+`razorpay-card-390.png`, `razorpay-otp-390.png`, `booking-confirmed-390.png`.
+
+---
+
+## Sanity
+
+| Task | Command |
+|---|---|
+| Studio, locally | `pnpm sanity` (or `/studio` on any deployment) |
+| Deploy the Studio | `pnpm sanity:deploy` → <https://espresso-academy-india.sanity.studio> |
+| Seed from `content/data.ts` | `pnpm sanity:seed` (idempotent; safe to re-run) |
+| Seed the test batches | `pnpm sanity:seed:test-batch` |
+| Delete the test batches | `pnpm sanity:seed:test-batch -- --delete` |
+| Export the dataset | `pnpm sanity:export` → a `.tar.gz` in the repo root |
+| Restore a dataset export | `npx sanity dataset import <file>.tar.gz production --replace` |
+
+### Rotating a Sanity token
+
+```
+npx sanity tokens list -p msmxj36z
+npx sanity tokens create "web-read" -p msmxj36z --role viewer -y --json
+npx sanity tokens delete <old-token-id> -p msmxj36z -y
+```
+
+Then update `SANITY_API_READ_TOKEN` (or `SANITY_API_WRITE_TOKEN`) in `.env.local` and on Vercel,
+and redeploy. The read token is needed at build time: a build without it fails, by design, because
+a site with no content is not a site.
+
+### Revalidating everything
+
+Content refreshes within a second of a publish through the Sanity webhook. To force it:
+
+```
+npx vercel redeploy <deployment-url>
+```
+
+The Sanity publish webhook is already configured to `POST https://espresso-academy-india.vercel.app/api/revalidate`
+with `SANITY_REVALIDATE_SECRET`. If it stops working, the site is still correct within an hour:
+`src/lib/content.ts` sets a one-hour revalidate floor underneath the tags.
+
+---
+
+## Deploying
+
+```
+pnpm typecheck && pnpm lint && pnpm build && pnpm test:e2e     # the gate
+npx vercel deploy --prod --yes                                 # the public alias
+node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app
+node scripts/check-brand-contrast.mjs https://espresso-academy-india.vercel.app
+node scripts/check-target-size.mjs https://espresso-academy-india.vercel.app
+```
+
+Run the three standing scripts against the deployment, not only against localhost.
+
+### Rolling back
+
+```
+npx vercel ls espresso-academy-india          # find the previous deployment URL
+npx vercel promote <deployment-url>           # point the alias at it
+```
+
+A rollback does not roll back Sanity. Content is a separate system with its own history: use the
+Studio's document history to revert a document.
+
+---
+
+## Launch steps
+
+In this order:
+
+1. Delete the test batches: `pnpm sanity:seed:test-batch -- --delete`.
+2. Switch Razorpay to live keys (above), including a live-mode webhook and its own secret.
+3. Verify the academy's sending domain in Resend and set `RESEND_FROM_EMAIL` to an address on it.
+   Until then mail comes from `onboarding@resend.dev`, which reaches an inbox but does not say
+   Espresso Academy in the sender line.
+4. Set `NEXT_PUBLIC_INDEXABLE=true` on Vercel and redeploy. Until then every response carries
+   `X-Robots-Tag: noindex, nofollow` and `robots.txt` disallows everything.
+5. Enable HSTS: uncomment the `Strict-Transport-Security` header in `next.config.ts`. Do this
+   **after** the domain is attached and serving over HTTPS correctly, not before: a wrong HSTS
+   header is cached by browsers for its whole max-age and cannot be withdrawn.
+6. Attach the domain: `npx vercel domains add espressoacademy.in` and follow the DNS instructions,
+   then set `NEXT_PUBLIC_SITE_URL=https://espressoacademy.in` and redeploy so canonicals, Open Graph
+   images and JSON-LD `@id`s point at the real host.
+7. Add the domain as a Sanity CORS origin: `npx sanity cors add https://espressoacademy.in --credentials -p msmxj36z`.
+8. Add a second Razorpay webhook on the new domain.
+
+---
+
+## Refunding a booking
+
+Refunds are issued in Razorpay, not here. The site records what happened; it does not move money
+on its own.
+
+1. Razorpay Dashboard → Transactions → find the payment → **Refund**.
+2. The `refund.processed` webhook arrives, sets the booking to `refunded` and gives the seat back
+   to the batch. A booking flagged `overbooked` never took a seat, so refunding it does not add one.
+3. If the webhook is not configured yet, set the booking's status to `refunded` by hand in the
+   Studio and adjust the batch's seat count with it.

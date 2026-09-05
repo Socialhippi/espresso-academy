@@ -114,6 +114,8 @@ export interface CourseFaq {
 }
 
 export interface Course {
+  /** The Sanity document id. Needed when a booking references the course. */
+  id: string;
   slug: string;
   title: string;
   skillArea: SkillArea;
@@ -189,6 +191,8 @@ export interface SiteSettings {
   instagram: string | null;
   florencePartnerPage: string | null;
   razorpayDisplayName: string | null;
+  /** Portable text. Empty leaves /refund-policy in its marked placeholder state. */
+  refundPolicy: { _type: string; _key?: string }[] | null;
   metaPixelIdOverride: string | null;
   announcements: string[] | null;
 }
@@ -421,35 +425,10 @@ export function getNextInstanceForCourse(course: {
     .sort((a, b) => a.startDate.localeCompare(b.startDate))[0];
 }
 
-/** Seats left on a batch, or null while the academy has not set a seat count. */
-export function seatsLeft(instance: CourseInstance): number | null {
-  if (instance.seatsAvailable === null || instance.seatsAvailable === undefined) return null;
-  return Math.max(0, instance.seatsAvailable);
-}
-
-/** The fee this batch charges, in whole rupees: its override, else the course fee, else null. */
-export function feeForInstance(
-  course: Pick<Course, "feeInclGst">,
-  instance: Pick<CourseInstance, "priceOverride">,
-): number | null {
-  return instance.priceOverride ?? course.feeInclGst ?? null;
-}
-
-/**
- * What the batch row's button should be. One function so the course page, the calendar and the
- * workshops page cannot disagree about whether a batch is bookable.
- */
-export function batchAction(
-  course: Pick<Course, "feeInclGst">,
-  instance: CourseInstance,
-): "book" | "waitlist" | "enquire" {
-  if (feeForInstance(course, instance) === null) return "enquire";
-  if (instance.status === "completed" || instance.status === "tbc") return "enquire";
-  if (instance.status === "soldout" || instance.status === "waitlist") return "waitlist";
-  const left = seatsLeft(instance);
-  if (left !== null && left <= 0) return "waitlist";
-  return "book";
-}
+/* Seat, fee and bookability rules live in src/lib/batch.ts, which imports nothing and carries no
+   `server-only`, so the unit suite can exercise them directly rather than through a rendered page.
+   Re-exported here so every caller keeps one import. */
+export { batchAction, feeForInstance, rupeesToPaise, seatsLeft } from "@/lib/batch";
 
 /**
  * Courses to show alongside this one: same skill area first, then the adjacent rung of the ladder,

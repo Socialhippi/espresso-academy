@@ -14,7 +14,8 @@
     "sanity": "sanity dev",
     "sanity:seed": "sanity exec sanity/seed/from-data.ts --with-user-token",
     "sanity:deploy": "sanity deploy",
-    "sanity:export": "sanity dataset export production"
+    "sanity:export": "sanity dataset export production",
+    "sanity:seed:test-batch": "sanity exec sanity/seed/test-batch.ts --with-user-token"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
@@ -31,6 +32,7 @@
     "lucide-react": "^1.40.0",
     "next": "16.3.4",
     "next-sanity": "^13.3.4",
+    "razorpay": "^2.9.8",
     "react": "19.2.8",
     "react-dom": "19.2.8",
     "resend": "^6.25.0",
@@ -44,6 +46,7 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.62.1",
+    "@sanity/client": "^8.5.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { Resend } from "resend";
 import { canSendLeadEmail, env } from "@/lib/env";
+import { getSiteSettings } from "@/lib/content";
 import { whatsappUrl } from "@/lib/format";
 import { MIN_TIME_ON_FORM_MS, enquiryTypeLabel, type EnquiryResponse } from "@/lib/enquiry";
 import { enquirySchema, type EnquiryInput } from "@/lib/enquiry-schema";
@@ -16,7 +17,11 @@ export const dynamic = "force-dynamic";
  * from the outside, which is the point.
  */
 export async function POST(request: Request): Promise<NextResponse<EnquiryResponse>> {
-  const fallbackUrl = whatsappUrl();
+  /* The handoff link is the fallback for every failure path, so it is built from the academy's
+     real number rather than from nothing: an empty wa.me link opens WhatsApp with no recipient. */
+  const settings = await getSiteSettings();
+  const whatsapp = { number: settings.whatsappNumber, template: settings.whatsappText };
+  const fallbackUrl = whatsappUrl(whatsapp);
 
   let payload: unknown;
   try {
@@ -53,7 +58,11 @@ export async function POST(request: Request): Promise<NextResponse<EnquiryRespon
     return NextResponse.json(whatsappHandoff(fallbackUrl), { status: 200 });
   }
 
-  const courseUrl = whatsappUrl({ course: enquiry.course || null, batch: enquiry.batch || null });
+  const courseUrl = whatsappUrl({
+    ...whatsapp,
+    course: enquiry.course || null,
+    batch: enquiry.batch || null,
+  });
 
   if (!canSendLeadEmail) {
     // No Resend key or no destination address in this environment. Log the lead so it is still
