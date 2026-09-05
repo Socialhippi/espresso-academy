@@ -97,6 +97,13 @@ export function CheckoutForm({
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const startedRef = useRef(false);
+
+  const onFirstInteraction = (): void => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    track("form_start", { form_id: "checkout", course_id: courseSlug, instance_id: instanceId });
+  };
 
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "creating" | "paying" | "verifying">("idle");
@@ -115,6 +122,9 @@ export function CheckoutForm({
   }, []);
 
   useEffect(() => {
+    // Viewing a checkout page IS viewing that batch, so batch_view is fired here rather than from
+    // a separate observer on a table row that may never be scrolled to.
+    track("batch_view", { instance_id: instanceId, course_id: courseSlug });
     track("begin_checkout", {
       instance_id: instanceId,
       course_id: courseSlug,
@@ -187,7 +197,7 @@ export function CheckoutForm({
     const found = validate();
     setErrors(found);
     if (Object.keys(found).length > 0) {
-      track("form_error", { form_id: "checkout", course_id: courseSlug });
+      track("form_error", { form_id: "checkout", course_id: courseSlug, reason: Object.keys(found)[0] });
       focusFirstError(found);
       return;
     }
@@ -322,6 +332,7 @@ export function CheckoutForm({
     <form
       ref={formRef}
       onSubmit={onSubmit}
+      onFocusCapture={onFirstInteraction}
       noValidate
       className={cn("flex flex-col gap-6", className)}
       aria-labelledby={field("heading")}

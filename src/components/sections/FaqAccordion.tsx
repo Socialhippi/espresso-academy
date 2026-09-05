@@ -37,7 +37,10 @@ export function FaqAccordion({ items, className, defaultOpenFirst = false }: Faq
     >
       {items.map((faq) => (
         <AccordionItem key={faq.q} className="border-b border-white-2">
-          <AccordionTrigger className="gap-6 rounded-none py-5 text-h3 font-medium text-black transition-[color,background-color,border-color] hover:text-red hover:no-underline md:text-h3-lg **:data-[slot=accordion-trigger-icon]:size-5 **:data-[slot=accordion-trigger-icon]:text-red">
+          <AccordionTrigger
+            data-event="faq_expand"
+            data-question={faq.q}
+            className="gap-6 rounded-none py-5 text-h3 font-medium text-black transition-[color,background-color,border-color] hover:text-red hover:no-underline md:text-h3-lg **:data-[slot=accordion-trigger-icon]:size-5 **:data-[slot=accordion-trigger-icon]:text-red">
             {faq.q}
           </AccordionTrigger>
           <AccordionContent className="pb-6">

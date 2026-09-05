@@ -67,9 +67,20 @@ interface DataLayerEvent extends EventParams {
   event: EventName;
 }
 
+/**
+ * The `gtag` shim the consent-mode snippet defines in the document head.
+ *
+ * Variadic and positional by protocol: `gtag('consent', 'update', {...})` pushes its `arguments`
+ * object onto the dataLayer, and GTM reads it by position. That is why this is typed as a rest
+ * parameter rather than as a union of call shapes; narrowing it would be inventing a contract
+ * Google does not have.
+ */
+type Gtag = (...args: unknown[]) => void;
+
 declare global {
   interface Window {
     dataLayer?: DataLayerEvent[];
+    gtag?: Gtag;
   }
 }
 

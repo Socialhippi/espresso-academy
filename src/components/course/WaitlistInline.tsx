@@ -8,6 +8,7 @@ import { AlertCircle, Check, Loader2 } from "lucide-react";
 import { Button } from "@/components/site/Button";
 import { WhatsAppButtonClient } from "@/components/site/WhatsAppButtonClient";
 import { phoneRegex, readUtm, type EnquiryResponse } from "@/lib/enquiry";
+import { track } from "@/lib/analytics/events";
 import { cn } from "@/lib/utils";
 
 interface WaitlistInlineProps {
@@ -45,6 +46,13 @@ export function WaitlistInline({ course, batch, instanceId, className, onDark = 
   const [phone, setPhone] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [status, setStatus] = useState<Status>("idle");
+  const startedRef = useRef(false);
+
+  const onFirstInteraction = (): void => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    track("form_start", { form_id: "waitlist", course_id: course });
+  };
 
   useEffect(() => {
     mountedAt.current = Date.now();
@@ -88,6 +96,11 @@ export function WaitlistInline({ course, batch, instanceId, className, onDark = 
       });
       const result = (await response.json()) as EnquiryResponse;
       setStatus(result.ok ? "done" : "failed");
+      track(result.ok ? "waitlist_join" : "form_error", {
+        form_id: "waitlist",
+        course_id: course,
+        ...(result.ok ? {} : { reason: "rejected" }),
+      });
       if (!result.ok) {
         const first = Object.values(result.errors)[0];
         setError(first ?? "We could not send that. Use WhatsApp and we will reply there.");
@@ -124,7 +137,13 @@ export function WaitlistInline({ course, batch, instanceId, className, onDark = 
   const labelClass = cn("type-label", onDark ? "text-grey-2" : "text-grey");
 
   return (
-    <form ref={formRef} onSubmit={onSubmit} noValidate className={cn("flex flex-col gap-4", className)}>
+    <form
+      ref={formRef}
+      onSubmit={onSubmit}
+      onFocusCapture={onFirstInteraction}
+      noValidate
+      className={cn("flex flex-col gap-4", className)}
+    >
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-2">
           <label htmlFor={nameId} className={labelClass}>

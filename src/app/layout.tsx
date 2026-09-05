@@ -12,6 +12,10 @@ import { ConsentBanner } from "@/components/site/ConsentBanner";
 import { JsonLd } from "@/components/site/JsonLd";
 import { graph, organisationGraph } from "@/lib/seo/schema";
 import { SiteConfigProvider } from "@/lib/site-config";
+import { Analytics } from "@/components/site/Analytics";
+import { PageViewTracker } from "@/components/site/PageViewTracker";
+import { ClickTracker } from "@/components/site/ClickTracker";
+import { consentModeSnippet } from "@/lib/analytics/consent-mode";
 import "./globals.css";
 
 /**
@@ -77,8 +81,26 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
   const settings = await getSiteSettings();
   const courseBar = await buildCourseBar();
 
+  const courseLevels = Object.fromEntries(
+    (await getCourses()).map((course) => [course.slug, course.level]),
+  );
+
   return (
     <html lang="en-IN" className={`${montserrat.variable} ${bebasNeue.variable}`}>
+      <head>
+        {/*
+          Consent mode v2, inline and before anything else.
+
+          It has to execute before GTM loads or the container fires its tags once with no consent
+          state and again after the update, which is the double-count consent mode exists to
+          prevent. An imported module would run after the parser reached the GTM tag, so this is a
+          literal script in the head. Everything defaults to denied; see src/lib/analytics/consent-mode.ts.
+        */}
+        <script
+          id="consent-mode"
+          dangerouslySetInnerHTML={{ __html: consentModeSnippet() }}
+        />
+      </head>
       {/* The bottom padding clears the fixed mobile sticky bar. It sits on the body, not on
           main, so it also clears the footer, which renders after main. */}
       <body className="flex min-h-dvh flex-col bg-white pb-28 text-black md:pb-0">
@@ -106,6 +128,12 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           </SiteChrome>
           <StickyBar courseBar={courseBar} />
           <ConsentBanner />
+          <PageViewTracker courseLevels={courseLevels} />
+          <ClickTracker />
+          <Analytics
+            gtmId={process.env.NEXT_PUBLIC_GTM_ID}
+            metaPixelId={process.env.NEXT_PUBLIC_META_PIXEL_ID}
+          />
           {/* Site-wide graph: the academy, the campus and the site. Page graphs reference it by @id. */}
           <JsonLd id="site-jsonld" data={graph(await organisationGraph())} />
         </SiteConfigProvider>

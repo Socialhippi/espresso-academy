@@ -64,6 +64,7 @@ export function CalendarFilters({
           <li>
             <Link
               href={href(null, activeVenue)}
+              data-event="course_filter_calendar_all"
               aria-current={activeCourse === null ? "true" : undefined}
               className={cn(chipClass, activeCourse === null ? activeClass : restingClass)}
             >
@@ -76,6 +77,7 @@ export function CalendarFilters({
               <li key={facet.value}>
                 <Link
                   href={href(active ? null : facet.value, activeVenue)}
+                  data-event={`course_filter_calendar_${facet.value}`}
                   aria-current={active ? "true" : undefined}
                   className={cn(chipClass, active ? activeClass : restingClass)}
                 >
@@ -102,6 +104,7 @@ export function CalendarFilters({
             <li>
               <Link
                 href={href(activeCourse, null)}
+                data-event="course_filter_venue_all"
                 aria-current={activeVenue === null ? "true" : undefined}
                 className={cn(chipClass, activeVenue === null ? activeClass : restingClass)}
               >
@@ -114,6 +117,7 @@ export function CalendarFilters({
                 <li key={facet.value}>
                   <Link
                     href={href(activeCourse, active ? null : facet.value)}
+                    data-event={`course_filter_venue_${facet.value}`}
                     aria-current={active ? "true" : undefined}
                     className={cn(chipClass, active ? activeClass : restingClass)}
                   >

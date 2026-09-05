@@ -18,6 +18,7 @@ import {
 } from "@/lib/enquiry";
 import { whatsappUrl } from "@/lib/format";
 import { useSiteConfig } from "@/lib/site-config";
+import { eventId, track } from "@/lib/analytics/events";
 import { cn } from "@/lib/utils";
 
 /** The minimum a course needs to appear in the picker. Passed from the server. */
@@ -85,6 +86,14 @@ export function EnquiryForm({
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  /* Fired once, on the first real interaction. A form_start per keystroke would drown the funnel. */
+  const startedRef = useRef(false);
+
+  const onFirstInteraction = (): void => {
+    if (startedRef.current) return;
+    startedRef.current = true;
+    track("form_start", { form_id: `enquiry_${variant}` });
+  };
   const onTurnstileToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
   const [errors, setErrors] = useState<Errors>({});
@@ -145,6 +154,7 @@ export function EnquiryForm({
     const order: FieldName[] = ["name", "phone", "email", "consent"];
     const firstBad = order.find((key) => found[key]);
     if (firstBad) {
+      track("form_error", { form_id: `enquiry_${variant}`, reason: firstBad });
       const element = formRef.current?.querySelector<HTMLElement>(
         `#${CSS.escape(field(firstBad))}`,
       );
@@ -153,6 +163,8 @@ export function EnquiryForm({
     }
 
     setStatus("sending");
+    track("form_submit", { form_id: `enquiry_${variant}`, course_id: courseSlugForRequest || undefined });
+
     try {
       const response = await fetch("/api/enquiry", {
         method: "POST",
@@ -178,9 +190,29 @@ export function EnquiryForm({
       if (result.ok) {
         setDelivery(result.delivery);
         setStatus("done");
+        /*
+         * `generate_lead` and `waitlist_join` are different funnels: one is somebody asking about a
+         * course, the other is somebody asking to be told when a date exists. Reporting both as a
+         * lead would make the waitlist look like demand it is not.
+         *
+         * The event_id pairs with the server-side Meta CAPI Lead so the two are counted once. It is
+         * derived from the phone number rather than being random, because the server derives its
+         * own from the enquiry id and the two only have to agree per submission, not per byte.
+         */
+        if (variant === "waitlist") {
+          track("waitlist_join", { course_id: courseSlugForRequest || undefined });
+        } else {
+          track("generate_lead", {
+            form_id: `enquiry_${variant}`,
+            course_id: courseSlugForRequest || undefined,
+            currency: "INR",
+            event_id: eventId("lead", phone.trim()),
+          });
+        }
       } else {
         setErrors({ ...result.errors, form: result.errors.form });
         setStatus("failed");
+        track("form_error", { form_id: `enquiry_${variant}`, reason: "rejected" });
       }
     } catch {
       setStatus("failed");
@@ -235,6 +267,7 @@ export function EnquiryForm({
     <form
       ref={formRef}
       onSubmit={onSubmit}
+      onFocusCapture={onFirstInteraction}
       noValidate
       className={cn("flex flex-col gap-6", className)}
       aria-labelledby={field("heading")}

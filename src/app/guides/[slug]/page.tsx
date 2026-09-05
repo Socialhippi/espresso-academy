@@ -8,6 +8,7 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { PortableText, faqEntriesFromBody } from "@/components/content/PortableText";
+import { GuideReadTracker } from "@/components/content/GuideReadTracker";
 import { getGuide, getGuideSlugs } from "@/lib/content";
 import { formatDate } from "@/lib/format";
 import { absoluteUrl } from "@/lib/env";
@@ -162,6 +163,10 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
           <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-8">
               <PortableText value={guide.body} />
+
+              {/* The sentinel sits after the body and before the calls to action, so reaching it
+                  means the guide was read rather than that the footer was scrolled past. */}
+              <GuideReadTracker guideId={guide.slug} />
 
               <div className="mt-12 hairline flex flex-col gap-4 pt-8 sm:flex-row sm:flex-wrap">
                 <ButtonLink href="/courses" variant="primary">

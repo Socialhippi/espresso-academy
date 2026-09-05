@@ -480,6 +480,52 @@ is complete.
 Gate: typecheck, lint and build clean; **1461 e2e tests passing, 0 failing**; the three standing
 scripts clean at 360, 390, 768, 1024 and 1280.
 
+### Phase 5: analytics — done
+
+`src/lib/analytics/events.ts` is the whole vocabulary: twenty typed events and one `track()`, so a
+mis-spelled event name is a build error rather than a gap in a report nobody notices for a month.
+Setup steps and the event table are in `docs/analytics-setup.md`; the container is
+`docs/gtm-container.json` (21 tags, 19 triggers, 19 variables), generated rather than hand-written
+so a trigger name cannot drift from the event it listens for.
+
+**Two gates, and both have to open before anything third-party loads.** Consent mode v2 defaults
+every storage type to `denied`, inline in the document head so it executes before GTM can — a
+module import would run after the parser reached the GTM tag, and the container would fire once
+unconsented and again after the update, which is the exact double-count consent mode exists to
+prevent. Then, even after consent, the loader waits for idle or the first scroll or tap: GTM plus
+GA4 plus the pixel is about 120KB, and on this audience letting that compete with the hero costs a
+real second of LCP.
+
+India is not covered by the EU rules that make any of this mandatory. Defaulting to denied is a
+choice: a student handing over a phone number deserves the same treatment as a reader in Berlin.
+
+- **Every `data-event` attribute the site already carried is now read**, by one delegated listener
+  in `ClickTracker`. Build 1 put them on every call to action and left them unread, which was
+  right: the alternative was an `onClick` per button, and that makes every button a Client
+  Component. Adding a tracked control is still just adding an attribute.
+- **The Meta Pixel is loaded by the application, not by a GTM tag.** The browser event and the
+  server-side Conversions API call must share an `event_id` or Meta counts the conversion twice,
+  and that id is generated here. Through a container, the academy could break the pairing by
+  editing a tag, and the two halves of one contract would live in two systems.
+- `purchase` fires once per booking per session, guarded by `sessionStorage`: the confirmation URL
+  is bookmarkable and every reload would otherwise report another sale.
+- The two Google Ads tags are **paused placeholders**. The academy has no Ads account; a conversion
+  tag carrying somebody else's ID is worse than no tag.
+
+Eight journey tests assert the funnel as a *sequence*, not as a pile: `generate_lead` has to come
+after `form_submit`, carry the course, and carry an `event_id`; a rejected form reports `form_error`
+and no lead; a refused order reports `booking_failed` and never `purchase`; and nothing from Google
+or Meta loads before the banner is answered.
+
+Three test flakes found and fixed, all the same root cause and worth naming: **every assertion on
+an effect-driven push has to poll.** `page_view`, `form_start`, `consent_update` and the delegated
+click listener are all pushed from a React effect, and `page.goto` resolves on load, which is
+earlier than hydration. Reading once passed on Chromium and failed intermittently on WebKit and
+iPad Mini. `mouse.wheel` also does not exist in mobile WebKit, which matters here because the phone
+projects are two thirds of the audience.
+
+Gate: typecheck, lint and build clean; **1509 e2e tests passing, 0 failing**.
+
 ---
 
 ## Where this stands, and what to do next

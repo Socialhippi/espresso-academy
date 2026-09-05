@@ -6,10 +6,13 @@ import Link from "next/link";
 import { Button } from "@/components/site/Button";
 import { Container } from "@/components/site/Container";
 import { useConsent, writeConsent, type Consent } from "@/lib/consent";
+import { consentUpdate } from "@/lib/analytics/consent-mode";
+import { trackConsentChoice } from "@/components/site/Analytics";
 
 /**
- * Measurement consent. No analytics or marketing script is loaded on this site yet, so nothing is
- * actually gated: the banner records the choice now so GTM and GA4 can read it in a later phase.
+ * Measurement consent. Nothing loads until this is answered: consent mode v2 defaults every storage
+ * type to `denied` in the document head, and `Analytics` waits for a granted choice before it
+ * injects GTM or the Meta Pixel at all.
  *
  * The copy is kept short on purpose. The banner paints at hydration, and a fixed full-width block
  * of body text is easily the largest thing in the viewport at that moment, which made it the
@@ -23,7 +26,17 @@ export function ConsentBanner() {
 
   if (consent !== null) return null;
 
-  const choose = (value: Exclude<Consent, null>) => () => writeConsent(value);
+  const choose = (value: Exclude<Consent, null>) => () => {
+    writeConsent(value);
+    /*
+     * Two separate signals, and both are needed. `consentUpdate` is the gtag command GTM reads to
+     * unlock its tags; `trackConsentChoice` is an ordinary dataLayer event, which is what makes the
+     * choice visible in a report and assertable in the test suite. A consent command is not an
+     * event and does not appear as one.
+     */
+    consentUpdate(value === "accepted");
+    trackConsentChoice(value === "accepted");
+  };
 
   return (
     <div role="region" aria-label="Cookie choices" className="fixed inset-x-0 bottom-0 z-60">

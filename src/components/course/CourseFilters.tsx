@@ -57,6 +57,7 @@ export function CourseFilters({
           <li>
             <Link
               href={filterHref(null, activeArea)}
+              data-event="course_filter_level_all"
               aria-current={activeLevel === null ? "true" : undefined}
               className={cn(chipClass, activeLevel === null ? activeClass : restingClass)}
             >
@@ -69,6 +70,7 @@ export function CourseFilters({
               <li key={level}>
                 <Link
                   href={filterHref(active ? null : level, activeArea)}
+                  data-event={`course_filter_level_${level}`}
                   aria-current={active ? "true" : undefined}
                   className={cn(chipClass, active ? activeClass : restingClass)}
                 >
@@ -91,6 +93,7 @@ export function CourseFilters({
           <li>
             <Link
               href={filterHref(activeLevel, null)}
+              data-event="course_filter_area_all"
               aria-current={activeArea === null ? "true" : undefined}
               className={cn(chipClass, activeArea === null ? activeClass : restingClass)}
             >
@@ -103,6 +106,7 @@ export function CourseFilters({
               <li key={area}>
                 <Link
                   href={filterHref(activeLevel, active ? null : area)}
+                  data-event={`course_filter_area_${area}`}
                   aria-current={active ? "true" : undefined}
                   className={cn(chipClass, active ? activeClass : restingClass)}
                 >
