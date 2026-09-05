@@ -51,6 +51,11 @@ const eslintConfig = defineConfig([
     ".playwright-mcp/**",
     "out/**",
     "build/**",
+    // `sanity deploy` builds the hosted Studio here: bundled React and styled-components, about
+    // 1,300 warnings of minified vendor code that is gitignored and never edited. Linting a
+    // build artefact buries the warnings that matter.
+    "dist/**",
+    ".sanity/**",
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",

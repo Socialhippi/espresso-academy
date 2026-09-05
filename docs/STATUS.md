@@ -631,6 +631,129 @@ untested.
 Gate: typecheck, lint and build clean; **1697 e2e tests passing, 0 failing** across seven projects;
 all four standing scripts clean.
 
+### Phase 8 — CI, docs and deploy — done
+
+**The site is live at <https://espresso-academy-india.vercel.app>**, noindexed, on Razorpay test
+keys, with every integration verified against the deployment rather than against localhost.
+
+#### CI
+
+`.github/workflows/ci.yml`: `static` (typecheck, lint, the unit project), `secrets` (gitleaks),
+`audit` (`pnpm audit --audit-level high`), and `e2e` (build, the full Playwright suite, then the
+four standing scripts).
+
+**`RESEND_API_KEY` and the Google Sheets credentials are deliberately absent from CI.** A test run
+must not send mail to the academy or write rows into their lead sheet. The pipeline is built to
+degrade when a key is missing, so their absence is itself part of what is under test: CI proves the
+no-key path works on every commit, which is the path a misconfigured production would take.
+
+`.github/workflows/nightly.yml` at 03:00 IST: Lighthouse against production, a link check, and a
+stale-content report.
+
+`scripts/stale-content.mjs` reads the "needs client" list **live from Sanity** rather than from a
+table a developer wrote. The day the academy sets a fee it stops asking for it; the day they add a
+course with no trainer it starts. It reports and never fails, because a nightly job that goes red
+because a client has not answered a question is a job people learn to ignore. It also warns while
+the ₹1 test batches are still in the dataset.
+
+#### Two defects the deploy found
+
+**The sitemap was advertising a URL that requires a login.** `NEXT_PUBLIC_SITE_URL` was not among
+the variables set on Vercel, so `src/lib/public-env.ts` fell through to its `VERCEL_URL` fallback —
+correct behaviour on a preview, wrong on production. Every canonical, every Open Graph image and
+every JSON-LD `@id` pointed at the per-deployment hostname, which sits behind Vercel's deployment
+protection and answers a login page. The symptom was 18 "broken links" that were really assets on
+Vercel's own SSO page, harvested because the crawler had followed the sitemap onto a host it was
+never asked to check.
+
+Fixed by setting `NEXT_PUBLIC_SITE_URL` on **Production only** — Preview still canonicalises to
+itself, which is what the fallback exists for. `scripts/check-links.mjs` now asserts every `<loc>`
+is on the host it was given and stops with one sentence naming the variable, because the failure is
+otherwise silent, expensive, and reads like a broken site.
+
+**The handover document named a Studio that did not exist.** It pointed the academy at
+`espresso-academy-india.sanity.studio`, which had never been deployed and answered Sanity's generic
+dashboard login. Rather than downgrade the document to the lesser URL, the Studio was deployed
+(`pnpm sanity:deploy`, schema confirmed with `sanity schema list`). Both doors now work and the
+document names both.
+
+#### Verified on the deployment
+
+| | |
+|---|---|
+| 21 routes | all 200, including `/studio`, `/lp/[slug]`, `/book/[id]`, `sitemap.xml`, `robots.txt`, `llms.txt` |
+| `X-Robots-Tag` | `noindex, nofollow` on every response |
+| `robots.txt` | `Disallow: /` |
+| Sitemap | 31 URLs, all on the canonical host, all 200 |
+| CSP | present, split by route type, no violation on any of the six route types |
+| Enquiry | student, waitlist and cafe all stored in Sanity with attribution, delivered by email |
+| Honeypot and 2s floor | both answer 200 and write nothing — confirmed 0 documents |
+| Order | created, amount read from Sanity server-side (₹1 test batch), booking written |
+| Webhook | unsigned refused 400, wrong signature refused 400, signed capture marks paid and takes a seat, **replay is idempotent and takes no second seat**, refund returns the seat |
+| Razorpay webhook | active on the deployed URL for `payment.captured`, `payment.failed`, `refund.processed` |
+
+Every record this smoke test created was deleted afterwards.
+
+#### Lighthouse on the deployment
+
+Better than the local build, because Vercel's edge serves from Mumbai over HTTP/2 — which is what a
+reader in Bengaluru actually gets. **Every route now clears the ≥95 launch target**, correcting the
+Phase 7 note that four routes sat at 94: that was the local build, and it is not the number that
+matters.
+
+| Route | Perf | A11y | Best practices | SEO | LCP |
+|---|---|---|---|---|---|
+| `/` | 100 | 100 | 100 | 69\* | 1.7 s |
+| `/courses` | 95 | 100 | 100 | 69\* | 2.8 s |
+| `/courses/latte-art` | 100 | 100 | 100 | 69\* | 1.4 s |
+| `/calendar` | 95 | 100 | 100 | 69\* | 2.9 s |
+| `/enquire` | 97 | 100 | 100 | 69\* | 2.6 s |
+| `/book/[id]` | 96 | 100 | 100 | 66\* | 2.7 s |
+
+\* SEO's only failing audit is the deliberate pre-launch noindex; verified 100 with indexing on.
+
+Two routes still exceed the ≤2.5s LCP budget, at 2.8s and 2.9s. The score target is met; the budget
+is not, and the largest remaining lever is the client's photography.
+
+#### Environment on Vercel
+
+19 variables set on Production and Preview.
+
+| Variable | Prod | Preview | Absent means |
+|---|---|---|---|
+| `NEXT_PUBLIC_SANITY_PROJECT_ID` | set | set | **the build fails** — required |
+| `NEXT_PUBLIC_SANITY_DATASET` | set | set | **the build fails** — required |
+| `NEXT_PUBLIC_SANITY_API_VERSION` | set | set | a pinned default |
+| `SANITY_API_READ_TOKEN` | set | set | published content only |
+| `SANITY_API_WRITE_TOKEN` | set | set | leads and bookings log instead of storing |
+| `SANITY_REVALIDATE_SECRET` | set | set | `/api/revalidate` refuses everything |
+| `RAZORPAY_KEY_ID` / `_SECRET` | test | test | Book becomes Enquire |
+| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | test | test | Checkout cannot open |
+| `RAZORPAY_WEBHOOK_SECRET` | set | set | the webhook answers 503 |
+| `RESEND_API_KEY` | set | set | the form hands off to WhatsApp |
+| `LEAD_TO_EMAIL`, `BOOKING_TO_EMAIL` | set | set | falls back to the settings address |
+| `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_GA4_ID` | set | set | no analytics loads at all |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | set | set | the widget is skipped, the other three defences stand |
+| `NEXT_PUBLIC_SITE_URL` | set | **unset by design** | Preview canonicalises to itself |
+| `NEXT_PUBLIC_INDEXABLE` | `false` | `false` | noindex everywhere |
+| `GOOGLE_SHEETS_*` | unset | unset | the lead still reaches Sanity and the inbox |
+| `NEXT_PUBLIC_META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN` | unset | unset | no Pixel, no CAPI |
+
+#### Docs
+
+`docs/handover.md` for whoever edits the site, leading with the rule that matters: if the academy
+has not confirmed something, leave it empty. An empty fee shows "Fee: TBC" and offers a WhatsApp
+conversation, which is safe; a fee that is nearly right is one the academy can be held to. It also
+explains what cannot be edited and why — seats booked is maintained by the payment records, and a
+booking is a mirror of something that happened at a gateway.
+
+`docs/launch-checklist.md`, ordered by dependency, separating what the academy must send from what
+they must decide, and carrying the known limitations into launch rather than leaving them in a
+commit message.
+
+Gate: typecheck, lint and build clean; 1697 e2e tests passing; all five standing scripts clean
+**against the deployment**.
+
 ---
 
 ## Where this stands, and what to do next
@@ -787,16 +910,27 @@ appears; no code change is needed.
 | 24 | Which brochure claims are current | About, home | "17 branches", "Berry Co", "Coorg planters" are all unverified and unused |
 | 25 | Legal entity name and tagline | Footer legal row | `siteSettings.legalName` / `tagline` are `null` |
 
-### Needs developer (later phases, not this draft)
+`node scripts/stale-content.mjs` prints this list live from Sanity, so it cannot go stale. As of
+the build-2 deploy it reports: 8 courses with no fee, 8 with no duration, 7 with no trainer, 8 with
+fewer than four questions, 8 with no photograph, 8 batches with no date, 3 trainers with no role or
+photograph, and all six settings fields missing.
 
-- Sanity migration: `content/data.ts` maps 1:1 to the future schema.
-- Resend sending domain and DNS, so enquiries email instead of handing off to WhatsApp.
-- Google Sheet lead log and auto-reply.
-- GTM / GA4 / Clarity behind the consent banner (the `data-event` attributes are already in place).
-- Cloudflare Turnstile on the enquiry form.
-- Razorpay payment pages per batch (`instances[].paymentPageUrl`).
-- Cal.com for campus visits.
-- The eight SEO guides.
+### Needs developer
+
+Everything on the build-1 list is now built: the Sanity migration, Resend, the Google Sheets mirror,
+GTM / GA4 behind consent, Turnstile, Razorpay checkout per batch, and the guides. What is left needs
+an account or a decision from the academy first, not development:
+
+- **Resend sending domain.** Verify the academy's domain, then set `RESEND_FROM_EMAIL`. Until then
+  mail sends from `onboarding@resend.dev`, which reaches an inbox but does not say Espresso Academy
+  in the sender line.
+- **Google Sheets mirror.** Needs a service account and a shared sheet. Optional: without it a lead
+  still reaches Sanity and the inbox.
+- **Meta Pixel and Conversions API.** Both are wired and share an `event_id`; both are dormant until
+  the two variables are set.
+- **Cal.com**, if the academy wants cafe enquiries to book a call.
+- **The remaining six SEO guides.** Two are seeded as working templates with every paragraph marked
+  PLACEHOLDER; the shape is what matters and it is in place.
 
 ---
 
@@ -828,6 +962,25 @@ appears; no code change is needed.
 ---
 
 ## Known limitations
+
+### Carried into launch from build 2
+
+- **The rate limiter is per-instance.** Serverless functions do not share memory, so the real limit
+  is roughly the configured number times the number of running instances. Deliberate at this
+  traffic: the honeypot, the two-second floor and Turnstile are what actually stop a bot, and a
+  per-IP number tight enough to interest an attacker also turns away a student behind Indian
+  carrier CGNAT. A shared store is one file away if it is ever needed.
+- **Two routes exceed the ≤2.5s LCP budget on the deployment**, `/courses` at 2.8s and `/calendar`
+  at 2.9s. Performance is ≥95 on every route so the score target is met; the budget is not. The
+  largest remaining lever is the client's photography.
+- **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
+  the site ships. `pnpm audit --audit-level high` is clean, which is what CI gates on.
+- **HSTS is written but commented out** in `src/middleware.ts`. It must not be enabled until the
+  real domain is serving HTTPS: a wrong HSTS header is cached by every browser that saw it for the
+  whole max-age and cannot be withdrawn.
+- **The ₹1 test batches are still in the dataset.** Labelled "TEST BATCH, do not book" and harmless
+  on test keys. `pnpm sanity:seed:test-batch -- --delete` before switching to live keys, because on
+  live keys a mis-click really does charge a rupee.
 
 - **The logo raster's red samples as `#AA1916`, not the `#B20003` token.** Visible where the mark
   sits beside a red button. This is the supplied artwork, and design.md forbids recolouring it, so

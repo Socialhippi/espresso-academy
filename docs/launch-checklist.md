@@ -139,8 +139,9 @@ These are recorded rather than fixed, with the reasoning in `docs/STATUS.md`:
 - **The rate limiter is per-instance.** Serverless functions do not share memory, so the real limit
   is roughly the configured number times the number of running instances. Deliberate for this
   traffic; a shared store is one file away if it is ever needed.
-- **Four routes measure Lighthouse Performance 94** against a ≥95 target, on LCP alone. The cause is
-  understood and the largest remaining lever is the client's photography.
+- **Two routes exceed the ≤2.5s LCP budget** on the deployment, at 2.8s (`/courses`) and 2.9s
+  (`/calendar`). Performance is ≥95 on every route, so the launch score target is met; the budget
+  is not. The cause is understood and the largest remaining lever is the client's photography.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships.
 - **The mobile sheet's focus trap leaks on WebKit under Playwright.** May be an artefact of

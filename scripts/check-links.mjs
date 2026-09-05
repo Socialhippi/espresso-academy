@@ -23,6 +23,29 @@ if (sitemap.status !== 200) {
 const urls = [...sitemap.body.matchAll(/<loc>([^<]+)<\/loc>/g)].map((m) => m[1]);
 console.log(`sitemap lists ${urls.length} URLs`);
 
+/*
+ * Every <loc> must be on the host we were asked to check.
+ *
+ * This is checked rather than assumed because the failure it catches is silent and expensive.
+ * NEXT_PUBLIC_SITE_URL unset on Vercel makes the sitemap advertise the per-deployment hostname,
+ * which sits behind deployment protection: fetching one returns Vercel's login page with a 200,
+ * the crawler harvests that page's links, and the run fails with a screenful of 404s for assets
+ * nobody wrote. It reads like a broken site and is a single missing variable. It also means every
+ * canonical, OG image and JSON-LD @id points at a URL that changes on the next deploy.
+ *
+ * Reported once, by origin, and fatal: there is nothing useful to check past this point.
+ */
+const wrongOrigin = urls.filter((url) => !url.startsWith(`${BASE}/`) && url !== BASE);
+if (wrongOrigin.length > 0) {
+  const origins = [...new Set(wrongOrigin.map((url) => new URL(url).origin))];
+  console.error(
+    `\n${wrongOrigin.length} of ${urls.length} sitemap URLs are not on ${BASE}.\n` +
+      `  found: ${origins.join(", ")}\n` +
+      `  Set NEXT_PUBLIC_SITE_URL to the canonical origin and redeploy.`,
+  );
+  process.exit(1);
+}
+
 const failures = [];
 const internalLinks = new Set();
 

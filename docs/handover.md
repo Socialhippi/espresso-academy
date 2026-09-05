@@ -2,8 +2,13 @@
 
 For whoever edits the site at Espresso Academy India. No code, no developer needed.
 
-Everything is edited in one place: **the Studio**, at
-<https://espresso-academy-india.sanity.studio>. Sign in with the Google account that was invited.
+Everything is edited in one place: **the Studio**. There are two doors to the same room, and it
+does not matter which you use:
+
+- <https://espresso-academy-india.sanity.studio> — sign in with the Google account that was
+  invited. Bookmark this one.
+- <https://espresso-academy-india.vercel.app/studio> — the same Studio, inside the website.
+
 Changes appear on the website within a few seconds of pressing **Publish**.
 
 ---
