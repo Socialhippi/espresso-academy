@@ -4,3 +4,11 @@ allowBuilds:
   esbuild: true
   sharp: false
   unrs-resolver: false
+
+overrides:
+  # The only high-severity findings in the tree are js-yaml 3.13.1, reached solely through
+  # sanity > @sanity/cli > @vercel/frameworks. Both advisories are quadratic-CPU parses of hostile
+  # YAML, and the CLI only ever parses local project files, so the real exposure is small. The fix
+  # is a patch bump inside the same major, so there is no reason to carry it as an accepted risk.
+  # pnpm 11 reads overrides here rather than from package.json.
+  js-yaml@<3.15.1: '>=3.15.1'

@@ -16,6 +16,16 @@ import { formatDate } from "@/lib/format";
  * No canonical to the course page either: a canonical would ask Google to consolidate the two,
  * which is the opposite of keeping a campaign page out of the index entirely.
  */
+/**
+ * Rendered per request so it can carry a CSP nonce.
+ *
+ * This page takes a name, a phone number and an email address, and src/middleware.ts gives every
+ * input-taking route the strict policy. A statically generated page's HTML is fixed at build time
+ * and cannot carry a per-request nonce, so the two are incompatible; a form page is where the
+ * stricter of the two is worth the render.
+ */
+export const dynamic = "force-dynamic";
+
 export async function generateStaticParams(): Promise<{ slug: string }[]> {
   return (await getLandingPageSlugs()).map((slug) => ({ slug }));
 }

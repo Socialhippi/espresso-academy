@@ -19,6 +19,16 @@ const FALLBACK_TITLE = "Training for cafes and teams";
 const FALLBACK_DESCRIPTION =
   "Barista training for cafe teams in Bengaluru: a session built around your bar, your machine and your menu. Tell the academy what your team needs and they will scope it.";
 
+/**
+ * Rendered per request so it can carry a CSP nonce.
+ *
+ * This page takes a name, a phone number and an email address, and src/middleware.ts gives every
+ * input-taking route the strict policy. A statically generated page's HTML is fixed at build time
+ * and cannot carry a per-request nonce, so the two are incompatible; a form page is where the
+ * stricter of the two is worth the render.
+ */
+export const dynamic = "force-dynamic";
+
 export async function generateMetadata(): Promise<Metadata> {
   const page = await getPage(SLUG);
   return pageMetadata({

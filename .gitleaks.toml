@@ -1,0 +1,45 @@
+# gitleaks configuration.
+#
+# The extend below inherits every default rule; this file exists to add the two secret shapes this
+# project actually handles and to stop the scanner tripping on the places where a *shape* appears
+# without a secret behind it.
+
+title = "Espresso Academy India"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "sanity-token"
+description = "Sanity API token"
+# Sanity tokens are `sk` followed by a long base62 run. The default rule set does not know them.
+regex = '''\bsk[A-Za-z0-9]{60,}\b'''
+keywords = ["sk"]
+
+[[rules]]
+id = "razorpay-key-secret"
+description = "Razorpay live key secret"
+# A live key id is rzp_live_...; the secret beside it has no prefix, so the id is what is matched.
+regex = '''\brzp_live_[A-Za-z0-9]{10,}\b'''
+keywords = ["rzp_live"]
+
+[allowlist]
+description = "Paths and patterns that carry the shape of a secret but never a real one"
+paths = [
+  # Documented variable names with empty values, which is the point of the file.
+  '''\.env\.example$''',
+  # Lockfiles carry integrity hashes that look like high-entropy strings.
+  '''pnpm-lock\.yaml$''',
+  # Test vectors: hand-computed HMACs and Razorpay's published test card number.
+  '''tests/unit/signature\.spec\.ts$''',
+  '''docs/RUNBOOK\.md$''',
+]
+regexes = [
+  # Razorpay's own published test key prefix. Public by design, in their documentation.
+  '''rzp_test_[A-Za-z0-9]+''',
+  # Cloudflare's published always-passes Turnstile test keys.
+  '''1x00000000000000000000AA''',
+  '''1x0000000000000000000000000000000AA''',
+  '''2x0000000000000000000000000000000AA''',
+  '''3x0000000000000000000000000000000AA''',
+]

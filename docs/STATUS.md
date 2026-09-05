@@ -526,6 +526,63 @@ projects are two thirds of the audience.
 
 Gate: typecheck, lint and build clean; **1509 e2e tests passing, 0 failing**.
 
+### Phase 6: security — done
+
+Content Security Policy in `src/middleware.ts`, plus `nosniff`, `strict-origin-when-cross-origin`,
+`X-Frame-Options: DENY`, a permissions policy that denies camera, microphone, geolocation, payment
+and the topics APIs, and HSTS commented out until launch. 26 tests assert all of it.
+
+**The CSP is split by what a route handles, and that is a considered trade rather than a shortcut.**
+A statically generated page's HTML is written once at build time and cannot carry a per-request
+nonce; `strict-dynamic` makes a browser ignore `'self'` for inline code, so Next's own flight
+payload is blocked without one. The choice is therefore: every page dynamic and nonced, or the
+content pages keep `unsafe-inline`.
+
+- **Routes that take personal data** — `/enquire`, `/contact`, `/book`, `/booking`, `/for-cafes`,
+  `/lp`, `/api` — render per request and get nonce + `strict-dynamic`, no `unsafe-*` at all.
+  `/for-cafes` and `/lp` were made dynamic for this; they are the two pages with a form that were
+  otherwise static.
+- **Pages that only display content** stay static and keep `unsafe-inline` for the framework's
+  inline scripts, with `strict-dynamic` deliberately absent (the two cancel out) so the host
+  allow-list does the work. Those pages render no user-controlled HTML: everything from Sanity goes
+  through React's escaping, and the only `dangerouslySetInnerHTML` on the site holds two
+  compile-time constants.
+- **The Studio gets its own policy**, with `unsafe-eval` — it compiles schemas in the browser — and
+  a test asserts that no public page has it.
+
+`scripts/check-csp.mjs` loads every kind of page with consent granted and fails on any console CSP
+violation. That is the check that earned its place: a header assertion says the policy is present,
+and this says the policy does not break the site. It found four real problems a header test could
+not:
+
+1. **`strict-dynamic` and `unsafe-inline` cannot coexist.** The Studio's policy read as though it
+   allowed its inline scripts and blocked all forty of them.
+2. **A hash nullifies `unsafe-inline`.** Adding the consent-snippet hash to the content policy "for
+   good measure" silently turned it back into one that blocked every inline script.
+3. **GTM was loading inside the Studio**, which is behind a login, is the academy at work rather
+   than a visitor, and has a policy that does not allow googletagmanager.com.
+4. **`upgrade-insecure-requests` broke Safari and iPad entirely.** It rewrites every `http://`
+   subresource to `https://`, so on `http://localhost` the site's own stylesheets and images were
+   upgraded to an origin with no TLS and every one failed. Chromium quietly exempts localhost;
+   WebKit does not. It presented as 240px of horizontal overflow on 152 tests and looked exactly
+   like a layout bug. It is emitted only over HTTPS now, which is the only place it means anything.
+
+**And one regression the suite caught by getting slower rather than by failing.** The first version
+used a nonce on every route, which meant `headers()` in the root layout — and reading a header
+there opts the whole site out of static generation. All 32 routes became dynamic, putting two Sanity
+round trips in front of every page view, and the only visible symptom was the suite taking 8.6
+minutes instead of 2.2. There is now a test asserting a content page is still prerendered.
+
+Also: zod env validation split into a required half (the Sanity project id and dataset, which throw,
+because a site with no content is not a site) and an optional half (everything else, which warns and
+degrades); a `featureFlags()` helper so a deployment's capabilities are visible in its log;
+`.gitleaks.toml` with rules for Sanity and Razorpay secret shapes and an allowlist for the published
+test keys; and both high-severity advisories cleared with a pnpm override.
+
+Gate: typecheck, lint and build clean; **1665 e2e tests passing, 0 failing**; `pnpm audit` clean of
+highs (2 moderates remain, both in the Sanity CLI's dependency tree and not in anything the site
+ships); the three standing scripts clean.
+
 ---
 
 ## Where this stands, and what to do next

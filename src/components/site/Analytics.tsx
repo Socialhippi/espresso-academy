@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { useConsent } from "@/lib/consent";
 import { track } from "@/lib/analytics/events";
 
@@ -31,9 +32,17 @@ interface AnalyticsProps {
  */
 export function Analytics({ gtmId, metaPixelId }: AnalyticsProps) {
   const consent = useConsent();
+  const pathname = usePathname();
   const [ready, setReady] = useState(false);
 
-  const granted = consent === "accepted";
+  /*
+   * Never inside the Studio. It is behind a Sanity login, it is the academy at work rather than a
+   * visitor, and measuring it would put staff sessions in the same reports as students. It also
+   * has its own CSP, which does not allow googletagmanager.com, so loading GTM there is a console
+   * error and nothing else.
+   */
+  const measurable = !pathname.startsWith("/studio");
+  const granted = consent === "accepted" && measurable;
 
   useEffect(() => {
     if (!granted || ready) return;
