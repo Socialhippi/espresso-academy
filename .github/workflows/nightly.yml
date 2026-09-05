@@ -1,0 +1,60 @@
+name: Nightly
+
+on:
+  schedule:
+    # 03:00 IST, which is a quiet hour for this audience and after any evening deploy.
+    - cron: "30 21 * * *"
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    name: Lighthouse on production
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Measure the live site
+        run: node scripts/lighthouse.mjs "${{ vars.SITE_URL || 'https://espresso-academy-india.vercel.app' }}"
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: lighthouse-reports
+          path: docs/audits/lh2-*.report.json
+          retention-days: 30
+
+  links:
+    name: Link check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Crawl the sitemap and report anything that is not 200
+        run: node scripts/check-links.mjs "${{ vars.SITE_URL || 'https://espresso-academy-india.vercel.app' }}"
+
+  stale-content:
+    name: Stale content report
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: What the academy still has to fill in
+        env:
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+          SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
+        run: node scripts/stale-content.mjs

@@ -1,0 +1,108 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  # A second push to the same branch cancels the first: there is no value in finishing a run
+  # against a commit nobody will deploy.
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  # Content is not optional: a build without these should fail loudly rather than deploy an empty
+  # site. Everything else degrades, which is what makes the rest of this file quiet.
+  NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+  NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+  NEXT_PUBLIC_SANITY_API_VERSION: "2026-09-05"
+  SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
+  SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+  RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+  RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+  NEXT_PUBLIC_RAZORPAY_KEY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
+  RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+  TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+  # Deliberately absent in CI: RESEND_API_KEY and the Google Sheets credentials. A test run must not
+  # send mail to the academy or write rows into their lead sheet, and the pipeline is built to
+  # degrade, so their absence is itself part of what is under test.
+  NEXT_PUBLIC_INDEXABLE: "false"
+
+jobs:
+  static:
+    name: Typecheck, lint, unit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      # No browser needed: signature verification, fee arithmetic and the sheet escaping.
+      - run: npx playwright test --project=unit
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          # gitleaks needs history to scan commits, not just the working tree.
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITLEAKS_CONFIG: .gitleaks.toml
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  audit:
+    name: Dependency audit
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      # Highs and criticals fail. Moderates are reported and do not: the two currently open are
+      # both inside the Sanity CLI's tree and reach nothing the site ships.
+      - run: pnpm audit --audit-level high
+
+  e2e:
+    name: End to end
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium webkit
+      - run: pnpm build
+      # The suite starts its own server (playwright.config.ts webServer) against the build above.
+      - run: pnpm test:e2e
+      - name: The standing design and security scripts
+        run: |
+          pnpm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+          node scripts/check-overflow.mjs
+          node scripts/check-brand-contrast.mjs
+          node scripts/check-target-size.mjs
+          node scripts/check-csp.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
