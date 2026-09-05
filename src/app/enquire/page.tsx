@@ -63,6 +63,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
 
           <div className="lg:col-span-7">
             <EnquiryForm
+              turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
               variant="student"
               courses={courseOptions}
               replyPromise={settings.replyPromise}

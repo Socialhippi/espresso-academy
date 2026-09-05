@@ -250,6 +250,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
             </div>
             <div className="lg:col-span-7">
               <EnquiryForm
+                turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
                 variant={cafeTopic ? "cafe" : "student"}
                 courses={courseOptions}
                 replyPromise={settings.replyPromise}

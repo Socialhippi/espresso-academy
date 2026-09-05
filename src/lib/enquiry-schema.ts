@@ -17,6 +17,12 @@ export const enquirySchema = z.object({
     .string()
     .trim()
     .regex(phoneRegex, "Enter a 10-digit Indian mobile number, without +91"),
+  /**
+   * Optional. The form asks for it so the student gets an auto-reply and so the academy can send
+   * a fee sheet, but a phone number is enough to have a conversation and requiring an email would
+   * cost leads on a mobile-first audience.
+   */
+  email: z.union([z.email("Enter a valid email address"), z.literal("")]).optional(),
   course: z.string().trim().max(120).optional().or(z.literal("")),
   batch: z.string().trim().max(120).optional().or(z.literal("")),
   /** The batch document id, when the enquiry is about one specific batch. */
@@ -31,6 +37,7 @@ export const enquirySchema = z.object({
   company: z.string().max(200).optional(),
   /** Milliseconds between the form mounting and the submit. */
   elapsedMs: z.number().int().nonnegative(),
+  turnstileToken: z.string().max(4000).optional(),
   page: z.string().max(300).optional(),
   referrer: z.string().max(500).optional(),
   utm: z.record(z.string(), z.string()).optional(),

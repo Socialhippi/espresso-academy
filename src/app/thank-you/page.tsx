@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/site/Container";
 import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
+import { CalEmbed } from "@/components/forms/CalEmbed";
 import { getSiteSettings } from "@/lib/content";
 import { formatPhone, telHref } from "@/lib/format";
 
@@ -30,8 +31,16 @@ const steps = [
   },
 ];
 
-export default async function ThankYouPage() {
+/**
+ * `searchParams` makes this dynamic, which is the price of telling a cafe enquiry apart from a
+ * student one. The page is noindex and post-submit, so it is never in a cache anybody waits on.
+ */
+export default async function ThankYouPage({ searchParams }: PageProps<"/thank-you">) {
   const settings = await getSiteSettings();
+  const params = await searchParams;
+  const topic = Array.isArray(params.topic) ? params.topic[0] : params.topic;
+  const isCafe = topic === "cafe";
+  const calLink = process.env.NEXT_PUBLIC_CALCOM_LINK;
 
   return (
     <Container className="py-16 md:py-28">
@@ -52,6 +61,33 @@ export default async function ThankYouPage() {
           See the batch calendar
         </ButtonLink>
       </div>
+
+      {isCafe && calLink && (
+        <section aria-labelledby="call-heading" className="mt-16 hairline pt-8">
+          <h2 id="call-heading" className="type-h2 text-black">
+            Put a call in the diary
+          </h2>
+          <p className="mt-4 measure type-body text-grey">
+            Team training is easier to scope in fifteen minutes than over messages. Pick a slot that
+            suits you, or ignore this and the academy will message you either way.
+          </p>
+          <CalEmbed link={calLink} className="mt-8" />
+        </section>
+      )}
+
+      {isCafe && !calLink && (
+        /* No Cal.com link configured. The WhatsApp button above is the whole path, so this says
+           what happens next rather than leaving a cafe enquiry with a generic student page. */
+        <section aria-labelledby="call-heading" className="mt-16 hairline pt-8">
+          <h2 id="call-heading" className="type-h2 text-black">
+            The academy will call you
+          </h2>
+          <p className="mt-4 measure type-body text-grey">
+            Team training is easier to scope on a call than over messages. Tell us on WhatsApp when
+            suits and we will ring you then.
+          </p>
+        </section>
+      )}
 
       <section aria-labelledby="next-heading" className="mt-16 hairline pt-6">
         <h2 id="next-heading" className="type-h2 text-black">

@@ -2,12 +2,13 @@
 
 // Client: controlled fields, blur validation, focus management and a fetch to /api/enquiry.
 
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Check, Loader2 } from "lucide-react";
 import { Button, ButtonLink } from "@/components/site/Button";
 import { WhatsAppButtonClient } from "@/components/site/WhatsAppButtonClient";
 import { Field, FieldError, fieldControlClass, fieldInputClass } from "@/components/forms/Field";
+import { Turnstile } from "@/components/forms/Turnstile";
 import {
   MIN_TIME_ON_FORM_MS,
   phoneRegex,
@@ -39,10 +40,12 @@ interface EnquiryFormProps {
    */
   defaultCourse?: string;
   defaultBatch?: string;
+  /** From NEXT_PUBLIC_TURNSTILE_SITE_KEY. Undefined renders no widget, and the server skips the check. */
+  turnstileSiteKey?: string;
   className?: string;
 }
 
-type FieldName = "name" | "phone" | "course" | "batch" | "message" | "consent";
+type FieldName = "name" | "phone" | "email" | "course" | "batch" | "message" | "consent";
 type Errors = Partial<Record<FieldName | "form", string>>;
 
 const heading: Record<EnquiryType, string> = {
@@ -63,6 +66,7 @@ export function EnquiryForm({
   replyPromise,
   defaultCourse = "",
   defaultBatch = "",
+  turnstileSiteKey,
   className,
 }: EnquiryFormProps) {
   const config = useSiteConfig();
@@ -74,11 +78,14 @@ export function EnquiryForm({
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [course, setCourse] = useState(defaultCourse);
   const [batch, setBatch] = useState(defaultBatch);
   const [message, setMessage] = useState("");
   const [consent, setConsent] = useState(false);
   const [company, setCompany] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const onTurnstileToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
   const [errors, setErrors] = useState<Errors>({});
   const [status, setStatus] = useState<"idle" | "sending" | "done" | "failed">("idle");
@@ -96,6 +103,9 @@ export function EnquiryForm({
     [courses, course],
   );
   const courseTitle = selected?.title ?? null;
+  /* The slug, not the title. The route resolves it to a course reference in Sanity, and it is also
+     what the WhatsApp handoff and the course link in the auto-reply are built from. */
+  const courseSlugForRequest = selected?.slug ?? course;
 
   function validate(only?: FieldName): Errors {
     const next: Errors = {};
@@ -105,6 +115,13 @@ export function EnquiryForm({
     if (!only || only === "phone") {
       if (!phoneRegex.test(phone.trim())) {
         next.phone = "Enter a 10-digit Indian mobile number, without +91";
+      }
+    }
+    if (!only || only === "email") {
+      /* Optional, so an empty field is fine; a filled one has to be plausible, because the
+         auto-reply and the fee sheet both go to it and a typo means silence. */
+      if (email.trim() !== "" && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email.trim())) {
+        next.email = "Enter a valid email address, or leave it empty";
       }
     }
     if (!only || only === "consent") {
@@ -125,7 +142,7 @@ export function EnquiryForm({
     const found = validate();
     setErrors(found);
 
-    const order: FieldName[] = ["name", "phone", "consent"];
+    const order: FieldName[] = ["name", "phone", "email", "consent"];
     const firstBad = order.find((key) => found[key]);
     if (firstBad) {
       const element = formRef.current?.querySelector<HTMLElement>(
@@ -144,12 +161,14 @@ export function EnquiryForm({
           type: variant,
           name: name.trim(),
           phone: phone.trim(),
-          course: courseTitle ?? course,
+          email: email.trim(),
+          course: courseSlugForRequest,
           batch,
           message: message.trim(),
           consent: true,
           company,
           elapsedMs: Date.now() - mountedAt.current,
+          turnstileToken: turnstileToken ?? undefined,
           page: window.location.pathname,
           referrer: document.referrer,
           utm: readUtm(window.location.search),
@@ -189,12 +208,22 @@ export function EnquiryForm({
           >
             Continue on WhatsApp
           </WhatsAppButtonClient>
-          <ButtonLink href="/courses" variant="secondary">
-            Back to the courses
-          </ButtonLink>
-          <ButtonLink href="/calendar" variant="tertiary" size="inline">
-            See the batch calendar
-          </ButtonLink>
+          {variant === "cafe" ? (
+            /* A cafe enquiry wants a conversation, not a course list. /thank-you?topic=cafe offers
+               a call slot when Cal.com is configured and says the academy will ring otherwise. */
+            <ButtonLink href="/thank-you?topic=cafe" variant="secondary">
+              Put a call in the diary
+            </ButtonLink>
+          ) : (
+            <>
+              <ButtonLink href="/courses" variant="secondary">
+                Back to the courses
+              </ButtonLink>
+              <ButtonLink href="/calendar" variant="tertiary" size="inline">
+                See the batch calendar
+              </ButtonLink>
+            </>
+          )}
         </div>
       </div>
     );
@@ -271,6 +300,28 @@ export function EnquiryForm({
         </div>
       </Field>
 
+      <Field
+        id={field("email")}
+        label="Email"
+        hint="Optional. Where a fee sheet or a joining email would go."
+        hintId={field("email-hint")}
+        error={errors.email}
+        errorId={field("email-error")}
+      >
+        <input
+          id={field("email")}
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          onBlur={onBlur("email")}
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={cn(field("email-hint"), errors.email ? field("email-error") : "").trim()}
+          className={fieldInputClass}
+        />
+      </Field>
+
       {variant !== "cafe" && (
         <Field id={field("course")} label="Which course" error={errors.course}>
           <select
@@ -338,6 +389,12 @@ export function EnquiryForm({
           className={cn(fieldControlClass, "py-3")}
         />
       </Field>
+
+      <Turnstile
+        siteKey={turnstileSiteKey}
+        onToken={onTurnstileToken}
+        className="min-h-[65px]"
+      />
 
       {/* Honeypot. Hidden from sight and from assistive tech; only a bot fills it. */}
       <div aria-hidden="true" className="sr-only">
