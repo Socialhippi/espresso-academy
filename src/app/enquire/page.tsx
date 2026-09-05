@@ -40,8 +40,8 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
   return (
     <>
       <Container className="py-10 md:py-16">
-        <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-          <div className="md:col-span-5">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-5">
             <p className="eyebrow">Enrolment</p>
             <h1 className="mt-3 type-h1 text-black">Ask about a seat</h1>
             <p className="mt-5 measure type-body text-grey">
@@ -60,7 +60,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
             </div>
           </div>
 
-          <div className="md:col-span-7">
+          <div className="lg:col-span-7">
             <EnquiryForm
               variant="student"
               courses={courseOptions}

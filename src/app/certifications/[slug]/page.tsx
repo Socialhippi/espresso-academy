@@ -181,8 +181,8 @@ export default async function CertificationPage({ params }: PageProps<"/certific
           <h2 id="answers-heading" className="sr-only">
             Questions about the {certification.name}
           </h2>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <nav aria-label="On this page" className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <nav aria-label="On this page" className="lg:col-span-4">
               <div className="md:sticky md:top-28">
                 <p className="type-label text-grey">On this page</p>
                 <ul className="mt-4 flex flex-col gap-3">
@@ -200,7 +200,7 @@ export default async function CertificationPage({ params }: PageProps<"/certific
               </div>
             </nav>
 
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               {answers.map((answer, index) => (
                 <article key={answer.id} className={index > 0 ? "mt-12 hairline pt-6" : undefined}>
                   <p className="eyebrow">
@@ -244,8 +244,8 @@ export default async function CertificationPage({ params }: PageProps<"/certific
 
       <section className="section-y-sm" aria-labelledby="cert-faq-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="08"
                 eyebrow="Questions"
@@ -264,7 +264,7 @@ export default async function CertificationPage({ params }: PageProps<"/certific
                 </p>
               )}
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <FaqAccordion items={faqs} />
             </div>
           </div>

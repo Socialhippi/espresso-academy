@@ -7,8 +7,8 @@ do. Updated at the end of every phase.
 
 Public, no login. Open it on a phone.
 
-> **This URL is serving an older build.** Work stopped before the final redeploy. See
-> "Where this stopped, and what to do next" below: redeploy before sending it to anyone.
+> **This URL is serving an older build**, from before four rounds of design fixes. See
+> "Where this stands, and what to do next" below: redeploy before sending it to anyone.
 
 A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
 are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
@@ -125,7 +125,7 @@ The content-editor subagent audited every page's copy against `content/facts.md`
 
 ### Phase 6: tests
 
-`pnpm test:e2e` runs 772 tests across chromium, webkit, Pixel 7, iPhone 14 and iPad Mini, all
+`pnpm test:e2e` runs 932 tests across chromium, webkit, Pixel 7, iPhone 14, iPad Mini and Laptop 1024, all
 passing. The iPad Mini project exists because 768 is the middle width `design.md` names and nothing
 was covering it: a design review found a crushed header and a 17px document overflow living there
 while 390 and 1280 had been clean the whole time.
@@ -216,8 +216,48 @@ The defects that mattered, in the order they were found:
 - **At 768 the level ladder pushed the document 17px wide**, the same `min-width: auto` cause
   already fixed on the fee table and not swept into the component.
 
-Both 768 defects existed because nothing tested 768. `scripts/check-overflow.mjs` now runs at all
-three widths and the Playwright suite has an iPad Mini project.
+Both 768 defects existed because nothing tested 768, so 768 was added to
+`scripts/check-overflow.mjs` and an iPad Mini project to the Playwright suite. That turned out to
+be the first instance of a pattern, not the end of one.
+
+**Rounds six to eight cleared the gate: 8.5 / 8.0 / 8.5 / 8.0 on `/`, `/courses`, a course page
+and `/about`.** Round five re-ran from scratch and scored 6.5 / 6.0 / 6.0 / 6.5, because rounds one
+to four had fixed symptoms while the cause went untouched: **every desktop grid fired at `md`
+(768), where there is not enough width for twelve columns.** Left columns were 200px, the footer
+was five 91px columns, the hero aside was a 265px box floating beside a 650px column, and the
+level-ladder badges rendered 29 to 32px outside their own cards with the last one flush to the
+viewport edge. That last one is why `check-overflow.mjs` never saw it: the badge escaped its
+*card*, not the *document*.
+
+Moving the twelve-column grids to `lg` fixed the badge overflow at its root, with no change to
+`LevelLadder` itself. What the following rounds then found, each one a consequence of the last:
+
+- **At exactly 1024 the header was 2px wider than the viewport** on every route, clipping the
+  Enquire pill and eating the 32px right gutter. `lg` *is* 1024, and the header needs 1064.
+  There is now a `--breakpoint-nav: 1080px` token, measured rather than guessed.
+- **Between 768 and 1023 the site had no visible primary call to action at all** — the sticky bar
+  stops at `md`, and the earlier "guard at 768" had moved the header's Enquire pill to `lg`. On a
+  64%-mobile site that was the most commercially costly defect of the whole pass.
+- **At 360 the brand lockup pushed every route 9px sideways.** 375 and 390 were both clean, which
+  is exactly why it survived eight rounds.
+- **The skip link had no padding.** Tailwind's `not-sr-only` sets `padding: 0` and was beating the
+  base `px-4 py-3`, so the first thing any keyboard user met was a 170x26 unpadded slab.
+- **The certificate cell asserted a claim `facts.md` forbids.** It read `Certificate: SCA`, and
+  facts.md line 45 lists "SCA-certified courses" among the phrases the site must never use. It is
+  driven by the certification's own `status` field now: `Programme: SCA`, `Certificate: IBC`.
+- **`/courses` section 04 was eight rows of sixteen identical TBC pills**, restating course titles
+  and level badges the card grid above already showed, to prove the point its own description made
+  in one sentence. It renders a real empty state until one fee or duration lands.
+- **TBC was the loudest thing on a course page**: four pills in the spec strip above the fold and a
+  `Fee: TBC / Next batch: TBC` row pinned to the bottom of the viewport for the whole scroll. Both
+  now collapse while every value is null, which is what `CourseCard` already did.
+- Three trainer cards ended 21px apart wherever a credential wrapped; `TrainerCard` was missing the
+  `h-full` + `mt-auto` pair `CourseCard` already had.
+
+The recurring lesson is the same one 768 taught, twice more: **defects live at the widths nobody
+listed.** 1024 broke because it is where a breakpoint switches on, and 360 broke because the list
+started at 390. `check-overflow.mjs` now runs at 360, 390, 768, 1024 and 1280, and the Playwright
+suite has a Laptop 1024 project beside the iPad Mini one.
 
 ### Phase 9: deploy
 
@@ -231,21 +271,19 @@ three widths and the Playwright suite has an iPad Mini project.
 
 ---
 
-## Where this stopped, and what to do next
+## Where this stands, and what to do next
 
-**Stopped mid-Phase 8b, at the fifth design-review round.** Everything through Phase 8 is complete,
-committed and verified. The work is on `main`; the tree is clean.
+**Phase 8b is complete and the design gate is met.** The design-reviewer scores
+**8.5 / 8.0 / 8.5 / 8.0** on `/`, `/courses`, a course page and `/about`, against a target of 8,
+with no critical or high finding left open. Phase 9 step 1 (the `qa-runner` pass) has been run.
+The work is on `main`.
 
 ### The one thing to know first
 
 **The deployed site is behind the code.** `https://espresso-academy-india.vercel.app` was last
-deployed before the final three rounds of design fixes, so it is missing:
-
-- the header fix (at 768 to 880 the deployed build crushes the logo to 5px wide and prints the
-  wordmark over the navigation)
-- the level-ladder overflow fix (the deployed build pushes the document 17px wide at 768)
-- the FAQ question size fix (14px questions above their own 16px answers)
-- the conditional faculty section, the courses-hub renumbering and the tablet layout fixes
+deployed before four rounds of design fixes. It still has, among other things, the 1024px header
+overflow, the 360px overflow on every route, no primary call to action between 768 and 1023, the
+unpadded skip link, and a certificate cell that reads `Certificate: SCA`.
 
 **Redeploy before showing anyone.** From the repo root:
 
@@ -262,18 +300,11 @@ node scripts/preview-screens.mjs
 
 ### Immediate next steps, in order
 
-1. **Redeploy** (above). Nothing else in this list is blocking.
-2. **Finish the fifth design-review round.** A `design-reviewer` subagent was mid-analysis when
-   work stopped; its verdict was never received. Re-run it against a rebuilt local server on
-   port 3000, reviewing `/`, `/courses`, `/courses/sca-barista-skills-foundation` and `/about` at
-   390, 768 and 1280. Round four scored 6.5 / 6.0 / 6.5 / 6.0 across all three widths; every one of
-   its findings has since been applied, but **the resulting scores are unverified**. The phase
-   target is 8/10 on every page. Treat the current scores as unknown, not as passing.
-3. **Run the `qa-runner` subagent.** This is Phase 9 step 1 and was never run. Everything it covers
-   has been run by hand and passes, so it is a confirmation pass rather than expected to find
-   anything.
-4. **Write `docs/CLIENT-REVIEW.md`'s covering note** and send it with the URL. The file is written;
-   it just needs the redeployed URL confirmed at the top.
+1. **Redeploy** (above). This is the only blocking item left.
+2. **Re-verify on the deployment**, not just locally: `node scripts/check-overflow.mjs <url>`,
+   `check-brand-contrast.mjs <url>`, `check-target-size.mjs <url>`.
+3. **Confirm the URL at the top of `docs/CLIENT-REVIEW.md`** and send it. The file is otherwise
+   written and needs no edits.
 
 ### What is verified as of this commit
 
@@ -284,11 +315,32 @@ Run against a local production build (`pnpm build && pnpm start`):
 | `pnpm typecheck` | clean |
 | `pnpm lint` | clean |
 | `pnpm build` | clean, 43 routes generated |
-| `pnpm test:e2e` | **772 passing**, 0 failing, across chromium, webkit, Pixel 7, iPhone 14, iPad Mini |
-| `node scripts/check-overflow.mjs` | no overflow on any route at 390, 768 or 1280 |
+| `pnpm test:e2e` | **932 passing**, 0 failing, across chromium, webkit, Pixel 7, iPhone 14, iPad Mini, Laptop 1024 |
+| `node scripts/check-overflow.mjs` | no overflow on any route at 360, 390, 768, 1024 or 1280 |
 | `node scripts/check-brand-contrast.mjs` | no forbidden colour pair on any route |
 | `node scripts/check-target-size.mjs` | every standalone tap target at least 44px |
-| Lighthouse mobile | Performance 92 to 99, Accessibility 100, Best Practices 100, SEO 100 |
+| design-reviewer | 8.5 / 8.0 / 8.5 / 8.0, gate met on all four pages |
+
+Separately verified by hand during the review rounds: no document overflow on any of the 26 routes
+at 320, 360 or 375; the header carries a visible Enquire pill at every width from 768 up; the three
+trainer cards end level at 768, 1024 and 1280; `/courses` renders zero TBC pills while no fee or
+duration exists.
+
+### Deliberately not done, and why
+
+- **The `/about` gallery is still six placeholder frames**, which is about a fifth of that page's
+  height. The master prompt specifies "a gallery grid of six photo slots", so the count stays until
+  the photography lands rather than being trimmed to look better while empty.
+- **The stacked hero frame is tall between 1024 and 1079** (a 3:2 placeholder across a full-width
+  column). With a real photograph that is a legitimate full-bleed hero, which is what design.md
+  asks for, so it is left alone.
+- **The footer still uses the supplied stacked lockup.** A review round argued its wordmark reads
+  as a smudge at 80px and that the header's mark-plus-Montserrat pairing should be used there too.
+  That is the same brand decision already logged as client item 18a, so it is not taken unilaterally.
+- **`--color-green` is still used for the two form success confirmations.** It was removed from the
+  decorative "Who this is for" ticks, where an unconfirmed hex was acting as a persistent brand
+  accent on every course page. A success tick is transient and semantic, so it stays until item 20
+  is answered.
 
 ### Nothing is half-finished in the code
 
@@ -407,6 +459,9 @@ appears; no code change is needed.
 | The mobile sticky bar waits for the consent choice before appearing | Both are fixed to the bottom of the viewport. The bar carries WhatsApp, Call and Reserve, so it holds back rather than being covered. The banner is dismissed in one tap and never returns. |
 | The course card collapses its four TBC pills into one line while every value is unknown | Four grey pills per card across eight cards made the unknowns the loudest thing on the hub. The full spec row returns the moment any value lands, with no code change. |
 | The `open` level is labelled "Open level", not "All levels" | Two chips in the level filter both read "All levels": the reset and the level itself. Renaming the level removes the collision at its root, and the site already said "open-level courses" elsewhere. |
+| **The twelve-column layout grids switch on at `lg` (1024), and the header and both heroes at a `--breakpoint-nav` token of 1080px** | Twelve columns at 768 gave 200px text columns, a five-column 91px footer and a hero aside floating beside a column twice its height, and it was the root cause of the level-ladder badges rendering outside their cards. The header needs 1064px for the brand, six nav items and two actions inside design.md's 32px gutters, so at `lg` exactly it was 2px wider than the viewport. 1080 is measured, and it is a token in `globals.css` because rule 3 forbids an inline arbitrary value. |
+| The certificate cell on a course page is labelled from the certification's `status`, not a fixed "Certificate" | It read `Certificate: SCA`, and `facts.md` line 45 lists "SCA-certified courses" among the phrases the site must never use: the SCA issues certification itself, on an assessed module, and whether a batch is assessed is unconfirmed. `status: "confirmed"` gives "Certificate" (the IBC genuinely is issued), `"wording-pending"` gives "Programme". No slug is hard-coded and no new content field was invented. |
+| `/courses` renders an empty state instead of the fee table while every fee and duration is null | design.md's states rule is "empty state copy + WhatsApp", and this was the one place the site owed one and did not give it: eight rows of sixteen identical TBC pills, restating the course titles and level badges the card grid above already showed, to prove the point the section description makes in one sentence. The table returns unchanged as soon as one value lands. |
 | The course-page title drops seo.md's `{Course} \| {Level} Barista Course in Bengaluru` pattern | That pattern runs to 73 characters for most of these course names, well past the 50 to 60 ceiling in the same rule. The ceiling wins, because it is what a search result actually displays; the longest variant of the pattern that fits is used. |
 
 ---

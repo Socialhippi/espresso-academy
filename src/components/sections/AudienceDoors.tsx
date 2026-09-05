@@ -54,7 +54,7 @@ export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) 
           description="Pick the one that sounds like you. Each goes straight to the courses that fit."
         />
 
-        <ul className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 md:grid-cols-3">
+        <ul className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 lg:grid-cols-3">
           {doors.map((door) => (
             <li key={door.href} className="group bg-white">
               <Link href={door.href} className="flex h-full flex-col p-6 md:p-8">

@@ -36,8 +36,8 @@ export function HomeHero({
   return (
     <section className="border-b border-white-2 pt-10 pb-14 md:pt-16 md:pb-24">
       <Container>
-        <div className="grid items-center gap-10 md:grid-cols-12 md:gap-12">
-          <div className="md:col-span-7">
+        <div className="grid items-start gap-10 nav:grid-cols-12 nav:gap-12">
+          <div className="nav:col-span-7">
             {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
             <h1 className="type-display text-black">
               {titleLead}{" "}
@@ -49,7 +49,7 @@ export function HomeHero({
             </div>
           </div>
 
-          <div className="md:col-span-5">
+          <div className="nav:col-span-5">
             {image ? (
               <Image
                 src={image}
@@ -57,7 +57,7 @@ export function HomeHero({
                 width={1200}
                 height={800}
                 priority
-                sizes="(min-width: 768px) 480px, 100vw"
+                sizes="(min-width: 1080px) 480px, 100vw"
                 className="aspect-portrait w-full rounded-sm object-cover md:aspect-photo"
               />
             ) : (
@@ -99,12 +99,12 @@ export function PageHero({
         {above}
         <div
           className={cn(
-            "gap-10 md:gap-12",
-            aside ? "grid md:grid-cols-12" : undefined,
+            "gap-10 nav:gap-12",
+            aside ? "grid nav:grid-cols-12" : undefined,
             above ? "mt-6 md:mt-8" : undefined,
           )}
         >
-          <div className={aside ? "md:col-span-7" : undefined}>
+          <div className={aside ? "nav:col-span-7" : undefined}>
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
             <h1 className={cn("type-h1 text-black", eyebrow && "mt-3")}>{title}</h1>
             {intro && <div className="mt-5 measure type-body text-grey">{intro}</div>}
@@ -114,7 +114,7 @@ export function PageHero({
               </div>
             )}
           </div>
-          {aside && <div className="md:col-span-5">{aside}</div>}
+          {aside && <div className="nav:col-span-5">{aside}</div>}
         </div>
       </Container>
     </section>

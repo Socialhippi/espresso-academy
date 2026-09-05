@@ -85,6 +85,15 @@
   --aspect-wide: 16 / 9;
 }
 
+/* The width at which the full primary navigation fits beside the brand lockup and the two
+   actions. Measured, not guessed: brand 258 + nav 564 + actions 152 is 974px, and with the
+   32px gutters design.md fixes and a 16px gap either side of the nav it needs 1064px. At lg
+   (1024) the actions block ended 2px past the viewport, so the Enquire pill was clipped and
+   the right gutter was gone. A token rather than an inline arbitrary value, per rule 3. */
+@theme {
+  --breakpoint-nav: 1080px;
+}
+
 /* ---------------------------------------------------------------------------
    Font families. `next/font/local` (src/lib/fonts.ts) self-hosts the same two
    typefaces the tokens name and exposes them as variables, so the token intent

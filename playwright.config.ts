@@ -35,6 +35,11 @@ export default defineConfig({
        found a crushed header and a 17px document overflow living there while 390 and 1280 were
        clean the whole time. */
     { name: "iPad Mini", use: { ...devices["iPad Mini"] } },
+    /* 1024 is exactly where the desktop grids and the header nav switch on, and it went the same
+       way: the header row measured 1026px against the viewport, clipping the primary call to
+       action on every route, while 390, 768 and 1280 stayed clean. A breakpoint's own value is
+       the width worth testing, not the comfortable middle of the range above it. */
+    { name: "Laptop 1024", use: { ...devices["Desktop Chrome"], viewport: { width: 1024, height: 800 } } },
   ],
 
   webServer: {

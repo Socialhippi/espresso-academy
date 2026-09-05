@@ -43,13 +43,13 @@ export function ProofStrip({ className }: ProofStripProps) {
           What the academy is
         </h2>
         {/* The fifth item spans both columns on mobile so it does not orphan in a half row. */}
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-5 md:gap-8">
+        <ul className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-5 lg:gap-8">
           {items.map((item, index) => (
             <li
               key={item.label}
               className={cn(
                 "border-t border-white-2 pt-4",
-                index === items.length - 1 && items.length % 2 === 1 && "col-span-2 md:col-span-1",
+                index === items.length - 1 && items.length % 2 === 1 && "col-span-2 lg:col-span-1",
               )}
             >
               <p

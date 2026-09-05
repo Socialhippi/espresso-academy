@@ -106,41 +106,37 @@ export default function AboutPage() {
 
       <section className="section-y" aria-labelledby="method-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
-              <SectionHeading
-                number="01"
-                eyebrow="The set-up"
-                title="How the academy is put together"
-                id="method-heading"
-              />
-            </div>
-            {/* A three-column band, not a stack of numbered rows: /courses uses the row form for
-                its how-to-choose section, and repeating a composition across pages is the same
-                template tell as repeating a component. */}
-            <div className="md:col-span-8">
-              {/* lg, not md: three columns inside an 8-of-12 span give each paragraph about ten characters
-                  a line at 768. */}
-              <ol className="grid gap-px border border-white-2 bg-white-2 lg:grid-cols-3">
-                {method.map((step) => (
-                  <li key={step.number} className="bg-white p-6">
-                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
-                      {step.number}
-                    </span>
-                    <h3 className="mt-3 type-h3 text-black">{step.title}</h3>
-                    <p className="mt-3 type-body text-grey">{step.body}</p>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
+          {/* The heading runs above the band rather than beside it, and the band runs the full
+              twelve columns. Inside an 8-of-12 span these three columns were 230px wide, about
+              21 characters a line at 17px, which is a newspaper column and not body copy. Putting
+              the heading on its own line also breaks the 4/8 split this page uses twice more. */}
+          <SectionHeading
+            number="01"
+            eyebrow="The set-up"
+            title="How the academy is put together"
+            id="method-heading"
+          />
+          {/* A three-column band, not a stack of numbered rows: /courses uses the row form for
+              its how-to-choose section, and repeating a composition across pages is the same
+              template tell as repeating a component. */}
+          <ol className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 lg:grid-cols-3">
+            {method.map((step) => (
+              <li key={step.number} className="bg-white p-6 lg:p-8">
+                <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">
+                  {step.number}
+                </span>
+                <h3 className="mt-3 type-h3 text-black">{step.title}</h3>
+                <p className="mt-3 type-body text-grey">{step.body}</p>
+              </li>
+            ))}
+          </ol>
         </Container>
       </section>
 
       <section className="section-y-sm bg-white-3" aria-labelledby="campus-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               <SectionHeading
                 number="02"
                 eyebrow="Campus"
@@ -175,7 +171,7 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               <Placeholder slot="contact-campus" aspect="photo" />
             </div>
           </div>
@@ -237,8 +233,8 @@ export default function AboutPage() {
       {/* The honesty paragraph, required by .claude/rules/content.md wherever certificates come up. */}
       <section className="section-y" aria-labelledby="honesty-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="05"
                 eyebrow="Straight answer"
@@ -246,7 +242,7 @@ export default function AboutPage() {
                 id="honesty-heading"
               />
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <p className="measure type-h3 text-black">
                 A certificate helps you get an interview. Your skills get you the job.
               </p>

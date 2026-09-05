@@ -16,7 +16,14 @@ const paths = [
 ];
 
 /** The three widths .claude/rules/design.md names: phone, tablet, desktop. */
-const WIDTHS = [390, 768, 1280];
+/* 1024 is in here for the same reason 768 is. The header's nav returns at lg, and at exactly lg
+   the row measured 1026px against a 1024px viewport: the Enquire pill was clipped and the right
+   gutter was gone, on every route. 390, 768 and 1280 were all clean while that was true.
+
+   360 is here for the third instance of the same lesson: the brand lockup pushed every route
+   9px sideways at 360, the commonest Android width in this market, while 375 and 390 were clean.
+   The pattern is that defects live at the widths nobody listed, so the list is the guard. */
+const WIDTHS = [360, 390, 768, 1024, 1280];
 
 const browser = await chromium.launch();
 let failures = 0;

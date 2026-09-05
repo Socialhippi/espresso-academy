@@ -27,8 +27,8 @@ export function StoryGrid({ className, number = "05" }: StoryGridProps) {
         />
 
         {stories.length === 0 ? (
-          <div className="mt-10 grid gap-8 border border-white-2 p-6 md:mt-14 md:grid-cols-12 md:p-10">
-            <div className="md:col-span-7">
+          <div className="mt-10 grid gap-8 border border-white-2 p-6 md:mt-14 md:p-10 lg:grid-cols-12">
+            <div className="lg:col-span-7">
               <p className="type-h3 text-black">No student stories are published yet</p>
               <p className="mt-3 measure type-body text-grey">
                 A story appears here only when the student has read it and agreed to it. Until
@@ -36,17 +36,20 @@ export function StoryGrid({ className, number = "05" }: StoryGridProps) {
                 a past student before you enrol, ask the academy.
               </p>
             </div>
-            <div className="flex items-start md:col-span-5 md:justify-end">
+            {/* min-w-0 and a shorter label: the button carries `shrink-0`, so at 360 the old
+                29-character label made a 321px pill in a 272px column and pushed the homepage
+                6px sideways. The paragraph above already says "past student". */}
+            <div className="flex min-w-0 items-start lg:col-span-5 lg:justify-end">
               <WhatsAppButton
                 message="Hi, I would like to speak to a past student before I enrol. Is that possible?"
                 event="whatsapp_click_stories"
               >
-                Ask to speak to a past student
+                Speak to a student
               </WhatsAppButton>
             </div>
           </div>
         ) : (
-          <ul className="mt-10 grid gap-8 md:mt-14 md:grid-cols-3">
+          <ul className="mt-10 grid gap-8 md:mt-14 md:grid-cols-2 lg:grid-cols-3">
             {stories.map((story) => (
               <li key={story.id} className="border border-white-2 p-6">
                 <blockquote className="type-body text-black">

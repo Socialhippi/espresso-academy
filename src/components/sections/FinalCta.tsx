@@ -33,10 +33,10 @@ export function FinalCta({
   eyebrow = "Next step",
 }: FinalCtaProps) {
   return (
-    <section className={cn("dark-wash section-y", className)} aria-labelledby="final-cta-heading">
+    <section className={cn("dark-wash pt-16 pb-10 md:pt-32 md:pb-16", className)} aria-labelledby="final-cta-heading">
       <Container>
-        <div className="grid gap-10 hairline-on-dark pt-6 md:grid-cols-12 md:gap-12">
-          <div className="md:col-span-7">
+        <div className="grid gap-10 hairline-on-dark pt-6 lg:grid-cols-12 lg:gap-12">
+          <div className="lg:col-span-7">
             <p className="eyebrow eyebrow-on-dark">
               <span className="type-numeral text-h3-lg leading-none" aria-hidden="true">
                 {number}
@@ -47,7 +47,7 @@ export function FinalCta({
               {title}
             </h2>
           </div>
-          <div className="md:col-span-5">
+          <div className="lg:col-span-5">
             <div className="measure type-body text-grey-2">{body}</div>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
               <ButtonLink href={href} variant="primary" data-event="enquire_click_final">

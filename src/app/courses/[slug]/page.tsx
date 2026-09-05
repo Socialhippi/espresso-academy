@@ -112,8 +112,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             ]}
           />
 
-          <div className="mt-6 grid gap-10 md:mt-8 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-7">
+          <div className="mt-6 grid gap-10 md:mt-8 nav:grid-cols-12 nav:gap-12">
+            <div className="nav:col-span-7">
               <LevelBadge level={course.level} />
               <h1 className="mt-4 type-h1 text-black">{course.title}</h1>
               <p className="mt-5 measure type-body text-grey">{course.outcome}</p>
@@ -129,7 +129,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               </div>
             </div>
 
-            <div className="md:col-span-5">
+            <div className="nav:col-span-5">
               <Placeholder slot={`course-${course.slug}`} aspect="photo" />
             </div>
           </div>
@@ -148,7 +148,10 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               <ul className="mt-5 flex flex-col gap-4">
                 {course.forWhom.map((item) => (
                   <li key={item} className="flex gap-3 type-body text-black">
-                    <Check className="mt-1 size-5 shrink-0 text-green" aria-hidden="true" />
+                    {/* Black, not green: --color-green is an unconfirmed interim hex scoped to the
+                        "seats available" state (STATUS client item 20), and decorative ticks on
+                        every course page would make a placeholder colour a brand accent. */}
+                    <Check className="mt-1 size-5 shrink-0 text-black" aria-hidden="true" />
                     {item}
                   </li>
                 ))}
@@ -171,8 +174,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <section className="section-y bg-white-3" aria-labelledby="learn-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               <SectionHeading
                 number={next()}
                 eyebrow="Syllabus"
@@ -202,28 +205,18 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                     piece of paper.
                   </p>
                 )}
-                <p className="mt-6 type-label text-grey">What the fee includes</p>
-                <div className="mt-3">
-                  {course.includes && course.includes.length > 0 ? (
-                    <ul className="flex flex-col gap-2 type-body text-black">
-                      {course.includes.map((item) => (
-                        <li key={item}>{item}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    /* TODO(client): course.includes. Not published for any course. */
-                    <TbcPill />
-                  )}
-                </div>
+                {/* "What the fee includes" is not repeated here: FeeBlock states it beside the
+                    fee itself, which is where a reader looks for it, and this card was printing
+                    the same label and the same TBC pill a second time on the same page. */}
               </div>
             </div>
 
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               {course.modules && course.modules.length > 0 ? (
                 <ol className="divide-y divide-white-2 border-y border-white-2">
                   {course.modules.map((module, index) => (
                     <li key={module} className="flex gap-6 py-5">
-                      <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                      <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">
                         {String(index + 1).padStart(2, "0")}
                       </span>
                       <span className="type-body text-black">{module}</span>
@@ -312,20 +305,24 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </section>
       )}
 
-      <section className="section-y bg-white-3" aria-labelledby="dates-heading">
+      <section className="section-y" aria-labelledby="dates-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-7">
-              <SectionHeading
-                number={next()}
-                eyebrow="Dates"
-                title="Next batches"
-                id="dates-heading"
-              />
-              <BatchTable course={course} className="mt-8" />
+          {/* The heading runs above both columns. Inside the left one it pushed the batch table
+              76px below the fee block beside it, and the md:mt-16 that used to pull the fee block
+              down to compensate was a guess at the heading's height rather than a measurement.
+              Now both start on the same line and neither has to know about the other. */}
+          <SectionHeading
+            number={next()}
+            eyebrow="Dates"
+            title="Next batches"
+            id="dates-heading"
+          />
+          <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-7">
+              <BatchTable course={course} />
             </div>
-            <div className="md:col-span-5">
-              <FeeBlock course={course} className="md:mt-16" />
+            <div className="lg:col-span-5">
+              <FeeBlock course={course} />
             </div>
           </div>
         </Container>
@@ -333,8 +330,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <section className="section-y-sm" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number={next()}
                 eyebrow="Ladder"
@@ -364,7 +361,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 </p>
               )}
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <LevelLadder current={course.level} />
             </div>
           </div>

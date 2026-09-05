@@ -15,7 +15,10 @@ interface TrainerCardProps {
 /** One trainer: 4:5 photo slot, name, role, and the credentials that are on record. */
 export function TrainerCard({ trainer, className, priority = false }: TrainerCardProps) {
   return (
-    <article className={cn("group", className)}>
+    /* h-full so the article fills its grid row and the Link's own h-full has something to resolve
+       against: without it the three cards ended 21px apart wherever a credential wrapped, which
+       is every width from 768 to 1079. CourseCard already pairs `group h-full` with `mt-auto`. */
+    <article className={cn("group h-full", className)}>
       <Link href={`/trainers/${trainer.slug}`} className="flex h-full flex-col">
         {trainer.image ? (
           <Image
@@ -48,7 +51,7 @@ export function TrainerCard({ trainer, className, priority = false }: TrainerCar
           ))}
         </ul>
 
-        <span className="mt-5 flex items-center gap-2 type-label text-red">
+        <span className="mt-auto flex items-center gap-2 pt-5 type-label text-red">
           Read the profile
           <ArrowRight
             className="size-4 transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
@@ -67,7 +70,7 @@ interface TrainerGridProps {
 
 export function TrainerGrid({ trainers, className }: TrainerGridProps) {
   return (
-    <ul className={cn("grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-3", className)}>
+    <ul className={cn("grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8", className)}>
       {trainers.map((trainer, index) => (
         <li key={trainer.slug}>
           <TrainerCard trainer={trainer} priority={index === 0} />

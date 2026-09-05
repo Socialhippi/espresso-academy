@@ -20,10 +20,11 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   return (
-    <footer className="bg-black text-white">
+    <footer className="border-t border-black-2 bg-black text-white">
       <Container className="py-12 md:py-20">
-        <div className="grid gap-10 md:grid-cols-12 md:gap-8">
-          <div className="md:col-span-3">
+        {/* Two columns at 768: twelve there gave five 91px columns and wrapped every heading. */}
+        <div className="grid gap-10 md:grid-cols-2 md:gap-8 lg:grid-cols-12">
+          <div className="md:col-span-2 lg:col-span-3">
             <Link href="/" className="-m-2 inline-block p-2" aria-label="Espresso Academy India, home">
               <Logo on="black" alt="" className="h-20 md:h-24" />
             </Link>
@@ -33,11 +34,11 @@ export function Footer() {
             </p>
           </div>
 
-          <nav aria-labelledby="footer-courses" className="md:col-span-3">
+          <nav aria-labelledby="footer-courses" className="lg:col-span-3">
             <h2 id="footer-courses" className="type-label text-white">
               Courses by level
             </h2>
-            <ul className="mt-2 flex flex-col type-small">
+            <ul className="mt-2 flex flex-col gap-1 type-small">
               {courses.map((course) => (
                 <li key={course.slug}>
                   <Link href={`/courses/${course.slug}`} className={footerLinkClass}>
@@ -48,11 +49,11 @@ export function Footer() {
             </ul>
           </nav>
 
-          <nav aria-labelledby="footer-learn" className="md:col-span-2">
+          <nav aria-labelledby="footer-learn" className="lg:col-span-2">
             <h2 id="footer-learn" className="type-label text-white">
               Learn more
             </h2>
-            <ul className="mt-2 flex flex-col type-small">
+            <ul className="mt-2 flex flex-col gap-1 type-small">
               {learnMoreNav.map((item) => (
                 <li key={item.href}>
                   <Link href={item.href} className={footerLinkClass}>
@@ -63,9 +64,9 @@ export function Footer() {
             </ul>
           </nav>
 
-          <div className="md:col-span-2">
+          <div className="lg:col-span-2">
             <h2 className="type-label text-white">Certifications</h2>
-            <ul className="mt-2 flex flex-col type-small">
+            <ul className="mt-2 flex flex-col gap-1 type-small">
               {certifications.map((certification) => (
                 <li key={certification.slug}>
                   <Link href={`/certifications/${certification.slug}`} className={footerLinkClass}>
@@ -76,7 +77,7 @@ export function Footer() {
             </ul>
           </div>
 
-          <div className="md:col-span-2">
+          <div className="lg:col-span-2">
             <h2 className="type-label text-white">Contact</h2>
             <address className="mt-2 flex flex-col gap-1 type-small text-grey-2 not-italic">
               <span className="py-2">

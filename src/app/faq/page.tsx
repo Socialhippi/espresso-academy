@@ -44,8 +44,8 @@ export default function FaqPage() {
           <h2 id="faq-heading" className="sr-only">
             Questions grouped by topic
           </h2>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <nav aria-label="Question topics" className="md:col-span-3">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <nav aria-label="Question topics" className="lg:col-span-3">
               <div className="md:sticky md:top-28">
                 <p className="type-label text-grey">Topics</p>
                 <ul className="mt-4 flex flex-col">
@@ -63,7 +63,7 @@ export default function FaqPage() {
               </div>
             </nav>
 
-            <div className="md:col-span-9">
+            <div className="lg:col-span-9">
               {categories.map((category, index) => {
                 const items = getFaqs(category);
                 return (

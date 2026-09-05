@@ -128,8 +128,8 @@ export default function CertificationsPage() {
       {/* The honesty clause. .claude/rules/content.md requires it on every certification page. */}
       <section className="section-y-sm bg-white-3" aria-labelledby="honesty-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               <SectionHeading
                 number="02"
                 eyebrow="Straight answer"
@@ -137,7 +137,7 @@ export default function CertificationsPage() {
                 id="honesty-heading"
               />
             </div>
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               <p className="measure type-h3 text-black">
                 A certificate helps you get an interview. Your skills get you the job.
               </p>
@@ -194,8 +194,8 @@ export default function CertificationsPage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="04"
                 eyebrow="Levels"
@@ -204,7 +204,7 @@ export default function CertificationsPage() {
                 description="Neither ladder depends on the other. The IBC runs at Junior and Advanced; the SCA-aligned training runs at Foundation, Intermediate and Professional."
               />
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <LevelLadder />
             </div>
           </div>
@@ -213,8 +213,8 @@ export default function CertificationsPage() {
 
       <section className="section-y-sm" aria-labelledby="certs-faq-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="05"
                 eyebrow="Questions"
@@ -232,7 +232,7 @@ export default function CertificationsPage() {
                 </p>
               )}
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <FaqAccordion items={faqs} />
             </div>
           </div>

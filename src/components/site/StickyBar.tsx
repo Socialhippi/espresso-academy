@@ -18,6 +18,8 @@ export interface CourseBarEntry {
   title: string;
   feeLabel: string;
   nextDateLabel: string;
+  /** False while both the fee and the next date are unknown, which hides the strip entirely. */
+  hasFacts: boolean;
 }
 
 interface StickyBarProps {
@@ -83,7 +85,7 @@ export function StickyBar({ courseBar }: StickyBarProps) {
       aria-hidden={!visible}
       inert={!visible}
     >
-      {course && (
+      {course?.hasFacts && (
         <p className="flex items-center justify-between gap-3 border-t border-white-2 bg-white-3 px-5 py-2 type-small text-grey">
           <span className="truncate">
             <span className="text-black">{course.feeLabel}</span>

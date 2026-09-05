@@ -52,6 +52,9 @@ function buildCourseBar(): Record<string, CourseBarEntry> {
       title: course.title,
       feeLabel: formatFee(course.feeInclGst),
       nextDateLabel: next?.startDate ? formatDate(next.startDate) : "TBC",
+      /* Nothing to say is not worth a line. While both are null the bar would pin
+         "Fee: TBC / Next batch: TBC" to the bottom of every course page for the whole scroll. */
+      hasFacts: course.feeInclGst !== null || Boolean(next?.startDate),
     };
   }
   return entries;

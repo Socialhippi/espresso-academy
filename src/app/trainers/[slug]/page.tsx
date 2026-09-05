@@ -66,8 +66,8 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
             ]}
           />
 
-          <div className="mt-6 grid gap-10 md:mt-8 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="mt-6 grid gap-10 md:mt-8 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               {trainer.image ? (
                 <Image
                   src={trainer.image}
@@ -83,7 +83,7 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
               )}
             </div>
 
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               <p className="eyebrow">Trainer</p>
               <h1 className="mt-3 type-h1 text-black">{trainer.name}</h1>
               {/* TODO(client): trainers[].role. No job title is published for any trainer. */}
@@ -129,8 +129,8 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
 
       <section className="section-y-sm bg-white-3" aria-labelledby="philosophy-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="01"
                 eyebrow="Approach"
@@ -138,7 +138,7 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
                 id="philosophy-heading"
               />
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               {trainer.philosophy ? (
                 <blockquote className="measure type-h3 text-black">
                   <p>{trainer.philosophy}</p>

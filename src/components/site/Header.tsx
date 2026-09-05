@@ -29,21 +29,30 @@ export function Header() {
         */}
         <Link
           href="/"
-          className="-m-1.5 flex shrink-0 items-center gap-2 p-1.5 md:gap-3"
+          /* shrink-0 only from sm. Below that the row cannot fit on one line at all, and letting
+             the name wrap to two is better than pushing the document sideways. The mark carries
+             its own shrink-0, so it never squashes against its 682:1000 ratio. */
+          className="-m-1.5 flex min-w-0 items-center gap-2 p-1.5 sm:shrink-0 md:gap-3"
           aria-label="Espresso Academy India, home"
         >
           <LogoMark className="h-8 w-auto shrink-0 md:h-10" sizes="(min-width: 768px) 40px, 32px" priority />
           {/* Shown at every width. Hiding it on mobile would leave the mark alone, which is the
-              exact legibility problem this composition exists to solve. */}
-          <span className="text-body font-medium tracking-wide whitespace-nowrap text-black">
+              exact legibility problem this composition exists to solve.
+
+              14px below md, because at 16px the row measured 369px and pushed the document 9px
+              sideways on every route at 360, the commonest Android width in this site's market.
+              390 and 375 were both clean, which is why it went unseen. */}
+          <span className="text-small font-medium tracking-wide text-black max-sm:text-balance sm:whitespace-nowrap md:text-body">
             Espresso Academy India
           </span>
         </Link>
 
-        {/* lg, not md: at 768 the six nav items plus the two actions leave the brand lockup nothing to
-            sit in, and it collapses on top of the navigation. */}
-        <nav aria-label="Primary" className="hidden lg:block">
-          <ul className="flex items-center gap-6 lg:gap-8">
+        {/* nav (1080), not md and not lg: at 768 the six nav items plus the two actions leave the
+            brand lockup nothing to sit in and it collapses on top of the navigation, and at lg
+            (1024) the row is 2px wider than the viewport, which clips the Enquire pill and eats
+            the right gutter. 1080 is the first width where the whole row fits with its gutters. */}
+        <nav aria-label="Primary" className="hidden nav:block">
+          <ul className="flex items-center gap-6 nav:gap-8">
             {primaryNav.map((item) => (
               <li key={item.href}>
                 <NavLink href={item.href}>{item.label}</NavLink>
@@ -58,12 +67,16 @@ export function Header() {
             href="/enquire"
             variant="primary"
             size="sm"
-            className="hidden lg:inline-flex"
+            /* md, not nav: the sticky bottom bar stops at md, so from 768 up the header carries
+               the only persistent primary call to action. Moving this to lg alongside the nav
+               left 768 to 1023 with no visible Enquire anywhere, only a WhatsApp icon and a
+               burger. The pill on its own is 101px and fits at 768 with room to spare. */
+            className="hidden md:inline-flex"
             data-event="enquire_click_header"
           >
             Enquire
           </ButtonLink>
-          <div className="lg:hidden">
+          <div className="nav:hidden">
             <MobileNav />
           </div>
         </div>

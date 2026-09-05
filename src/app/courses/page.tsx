@@ -91,6 +91,14 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
   const faqs = getFaqsByCategories(["courses", "fees"]);
   const certifications = getCertifications();
 
+  /* The fee section renders its list only when there is something in it to read. */
+  const anyFeeOrDuration = allCourses.some(
+    (course) =>
+      course.feeInclGst !== null ||
+      course.durationDays !== null ||
+      course.durationHours !== null,
+  );
+
   const filterSummary = [
     activeLevel ? levelBadge[activeLevel].label : null,
     activeArea ? skillAreaLabel[activeArea] : null,
@@ -137,8 +145,12 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             </ButtonLink>
           </>
         }
-        /* Portrait, not 3:2: a 315px frame against a 530px text column leaves a void beneath it. */
-        aside={<Placeholder slot="courses-hub" aspect="portrait" priority />}
+        /* Portrait while it sits above the words, 3:2 once it sits beside them: a 4:5 frame in the
+           five-column aside runs 588px tall at 1280 and overshoots the copy by ~190px, which is the
+           same void it was meant to avoid, moved to the other side. Matches the homepage hero. */
+        aside={
+          <Placeholder slot="courses-hub" aspect="portrait" priority className="md:aspect-photo" />
+        }
       />
 
       <section className="section-y-sm" aria-labelledby="course-list-heading">
@@ -198,22 +210,22 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       */}
       <section className="bg-white-3 section-y" aria-labelledby="choose-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="02"
                 eyebrow="How to choose"
                 title="Which one is yours"
                 id="choose-heading"
                 description="Three routes through the same eight courses. Pick the one that sounds like where you are now, not where you want to end up."
-                className="md:sticky md:top-28"
+                className="lg:sticky lg:top-28"
               />
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <ol className="divide-y divide-white-2 border-y border-white-2">
                 {howToChoose.map((route, index) => (
                   <li key={route.href} className="flex gap-6 py-6 md:gap-8">
-                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                    <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span>
@@ -251,25 +263,90 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
 
       <section className="bg-white-3 section-y-sm" aria-labelledby="fees-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="04"
                 eyebrow="Fees"
                 title="What each course costs"
                 id="fees-heading"
                 description="Stated incl. GST, always, and confirmed before you pay. Nothing here is published yet."
-                className="md:sticky md:top-28"
+                className="lg:sticky lg:top-28"
               />
             </div>
             {/* min-w-0: a grid item defaults to min-width:auto, which lets it grow to its content
                 and takes the scroll container inside it along, so the table pushed the whole
                 document sideways at 390. */}
-            <div className="min-w-0 md:col-span-8">
-              <p className="mt-4 type-small text-grey xl:hidden">
-                Scroll the table sideways to reach the fee column.
-              </p>
-              <div className="table-scroll mt-4 md:mt-8">
+            <div className="min-w-0 lg:col-span-8">
+              {!anyFeeOrDuration ? (
+                /*
+                 * design.md's states rule is "empty state copy + WhatsApp", and this is the one
+                 * place the site owed one and did not give it. With every cell null the list was
+                 * eight rows of two identical grey pills, roughly 1300px at 390, restating the
+                 * course titles and level badges the card grid above already shows in full, to
+                 * prove the point the section description makes in one sentence. It comes back
+                 * whole, with no code change, as soon as one fee or one duration lands.
+                 */
+                <div className="mt-4 border border-white-2 bg-white p-6 md:p-8">
+                  <p className="type-h3 text-black">No fee is published yet</p>
+                  <p className="mt-3 measure type-body text-grey">
+                    Not for any of the {allCourses.length} courses. Rather than print a number the
+                    academy has not confirmed, this page shows nothing. Ask on WhatsApp and you
+                    will get the current fee for the course you want, incl. GST.
+                  </p>
+                  <div className="mt-6">
+                    <WhatsAppButton event="whatsapp_click_fees" />
+                  </div>
+                </div>
+              ) : (
+                <>
+              {/*
+                Below md the table's four columns do not fit: Course and Level filled a 390px
+                screen and Duration and Fee, the two that carry the section's whole point, sat
+                entirely behind a sideways scroll. Stacked rows there, the table from md up where
+                it fits without scrolling. Same data, same order, both from allCourses.
+              */}
+              <ul className="mt-4 divide-y divide-white-2 border-y border-white-2 md:hidden">
+                {allCourses.map((course) => (
+                  <li key={course.slug} className="py-4">
+                    <div className="flex items-start justify-between gap-4">
+                      <Link
+                        href={`/courses/${course.slug}`}
+                        className="inline-flex min-h-11 items-center type-body font-medium text-black underline decoration-white-2 underline-offset-4"
+                      >
+                        {course.title}
+                      </Link>
+                      <LevelBadge level={course.level} className="mt-3 shrink-0" />
+                    </div>
+                    <dl className="mt-2 flex flex-wrap gap-x-8 gap-y-2">
+                      <div className="flex items-center gap-2">
+                        <dt className="type-label text-grey">Duration</dt>
+                        <dd className="type-small text-grey">
+                          {course.durationDays === null && course.durationHours === null ? (
+                            <TbcPill />
+                          ) : (
+                            formatDuration(course.durationDays, course.durationHours)
+                          )}
+                        </dd>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <dt className="type-label text-grey">Fee incl. GST</dt>
+                        <dd>
+                          {course.feeInclGst === null ? (
+                            <TbcPill />
+                          ) : (
+                            <span className="type-numeral text-h3-lg text-black">
+                              {formatFeeAmount(course.feeInclGst)}
+                            </span>
+                          )}
+                        </dd>
+                      </div>
+                    </dl>
+                  </li>
+                ))}
+              </ul>
+
+              <div className="table-scroll mt-4 max-md:hidden md:mt-8">
                 <table className="w-full min-w-lg border-collapse text-left">
                   <caption className="sr-only">
                     Fee, level and duration for every course at the Bengaluru campus
@@ -327,6 +404,8 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                   </tbody>
                 </table>
               </div>
+                </>
+              )}
               {/* TODO(client): no fee is published for any course. Every cell is a TBC pill. */}
               <p className="mt-4 measure type-small text-grey">
                 Whether a certification body charges its own fee on top of the course fee is not
@@ -367,19 +446,17 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
 
       <section className="section-y-sm" aria-labelledby="courses-faq-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
-              <SectionHeading
-                number="06"
-                eyebrow="Questions"
-                title="Courses and fees"
-                id="courses-faq-heading"
-              />
-            </div>
-            <div className="md:col-span-8">
-              <FaqAccordion items={faqs} />
-            </div>
-          </div>
+          {/* Full width, heading above. Sections 02 and 04 are both heading-left / content-right,
+              and a third one here with nothing in the left column made one composition carry three
+              of this page's six bands. The answers carry their own measure, so the rows can run
+              the full width. */}
+          <SectionHeading
+            number="06"
+            eyebrow="Questions"
+            title="Courses and fees"
+            id="courses-faq-heading"
+          />
+          <FaqAccordion items={faqs} className="mt-10 max-w-4xl md:mt-14" />
         </Container>
       </section>
 

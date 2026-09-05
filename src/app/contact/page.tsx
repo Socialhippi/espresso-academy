@@ -66,8 +66,8 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
 
       <section className="section-y-sm" aria-labelledby="details-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               <SectionHeading
                 number="01"
                 eyebrow="Campus"
@@ -164,7 +164,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
               </dl>
             </div>
 
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               {/*
                 A static map image is not available and an iframe embed is not used, so this is a
                 branded panel with the address set in type. It is a graphic, not a photograph, so
@@ -220,8 +220,8 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         aria-labelledby="cafe-heading"
       >
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-5">
               <SectionHeading
                 number="02"
                 eyebrow={cafeTopic ? "Cafe training" : "Get in touch"}
@@ -241,7 +241,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 </p>
               )}
             </div>
-            <div className="md:col-span-7">
+            <div className="lg:col-span-7">
               <EnquiryForm
                 variant={cafeTopic ? "cafe" : "student"}
                 courses={courseOptions}

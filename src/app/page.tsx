@@ -75,8 +75,8 @@ export default function HomePage() {
       {/* Asymmetric: the explanation holds the left, the ladder the right. */}
       <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="03"
                 eyebrow="Levels"
@@ -90,7 +90,7 @@ export default function HomePage() {
                 </ButtonLink>
               </p>
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <LevelLadder />
             </div>
           </div>
@@ -119,8 +119,8 @@ export default function HomePage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="faq-heading">
         <Container>
-          <div className="grid gap-10 md:grid-cols-12 md:gap-12">
-            <div className="md:col-span-4">
+          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+            <div className="lg:col-span-4">
               <SectionHeading
                 number="06"
                 eyebrow="Questions"
@@ -133,7 +133,7 @@ export default function HomePage() {
                 </ButtonLink>
               </p>
             </div>
-            <div className="md:col-span-8">
+            <div className="lg:col-span-8">
               <FaqAccordion items={faqs} />
             </div>
           </div>
