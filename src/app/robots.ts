@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl, siteUrl } from "@/lib/env";
+import { isIndexable } from "@/lib/public-env";
 
 /**
  * Everything is allowed, including the AI crawlers: this site wants to be quoted by an assistant
@@ -27,6 +28,12 @@ const aiCrawlers = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
+  // While the draft is public for client review, nothing is crawlable. The X-Robots-Tag header in
+  // next.config.ts covers the case where a crawler reached a URL without reading robots.txt.
+  if (!isIndexable) {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
+
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },

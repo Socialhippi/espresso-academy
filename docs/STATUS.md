@@ -277,6 +277,31 @@ suite has a Laptop 1024 project beside the iPad Mini one.
 
 ---
 
+## Build 2
+
+Turning the reviewed draft into the product: Sanity for content and operations, Razorpay for
+payment, a lead pipeline that writes to more than one place, analytics, and the security and CI to
+carry it. Content stays parked; every TBC state is untouched. Plan: `docs/plans/build-2.md`.
+
+### Phase 0: housekeeping — done
+
+- Working tree clean, `HEAD` at `789328d`, which is what the public alias serves. `789328d` changed
+  only `docs/`, so the deployed code is `af3011d`'s, the same code `main` carries. Nothing stale is
+  public and no redeploy was needed to make that true.
+- **`X-Robots-Tag: noindex, nofollow` was specified but had never been wired.** `NEXT_PUBLIC_INDEXABLE`
+  existed in `.env.local` and was read by nothing, so the public review alias was fully crawlable.
+  It is now read in two places: `next.config.ts` sends the header on every response, and
+  `robots.ts` returns a blanket `Disallow: /`, while the variable is anything but `"true"`.
+  Verified against a production build on `/`, `/courses` and `/sitemap.xml`.
+- `CLAUDE.md` "Stack" now names every integration and what each one degrades to. Non-negotiable 11
+  (the server reads the fee from Sanity; the browser is never trusted for an amount) and 12 (every
+  webhook is signature-verified and idempotent) added.
+- `docs/plans/build-2.md` written: data model, API surface, env matrix, test plan, order of work.
+
+Gate: typecheck, lint and build clean; `pnpm test:e2e` 932 passing.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores

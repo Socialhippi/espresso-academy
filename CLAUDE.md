@@ -16,9 +16,21 @@ those fields empty, showing a visible "TBC" state, never a fake value.
 
 ## Stack (fixed)
 Next.js 16 App Router, TypeScript strict, Tailwind v4, shadcn/ui (Base UI default) for primitives
-only, Motion for the few animations, lucide-react icons, Resend for the enquiry email (env key;
-falls back to a WhatsApp handoff when the key is absent). pnpm. Node 22. No CMS in this phase:
-content lives in content/data.ts with a shape that maps 1:1 to a future Sanity schema.
+only, Motion for the few animations, lucide-react icons. pnpm. Node 22.
+
+Integrations, each behind an env key and each degrading to a logged fallback when the key is absent:
+
+- **Sanity** — content, bookings and enquiries. The Studio lives in `sanity/` and mounts at
+  `/studio`. `content/data.ts` is the seed of record, not a runtime source; `src/lib/content.ts`
+  reads GROQ.
+- **Razorpay Checkout** — payments, test mode until launch. Adapter behind
+  `src/lib/payments/provider.ts` so a second gateway can be added without touching a route.
+- **Resend** — enquiry, auto-reply and booking-confirmation email. Without a key the enquiry form
+  hands off to WhatsApp and the booking still completes.
+- **Google Sheets** — lead mirror via a service account. Optional; a failure never fails a lead.
+- **GTM / GA4** — behind consent mode v2, loaded lazily.
+- **Meta Pixel + Conversions API** — browser and server, sharing one `event_id` for deduplication.
+- **Cloudflare Turnstile** — on every public write route.
 
 ## Commands
 pnpm dev            # http://localhost:3000
@@ -37,6 +49,8 @@ pnpm test:e2e       # playwright smoke (added in Phase 6 of the master prompt)
 8. No AI-generated people, campus or coffee imagery. Placeholders are branded geometric SVGs labelled "Photo: <slot>".
 9. Do not edit src/components/ui/* by hand; regenerate via the shadcn CLI.
 10. Commit after every phase with Conventional Commits. Never force-push.
+11. Amounts are never trusted from the client; the server reads the fee from Sanity when creating an order.
+12. Every webhook verifies its signature and is idempotent.
 
 ## Plugins
 The frontend-design plugin is installed: follow its craft guidance (hierarchy, type scale, restraint,

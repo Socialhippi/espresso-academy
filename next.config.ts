@@ -27,6 +27,21 @@ const nextConfig: NextConfig = {
   // Trailing slashes off so the canonical URL and the served URL always match.
   trailingSlash: false,
   poweredByHeader: false,
+  /**
+   * While NEXT_PUBLIC_INDEXABLE is anything but "true", every response carries a noindex header.
+   * The draft is on a public alias so the client can open it on a phone without a Vercel login,
+   * which also means a crawler can reach it. robots.txt covers the well-behaved crawler; this
+   * covers the one that followed a link straight to a page. Removing it is a launch step.
+   */
+  async headers() {
+    if (process.env.NEXT_PUBLIC_INDEXABLE?.trim().toLowerCase() === "true") return [];
+    return [
+      {
+        source: "/:path*",
+        headers: [{ key: "X-Robots-Tag", value: "noindex, nofollow" }],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
