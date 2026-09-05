@@ -149,7 +149,10 @@ These are recorded rather than fixed, with the reasoning in `docs/STATUS.md`:
   `RESEND_API_KEY` and the Google Sheets credentials are deliberately absent so a test run cannot
   mail the academy or write to their lead sheet. The first run caught a real defect — `tsc --noEmit`
   on a clean checkout cannot see Next's generated `PageProps`/`LayoutProps` — now fixed by running
-  `next typegen` ahead of it. Nightly Lighthouse, link and stale-content jobs still need one live
-  run to be trusted; check the first one after launch.
+  `next typegen` ahead of it. The second run showed `e2e` needs longer than its 25-minute cap on the
+  two-core runner a private repo gets — no test failed, the job was cut off at 1569 of 1987 — so the
+  cap is now 40. Budget about half an hour of billed minutes per push, and shard the job if that
+  becomes annoying. Nightly Lighthouse, link and stale-content jobs still need one live run to be
+  trusted; check the first one after launch.
 - **The mobile sheet's focus trap leaks on WebKit under Playwright.** May be an artefact of
   synthetic key events. Check by hand on a real iPhone before launch.

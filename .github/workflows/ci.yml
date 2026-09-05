@@ -79,7 +79,10 @@ jobs:
   e2e:
     name: End to end
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    # Measured, not guessed: 1987 tests at ~1.17/sec on the two-core runner a private repo gets is
+    # ~28.5 minutes, plus ~2.5 for install, browsers and the build. 25 cut it off at test 1569 with
+    # nothing failing. 40 leaves room for the retry a flaky test would trigger.
+    timeout-minutes: 40
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4

@@ -662,6 +662,20 @@ That defect was only ever reachable from a clean checkout, which is the argument
 running every command by hand on a warm working tree had not found it in eight phases, and the
 first genuinely cold run found it in forty-four seconds.
 
+The second run found the other thing a cold run can find: `e2e` was cut off by its own
+`timeout-minutes: 25` at test 1569 of 1987, with nothing failing. A private repository gets a
+two-core runner, and the suite paces at about 1.17 tests per second there against roughly six
+locally — 28.5 minutes of testing plus 2.5 of install, browsers and build. The cap is now 40
+minutes, which is the measured figure plus room for the one retry `retries: 1` allows. `workers`
+stays at 2 because that is the core count; raising it would oversubscribe the same two cores the
+Next server is already running on. The suite is not slow, the runner is small.
+
+**The e2e job therefore costs about half an hour of billed minutes per push.** Sharding it across
+parallel jobs would cut the wait without cutting coverage, and running the full seven-project
+matrix nightly against a smaller per-push set would cut the bill — both are worth doing and neither
+is done, because both trade away coverage or add moving parts that the academy would have to
+maintain.
+
 `.github/workflows/nightly.yml` at 03:00 IST: Lighthouse against production, a link check, and a
 stale-content report.
 
