@@ -13,7 +13,7 @@ pnpm dev            # http://localhost:3000
 ```
 
 ```
-pnpm typecheck      # tsc --noEmit
+pnpm typecheck      # next typegen && tsc --noEmit
 pnpm lint           # eslint, jsx-a11y at error
 pnpm build          # must pass before any commit touching src/
 pnpm start          # serve the production build

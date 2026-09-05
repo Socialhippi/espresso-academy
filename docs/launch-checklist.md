@@ -145,7 +145,11 @@ These are recorded rather than fixed, with the reasoning in `docs/STATUS.md`:
   is not. The cause is understood and the largest remaining lever is the client's photography.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships.
-- **CI has never run.** The workflows are written and committed but the repository has no remote.
-  Push it, add the repository secrets, and watch the first run before relying on it.
+- **CI runs on GitHub.** The ten repository secrets are set (Sanity, Razorpay test, Turnstile);
+  `RESEND_API_KEY` and the Google Sheets credentials are deliberately absent so a test run cannot
+  mail the academy or write to their lead sheet. The first run caught a real defect — `tsc --noEmit`
+  on a clean checkout cannot see Next's generated `PageProps`/`LayoutProps` — now fixed by running
+  `next typegen` ahead of it. Nightly Lighthouse, link and stale-content jobs still need one live
+  run to be trusted; check the first one after launch.
 - **The mobile sheet's focus trap leaks on WebKit under Playwright.** May be an artefact of
   synthetic key events. Check by hand on a real iPhone before launch.

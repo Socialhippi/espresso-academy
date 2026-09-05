@@ -647,6 +647,21 @@ must not send mail to the academy or write rows into their lead sheet. The pipel
 degrade when a key is missing, so their absence is itself part of what is under test: CI proves the
 no-key path works on every commit, which is the path a misconfigured production would take.
 
+**CI has now run.** The ten repository secrets are set (Sanity, Razorpay test, Turnstile); the two
+deliberate absences above are absences on GitHub too, not just in this document. The first run
+failed, and was right to: `static` ran `tsc --noEmit` against a clean checkout, where `PageProps`
+and `LayoutProps` do not exist. Next generates those global route helpers into `.next/types` during
+`next dev`, `next build` or `next typegen`, so every developer machine with a `.next/` directory
+typechecks green and CI — which has no `.next/` — does not. `pnpm typecheck` is now
+`next typegen && tsc --noEmit`, which is the invocation the Next 16 CLI reference gives for exactly
+this case. The `e2e` job's failure in that same run was upstream of any of this — the build stopped
+on a missing `NEXT_PUBLIC_SANITY_PROJECT_ID`, which is the guard in `sanity/env.ts` doing its job on
+a runner that had no secrets yet.
+
+That defect was only ever reachable from a clean checkout, which is the argument for the pipeline:
+running every command by hand on a warm working tree had not found it in eight phases, and the
+first genuinely cold run found it in forty-four seconds.
+
 `.github/workflows/nightly.yml` at 03:00 IST: Lighthouse against production, a link check, and a
 stale-content report.
 
@@ -990,13 +1005,6 @@ an account or a decision from the academy first, not development:
 ## Known limitations
 
 ### Carried into launch from build 2
-
-- **CI has never run.** `.github/workflows/*` is written, committed and correct as far as reading it
-  goes, but this repository has no git remote, so no workflow has ever executed. Every command it
-  runs has been run by hand here and is green; that is not the same as the pipeline being green.
-  Push to GitHub and watch the first run before trusting it. The `e2e` job in particular needs the
-  Sanity, Razorpay and Turnstile secrets added as repository secrets, and deliberately does **not**
-  get `RESEND_API_KEY` or the Sheets credentials.
 
 - **The rate limiter is per-instance.** Serverless functions do not share memory, so the real limit
   is roughly the configured number times the number of running instances. Deliberate at this
