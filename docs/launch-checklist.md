@@ -106,7 +106,8 @@ In this order. Each step depends on the one before it.
 - [ ] Add a **second** Razorpay webhook on the new domain, rather than editing the first, so the
       alias keeps working while DNS propagates.
 - [ ] **Set `NEXT_PUBLIC_INDEXABLE=true`** and redeploy. Until this moment every response carries
-      `X-Robots-Tag: noindex, nofollow` and `robots.txt` disallows everything. This is the switch
+      `X-Robots-Tag: noindex, nofollow`. robots.txt does not change: it already allows the crawl,
+      which is what lets a crawler read that header and keep the page out. This is the switch
       that makes the site public to search.
 - [ ] **Enable HSTS**: uncomment the `Strict-Transport-Security` header in `src/middleware.ts`.
       **After** the domain is serving HTTPS correctly, never before: a wrong HSTS header is cached

@@ -143,6 +143,62 @@ test.describe("the noindex header while the draft is public", () => {
   }
 });
 
+/*
+ * robots.txt and the noindex header have to be read together, because it is possible to write two
+ * directives that each look right and cancel each other out.
+ *
+ * That is what this file used to do: `Disallow: /` while the header said `noindex, nofollow`. A
+ * crawler that obeys Disallow never fetches the page, so it never reads the header — and Google
+ * will still index a blocked URL it finds a link to, with no description, because it was not
+ * allowed to look. The block was the reason the noindex could not work.
+ *
+ * So the assertions below are about the *relationship*: the crawl is allowed precisely so that the
+ * noindex can be read, and the two must not drift back into contradicting each other.
+ */
+test.describe("robots.txt lets crawlers in so the noindex can be read", () => {
+  async function robotsTxt(request: APIRequestContext): Promise<string> {
+    const response = await request.get("/robots.txt");
+    expect(response.status()).toBe(200);
+    return response.text();
+  }
+
+  test("the site is crawlable", async ({ request }) => {
+    const body = await robotsTxt(request);
+    expect(body).toContain("Allow: /");
+    expect(
+      body,
+      "Disallow: / would stop the crawl that the noindex header depends on",
+    ).not.toMatch(/^Disallow: \/$/m);
+  });
+
+  test("and every page it lets in answers noindex", async ({ request }) => {
+    // The pairing, asserted end to end rather than as two separate facts.
+    const body = await robotsTxt(request);
+    expect(body).toContain("Allow: /");
+    const header = (await request.get("/")).headers()["x-robots-tag"];
+    expect(header, "crawlable and indexable at once would publish the draft").toContain("noindex");
+  });
+
+  test("the AI crawlers are named and allowed", async ({ request }) => {
+    const body = await robotsTxt(request);
+    for (const agent of ["GPTBot", "ClaudeBot", "PerplexityBot", "Google-Extended"]) {
+      expect(body, `${agent} should be addressed by name`).toContain(`User-Agent: ${agent}`);
+    }
+  });
+
+  test("the routes that should never be crawled are still held back", async ({ request }) => {
+    const body = await robotsTxt(request);
+    for (const path of ["/api/", "/dev/", "/studio", "/thank-you", "/book/", "/booking/", "/lp/"]) {
+      expect(body, `${path} must stay disallowed`).toContain(`Disallow: ${path}`);
+    }
+  });
+
+  test("it points at the sitemap", async ({ request }) => {
+    const body = await robotsTxt(request);
+    expect(body).toMatch(/^Sitemap: https?:\/\/\S+\/sitemap\.xml$/m);
+  });
+});
+
 test.describe("write routes refuse what they should", () => {
   test("the Sanity revalidate webhook rejects an unsigned POST", async ({ request }) => {
     const response = await request.post("/api/revalidate", {

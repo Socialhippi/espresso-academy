@@ -291,7 +291,7 @@ carry it. Content stays parked; every TBC state is untouched. Plan: `docs/plans/
 - **`X-Robots-Tag: noindex, nofollow` was specified but had never been wired.** `NEXT_PUBLIC_INDEXABLE`
   existed in `.env.local` and was read by nothing, so the public review alias was fully crawlable.
   It is now read in two places: `next.config.ts` sends the header on every response, and
-  `robots.ts` returns a blanket `Disallow: /`, while the variable is anything but `"true"`.
+  while the variable is anything but `"true"`. robots.txt is the same before and after launch.
   Verified against a production build on `/`, `/courses` and `/sitemap.xml`.
 - `CLAUDE.md` "Stack" now names every integration and what each one degrades to. Non-negotiable 11
   (the server reads the fee from Sanity; the browser is never trusted for an amount) and 12 (every
@@ -683,7 +683,7 @@ document names both.
 |---|---|
 | 21 routes | all 200, including `/studio`, `/lp/[slug]`, `/book/[id]`, `sitemap.xml`, `robots.txt`, `llms.txt` |
 | `X-Robots-Tag` | `noindex, nofollow` on every response |
-| `robots.txt` | `Disallow: /` |
+| `robots.txt` | allows the crawl; `/api`, `/dev`, `/studio`, `/thank-you`, `/book`, `/booking`, `/lp` disallowed |
 | Sitemap | 31 URLs, all on the canonical host, all 200 |
 | CSP | present, split by route type, no violation on any of the six route types |
 | Enquiry | student, waitlist and cafe all stored in Sanity with attribution, delivered by email |
@@ -753,6 +753,32 @@ commit message.
 
 Gate: typecheck, lint and build clean; 1697 e2e tests passing; all five standing scripts clean
 **against the deployment**.
+
+---
+
+### Post-deploy fix — robots.txt and noindex were cancelling each other out
+
+`robots.ts` served `Disallow: /` while `NEXT_PUBLIC_INDEXABLE` was false, and every response also
+carried `X-Robots-Tag: noindex, nofollow`. Two directives that each looked right and defeated one
+another.
+
+**Disallow governs crawling, not indexing.** A crawler that obeys `Disallow: /` never fetches the
+page, so it never reads the noindex header and never learns the page is meant to stay out. Google
+is explicit that a URL blocked by robots.txt can still be indexed on the strength of inbound links
+alone — listed with no description, precisely because the crawler was not allowed to look. The
+block was the reason the noindex could not do its job.
+
+Now robots.txt is **identical before and after launch**: everything allowed including the named AI
+crawlers, with `/api`, `/dev`, `/studio`, `/thank-you`, `/book`, `/booking` and `/lp` held back.
+Allowing the crawl is what makes the noindex effective — the crawler fetches, reads the header, and
+drops the URL. Launch is now one environment variable and no change to this file, and by then every
+crawler has already been told, in the only way it can hear, that these pages exist and are not to be
+listed.
+
+The route had no test at all. `tests/e2e/security.spec.ts` now asserts the *relationship* rather
+than two separate facts: that the crawl is allowed, that `Disallow: /` specifically is absent, that
+a page it lets in still answers noindex, that the four AI crawlers are named, that the seven
+sensitive prefixes are still held back, and that the sitemap is pointed at.
 
 ---
 

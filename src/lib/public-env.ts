@@ -44,7 +44,7 @@ export function absoluteUrl(path: string): string {
 
 /**
  * False until launch. While false the site sends `X-Robots-Tag: noindex, nofollow` on every
- * response (next.config.ts) and robots.txt disallows everything, so a draft that is publicly
+ * response (next.config.ts), so a draft that is publicly
  * reachable for client review cannot be indexed. Flipping this to "true" is a launch-checklist
  * step, not a code change.
  */

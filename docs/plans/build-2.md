@@ -120,7 +120,7 @@ Every row degrades. Nothing in this table can crash a request or block a reader.
 | `META_CAPI_ACCESS_TOKEN` | Server events | CAPI helper no-ops. |
 | `META_TEST_EVENT_CODE` | CAPI test mode | Events go to live rather than test. |
 | `NEXT_PUBLIC_CALCOM_LINK` | Cafe thank-you booking embed | WhatsApp button instead. |
-| `NEXT_PUBLIC_INDEXABLE` | Indexing | Anything but `"true"` ⇒ `X-Robots-Tag: noindex, nofollow` site-wide and `robots.txt` disallows all. |
+| `NEXT_PUBLIC_INDEXABLE` | Indexing | Anything but `"true"` ⇒ `X-Robots-Tag: noindex, nofollow` site-wide. robots.txt is identical either way. |
 
 ---
 

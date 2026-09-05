@@ -200,7 +200,8 @@ In this order:
    Until then mail comes from `onboarding@resend.dev`, which reaches an inbox but does not say
    Espresso Academy in the sender line.
 4. Set `NEXT_PUBLIC_INDEXABLE=true` on Vercel and redeploy. Until then every response carries
-   `X-Robots-Tag: noindex, nofollow` and `robots.txt` disallows everything.
+   `X-Robots-Tag: noindex, nofollow`. robots.txt allows the crawl in both states, which is what
+   lets a crawler read that header; only the header changes at launch.
 5. Enable HSTS: uncomment the `Strict-Transport-Security` header in `next.config.ts`. Do this
    **after** the domain is attached and serving over HTTPS correctly, not before: a wrong HSTS
    header is cached by browsers for its whole max-age and cannot be withdrawn.

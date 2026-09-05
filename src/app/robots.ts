@@ -1,6 +1,5 @@
 import type { MetadataRoute } from "next";
 import { absoluteUrl, siteUrl } from "@/lib/env";
-import { isIndexable } from "@/lib/public-env";
 
 /**
  * Everything is allowed, including the AI crawlers: this site wants to be quoted by an assistant
@@ -10,6 +9,21 @@ import { isIndexable } from "@/lib/public-env";
  * /booking, which are transactional and per-batch, /lp, which is a paid-campaign duplicate of a
  * course page, and /studio, which is the CMS. Each of those also says noindex in its own metadata:
  * robots.txt is the polite request, the header is the enforcement.
+ *
+ * **These rules do not change at launch. Only the header does.**
+ *
+ * This file used to serve `Disallow: /` while NEXT_PUBLIC_INDEXABLE was false, which was
+ * self-defeating. Disallow governs *crawling*, not indexing: a crawler that obeys it never fetches
+ * the page, so it never reads `X-Robots-Tag: noindex, nofollow` and never learns the page is meant
+ * to stay out. Google is explicit that a URL blocked by robots.txt can still be indexed on the
+ * strength of inbound links alone, listed with no description because the crawler was not allowed
+ * to look. The two directives were working against each other: the block was the reason the
+ * noindex could not do its job.
+ *
+ * Allowing the crawl is what makes the noindex effective. A crawler fetches, reads the header, and
+ * drops the URL. That is also why launch is a one-line change to an environment variable rather
+ * than a change to this file: by then every crawler has already been told, in the only way it can
+ * hear, that these pages exist and are not to be listed.
  */
 const disallow = [
   "/api/",
@@ -40,12 +54,6 @@ const aiCrawlers = [
 ];
 
 export default function robots(): MetadataRoute.Robots {
-  // While the draft is public for client review, nothing is crawlable. The X-Robots-Tag header in
-  // next.config.ts covers the case where a crawler reached a URL without reading robots.txt.
-  if (!isIndexable) {
-    return { rules: [{ userAgent: "*", disallow: "/" }] };
-  }
-
   return {
     rules: [
       { userAgent: "*", allow: "/", disallow },
