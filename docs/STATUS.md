@@ -341,6 +341,57 @@ this code: the Studio pulled `sanity` into the Server Components graph, where `s
 boundary, which is where a single-page application belongs); and `@sanity/icons` v5 exports only
 `Icon` and `icons` from its root, so each icon is imported from its own subpath.
 
+### Phase 2: booking and payments — done
+
+**A student can pay for a seat.** Verified end to end in Razorpay test mode with a real ₹1 payment
+on a domestic test card: order created, Checkout.js opened, 3DS OTP passed, webhook captured, seat
+taken, confirmation page rendered. Screenshots in `docs/screens/razorpay-*.png` and
+`booking-confirmed-390.png`.
+
+- `/book/[instanceId]`, `/api/orders`, `/api/payments/verify`, `/api/webhooks/razorpay`,
+  `/api/bookings/[id]/status`, `/booking/[bookingId]` and its `calendar.ics`.
+- **The amount is never read from the browser.** `/api/orders` takes only the batch id, re-reads the
+  batch from Sanity with the write token and no CDN, and computes the amount itself. A test posts
+  `amount`, `amountInPaise` and `feeInclGst` in the body and asserts the order is still for the
+  seeded fee.
+- **Paying and taking a seat happen exactly once**, inside one Sanity transaction guarded by the
+  batch's revision id, retried on conflict. The webhook and the browser's verify call race, and
+  Razorpay retries anything that is not 2xx, so a second delivery is the ordinary case: it answers
+  200 and changes nothing.
+- **Overbooking is recorded, not refused.** If the increment would pass `seatsMax` the booking is
+  still marked paid, flagged `overbooked` and emailed to the academy, with its own list in the
+  Studio. Taking money and having no record of it is the worse failure.
+- The gateway is behind `src/lib/payments/provider.ts`. See the rate-card note below.
+- `/refund-policy` renders `siteSettings.refundPolicy` when the academy writes it, and falls back to
+  the marked placeholder until then. The checkout links to it before anyone pays.
+
+**Two defects found by testing the checkout by hand, both invisible until tapped:**
+
+1. **Every WhatsApp link on the mobile sticky bar had no recipient** — `https://wa.me/?text=…`. The
+   number moved from a module constant to a Sanity field in Phase 1 and the sticky bar was never
+   passed it. The same bug was in the enquiry form's fallback and in `/api/enquiry`'s handoff. On a
+   64%-mobile site that is the most-tapped control on the page. There is now an assertion per route
+   that no rendered `wa.me` link is missing its number.
+2. **The order rate limit was six a minute per address.** Indian carriers put very large numbers of
+   subscribers behind one CGNAT address, so at peak that would have turned away real customers. It
+   is thirty now; the honeypot, the two-second floor and Turnstile are what actually stop a bot.
+
+**Rate card, for the client's decision:** Razorpay charges 2% + GST. Cashfree is running a 0%
+domestic promotion to March 2027 and PhonePe PG a promotional 0%. The recommendation is to launch on
+Razorpay, which is live and tested, and evaluate Cashfree as a second gateway once the volumes are
+real: at ₹25,000 a seat, 2% is ₹500 a booking. The adapter exists so that decision costs one file
+rather than four route handlers.
+
+Tests: 30 unit tests on both signatures (against hand-computed vectors, not the implementation), the
+fee arithmetic and every branch of the book/waitlist/enquire rule; a `booking` Playwright project
+running serially for the stateful payment path; `tests/global-setup.ts` resets the seeded batches
+before every run.
+
+Gate: typecheck, lint and build clean; **1194 e2e tests passing, 0 failing**.
+
+`docs/RUNBOOK.md` is now the operational runbook. Build 1's operator guide moved to
+`docs/kit-setup.md`.
+
 ---
 
 ## Where this stands, and what to do next
