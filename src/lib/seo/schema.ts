@@ -214,7 +214,14 @@ export function trainerNode(trainer: Trainer): JsonLdNode {
 }
 
 /** FAQPage. Only emit it where the questions are actually visible on the page. */
-export function faqNode(items: FaqItem[], pagePath: string): JsonLdNode {
+/**
+ * FAQPage from any question and answer pair.
+ *
+ * Deliberately not `FaqItem[]`: the questions on a guide and inside a page section carry no
+ * category, and requiring one would mean inventing a category to satisfy a type that structured
+ * data does not use.
+ */
+export function faqNode(items: Pick<FaqItem, "q" | "a">[], pagePath: string): JsonLdNode {
   return {
     "@type": "FAQPage",
     "@id": absoluteUrl(`${pagePath}#faq`),

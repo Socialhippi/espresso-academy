@@ -28,6 +28,12 @@ import {
   courseSlugsQuery,
   datedInstancesQuery,
   faqsQuery,
+  guideBySlugQuery,
+  guideSlugsQuery,
+  guidesQuery,
+  landingPageBySlugQuery,
+  landingPageSlugsQuery,
+  pageBySlugQuery,
   siteSettingsQuery,
   storiesQuery,
   trainerBySlugQuery,
@@ -197,6 +203,55 @@ export interface SiteSettings {
   announcements: string[] | null;
 }
 
+/** A portable-text body as the queries return it. */
+export type PortableBlocks = { _type: string; _key?: string }[];
+
+export interface GuideAuthor {
+  slug: string;
+  name: string;
+  role: string | null;
+  credentials?: { name: string; issuer: string | null }[];
+}
+
+export interface Guide {
+  slug: string;
+  title: string;
+  excerpt: string;
+  publishedAt: string;
+  updatedAt: string | null;
+  author: GuideAuthor | null;
+  reviewedBy: GuideAuthor | null;
+  primaryCourse: { slug: string; title: string } | null;
+  primaryCertification: { slug: string; name: string } | null;
+  heroImage: SanityImage | null;
+  seo: { title?: string | null; description?: string | null } | null;
+  /** Only on the single-guide query; the hub does not fetch bodies. */
+  body?: PortableBlocks;
+}
+
+/** A section from the constrained library. Discriminated by `_type` at the render site. */
+export interface PageSection {
+  _type: string;
+  _key: string;
+  [field: string]: unknown;
+}
+
+export interface ContentPage {
+  slug: string;
+  title: string;
+  intro: string | null;
+  sections: PageSection[];
+  seo: { title?: string | null; description?: string | null } | null;
+}
+
+export interface LandingPage {
+  slug: string;
+  title: string;
+  campaign: string | null;
+  course: { slug: string; title: string; feeInclGst: number | null } | null;
+  sections: PageSection[];
+}
+
 /** A course instance paired with the course it belongs to. */
 export interface DatedInstance {
   course: Course;
@@ -215,7 +270,13 @@ export interface DatedInstance {
  */
 const REVALIDATE_SECONDS = 3600;
 
-type Tag =
+/**
+ * A document type, or one document of that type.
+ *
+ * `/api/revalidate` sends both on every publish: the type, so a list page refreshes, and
+ * `type:slug`, so one document's own page refreshes without invalidating every sibling.
+ */
+type DocumentType =
   | "course"
   | "courseInstance"
   | "trainer"
@@ -227,6 +288,8 @@ type Tag =
   | "page"
   | "landingPage"
   | "redirect";
+
+type Tag = DocumentType | `${DocumentType}:${string}`;
 
 async function query<T>(groq: string, params: Record<string, unknown>, tags: Tag[]): Promise<T> {
   return readClient.fetch<T>(groq, params, {
@@ -398,6 +461,36 @@ export const getNextInstances = cache(async (n?: number): Promise<DatedInstance[
 /** False while the academy has not published a single batch date. */
 export async function hasAnyDates(): Promise<boolean> {
   return (await getNextInstances(1)).length > 0;
+}
+
+export const getGuides = cache(async (): Promise<Guide[]> => {
+  return query<Guide[]>(guidesQuery, {}, ["guide"]);
+});
+
+export const getGuide = cache(async (slug: string): Promise<Guide | undefined> => {
+  const guide = await query<Guide | null>(guideBySlugQuery, { slug }, ["guide", `guide:${slug}`]);
+  return guide ?? undefined;
+});
+
+export async function getGuideSlugs(): Promise<string[]> {
+  return query<string[]>(guideSlugsQuery, {}, ["guide"]);
+}
+
+export const getPage = cache(async (slug: string): Promise<ContentPage | undefined> => {
+  const page = await query<ContentPage | null>(pageBySlugQuery, { slug }, ["page", `page:${slug}`]);
+  return page ?? undefined;
+});
+
+export const getLandingPage = cache(async (slug: string): Promise<LandingPage | undefined> => {
+  const page = await query<LandingPage | null>(landingPageBySlugQuery, { slug }, [
+    "landingPage",
+    `landingPage:${slug}`,
+  ]);
+  return page ?? undefined;
+});
+
+export async function getLandingPageSlugs(): Promise<string[]> {
+  return query<string[]>(landingPageSlugsQuery, {}, ["landingPage"]);
 }
 
 export const getSiteSettings = cache(async (): Promise<SiteSettings> => {

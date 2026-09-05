@@ -11,8 +11,10 @@ import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { WaitlistInline } from "@/components/course/WaitlistInline";
+import { BatchRow, BatchRowHeader } from "@/components/course/BatchRow";
+import { CalendarFilters, type CalendarFacet } from "@/components/course/CalendarFilters";
 import { getCourses, getNextInstances, getSiteSettings, type DatedInstance } from "@/lib/content";
-import { formatDateRange, formatMonthYear, isoDate, monthKey } from "@/lib/format";
+import { formatMonthYear, isoDate, monthKey } from "@/lib/format";
 import { absoluteUrl } from "@/lib/env";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, schemaIds, webPageNode } from "@/lib/seo/schema";
@@ -43,11 +45,53 @@ function groupByMonth(entries: DatedInstance[]): MonthGroup[] {
   return [...groups.values()].sort((a, b) => a.key.localeCompare(b.key));
 }
 
-export default async function CalendarPage() {
+/** Facets built from the batches that actually exist, so no chip ever leads to an empty list. */
+function facetsFrom(entries: DatedInstance[]): { courses: CalendarFacet[]; venues: CalendarFacet[] } {
+  const courses = new Map<string, CalendarFacet>();
+  const venues = new Map<string, CalendarFacet>();
+
+  for (const { course, instance } of entries) {
+    const existingCourse = courses.get(course.slug);
+    if (existingCourse) existingCourse.count += 1;
+    else courses.set(course.slug, { value: course.slug, label: course.title, count: 1 });
+
+    const venue = instance.venue;
+    if (!venue) continue;
+    const existingVenue = venues.get(venue.id);
+    if (existingVenue) existingVenue.count += 1;
+    else venues.set(venue.id, { value: venue.id, label: venue.name, count: 1 });
+  }
+
+  return {
+    courses: [...courses.values()].sort((a, b) => a.label.localeCompare(b.label)),
+    venues: [...venues.values()].sort((a, b) => a.label.localeCompare(b.label)),
+  };
+}
+
+function firstValue(value: string | string[] | undefined): string | undefined {
+  return Array.isArray(value) ? value[0] : value;
+}
+
+export default async function CalendarPage({ searchParams }: PageProps<"/calendar">) {
   const settings = await getSiteSettings();
-  const dated = await getNextInstances();
-  const months = groupByMonth(dated);
+  const allDated = await getNextInstances();
   const courses = await getCourses();
+
+  const params = await searchParams;
+  const courseFilter = firstValue(params.course) ?? null;
+  const venueFilter = firstValue(params.venue) ?? null;
+
+  const facets = facetsFrom(allDated);
+  /* Filtering happens after the facets are counted, so the counts describe the whole calendar
+     rather than the current view: a chip reading "3" that shows 3 is more use than one reading
+     the number you are already looking at. */
+  const dated = allDated.filter(
+    ({ course, instance }) =>
+      (!courseFilter || course.slug === courseFilter) &&
+      (!venueFilter || instance.venue?.id === venueFilter),
+  );
+  const months = groupByMonth(dated);
+  const filtered = courseFilter !== null || venueFilter !== null;
 
   return (
     <>
@@ -56,11 +100,17 @@ export default async function CalendarPage() {
         eyebrow="Calendar"
         title="Course dates in Bengaluru"
         intro={
-          <p>
-            Every batch the academy has scheduled, soonest first. Dates are set a few weeks ahead,
-            so the reliable way to catch the one you want is the batch alert rather than checking
-            back.
-          </p>
+          filtered ? (
+            <p>
+              Filtered. Clear the filters below to see every scheduled batch, soonest first.
+            </p>
+          ) : (
+            <p>
+              Every batch the academy has scheduled, soonest first. Dates are set a few weeks ahead,
+              so the reliable way to catch the one you want is the batch alert rather than checking
+              back.
+            </p>
+          )
         }
         actions={
           <ButtonLink href="/courses" variant="secondary">
@@ -136,6 +186,31 @@ export default async function CalendarPage() {
             <h2 id="calendar-heading" className="sr-only">
               Scheduled batches by month
             </h2>
+
+            <CalendarFilters
+              courses={facets.courses}
+              venues={facets.venues}
+              activeCourse={courseFilter}
+              activeVenue={venueFilter}
+              className="mb-12"
+            />
+
+            {months.length === 0 && (
+              /* Every filter combination that reaches here has at least one batch behind it, so
+                 this only shows for a hand-typed query string. It still gets a way out. */
+              <div className="border border-white-2 bg-white-3 p-6 md:p-8">
+                <h3 className="type-h3 text-black">Nothing scheduled for that combination</h3>
+                <p className="mt-3 measure type-body text-grey">
+                  Clear the filters to see every batch, or tell the academy what you are after and
+                  they will say when it next runs.
+                </p>
+                <div className="mt-6">
+                  <ButtonLink href="/calendar" variant="secondary" size="sm">
+                    Show every batch
+                  </ButtonLink>
+                </div>
+              </div>
+            )}
             {months.map((month, index) => (
               <div key={month.key} className={index > 0 ? "mt-14" : undefined}>
                 <SectionHeading
@@ -147,51 +222,11 @@ export default async function CalendarPage() {
                   <table className="w-full min-w-2xl border-collapse text-left">
                     <caption className="sr-only">Batches starting in {month.label}</caption>
                     <thead>
-                      <tr className="border-b border-white-2">
-                        <th scope="col" className="py-3 pr-4 type-label text-grey">
-                          Dates
-                        </th>
-                        <th scope="col" className="py-3 pr-4 type-label text-grey">
-                          Course
-                        </th>
-                        <th scope="col" className="py-3 pr-4 type-label text-grey">
-                          Level
-                        </th>
-                        <th scope="col" className="py-3 type-label text-grey">
-                          <span className="sr-only">Reserve a seat</span>
-                        </th>
-                      </tr>
+                      <BatchRowHeader />
                     </thead>
                     <tbody>
-                      {month.entries.map(({ course, instance, startDate }) => (
-                        <tr key={instance.id} className="border-b border-white-2">
-                          <td className="py-4 pr-4">
-                            <time dateTime={startDate} className="type-numeral text-h3-lg text-black">
-                              {formatDateRange(instance.startDate, instance.endDate)}
-                            </time>
-                          </td>
-                          <th scope="row" className="py-4 pr-4 type-body font-medium">
-                            <Link
-                              href={`/courses/${course.slug}`}
-                              className="text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
-                            >
-                              {course.title}
-                            </Link>
-                          </th>
-                          <td className="py-4 pr-4">
-                            <LevelBadge level={course.level} />
-                          </td>
-                          <td className="py-4">
-                            <ButtonLink
-                              href={`/enquire?course=${course.slug}`}
-                              variant="primary"
-                              size="sm"
-                              data-event="reserve_click_calendar"
-                            >
-                              Reserve
-                            </ButtonLink>
-                          </td>
-                        </tr>
+                      {month.entries.map(({ course, instance }) => (
+                        <BatchRow key={instance.id} course={course} instance={instance} />
                       ))}
                     </tbody>
                   </table>
@@ -219,7 +254,9 @@ export default async function CalendarPage() {
           webPageNode("/calendar", "Course dates in Bengaluru", DESCRIPTION),
           /* Event nodes only exist once a batch has a real date. An Event without a startDate is
              invalid, and inventing one would be inventing a fact. */
-          ...dated.map(({ course, instance, startDate }) => ({
+          /* allDated, not the filtered view: the canonical is always /calendar (seo.md), so the
+             structured data has to describe /calendar rather than whichever facet is on screen. */
+          ...allDated.map(({ course, instance, startDate }) => ({
             "@type": "Event",
             "@id": absoluteUrl(`/calendar#${instance.id}`),
             name: `${course.title} at ${settings.name}`,

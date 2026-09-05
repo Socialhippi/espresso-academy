@@ -4,6 +4,7 @@ import { siteUrl } from "@/lib/env";
 import { batchAction, getCourses, getNextInstanceForCourse, getSiteSettings } from "@/lib/content";
 import { formatDate, formatFee } from "@/lib/format";
 import { SkipLink } from "@/components/site/SkipLink";
+import { SiteChrome } from "@/components/site/SiteChrome";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { StickyBar, type CourseBarEntry } from "@/components/site/StickyBar";
@@ -92,11 +93,17 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           }}
         >
           <SkipLink />
-          <Header />
+          {/* Campaign pages at /lp/* supply their own minimal header, so the site's is gated
+              rather than rendered twice. See src/components/site/SiteChrome.tsx. */}
+          <SiteChrome>
+            <Header />
+          </SiteChrome>
           <main id="main" className="flex-1">
             {children}
           </main>
-          <Footer />
+          <SiteChrome>
+            <Footer />
+          </SiteChrome>
           <StickyBar courseBar={courseBar} />
           <ConsentBanner />
           {/* Site-wide graph: the academy, the campus and the site. Page graphs reference it by @id. */}

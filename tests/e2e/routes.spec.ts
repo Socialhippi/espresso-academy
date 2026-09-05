@@ -177,7 +177,15 @@ test.describe("WhatsApp links", () => {
       const hrefs = await page.locator('a[href*="wa.me"]').evaluateAll((links) =>
         links.map((link) => link.getAttribute("href") ?? ""),
       );
-      expect(hrefs.length).toBeGreaterThan(0);
+
+      /*
+       * A campaign page carries a logo and a phone number and nothing else, on purpose, so it has
+       * no WhatsApp link to check. Every other route has at least one, and a route that quietly
+       * lost its only WhatsApp button would be worth knowing about.
+       */
+      if (!route.path.startsWith("/lp/")) {
+        expect(hrefs.length, `${route.path} renders no WhatsApp link at all`).toBeGreaterThan(0);
+      }
       for (const href of hrefs) {
         expect(href, `${href} has no phone number after wa.me/`).toMatch(
           /^https:\/\/wa\.me\/\d{10,15}(\?|$)/,

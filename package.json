@@ -15,7 +15,8 @@
     "sanity:seed": "sanity exec sanity/seed/from-data.ts --with-user-token",
     "sanity:deploy": "sanity deploy",
     "sanity:export": "sanity dataset export production",
-    "sanity:seed:test-batch": "sanity exec sanity/seed/test-batch.ts --with-user-token"
+    "sanity:seed:test-batch": "sanity exec sanity/seed/test-batch.ts --with-user-token",
+    "sanity:seed:templates": "sanity exec sanity/seed/templates.ts --with-user-token"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

@@ -4,10 +4,22 @@ import { isIndexable } from "@/lib/public-env";
 
 /**
  * Everything is allowed, including the AI crawlers: this site wants to be quoted by an assistant
- * that a prospective student is asking about barista courses in Bengaluru. Only the API, the
- * component gallery and the post-submit page are held back.
+ * that a prospective student is asking about barista courses in Bengaluru.
+ *
+ * What is held back: the API, the component gallery and the post-submit page, plus /book and
+ * /booking, which are transactional and per-batch, /lp, which is a paid-campaign duplicate of a
+ * course page, and /studio, which is the CMS. Each of those also says noindex in its own metadata:
+ * robots.txt is the polite request, the header is the enforcement.
  */
-const disallow = ["/api/", "/dev/", "/thank-you"];
+const disallow = [
+  "/api/",
+  "/dev/",
+  "/studio",
+  "/thank-you",
+  "/book/",
+  "/booking/",
+  "/lp/",
+];
 
 const aiCrawlers = [
   "GPTBot",

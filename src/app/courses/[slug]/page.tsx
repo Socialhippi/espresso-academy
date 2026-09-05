@@ -318,7 +318,11 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             id="dates-heading"
           />
           <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-7">
+            {/* min-w-0: a grid item defaults to min-width:auto, so it cannot shrink below its
+                content's min-content width, and the batch table's is five columns wide. Without
+                this the scroll container inside it never gets to scroll and the whole document goes
+                19px wide at 360. It only appeared when a batch first got a real date. */}
+            <div className="min-w-0 lg:col-span-7">
               <BatchTable course={course} />
             </div>
             <div className="lg:col-span-5">

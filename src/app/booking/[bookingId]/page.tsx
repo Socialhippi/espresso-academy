@@ -202,12 +202,17 @@ function Fact({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex items-start gap-3">
-      <span className="mt-0.5 text-grey">{icon}</span>
-      <div>
-        <dt className="type-label text-grey">{label}</dt>
-        <dd className="mt-1 type-body text-black">{children}</dd>
-      </div>
+    /*
+     * A <dl> may only directly contain <dt>, <dd> or a <div> wrapping a dt/dd group. The icon
+     * therefore lives inside the <dt> rather than beside it in the wrapper: a <span> as a direct
+     * child of the group is an axe "definition-list" failure, and it was one here.
+     */
+    <div>
+      <dt className="flex items-center gap-3 type-label text-grey">
+        <span aria-hidden="true">{icon}</span>
+        {label}
+      </dt>
+      <dd className="mt-1 pl-8 type-body text-black">{children}</dd>
     </div>
   );
 }

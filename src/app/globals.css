@@ -245,8 +245,18 @@
    positioned. Without a positioned ancestor those spans resolve against a containing block
    outside the scroll container, escape its clip, and push the whole document's scrollWidth past
    the viewport at 390px even though nothing is visibly wider. */
+/*
+ * A horizontally scrolling table.
+ *
+ * `min-width: 0` is not decoration: a flex or grid child defaults to `min-width: auto`, which means
+ * it cannot shrink below its content, so an `overflow-x: auto` container inside one never gets the
+ * chance to scroll and the table pushes the whole document sideways instead. The grid item above it
+ * needs `min-w-0` for the same reason; this covers the case where the scroll container is itself
+ * the flex or grid child.
+ */
 @utility table-scroll {
   position: relative;
+  min-width: 0;
   overflow-x: auto;
 }
 

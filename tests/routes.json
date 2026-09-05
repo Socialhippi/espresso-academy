@@ -1,5 +1,5 @@
 {
-  "$comment": "Every HTML route the site ships. Consumed by tests/e2e (Phase 6) and by the SEO audit. stickyBar is false only where a competing CTA would confuse the page. breadcrumbs is false on home (nothing above it) and on the two pages that carry no visible trail: structured data must describe what is on the page.",
+  "$comment": "Every route the suite walks. `index` drives the robots assertion, `stickyBar` and `breadcrumbs` drive the layout ones. nonIndexedRoutes are walked for overflow, contrast, target size and axe, but not for canonical or sitemap membership. /book depends on the batch seeded by `pnpm sanity:seed:test-batch`.",
   "routes": [
     {
       "path": "/",
@@ -11,6 +11,13 @@
     {
       "path": "/courses",
       "name": "Courses hub",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
+      "path": "/workshops",
+      "name": "Workshops",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true
@@ -79,6 +86,27 @@
       "breadcrumbs": true
     },
     {
+      "path": "/guides",
+      "name": "Guides hub",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
+      "path": "/guides/which-course-to-start-with",
+      "name": "Guide: which course",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
+      "path": "/guides/what-a-barista-course-covers",
+      "name": "Guide: what a course covers",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
       "path": "/certifications",
       "name": "Certifications hub",
       "index": true,
@@ -142,8 +170,22 @@
       "breadcrumbs": true
     },
     {
+      "path": "/student-stories",
+      "name": "Student stories",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
       "path": "/contact",
       "name": "Contact",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
+      "path": "/for-cafes",
+      "name": "For cafes and teams",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true
@@ -191,6 +233,20 @@
       "index": false,
       "stickyBar": false,
       "breadcrumbs": false
+    },
+    {
+      "path": "/lp/example-campaign",
+      "name": "Campaign landing page",
+      "index": false,
+      "stickyBar": false,
+      "breadcrumbs": false
+    },
+    {
+      "path": "/book/instance-e2e-test-batch",
+      "name": "Checkout, seeded test batch",
+      "index": false,
+      "stickyBar": false,
+      "breadcrumbs": true
     }
   ]
 }

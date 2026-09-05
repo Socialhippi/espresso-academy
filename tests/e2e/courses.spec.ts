@@ -93,15 +93,53 @@ test.describe("course page", () => {
 });
 
 test.describe("calendar", () => {
-  test("shows the dates-being-finalised state with a per-course alert", async ({ page }) => {
+  /*
+   * The calendar has two states and which one it is in depends on the dataset, not on the code.
+   * Asserting only the empty one meant this test failed the day a batch first got a date, which is
+   * the day it should have been most useful. So it branches: whichever state the data produces,
+   * that state has to be complete.
+   */
+  test("shows either scheduled batches or the alert state, and never a half of each", async ({
+    page,
+  }) => {
     await page.goto("/calendar");
-    await expect(page.getByRole("heading", { name: "Batch dates are being finalised" })).toBeVisible();
 
-    const details = page.locator("details");
-    await expect(details).toHaveCount(8);
+    const emptyState = page.getByRole("heading", { name: "Batch dates are being finalised" });
+    const isEmpty = await emptyState.isVisible().catch(() => false);
 
-    await details.first().locator("summary").click();
-    await expect(details.first().getByLabel("Mobile number (required)")).toBeVisible();
+    if (isEmpty) {
+      // Nothing scheduled: every course gets its own alert, so nobody leaves empty-handed.
+      const details = page.locator("details");
+      await expect(details).toHaveCount(8);
+      await details.first().locator("summary").click();
+      await expect(details.first().getByLabel("Mobile number (required)")).toBeVisible();
+      return;
+    }
+
+    // Something is scheduled: there is a table, and every row offers a way to act on it.
+    const rows = page.locator("tbody tr");
+    await expect(rows.first()).toBeVisible();
+
+    const actions = page.getByRole("link", { name: /^(Book|Waitlist|Enquire)$/ });
+    expect(await actions.count()).toBeGreaterThan(0);
+
+    // And the filters describe the batches that exist rather than every course.
+    await expect(page.getByRole("link", { name: "Every course" })).toBeVisible();
+  });
+
+  test("a course filter narrows the calendar and keeps the canonical", async ({ page }) => {
+    await page.goto("/calendar");
+    const isEmpty = await page
+      .getByRole("heading", { name: "Batch dates are being finalised" })
+      .isVisible()
+      .catch(() => false);
+    test.skip(isEmpty, "No batch has a date in this dataset, so there is nothing to filter");
+
+    await page.goto("/calendar?course=latte-art");
+    const canonical = await page.locator('link[rel="canonical"]').getAttribute("href");
+    expect(canonical, "a facet must not compete with the page it filters").toMatch(
+      /\/calendar$/,
+    );
   });
 });
 

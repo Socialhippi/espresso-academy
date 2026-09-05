@@ -3,6 +3,7 @@ import { absoluteUrl } from "@/lib/env";
 import {
   getCertificationSlugs,
   getCourseSlugs,
+  getGuideSlugs,
   getTrainerSlugs,
 } from "@/lib/content";
 
@@ -12,16 +13,21 @@ import {
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-  const [courseSlugs, certificationSlugs, trainerSlugs] = await Promise.all([
+  const [courseSlugs, certificationSlugs, trainerSlugs, guideSlugs] = await Promise.all([
     getCourseSlugs(),
     getCertificationSlugs(),
     getTrainerSlugs(),
+    getGuideSlugs(),
   ]);
 
   const staticRoutes: { path: string; priority: number; changeFrequency: "daily" | "weekly" | "monthly" | "yearly" }[] = [
     { path: "/", priority: 1, changeFrequency: "weekly" },
     { path: "/courses", priority: 0.9, changeFrequency: "weekly" },
+    { path: "/workshops", priority: 0.8, changeFrequency: "weekly" },
     { path: "/calendar", priority: 0.8, changeFrequency: "daily" },
+    { path: "/guides", priority: 0.7, changeFrequency: "weekly" },
+    { path: "/for-cafes", priority: 0.7, changeFrequency: "monthly" },
+    { path: "/student-stories", priority: 0.5, changeFrequency: "monthly" },
     { path: "/certifications", priority: 0.8, changeFrequency: "monthly" },
     { path: "/trainers", priority: 0.7, changeFrequency: "monthly" },
     { path: "/about", priority: 0.7, changeFrequency: "monthly" },
@@ -54,6 +60,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     })),
     ...trainerSlugs.map((slug) => ({
       url: absoluteUrl(`/trainers/${slug}`),
+      lastModified: now,
+      changeFrequency: "monthly" as const,
+      priority: 0.6,
+    })),
+    ...guideSlugs.map((slug) => ({
+      url: absoluteUrl(`/guides/${slug}`),
       lastModified: now,
       changeFrequency: "monthly" as const,
       priority: 0.6,

@@ -233,7 +233,14 @@ export async function markBookingPaid({
           }),
         );
 
-      await transaction.commit({ visibility: "async" });
+      /*
+       * `sync`, not `async`. An async commit returns before the change is queryable, so the very
+       * next /api/orders read could still see the seat as free and sell it twice. The window is a
+       * few hundred milliseconds, which is exactly long enough for the second person clicking Book
+       * on a nearly-full batch. The webhook is a machine caller with nobody waiting on it, so the
+       * extra latency costs nothing that matters.
+       */
+      await transaction.commit({ visibility: "sync" });
       return { result: "marked-paid", bookingId, overbooked: wouldOverbook };
     } catch (error) {
       const isRevisionConflict =
@@ -316,6 +323,7 @@ export async function markBookingRefunded({
     transaction.patch(client.patch(instanceId).dec({ seatsBooked: 1 }));
   }
 
-  await transaction.commit({ visibility: "async" });
+  // sync for the same reason as the seat increment: the freed seat has to be immediately sellable.
+  await transaction.commit({ visibility: "sync" });
   return "refunded";
 }

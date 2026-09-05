@@ -22,7 +22,17 @@ const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
 let total = 0;
 
 for (const path of paths) {
-  await page.goto(base + path, { waitUntil: "networkidle" });
+  /*
+   * `load` and a font wait, not `networkidle`.
+   *
+   * `networkidle` never settles on a page carrying Cloudflare Turnstile, which holds a connection
+   * open by design, so /enquire, /contact, /for-cafes and /book would hang until the script timed
+   * out. Playwright deprecates it for exactly this reason. `load` waits for the stylesheets, and
+   * the font wait is what these two scripts actually need: both measure computed styles, and a
+   * fallback font gives different metrics from the real one.
+   */
+  await page.goto(base + path, { waitUntil: "load" });
+  await page.evaluate(() => document.fonts.ready);
   const small = await page.evaluate((min) => {
     const isInlineInProse = (el) => {
       const parent = el.parentElement;
