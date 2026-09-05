@@ -6,45 +6,61 @@ How to operate this site. Every command runs from the repo root.
 
 ## Razorpay: the webhook
 
-**This has to be done by hand once, in the Razorpay dashboard.** Everything else about payments is
-already wired; nothing marks a booking paid reliably until this exists.
+**Already created**, from the API rather than the dashboard: a Razorpay account still in onboarding
+has the webhook page locked, and the API works throughout.
 
-1. Razorpay Dashboard → **Account & Settings → Webhooks → Add New Webhook**.
-2. **Webhook URL**
+```
+node scripts/razorpay-webhook.mjs --list     # show every webhook on the account
+node scripts/razorpay-webhook.mjs            # create it, or update it in place if it exists
+node scripts/razorpay-webhook.mjs --url <u>  # point it somewhere else, e.g. a custom domain
+```
 
-   ```
-   https://espresso-academy-india.vercel.app/api/webhooks/razorpay
-   ```
+The script reads `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET` and `RAZORPAY_WEBHOOK_SECRET` from
+`.env.local`, and it never prints the secret. It is idempotent: run it again and it updates the
+existing webhook rather than creating a second one.
 
-   (On a custom domain later: `https://<domain>/api/webhooks/razorpay`. Add a second webhook rather
-   than editing the first, so the alias keeps working while DNS propagates.)
+Current state, test mode:
 
-3. **Secret** — paste the value of `RAZORPAY_WEBHOOK_SECRET` from `.env.local`. It is also set on
-   the Vercel project. The two must match exactly or every delivery is rejected with a 400, which
-   is the correct behaviour and also exactly what a misconfiguration looks like.
+| | |
+|---|---|
+| id | `TYIvVXmFjKQMlA` |
+| url | `https://espresso-academy-india.vercel.app/api/webhooks/razorpay` |
+| events | `payment.captured`, `payment.failed`, `refund.processed` |
+| secret | set, and it matches `RAZORPAY_WEBHOOK_SECRET` |
+| active | yes |
 
-   Read the current value with:
+`refund.created` is handled too, if anyone ever ticks it; it is not registered, because
+`refund.processed` is the one that means the money has actually moved.
 
-   ```
-   grep RAZORPAY_WEBHOOK_SECRET .env.local
-   ```
+**The URL 404s until the site is deployed with these routes.** That is expected between now and the
+deploy phase: the webhook is configured correctly and Razorpay will retry, so nothing is lost.
 
-   It is deliberately not written down here. `.claude/rules/git.md` forbids committing a secret,
-   and this file is in git.
+### Doing it by hand instead
 
-4. **Active events** — tick exactly these four:
+If the dashboard is available and you would rather use it: **Account & Settings → Webhooks → Add
+New Webhook**, same URL, same three events, and paste the value of `RAZORPAY_WEBHOOK_SECRET`. Read
+it with:
 
-   - `payment.captured`
-   - `payment.failed`
-   - `refund.created`
-   - `refund.processed`
+```
+grep RAZORPAY_WEBHOOK_SECRET .env.local
+```
 
-   Anything else is answered with a 200 and ignored, so ticking more does no harm; ticking fewer
-   means a seat is never taken.
+It is deliberately not written down here. `.claude/rules/git.md` forbids committing a secret, and
+this file is in git.
 
-5. Save, then use **Send Test Webhook** on `payment.captured`. The delivery log should show a 200.
-   A 400 means the secret does not match. A 503 means `RAZORPAY_WEBHOOK_SECRET` is not set on the
-   deployment at all.
+### Testing a delivery
+
+`Send Test Webhook` in the dashboard, if you have it. Otherwise sign a payload yourself — this is
+the smoke test that was run against the local build:
+
+```
+BODY='{"event":"payment.captured","payload":{"payment":{"entity":{"id":"pay_test_1","order_id":"<a real order id>","status":"captured"}}}}'
+SIG=$(node -e 'const c=require("crypto");console.log(c.createHmac("sha256",process.env.RAZORPAY_WEBHOOK_SECRET).update(process.argv[1]).digest("hex"))' "$BODY")
+curl -X POST "$SITE/api/webhooks/razorpay" -H "content-type: application/json" -H "x-razorpay-signature: $SIG" -d "$BODY"
+```
+
+Expect 200 and `handled: true` the first time, 200 and `idempotent: true` the second, and 400 for a
+wrong signature or a body edited after signing.
 
 ### What the webhook does
 
@@ -68,9 +84,10 @@ Bookings → "Needs attention: overbooked".
    - `RAZORPAY_KEY_ID`
    - `RAZORPAY_KEY_SECRET`
    - `NEXT_PUBLIC_RAZORPAY_KEY_ID` (same value as `RAZORPAY_KEY_ID`)
-3. Add a **second webhook** on the live mode with the same URL and a **new** secret, and set
-   `RAZORPAY_WEBHOOK_SECRET` to it. Test-mode and live-mode webhooks are configured separately and
-   do not share a secret.
+3. Add a **second webhook** on the live mode with the same URL and a **new** secret. Test-mode and
+   live-mode webhooks are configured separately and do not share a secret, so: generate a new
+   secret, put it in `RAZORPAY_WEBHOOK_SECRET`, set the live keys in the environment, then run
+   `node scripts/razorpay-webhook.mjs`. The script talks to whichever mode its keys belong to.
 4. Delete the test batches: `pnpm sanity:seed:test-batch -- --delete`. They are labelled
    "TEST BATCH, do not book" and priced at ₹1; on live keys a mis-click really does charge a rupee.
 5. Redeploy. `NEXT_PUBLIC_RAZORPAY_KEY_ID` is inlined into the browser bundle at build time, so
