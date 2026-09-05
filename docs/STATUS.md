@@ -320,6 +320,7 @@ Run against a local production build (`pnpm build && pnpm start`):
 | `node scripts/check-brand-contrast.mjs` | no forbidden colour pair on any route |
 | `node scripts/check-target-size.mjs` | every standalone tap target at least 44px |
 | design-reviewer | 8.5 / 8.0 / 8.5 / 8.0, gate met on all four pages |
+| `qa-runner` (Phase 9 step 1) | every command passes; Lighthouse mobile Performance 92 to 94, Accessibility 100, Best Practices 100, SEO 100, CLS 0 |
 
 Separately verified by hand during the review rounds: no document overflow on any of the 26 routes
 at 320, 360 or 375; the header carries a visible Enquire pill at every width from 768 up; the three
@@ -475,10 +476,21 @@ appears; no code change is needed.
   mustard to both Foundation and IBC Junior, and blue to both Intermediate and IBC Advanced. The
   ladder's group headings carry the distinction. Worth a client decision if the badges are meant
   to be read on their own.
-- **LCP misses the 2.5s budget on three of the four measured routes.** The homepage meets it at
-  2.1s; `/courses`, a course page and `/enquire` sit at 3.1s to 3.4s across repeat runs. Measured
-  on localhost and on the deployment with the same result, so it is not an artefact of serving from
-  a dev machine.
+- **LCP misses the 2.5s budget on three of the four measured routes, and the fourth is not settled
+  either.** `/courses`, a course page and `/enquire` sit at 3.1s to 3.4s across repeat runs,
+  on localhost and on the deployment alike, so it is not an artefact of serving from a dev machine.
+  The homepage was recorded at 2.1s and now re-measures at 3.4s. **That is not a regression from
+  the design work**: the commit immediately before it (`d553540`) was checked out, rebuilt and
+  measured, and it scores the same. Home simply sits near the boundary where Lighthouse's simulated
+  throttling flips its LCP element between the Bebas H1 and the Montserrat sub-line, which are
+  within about 10% of each other in area at a 412px viewport. Read it as 92 to 99, LCP 2.1 to 3.4s.
+  Reasoning and the A/B in `docs/audits/perf-draft.md`.
+- **First-load JS has two disagreeing measurements.** 172KB gz is what was recorded from Next's own
+  figure. Summing the 14 unique chunk `<script>` tags on `/` over the wire gives about 248KB gz,
+  and Lighthouse independently reports 220KB of script transfer. Next 16's Turbopack build prints
+  no size table and writes no `app-build-manifest.json`, so the original basis could not be
+  reproduced to compare like for like. Either way it is over the 150KB budget; how far over is an
+  open question for whoever next has a reproducible number.
   Measured directly in a throttled browser rather than through Lighthouse's simulation, the LCP
   element on each route is real above-the-fold text painting in about 750ms. What it is: a text
   LCP waiting on a font and a stylesheet on a simulated slow-4G connection. The best lever is the

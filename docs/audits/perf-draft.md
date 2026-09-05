@@ -19,6 +19,25 @@ difference between them is real rather than noise: home's LCP is a three-line Be
 other three are six-line Montserrat paragraphs, which need more of the font resolved before they
 can paint.
 
+### The `/` row above no longer reproduces, and it is not a regression
+
+Re-measured after the Phase 8b design rounds, `/` comes back at **92, LCP 3.4s**, three runs
+running, not 99 / 2.1s. The QA pass read that as a regression caused by the design work. It is not:
+the same three runs were taken against `d553540`, the commit immediately before those changes, by
+checking that tree out and rebuilding, and it scores **94 / 92 / 92 with LCP 3.2 to 3.4s** — the
+same numbers, within noise.
+
+So both commits measure the same today, and neither reproduces the 99 / 2.1s recorded here. The
+figure was real when it was taken; it is a function of what else the machine was doing, and the
+`/` row is the one that sits closest to the boundary where Lighthouse's simulated throttling flips
+the LCP element between the Bebas H1 and the Montserrat sub-line beneath it, which are within about
+10% of each other in area at a 412px viewport. Treat `/` as **92 to 99, LCP 2.1 to 3.4s**, and
+treat the "home meets the LCP budget" claim as conditional rather than settled.
+
+The lesson for the next person measuring: compare against a rebuilt baseline commit, not against a
+number written down in this file on a different day. A stale recorded figure will manufacture a
+regression that a five-minute A/B disproves.
+
 ## Scores, against the Vercel deployment
 
 | Route | Performance | Accessibility | Best Practices | SEO | FCP | LCP | CLS | TBT |
