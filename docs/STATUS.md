@@ -583,6 +583,54 @@ Gate: typecheck, lint and build clean; **1665 e2e tests passing, 0 failing**; `p
 highs (2 moderates remain, both in the Sanity CLI's dependency tree and not in anything the site
 ships); the three standing scripts clean.
 
+### Phase 7: tests, accessibility, performance — done
+
+Full numbers and the reasoning in `docs/audits/perf-build2.md`.
+
+| Route | Perf | A11y | Best practices | SEO | LCP | CLS | TBT |
+|---|---|---|---|---|---|---|---|
+| `/` | 97 | 100 | 100 | 69\* | 2.6 s | 0 | 0 ms |
+| `/courses` | 95 | 100 | 100 | 69\* | 3.0 s | 0 | 0 ms |
+| `/courses/latte-art` | 94 | 100 | 100 | 69\* | 3.1 s | 0 | 0 ms |
+| `/calendar` | 94 | 100 | 100 | 69\* | 3.1 s | 0 | 0 ms |
+| `/enquire` | 94 | 100 | 100 | 69\* | 3.1 s | 0 | 0 ms |
+| `/book/[id]` | 98 | 100 | 100 | 66\* | 2.5 s | 0 | 0 ms |
+
+\* **SEO is 100**, and this was verified rather than assumed. The only failing SEO audit anywhere is
+"Page is blocked from indexing", which is the deliberate pre-launch noindex. Rebuilding with
+`NEXT_PUBLIC_INDEXABLE=true` and re-running `/courses` gives SEO 100
+(`docs/audits/lh2-courses-indexable.report.json`).
+
+**71KB of font came off the critical path of every page.** `src/lib/fonts.ts` listed the Montserrat
+Latin and Latin Extended files as two `src` entries with the same weight range and no
+`unicode-range` between them, which a browser reads as two faces for one descriptor and preloads
+both. LCP went from 3.4s to 2.5–3.1s and the course page from 92 to 98. Latin Extended covers
+Central and Eastern European characters; this site is in English and Latin-1 accents are in the
+latin subset already.
+
+**LCP is the only metric under target**, and four routes sit at 94 against ≥95. Everything else is
+at its ceiling: FCP 0.9s, Speed Index 0.9s, TBT 0ms, CLS 0. The mechanism is that `display: swap`
+paints text in the metric-matched fallback at 0.9s and then re-registers LCP when Montserrat
+arrives, so LCP measures the font download rather than when the reader saw something.
+`display: optional` was measured and rejected: it gained 0 to 4 points, which is the same size as
+the run-to-run variance, and it costs a first-time visitor the brand typeface for their whole first
+visit. The real lever is the client's photography (item 15): with no images, every LCP element is
+text; with them, it becomes an image that can be preloaded and served as AVIF.
+
+**Accessibility: axe clean on all 35 routes** including every new one, and Lighthouse Accessibility
+100 everywhere. `tests/e2e/keyboard.spec.ts` walks the checkout and the enquiry form from the
+keyboard on every engine.
+
+That file records something worth knowing: **WebKit's Tab key visits text fields and nothing else** —
+not links, not buttons, not checkboxes — unless "Press Tab to highlight each item on a webpage" is
+switched on, which is off by default in Safari. So the two engines are asserted for what each
+actually does: full tab order on Chromium, fields plus Enter-to-submit on WebKit. Asserting full tab
+order on WebKit would be asserting a fiction; skipping WebKit would leave much of this audience
+untested.
+
+Gate: typecheck, lint and build clean; **1697 e2e tests passing, 0 failing** across seven projects;
+all four standing scripts clean.
+
 ---
 
 ## Where this stands, and what to do next

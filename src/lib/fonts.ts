@@ -10,10 +10,34 @@
  */
 import localFont from "next/font/local";
 
+/*
+ * `display: "swap"`, not `"optional"`.
+ *
+ * `optional` was measured: it moved /courses and /book from 94 to 98 and left /calendar and
+ * /enquire unchanged, which is the same size as the run-to-run variance on this machine. What it
+ * costs is not variable: `optional` means a first-time visitor may never see Montserrat at all on
+ * that visit, because the browser only swaps on a later navigation. Trading the brand typeface on
+ * first paint for a Lighthouse point of uncertain provenance is not a trade worth making, and the
+ * fallback is metric-matched either way so there is no layout shift in either direction.
+ */
+
+/**
+ * Latin only, not Latin Extended.
+ *
+ * The two files were listed as two `src` entries with the same weight range and no `unicode-range`
+ * between them, which a browser reads as two faces for the same descriptor and preloads both: 109KB
+ * of Montserrat on the critical path of every page instead of 38KB. Lighthouse showed the three
+ * font files arriving ahead of the text they were needed for, and LCP sitting at 3.4s while FCP was
+ * 0.9s.
+ *
+ * The Latin Extended subset covers Central and Eastern European characters. This site is in English
+ * and Indian English, its content comes from Sanity in English, and Latin-1 accents (é, à, ü) are
+ * in the *latin* subset already. If a character outside it ever appears, the fallback stack renders
+ * it; that is a better trade than 71KB on every first paint for a 64%-mobile Indian audience.
+ */
 export const montserrat = localFont({
   src: [
     { path: "../fonts/montserrat-latin-variable.woff2", weight: "100 900", style: "normal" },
-    { path: "../fonts/montserrat-latin-ext-variable.woff2", weight: "100 900", style: "normal" },
   ],
   variable: "--font-montserrat",
   display: "swap",
