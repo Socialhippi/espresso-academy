@@ -751,7 +751,9 @@ every route inside the budget; see "The homepage was not slow" below for why the
 
 #### Environment on Vercel
 
-19 variables set on Production and Preview.
+19 variables set on Production and Preview — **18, in fact, until the Turnstile site key was found
+missing; see the live defect below.** The row for it in this table said "set" and was wrong, which
+is the argument for reading the environment rather than the document that describes it.
 
 | Variable | Prod | Preview | Absent means |
 |---|---|---|---|
@@ -767,7 +769,7 @@ every route inside the budget; see "The homepage was not slow" below for why the
 | `RESEND_API_KEY` | set | set | the form hands off to WhatsApp |
 | `LEAD_TO_EMAIL`, `BOOKING_TO_EMAIL` | set | set | falls back to the settings address |
 | `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_GA4_ID` | set | set | no analytics loads at all |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | set | set | the widget is skipped, the other three defences stand |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | set (the public half only from 7 Sep) | set | **both halves or neither** — the secret alone refused every booking |
 | `NEXT_PUBLIC_SITE_URL` | set | **unset by design** | Preview canonicalises to itself |
 | `NEXT_PUBLIC_INDEXABLE` | `false` | `false` | noindex everywhere |
 | `GOOGLE_SHEETS_*` | unset | unset | the lead still reaches Sanity and the inbox |
@@ -880,6 +882,95 @@ One warning appears in every run and is not this repository's to fix: GitHub for
 `pnpm/action-setup@v4`, `gitleaks/gitleaks-action@v2` and `actions/upload-artifact@v4` onto Node 24
 because they declare Node 20. They work today; when the fallback is removed they need a version
 bump.
+
+---
+
+### Live defect — a Turnstile secret with no site key refused every booking
+
+**Root cause, in one sentence: `NEXT_PUBLIC_TURNSTILE_SITE_KEY` was never set on Vercel while
+`TURNSTILE_SECRET_KEY` was, so no widget rendered, no token could exist, and the server read the
+absent token as a failed challenge and refused every booking with "We could not verify that you are
+human."**
+
+Reproduced on the deployment, not on localhost, with a batch id that does not exist — which is
+itself part of the finding, because it shows the check fires before anything else the route does:
+
+```
+POST /api/orders  {"instanceId":"definitely-not-a-real-batch", ...}
+400  {"ok":false,"errors":{"form":"We could not verify that you are human. Reload and try again."}}
+```
+
+`/enquire` had the same cause and a quieter symptom. `/api/enquiry` answers a failed challenge with
+the WhatsApp handoff and a **200**, so nothing looked wrong from the outside while every lead was
+dropped: no Sanity document, no email to the academy, no row anywhere. Confirmed live before the
+fix — a well-formed enquiry came back `delivery: "whatsapp"`, and the `enquiry` collection in
+Sanity is empty. **A dropped enquiry leaves no trace at all, so any enquiry submitted on the review
+alias between the build-2 deploy and this fix is simply gone**; on a noindexed pre-launch alias
+that is the client's own review traffic, but it is not nothing.
+
+What was and was not to blame, since three of the four things worth suspecting were fine:
+
+| Checked | Verdict |
+|---|---|
+| `TURNSTILE_SECRET_KEY` on Production | set |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` on Production | **absent — and absent on Preview too** |
+| CSP on `/book` and `/enquire` | fine: nonce + `strict-dynamic`, and `challenges.cloudflare.com` in `script-src`, `frame-src` and `connect-src` |
+| The siteverify call and its logging | fine, and never reached — `verifyTurnstile` returned `failed` before any request to Cloudflare |
+
+#### Why the environment variable was missing, and why nothing caught it
+
+Vercel refuses to accept a `NEXT_PUBLIC_`-prefixed variable without an explicit choice:
+
+> `NEXT_PUBLIC_TURNSTILE_SITE_KEY` looks like a credential, and `NEXT_PUBLIC_` exposes its value to
+> anyone visiting your site. Choose explicitly: rename to `TURNSTILE_SITE_KEY` with `--type secret`
+> to keep it private, or keep the name with `--type config` to expose it.
+
+That prompt is right to exist and it is where this variable was lost: the other eighteen went in
+and this one stopped to ask a question. A Turnstile **site** key is public by design — it is
+rendered into the page for the browser to use — so the answer is `--type config`, and that is how
+it is set now, on Production and Preview.
+
+Three separate things should have caught it and none did:
+
+1. **The test suite supplies its own token.** `payments.spec.ts` posts a `turnstileToken` string to
+   `/api/orders`, so all 1727 tests pass whether or not a browser was ever given a site key to
+   produce one with. A test that provides the token cannot see a missing widget.
+2. **Nothing ever drove the checkout from a browser.** `payments.spec.ts` says so deliberately —
+   "Razorpay's Checkout.js itself is exercised by hand" — and stopping at the API was reasonable.
+   Stopping *before the browser produces a token* was the gap.
+3. **`featureFlags()` was never called.** It carries a comment saying it is "logged once at boot so
+   a deployment's capabilities are visible in the platform log", and no file in `src/` called it.
+   The same class of defect as `NEXT_PUBLIC_INDEXABLE` in Build 2 Phase 0: a mechanism written,
+   documented, and never wired.
+
+#### The fix, in four parts
+
+- **`src/lib/turnstile-gate.ts`** — the rule, pure and unit-tested: **both halves or neither**. A
+  secret with no site key now skips the check and logs at error level, because the visitor was
+  never given the means to pass it. With both halves present a missing token still fails, which is
+  a real bot signal. Eight unit tests, written from the four states the pair can be in.
+- **The environment** — `NEXT_PUBLIC_TURNSTILE_SITE_KEY` set on Production and Preview as a public
+  config value, matching Cloudflare's published always-passes test pair the site already uses.
+- **`tests/booking/checkout-opens.spec.ts`** — drives the real page: the widget renders, it writes
+  a token, the form submits, Razorpay's modal opens. It stops at the modal, where `payments.spec.ts`
+  says it should. Validated as a negative control against the deployment *before* the fix, where it
+  fails with "no Turnstile widget: NEXT_PUBLIC_TURNSTILE_SITE_KEY is missing from this environment".
+  A second test asserts the same pair on `/enquire`, stopping at the token rather than submitting,
+  because a real submit against production would write a lead into the academy's dataset and email
+  them about it.
+- **`src/instrumentation.ts`** — `featureFlags()` is logged once per server boot at last, and
+  `halfConfigured()` names any pair with one side set. Turnstile, Razorpay and Meta all have a
+  browser key and a server key, and all three fail this way: the site renders, nothing throws, and
+  one path refuses everybody. `featureFlags().turnstile` also reported `true` on the strength of
+  the secret alone, which is how a broken bot check read as a working one; it needs both halves now.
+
+#### Two things found on the way
+
+- **Deploys were uploading the local `.next`.** `.vercelignore` did not list it, so the first deploy
+  after a local `pnpm build` spent over ten minutes uploading 515MB that the build machine throws
+  away. Ignored now, along with `node_modules`; the upload is 492KB.
+- **`vercel ls` reports a building deployment as `UNKNOWN`**, which reads exactly like a stuck one.
+  The build state that matters is in `readyState` on the API, not in the CLI's table.
 
 ---
 
