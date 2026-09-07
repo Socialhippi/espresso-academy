@@ -5,6 +5,7 @@
 # .next is pure wait — the first deploy after a local `pnpm build` took over ten minutes on it —
 # and a stale local build directory has no business travelling to a build machine.
 .next
+node_modules
 
 docs/screens
 docs/audits

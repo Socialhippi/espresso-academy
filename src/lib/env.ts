@@ -108,6 +108,40 @@ export function assertRequiredEnv(): void {
 export const canSendLeadEmail: boolean = Boolean(env.RESEND_API_KEY && env.LEAD_TO_EMAIL);
 
 /**
+ * Integrations that need a key on both sides. Each of these fails silently when only one half is
+ * set: the site renders, nothing throws, and one path refuses every visitor. That is not a
+ * hypothetical — a `TURNSTILE_SECRET_KEY` with no `NEXT_PUBLIC_TURNSTILE_SITE_KEY` refused every
+ * booking on production while every test was green.
+ *
+ * The public half of each pair is inlined at build time, so a fix here needs a redeploy, not just
+ * a dashboard edit.
+ */
+const KEY_PAIRS: Array<{ name: string; server: () => boolean; browser: () => boolean }> = [
+  {
+    name: "turnstile",
+    server: () => Boolean(env.TURNSTILE_SECRET_KEY),
+    browser: () => Boolean(env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
+  },
+  {
+    name: "razorpay",
+    server: () => Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET),
+    browser: () => Boolean(process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID?.trim()),
+  },
+  {
+    name: "meta",
+    server: () => Boolean(env.META_CAPI_ACCESS_TOKEN),
+    browser: () => Boolean(process.env.NEXT_PUBLIC_META_PIXEL_ID?.trim()),
+  },
+];
+
+/** The pairs with exactly one half configured, as `name: which half is missing`. */
+export function halfConfigured(): string[] {
+  return KEY_PAIRS.filter((pair) => pair.server() !== pair.browser()).map((pair) =>
+    pair.server() ? `${pair.name}: browser key missing` : `${pair.name}: server key missing`,
+  );
+}
+
+/**
  * What is switched on in this environment. Logged once at boot so a deployment's capabilities are
  * visible in the platform log rather than having to be inferred from behaviour.
  */
