@@ -1335,6 +1335,68 @@ says.
 
 ---
 
+### What the reviewers caught, including three defects I introduced
+
+The content-editor and design-reviewer ran on every route these commits touched. Their findings
+are worth recording separately, because half of them were mine.
+
+**Introduced by the hero-CTA commit and fixed before it shipped:**
+
+- `courseCta` did not require a batch to have a **date** before calling it bookable. `BatchTable`
+  only renders dated rows, so a priced, open, undated batch would have printed "Book this batch"
+  above a table reading "Batch dates are being finalised" — a demonstrative with nothing to point
+  at, and the batch alert suppressed.
+- The final CTA still said "the fee incl. GST and the batch dates are confirmed with you before you
+  pay" under a button that opens a checkout, where nothing is confirmed with anyone.
+- "Book a batch" was the wrong verb twice over: a batch is a cohort rather than a unit of purchase,
+  and the click scrolls rather than books. It is "Choose a date".
+
+**Introduced by the card commit and fixed after review:**
+
+- The card's book band **escaped its grid row** — `h-full` on the body link with the band as its
+  sibling meant 44px of overhang at 1280 and a 12px collision with the next row's photo at 768.
+- `group` on the article meant **hovering the band underlined the card title**: the card signalling
+  "open the course page" while the pointer was on a link to a checkout.
+- The band was 12px uppercase red — the quietest thing on the card, under design.md's 16px floor
+  for red text, and the only route to a checkout on the hub.
+
+**Introduced by the placeholder commit and fixed after review:**
+
+- Filtering a guide body block by block left the four question headings standing with every answer
+  removed: a page that looks like it answers four questions and answers none, which is worse than
+  the honest panel. A body now survives only if some prose does.
+- A stripped excerpt rendered a phantom paragraph, an **empty meta description** and an empty
+  description in the Article schema.
+- The guides hub still told the reader guides are "checked by another one of them before it goes
+  up" — the exact claim the bylines had just been withheld for.
+
+**Found by review, not introduced here, and worth more than any of the above:**
+
+- **The page asked for money without naming an amount.** `FeeBlock`, the sticky bar and the
+  `/courses` fee panel all read `course.feeInclGst`, while every CTA read `feeForInstance`, which
+  honours a batch's `priceOverride`. `/courses/latte-art` therefore printed "Fee TBC — the academy
+  confirms the fee for each batch" on a page whose hero, sticky bar and batch table all said "Book
+  this batch". The fee now comes from the batch the button points at. The bar had the same split on
+  dates: it showed the soonest batch while booking the soonest *bookable* one, so on a course whose
+  next batch is sold out it described one batch and charged for another.
+- **The batch table clipped its own primary action at 390.** 376px of table inside a 350px
+  scroller, so Book and Waitlist were cut mid-word with no scroll affordance — on the 64% of this
+  audience that is on a phone. Stacked rows below md now, mirroring the pattern `/courses` already
+  used for the fee table.
+
+**Open, and deliberately not done in this pass:**
+
+- `/for-cafes` has no dark section and runs its whole length at the compressed `section-y-sm`
+  rhythm rather than design.md's 64/128. It is also the only route with no photograph slot at all,
+  so it reads as a text document.
+- The consent checkbox is 24px. That clears WCAG 2.5.8 and fails this project's stricter 44px rule.
+  It is shared by `/enquire`, `/contact` and `/for-cafes`.
+- The footer's four `h2`s are 12px, in the same outline as the page's 28/40px `h2`s.
+- A batch's waitlist link passes `?batch=5%20Sept%202027` — a formatted date where `courseCta`
+  passes an instance id. One of the two is wrong.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores
