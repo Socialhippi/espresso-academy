@@ -31,6 +31,7 @@ The only facts the website may state. Every line has a source and a date. Anythi
 
 ## Trainers (source: espressoacademy.in "Team", 2026-09-04; also listed as authorised trainers on espressoacademy.it/en/our-authorized-trainers/)
 - Akanksha Gupta: biotechnology graduate; Coffee Board of India diploma; SCA-certified in sensory, barista and roasting modules; competition judge. Exact module levels: TBC.
+- Akanksha Gupta is listed in the SCA public trainer directory as an **SCA Trainer (AST)**, Karnataka, for Introduction to Coffee, Barista Skills, Brewing, Sensory Skills, Roasting, CVA for Cuppers and Q Grader. Source: SCA public trainer directory, checked 5 Sept 2026. Currency of the listing, and which batches are assessed, are still to be confirmed by the academy.
 - Sowmya R: biotechnology graduate; Coffee Board of India diploma; CQI Q Processing professional; FSSAI Food Safety Supervisor.
 - Nirupam Ranjan: life sciences graduate; Coffee Board of India diploma; Q Grader (Arabica and Robusta); former operations head at a gourmet roaster.
 - Four further India-affiliated authorised trainers appear on the Florence list (Nagesh K, Sabin Pathak, Arjun Sethi, Rabin Pathak); whether they teach in Bengaluru: TBC (client). Do not list them yet.
@@ -42,7 +43,12 @@ The only facts the website may state. Every line has a source and a date. Anythi
 - Logo: fleur-de-lis with portafilter, hand-lettered wordmark "- Espresso Academy -" with "INDIA" in red. SVG: TBC (only raster renders available).
 
 ## Claims we may NOT make (until the client confirms in writing)
-- "SCA-certified courses", "SCA Premier Training Campus", "AST" for any named trainer.
+- "SCA-certified courses" and "SCA Premier Training Campus". Neither is sourced, and a course being
+  aligned to the Coffee Skills Program is not the same as a course the SCA certifies.
+- "AST" for any named trainer **except Akanksha Gupta**, whose listing is sourced above. Even for
+  her the site says the academy has an SCA Authorised Trainer on faculty and that assessed modules
+  are available on batches the academy confirms; it does not say a given course is assessed, does
+  not name a module as certified, and does not state a fee for an assessment.
 - "17 branches worldwide", "partnership with Berry Co", "Coorg's next-gen coffee planters" (brochure claims, unverified).
 - Any fee, discount, EMI, duration, seat count, batch date, placement rate, graduate count, review count or rating.
 - "India's first / only / best" anything.

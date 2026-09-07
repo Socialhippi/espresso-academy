@@ -177,8 +177,9 @@ test.describe("no invented facts", () => {
       expect(body, "no trained-N claim").not.toMatch(
         /\b(over|more than|trained|taught|placed)\s+\d[\d,]*\s+(students|graduates|baristas|people)\b/i,
       );
-      // A trainer being SCA certified is supported by content/facts.md. A *course* being
-      // "SCA certified" is not, and content.md forbids it until AST status is confirmed.
+      // facts.md sources one named Authorised Trainer, so the site may say the academy has an AST
+      // on faculty. A *course* being "SCA certified" is a different claim, it is not sourced, and
+      // facts.md still forbids it: alignment to the Coffee Skills Program is not certification.
       expect(body, 'no "SCA certified course" phrasing').not.toMatch(
         /SCA[- ]certified\s+(course|courses|programme?|training|batch)/i,
       );

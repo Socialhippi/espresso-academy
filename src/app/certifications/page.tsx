@@ -28,7 +28,10 @@ const comparison = [
   {
     label: "Who issues it",
     ibc: "Espresso Academy, Florence. Diplomas are issued in Italy and sent to authorised partner schools.",
-    sca: "The Specialty Coffee Association, not the school. The academy teaches training aligned to the program; whether a batch is assessed for SCA certification is confirmed at enrolment.",
+    /* facts.md, Trainers: Akanksha Gupta is listed in the SCA public trainer directory as an
+       Authorised Trainer, checked 5 Sept 2026. That supports "an AST on faculty" and nothing
+       further: which batches are assessed is still the academy's to confirm. */
+    sca: "The Specialty Coffee Association, not the school. The academy has an SCA Authorised Trainer on faculty, and assessed SCA modules are available on batches the academy confirms. The courses are described as training aligned to the program.",
   },
   {
     label: "Levels",

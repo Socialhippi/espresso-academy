@@ -134,10 +134,13 @@ export const trainers: Trainer[] = [
     role: null,
     credentials: [
       { name: "Diploma, Coffee Board of India", issuer: "Coffee Board of India" },
+      /* facts.md, Trainers: the SCA public trainer directory lists her as an SCA Trainer (AST),
+         Karnataka, checked 5 Sept 2026. The modules are the directory's own list. */
+      { name: "SCA Authorised Trainer (AST)", issuer: "Specialty Coffee Association" },
       { name: "SCA certified: Sensory Skills, Barista Skills, Roasting", issuer: "Specialty Coffee Association" },
       { name: "Coffee competition judge", issuer: null },
     ],
-    bio: "Akanksha is a biotechnology graduate with a Coffee Board of India diploma and SCA certifications in sensory, barista and roasting modules. She judges coffee competitions and teaches at the Bengaluru campus.",
+    bio: "Akanksha is a biotechnology graduate with a Coffee Board of India diploma and SCA certifications in sensory, barista and roasting modules. She is listed in the SCA trainer directory as an Authorised Trainer for Introduction to Coffee, Barista Skills, Brewing, Sensory Skills, Roasting, CVA for Cuppers and Q Grader. She judges coffee competitions and teaches at the Bengaluru campus.",
     philosophy: null,
     image: null,
     sameAs: ["https://espressoacademy.it/en/our-authorized-trainers/"],
@@ -290,7 +293,7 @@ export const courses: Course[] = [
 export const faqs: FaqItem[] = [
   { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with IBC Junior or Barista Skills Foundation. If you already pull shots daily, start at Intermediate or IBC Advanced. Message us on WhatsApp with your background and we will point you to the right one.", link: { label: "See all courses", href: "/courses" } },
   { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India offers it at Junior and Advanced levels.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
-  { category: "certification", q: "Are your courses SCA certified?", a: "Our training is aligned to the SCA Coffee Skills Program across five modules at Foundation, Intermediate and Professional levels. Whether a batch is assessed for SCA certification, and the SCA fee involved, is confirmed at enrolment.", link: { label: "About the SCA program", href: "/certifications/sca-coffee-skills-program" } },
+  { category: "certification", q: "Are your courses SCA certified?", a: "The academy has an SCA Authorised Trainer on faculty, and assessed SCA modules are available on batches the academy confirms. The courses themselves are described as training aligned to the SCA Coffee Skills Program, across five modules at Foundation, Intermediate and Professional levels. Ask which batches are assessed, and what the SCA charges for the assessment, before you book.", link: { label: "About the SCA program", href: "/certifications/sca-coffee-skills-program" } },
   { category: "fees", q: "How much do the courses cost?", a: "Fees are confirmed by the academy for each batch and stated incl. GST before you pay. Message us on WhatsApp for the current fee sheet.", link: { label: "See the fee table", href: "/courses" } },
   { category: "schedule", q: "When is the next batch?", a: "Batch dates are announced on each course page and on the calendar. Join the batch alert on any course to be told first.", link: { label: "See the batch calendar", href: "/calendar" } },
   { category: "campus", q: "Where is the academy?", a: "Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
