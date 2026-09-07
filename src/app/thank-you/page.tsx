@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 const steps = [
   {
     number: "01",
-    title: "Someone reads it",
-    body: "A trainer, not a call centre. They look at what you asked and where you are starting from.",
+    title: "The academy reads it",
+    body: "Someone looks at what you asked and where you are starting from.",
   },
   {
     number: "02",

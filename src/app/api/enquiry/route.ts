@@ -351,7 +351,7 @@ function studentBody(enquiry: EnquiryInput, courseUrl: string, replyPromise: str
   return [
     `Hello ${enquiry.name},`,
     "",
-    `We have your enquiry ${subject}. A trainer reads it and replies to you directly.`,
+    `We have your enquiry ${subject}. The academy reads it and replies to you directly.`,
     "",
     replyPromise ?? "We reply on WhatsApp during academy hours.",
     "",

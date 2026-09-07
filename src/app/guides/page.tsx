@@ -63,8 +63,9 @@ export default async function GuidesPage() {
             <div className="mt-8 border border-white-2 bg-white-3 p-6 md:p-10">
               <h3 className="type-h3 text-black">The guides are being written</h3>
               <p className="mt-4 measure type-body text-grey">
-                Until they are up, the fastest way to get an answer is to ask. A trainer replies,
-                and if the answer is useful to other people it usually becomes one of these.
+                Until they are up, the fastest way to get an answer is to ask. The academy
+                replies, and if the answer is useful to other people it usually becomes one of
+                these.
               </p>
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
                 <ButtonLink href="/faq" variant="primary">
