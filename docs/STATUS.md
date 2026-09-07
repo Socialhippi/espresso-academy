@@ -751,29 +751,76 @@ every route inside the budget; see "The homepage was not slow" below for why the
 
 #### Environment on Vercel
 
-19 variables set on Production and Preview — **18, in fact, until the Turnstile site key was found
-missing; see the live defect below.** The row for it in this table said "set" and was wrong, which
-is the argument for reading the environment rather than the document that describes it.
+**Read from Vercel, not written from memory.** Every name below came out of
+`vercel env ls production` on 7 September 2026; the second table is every name the code reads that
+is *not* there. This section exists in this form because the previous version of it was a
+hand-written table that said the Turnstile site key was set when it was not, and the site key being
+missing refused every booking on the site for two days.
 
-| Variable | Prod | Preview | Absent means |
-|---|---|---|---|
-| `NEXT_PUBLIC_SANITY_PROJECT_ID` | set | set | **the build fails** — required |
-| `NEXT_PUBLIC_SANITY_DATASET` | set | set | **the build fails** — required |
-| `NEXT_PUBLIC_SANITY_API_VERSION` | set | set | a pinned default |
-| `SANITY_API_READ_TOKEN` | set | set | published content only |
-| `SANITY_API_WRITE_TOKEN` | set | set | leads and bookings log instead of storing |
-| `SANITY_REVALIDATE_SECRET` | set | set | `/api/revalidate` refuses everything |
-| `RAZORPAY_KEY_ID` / `_SECRET` | test | test | Book becomes Enquire |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | test | test | Checkout cannot open |
-| `RAZORPAY_WEBHOOK_SECRET` | set | set | the webhook answers 503 |
-| `RESEND_API_KEY` | set | set | the form hands off to WhatsApp |
-| `LEAD_TO_EMAIL`, `BOOKING_TO_EMAIL` | set | set | falls back to the settings address |
-| `NEXT_PUBLIC_GTM_ID`, `NEXT_PUBLIC_GA4_ID` | set | set | no analytics loads at all |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` / `TURNSTILE_SECRET_KEY` | set (the public half only from 7 Sep) | set | **both halves or neither** — the secret alone refused every booking |
-| `NEXT_PUBLIC_SITE_URL` | set | **unset by design** | Preview canonicalises to itself |
-| `NEXT_PUBLIC_INDEXABLE` | `false` | `false` | noindex everywhere |
-| `GOOGLE_SHEETS_*` | unset | unset | the lead still reaches Sanity and the inbox |
-| `NEXT_PUBLIC_META_PIXEL_ID`, `META_CAPI_ACCESS_TOKEN` | unset | unset | no Pixel, no CAPI |
+Regenerate it with:
+
+```
+npx vercel env ls production | grep -E "Config|Secret" | awk '{print $1}' | sort
+grep -E "^[A-Z_]+=" .env.example | cut -d= -f1 | sort -u        # what the code reads
+```
+
+#### The 19 variables that exist on Production
+
+Names only — no values, and the Secret ones cannot be read back out of Vercel anyway.
+
+| # | Name | Type |
+|---|---|---|
+| 1 | `NEXT_PUBLIC_SANITY_PROJECT_ID` | Config |
+| 2 | `NEXT_PUBLIC_SANITY_DATASET` | Config |
+| 3 | `NEXT_PUBLIC_SANITY_API_VERSION` | Config |
+| 4 | `SANITY_API_READ_TOKEN` | Secret |
+| 5 | `SANITY_API_WRITE_TOKEN` | Secret |
+| 6 | `SANITY_REVALIDATE_SECRET` | Secret |
+| 7 | `RAZORPAY_KEY_ID` | Secret |
+| 8 | `RAZORPAY_KEY_SECRET` | Secret |
+| 9 | `RAZORPAY_WEBHOOK_SECRET` | Secret |
+| 10 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Config |
+| 11 | `RESEND_API_KEY` | Secret |
+| 12 | `LEAD_TO_EMAIL` | Secret |
+| 13 | `BOOKING_TO_EMAIL` | Secret |
+| 14 | `TURNSTILE_SECRET_KEY` | Secret |
+| 15 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Config — **added 7 Sep; its absence refused every booking** |
+| 16 | `NEXT_PUBLIC_GTM_ID` | Config |
+| 17 | `NEXT_PUBLIC_GA4_ID` | Config |
+| 18 | `NEXT_PUBLIC_SITE_URL` | Config — Production only, by design; Preview canonicalises to itself |
+| 19 | `NEXT_PUBLIC_INDEXABLE` | Config — `false` until launch |
+
+#### The 10 the code reads and Production does not have
+
+Every one of these degrades rather than throwing, which is the point of the design and also the
+reason a missing one is invisible. This is the list to read when something "works locally".
+
+| Name | What its absence does |
+|---|---|
+| `RESEND_FROM_EMAIL` | **mail sends from `onboarding@resend.dev`, which Resend delivers only to the account owner — every student confirmation is refused with a 403.** The one on this list that is currently costing something |
+| `CAFE_TO_EMAIL` | cafe enquiries fall back to `LEAD_TO_EMAIL` |
+| `NEXT_PUBLIC_WHATSAPP_NUMBER` | the number comes from Sanity settings, which is the intended source |
+| `GOOGLE_SHEETS_ID` | no lead mirror; the lead still reaches Sanity and the inbox |
+| `GOOGLE_SHEETS_CLIENT_EMAIL` | as above |
+| `GOOGLE_SHEETS_PRIVATE_KEY` | as above |
+| `NEXT_PUBLIC_META_PIXEL_ID` | no Pixel in the browser |
+| `META_CAPI_ACCESS_TOKEN` | no server-side conversions |
+| `META_TEST_EVENT_CODE` | correct — this must be absent in production or every real conversion files as a test |
+| `NEXT_PUBLIC_CALCOM_LINK` | cafe thank-you page says the academy will call instead of offering a slot |
+
+`SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET` are **not** Vercel variables. They belong to
+the `sanity deploy` build, which runs from a developer's machine, and `sanity.cli.ts` fills them in
+from the Next names. Setting them on Vercel would do nothing.
+
+`NEXT_PUBLIC_GA4_ID` is set on Vercel but is **not** in `.env.example`, so a fresh checkout does not
+know it exists. Worth adding the next time that file is touched.
+
+#### Preview
+
+Preview carries the same variables as Production with one deliberate difference:
+`NEXT_PUBLIC_SITE_URL` is **unset**, so a preview canonicalises to its own hostname instead of
+claiming production's. `NEXT_PUBLIC_TURNSTILE_SITE_KEY` was missing from Preview too and was added
+alongside Production on 7 September.
 
 #### Docs
 
@@ -1017,6 +1064,103 @@ blocked deployment as `Building…` and `vercel ls` reports it as `UNKNOWN`.
 - **Nine `Playwright Student` bookings are in the dataset** from the local runs that proved this
   fix. `tests/global-setup.ts` deletes every booking against the test batches and resets their
   seats at the start of every run, so the next ordinary `pnpm test:e2e` clears them.
+
+---
+
+### Live defect — the confirmation email, and the Studio that could not read its own project id
+
+Both found by the first real ₹1 test booking (`xvuzN2LsJHpDYQfF3mOD37`, Latte Art test batch).
+
+#### 1. No confirmation email: Resend refused the recipient
+
+**Root cause, in one sentence: no domain is verified in Resend and `RESEND_FROM_EMAIL` is not set,
+so the site sends from `onboarding@resend.dev`, which Resend delivers *only to the Resend account
+owner's own address* — the academy's copy of the booking arrived and the student's confirmation was
+rejected with a 403.**
+
+Checked in the order it needed checking, on the deployment:
+
+| Check | Finding |
+|---|---|
+| `RESEND_API_KEY` on Vercel production | **set** |
+| Sending domain verified in Resend | **none — `GET /domains` returns an empty list**, so the sender is `onboarding@resend.dev` |
+| Razorpay webhook arrived and verified | **yes** — `{"event":"captured","paymentId":"pay_TZ4FGUIUuPQvNQ","overbooked":false}`, answered 200 |
+| Did the send call run, and what did Resend return | **it ran and Resend refused it**: `403 validation_error` — "You can only send testing emails to your own email address (business@socialhippi.com)." Reproduced by hand against the same key and the same sender. |
+| Booking in Sanity, status and seats | **`status: "paid"`**, payment id recorded, batch `seatsBooked` incremented |
+
+Resend's own log is the clearest evidence. Twenty emails, every one of them to
+`business@socialhippi.com`, including **two** academy notifications for these bookings, both
+`delivered`. Emails ever addressed to `yashwanth@socialhippi.com`: **zero**. The student's
+confirmation was never accepted, so it has no delivery record and no bounce — it simply does not
+exist.
+
+That also means **no student confirmation has ever been delivered by this site**. It was invisible
+because every test until now used the account owner's address as the *academy* recipient, which is
+the one address this sender is allowed to reach.
+
+**Two defects, not one.** The second is that a rejected send was silent. `sendEmail` returns
+`{ sent: false, reason }` rather than throwing — deliberately, so a mail failure cannot undo a
+payment — and `notify()` then dropped every result into `Promise.allSettled` and looked at none of
+them. A 403 from Resend produced no log line anywhere. Each task is labelled now and a failure is
+logged at error level with Resend's own message, because this is the one failure in that route
+somebody has to know about the same day: the seat is taken, the money is at the gateway, and the
+only party who does not know it worked is the person who paid.
+
+`halfConfigured()` also warns at boot when `RESEND_API_KEY` is set with no `RESEND_FROM_EMAIL`, and
+`featureFlags()` gained `emailToAnyone` beside `email` — a key alone is not the same capability as
+a key that can reach a customer.
+
+**Proved with a fresh booking on the deployed URL.** Order created through production's own
+`/api/orders`, captured with a signed `payment.captured` webhook, which is the path
+`payments.spec.ts` uses and the same `notify()` a real capture runs. Booking `op6qc7AC0ODzuklaChMyQP`
+reads `paid`, the seat moved, and **both** emails came back `delivered`:
+
+```
+2026-09-07 08:01:43 | business@socialhippi.com | delivered | Your seat is booked: Latte Art
+2026-09-07 08:01:43 | business@socialhippi.com | delivered | Booking: Email Proof — Latte Art
+```
+
+The first of those is the student confirmation, and it is the first one this project has ever
+delivered. The student address had to be the Resend account owner's for it to be accepted, which is
+the whole finding: **the code is correct and the account is not configured to reach anyone else.**
+Razorpay's own card UI was not automated to get there — `payments.spec.ts` declines to drive a
+third-party iframe and two attempts confirmed why — but the browser reaching Razorpay's modal on
+production is asserted separately by `tests/booking/checkout-opens.spec.ts`.
+
+**What is still needed, and only the academy can do it:** verify a domain at resend.com/domains
+(DNS records on whichever domain the academy wants mail to come from) and set `RESEND_FROM_EMAIL`
+to an address on it. Until then every student confirmation will be refused. This was already item
+one in the launch checklist's "Accounts and keys", described as cosmetic — "reaches an inbox but
+does not say Espresso Academy in the sender line". That sentence was wrong and it is corrected.
+
+#### 2. The hosted Studio crashed at boot
+
+**Root cause: `sanity/env.ts` read `NEXT_PUBLIC_SANITY_PROJECT_ID`, and the hosted Studio is built
+by `sanity deploy` through Vite, which exposes only `SANITY_STUDIO_`-prefixed variables — so the
+bundle was built with `undefined` and threw on a variable that build can never see, whatever anyone
+sets on Vercel.**
+
+It reads `SANITY_STUDIO_PROJECT_ID` and `SANITY_STUDIO_DATASET` first now, falling back to the Next
+names for the site build and the Node seed scripts, and `sanity.cli.ts` copies the values across
+before anything builds so `pnpm sanity:deploy` works from the environment the site already needs.
+The deploy log now lists what went into the bundle:
+
+```
+Including the following environment variables as part of the JavaScript bundle:
+- SANITY_STUDIO_PROJECT_ID  - SANITY_STUDIO_DATASET
+- SANITY_STUDIO_API_VERSION - SANITY_STUDIO_SITE_URL
+```
+
+Both doors open: `https://espresso-academy-india.sanity.studio` renders Sanity's login, and
+`/studio` on the site renders its provider chooser. Neither shows the missing-variable error, which
+it could not have reached the login screen at all without — `defineConfig` throws at module load.
+Screenshots in `docs/screens/studio-hosted.png` and `docs/screens/studio-embedded.png`.
+**Listing the bookings needs the academy's own Google or GitHub login**, so that half is theirs to
+confirm; the bookings are in the dataset and the Studio's batch roster view reads them.
+
+One thing left open: `/studio` on the site logs `TypeError: Cannot read properties of null (reading
+'appendChild')` at boot. It renders and logs in regardless, and the hosted Studio does not do it, so
+it is the embedded page's chrome rather than the Studio. Worth a look, not worth blocking on.
 
 ---
 

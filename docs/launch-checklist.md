@@ -58,9 +58,13 @@ empty, because they are what a student came to find out.
 
 ## 3. Accounts and keys
 
-- [ ] **Resend sending domain.** Verify the academy's domain and set `RESEND_FROM_EMAIL` to an
-      address on it. Until then mail comes from `onboarding@resend.dev`, which reaches an inbox but
-      does not say Espresso Academy in the sender line.
+- [ ] **Resend sending domain. This one is not cosmetic and it is not optional.** Verify the
+      academy's domain at resend.com/domains and set `RESEND_FROM_EMAIL` to an address on it.
+      Until then mail goes from `onboarding@resend.dev`, and **Resend delivers that sender only to
+      the Resend account owner's own address**. Every other recipient is rejected with a 403. In
+      practice that means the academy's copy of a booking arrives and **the student's confirmation
+      never does** — which is exactly what happened to the first real test booking. An earlier
+      version of this line said it "reaches an inbox", and that sentence is why nobody checked.
 - [ ] **Google Sheets lead mirror.** Create a service account, share the sheet with it, set
       `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_CLIENT_EMAIL` and `GOOGLE_SHEETS_PRIVATE_KEY`. Optional:
       without it a lead still reaches Sanity and the inbox.
@@ -72,6 +76,40 @@ empty, because they are what a student came to find out.
 - [ ] **Cal.com**, if the academy wants cafe enquiries to book a call. Set
       `NEXT_PUBLIC_CALCOM_LINK`.
 - [ ] **Import the GTM container**: `docs/gtm-container.json`, per `docs/analytics-setup.md`.
+
+---
+
+## 3b. Production environment checks
+
+Three outages in one day came from the same shape of mistake: a variable that is right on a
+developer's machine and absent, or differently named, in production. None of them threw. Each one
+rendered a working-looking site with one path that refused everybody. **Run these against the
+deployment, not against localhost.**
+
+- [ ] **Every variable the code reads is present in Vercel production.** The inventory is in
+      `docs/STATUS.md` under "Environment on Vercel", by name, with what each absence does. Compare
+      it against `vercel env ls production` and against `.env.example`; anything in the second and
+      not the first is a silent degradation waiting to happen.
+- [ ] **The boot log is clean.** `vercel logs <deployment-url> --since 1h | grep half-configured`
+      returns nothing. `src/instrumentation.ts` prints the feature flags on every server boot and
+      names any integration configured on one side only.
+- [ ] **A real email leaves the building.** Make a test booking on the deployed URL with a student
+      email that is **not** the Resend account owner's, and confirm the confirmation arrives.
+      Check `https://api.resend.com/emails` if it does not: a rejected send has no delivery record
+      at all, and until this repository's `notify-failed` log existed it left no trace anywhere.
+- [ ] **Both Studios open.** `https://espresso-academy-india.sanity.studio` and `/studio` on the
+      site. The hosted Studio is a **separate build** from the site: `sanity deploy` builds it with
+      Vite, which exposes only `SANITY_STUDIO_`-prefixed variables, so it cannot see any
+      `NEXT_PUBLIC_` name however it is set on Vercel. `sanity.cli.ts` bridges the two; if the
+      Studio ever boots to "Missing ...PROJECT_ID", that bridge is what to look at.
+- [ ] **Turnstile has both halves.** `NEXT_PUBLIC_TURNSTILE_SITE_KEY` *and* `TURNSTILE_SECRET_KEY`,
+      in Production and Preview. Vercel refuses a `NEXT_PUBLIC_` variable without an explicit
+      public/private choice, which is how the site key went missing the first time; a site key is
+      public by design, so the answer is `--type config`. With the secret alone, every booking is
+      refused with "We could not verify that you are human."
+- [ ] **The paid path end to end on the deployment**: book a seat, pay, and confirm the seat count
+      moves, the booking reads `paid` in the Studio, the student's email arrives and the academy's
+      does. Any one of those four can fail while the other three look fine.
 
 ---
 
