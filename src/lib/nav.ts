@@ -7,6 +7,19 @@ export interface NavItem {
   description?: string;
 }
 
+/**
+ * Seven items, and the seventh is Contact.
+ *
+ * A coffee school in Bengaluru is a place people come to. Somebody who wants the address, the
+ * hours or the map had to find Contact in the footer, which on a phone is the whole page away.
+ *
+ * FAQ moved out to make room. It is the one item here that answers a question the reader could
+ * also get from the page they are already on — every course page carries its own FAQ block, and
+ * /faq is linked from the home page's questions section and from the footer. Contact is not
+ * reachable any other way. The header measures 1064px with six items inside design.md's 32px
+ * gutters and the nav breakpoint is 1080, so seven items of this width still fit; the mobile
+ * sheet lists all of them plus the wider `learnMoreNav`.
+ */
 export const primaryNav: NavItem[] = [
   { href: "/courses", label: "Courses" },
   { href: "/calendar", label: "Calendar" },
@@ -14,6 +27,7 @@ export const primaryNav: NavItem[] = [
   { href: "/trainers", label: "Trainers" },
   { href: "/about", label: "About" },
   { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export const learnMoreNav: NavItem[] = [

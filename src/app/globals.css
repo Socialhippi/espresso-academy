@@ -86,12 +86,18 @@
 }
 
 /* The width at which the full primary navigation fits beside the brand lockup and the two
-   actions. Measured, not guessed: brand 258 + nav 564 + actions 152 is 974px, and with the
-   32px gutters design.md fixes and a 16px gap either side of the nav it needs 1064px. At lg
-   (1024) the actions block ended 2px past the viewport, so the Enquire pill was clipped and
-   the right gutter was gone. A token rather than an inline arbitrary value, per rule 3. */
+   actions. Measured, not guessed. It was 1080: brand 258 + nav 564 + actions 152 is 974px, and
+   with the 32px gutters design.md fixes and a 16px gap either side of the nav that needed 1064px.
+   At lg (1024) the actions block ended 2px past the viewport, so the Enquire pill was clipped and
+   the right gutter was gone.
+
+   Adding Contact as a seventh item widened the nav from 564 to 660 and the header to a measured
+   1122px, which overflowed at both 1080 and 1120. 1128 is that measurement rounded up onto the
+   8px grid. The cost is a 48px band, 1080 to 1127, that now gets the mobile sheet instead of the
+   nav row; the alternative was a header wider than its viewport, which this project has already
+   shipped twice. A token rather than an inline arbitrary value, per rule 3. */
 @theme {
-  --breakpoint-nav: 1080px;
+  --breakpoint-nav: 1128px;
 }
 
 /* ---------------------------------------------------------------------------
