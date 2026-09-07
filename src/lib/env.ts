@@ -55,6 +55,9 @@ const optionalSchema = z.object({
   GOOGLE_SHEETS_PRIVATE_KEY: z.string().min(1).optional(),
 
   TURNSTILE_SECRET_KEY: z.string().min(1).optional(),
+  // The public half. Listed here so the pair is validated together and the flag below cannot
+  // report a bot check that the browser was never given the means to satisfy.
+  NEXT_PUBLIC_TURNSTILE_SITE_KEY: z.string().min(1).optional(),
   META_CAPI_ACCESS_TOKEN: z.string().min(1).optional(),
   META_TEST_EVENT_CODE: z.string().min(1).optional(),
 });
@@ -119,7 +122,8 @@ export function featureFlags(): Record<string, boolean> {
     sheets: Boolean(
       env.GOOGLE_SHEETS_ID && env.GOOGLE_SHEETS_CLIENT_EMAIL && env.GOOGLE_SHEETS_PRIVATE_KEY,
     ),
-    turnstile: Boolean(env.TURNSTILE_SECRET_KEY),
+    // Both halves, deliberately. The secret alone is not a working bot check: it is a broken one.
+    turnstile: Boolean(env.TURNSTILE_SECRET_KEY && env.NEXT_PUBLIC_TURNSTILE_SITE_KEY),
     metaCapi: Boolean(env.META_CAPI_ACCESS_TOKEN),
     indexable: isIndexable,
   };
