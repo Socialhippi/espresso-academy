@@ -190,30 +190,33 @@ test.describe("the honeypot is invisible and untabbable", () => {
       await expect(honeypot).toBeAttached();
 
       /*
-       * Not `toBeHidden()`. The field is `sr-only`, which clips it to a 1px box rather than setting
-       * display:none — deliberately, because a bot reading the DOM should still find it. Playwright
-       * counts a 1px box as visible, so the assertion that matters is that the box is too small for
-       * a person to see or hit.
+       * What makes this field invisible is its `sr-only` wrapper, not the field: the input keeps a
+       * perfectly ordinary 186x26 layout box and the wrapper clips it to 1px with overflow hidden.
+       * So the wrapper is what has to be measured, and `toBeHidden()` is no use either — it is a
+       * 1px box, not display:none, deliberately, because a bot reading the DOM should still find
+       * it. This walks to the aria-hidden ancestor and checks that *it* is too small to see or tap.
        */
-      const box = await honeypot.boundingBox();
-      const area = box ? box.width * box.height : 0;
-      expect(area, "a filled honeypot is dropped, so nobody may see or tap it").toBeLessThanOrEqual(
-        4,
-      );
+      const wrapper = await honeypot.evaluate((element) => {
+        let node: HTMLElement | null = element.parentElement;
+        while (node) {
+          if (node.getAttribute("aria-hidden") === "true") {
+            const rect = node.getBoundingClientRect();
+            return { found: true, area: rect.width * rect.height };
+          }
+          node = node.parentElement;
+        }
+        return { found: false, area: Number.POSITIVE_INFINITY };
+      });
+
+      expect(wrapper.found, "the honeypot is not inside an aria-hidden container").toBe(true);
+      expect(
+        wrapper.area,
+        "a filled honeypot is dropped silently, so nobody may see or tap it",
+      ).toBeLessThanOrEqual(4);
       await expect(honeypot).toHaveAttribute("tabindex", "-1");
       await expect(honeypot).toHaveAttribute("autocomplete", "off");
 
-      // aria-hidden sits on the wrapper, which is what takes the field out of the accessibility
-      // tree along with its label.
-      const hiddenAncestors = await honeypot.evaluate((element) => {
-        let node: HTMLElement | null = element.parentElement;
-        while (node) {
-          if (node.getAttribute("aria-hidden") === "true") return true;
-          node = node.parentElement;
-        }
-        return false;
-      });
-      expect(hiddenAncestors, "the honeypot is not inside an aria-hidden container").toBe(true);
+
     });
   }
 });
