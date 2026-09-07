@@ -3,7 +3,16 @@ name: CI
 on:
   push:
     branches: [main]
+    # The e2e job costs about half an hour of billed runner minutes, and a commit that only edits
+    # prose cannot change what it would prove. Code paths are not listed here, so anything not
+    # named below still runs the full pipeline.
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
   pull_request:
+    paths-ignore:
+      - "docs/**"
+      - "**/*.md"
   workflow_dispatch:
 
 concurrency:
