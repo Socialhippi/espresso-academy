@@ -1343,6 +1343,12 @@ are worth recording separately, because half of them were mine.
 Gate: typecheck, lint and build clean; **1797 e2e tests passing, 0 failing**, 260 skipped by
 design, against the `ci` dataset.
 
+Verified on the deployment afterwards, not only locally: every touched route 200; **zero
+placeholder strings on `/for-cafes`, `/guides`, a guide and `/lp`**; the AST wording live on
+`/faq`; all seven nav labels including Contact in the served HTML; `/lp/example-campaign` titled
+"Latte Art" rather than its own brief; and the three standing scripts clean — no overflow at 360,
+390, 768, 1024 or 1280, no forbidden colour pair, every standalone target at least 44px.
+
 **Introduced by the hero-CTA commit and fixed before it shipped:**
 
 - `courseCta` did not require a batch to have a **date** before calling it bookable. `BatchTable`
