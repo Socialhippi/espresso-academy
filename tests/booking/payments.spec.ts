@@ -250,7 +250,13 @@ test.describe("the sold-out state", () => {
     request,
   }) => {
     // One seat on this batch, so one paid booking fills it.
-    const { body } = await createOrder(request, { instanceId: SOLDOUT_INSTANCE });
+    const { status, body } = await createOrder(request, { instanceId: SOLDOUT_INSTANCE });
+    /* Assert before dereferencing. A refused order used to surface as "Cannot read properties of
+       undefined (reading 'orderId')", which says nothing about why the server said no — and the
+       reason is in the body. */
+    expect(status, `the first order on the sold-out batch was refused: ${JSON.stringify(body)}`).toBe(
+      200,
+    );
     const order = body.order as CreatedOrder;
 
     const event = capturedEvent(order.orderId, `pay_soldout_${Date.now()}`);

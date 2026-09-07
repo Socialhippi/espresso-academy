@@ -122,8 +122,12 @@ test("the course hero button reaches Razorpay checkout", async ({ page }) => {
   await hero.click();
 
   if (!/\/book\//.test(page.url())) {
-    // "Choose a date" scrolled to the table. Take the batch the tests own.
-    await page.locator('a[href="/book/instance-e2e-test-batch"]').first().click();
+    /*
+     * `:visible` matters. The batch list renders twice — stacked below md, a table from md up —
+     * so every batch has two links to the same href and only one of them is displayed at any
+     * width. Without the filter this picks the hidden one and waits 45 seconds for it to appear.
+     */
+    await page.locator('a[href="/book/instance-e2e-test-batch"]:visible').first().click();
   }
 
   await expect(page).toHaveURL(/\/book\/instance-e2e-test-batch/);
