@@ -84,7 +84,37 @@ export function BatchTable({ course, className }: BatchTableProps) {
   }
 
   return (
-    <div className={cn("table-scroll", className)}>
+    <div className={className}>
+      {/*
+        Below md the five columns do not fit: the table is 376px inside a 350px scroller at 390, so
+        the Book or Waitlist button — the whole point of the row — was clipped mid-word with no
+        scroll affordance on the 64% of this audience that is on a phone. Stacked rows there, the
+        table from md up where it fits. Same data, same order, one source. This mirrors the pattern
+        already used for the fee table on /courses.
+      */}
+      <ul className="divide-y divide-white-2 border-y border-white-2 md:hidden">
+        {dated.map((instance) => (
+          <li key={instance.id} className="flex flex-col gap-3 py-4">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+              <time dateTime={instance.startDate ?? undefined} className="type-numeral text-h3-lg">
+                {formatDateRange(instance.startDate, instance.endDate)}
+              </time>
+              <span className="type-small text-black">{statusLabel[instance.status]}</span>
+            </div>
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 type-small text-grey">
+              <span>{instance.schedule ?? <TbcPill />}</span>
+              {seatsLeft(instance) === null ? (
+                <TbcPill />
+              ) : (
+                <span className="text-black">{seatsLeft(instance)} left</span>
+              )}
+            </div>
+            <BatchCta course={course} instance={instance} />
+          </li>
+        ))}
+      </ul>
+
+      <div className="table-scroll max-md:hidden">
       <table className="w-full border-collapse text-left">
         <caption className="sr-only">Scheduled batches for {course.title}</caption>
         <thead>
@@ -132,6 +162,7 @@ export function BatchTable({ course, className }: BatchTableProps) {
           ))}
         </tbody>
       </table>
+      </div>
     </div>
   );
 }

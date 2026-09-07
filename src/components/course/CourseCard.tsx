@@ -41,10 +41,23 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
     (course.modules === null || course.modules.length === 0);
 
   return (
-    <article className={cn("group h-full", className)}>
+    /* The article is the flex column, not the link inside it. With `h-full` on the link and a
+       book band as its sibling, the band painted *below* the grid row: 44px of overhang at 1280
+       and a 12px collision with the next row at 768. The border lives out here too, so hovering
+       either half outlines the whole card instead of splitting it into a black box with a grey
+       tray under it. */
+    <article
+      className={cn(
+        "flex h-full flex-col border border-white-2 bg-white transition-[border-color] duration-200 has-[a:hover]:border-black",
+        className,
+      )}
+    >
       <Link
         href={`/courses/${course.slug}`}
-        className="flex h-full flex-col border border-white-2 bg-white transition-[color,background-color,border-color] duration-200 hover:border-black"
+        // `group/card`, not `group`: on the bare name the book band below counted as part of the
+        // group, so hovering it underlined the title and shifted the arrow — the card signalling
+        // "open the course page" while the pointer was on a link to a checkout.
+        className="group/card flex flex-1 flex-col"
       >
         <div className="relative">
           <SanityPhoto
@@ -61,7 +74,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         <div className="flex flex-1 flex-col p-6">
           <LevelBadge level={course.level} className="self-start" />
 
-          <h3 className="mt-4 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+          <h3 className="mt-4 type-h3 text-black group-hover/card:underline group-hover/card:decoration-1 group-hover/card:underline-offset-4">
             {course.title}
           </h3>
 
@@ -125,7 +138,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
               )}
             </div>
             <ArrowRight
-              className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
+              className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover/card:translate-x-1"
               aria-hidden="true"
             />
           </div>
@@ -138,7 +151,9 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         <Link
           href={cta.href}
           data-event="book_click_card"
-          className="flex min-h-11 items-center justify-center border border-t-0 border-white-2 bg-white-3 px-6 py-3 type-label text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
+          /* 14px sentence case, not a 12px uppercase label: this is the only route to a checkout
+             on the hub, and design.md puts a 16px floor under red text. */
+          className="flex min-h-12 items-center justify-center border-t border-white-2 bg-white-3 px-6 py-3 type-small font-medium text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
         >
           {cta.label}
           <span className="sr-only">: {course.title}</span>

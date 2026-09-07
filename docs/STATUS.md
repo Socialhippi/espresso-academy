@@ -1216,6 +1216,125 @@ switching to live Razorpay keys. The `ci` copies stay.
 
 ---
 
+### Live review pass — eight findings from the deployed site
+
+One commit per finding, each with the content-editor run on the copy it touched.
+
+#### 0. The course hero sent a buyer to a form
+
+`/courses/latte-art` had an open, priced batch and its hero offered **"Reserve a seat", which went
+to the enquiry form**. The only route to a checkout was the Book button in the batch table, most of
+a page below. On a site whose entire job is enrolment, that is the most expensive thing a page can
+do.
+
+`courseCta` in `src/lib/batch.ts` is now the single rule the hero, the hub card, the home batch
+rows and the final CTA all follow, ordered by the reader's certainty:
+
+| State | Primary action |
+|---|---|
+| one open batch with a fee | **"Book this batch"** → `/book/<id>` |
+| more than one | **"Choose a date"** → scrolls to the table rather than picking for them |
+| a dated batch with no fee | "Ask about this batch", batch pre-filled |
+| no dated batch | "Ask about the next batch"; the table's alert already renders |
+
+Eleven unit tests written from the states, and an e2e test that clicks the hero on Latte Art and
+reaches Razorpay's modal. "Reserve" and "Enrol" are gone from the interface; `/terms` keeps "Terms
+of Use and Enrolment", which is the name of a legal document rather than a call to action.
+
+**The content-editor caught a referent bug in the first version**: `bookable` did not require a
+start date, so a priced, open, undated batch would have put "Book this batch" above a table reading
+"Batch dates are being finalised" — a demonstrative with nothing to point at, and the alert
+suppressed. It also caught the final CTA still saying "the fee and the batch dates are confirmed
+with you before you pay" under a button that opens a checkout, where nobody confirms anything with
+anyone. Both fixed, along with "Book a batch" (a batch is a cohort, not a unit of purchase) and an
+unsourced "the academy sets dates a few weeks ahead" that had been sitting in two empty states.
+
+#### 1. Authoring placeholders were public
+
+`/for-cafes` said **"PLACEHOLDER. One sentence saying what the academy does for a cafe team"** under
+its H1, and `/guides` answered each question in its card list with "PLACEHOLDER. One or two
+sentences that answer the question in the title outright". The seed writes those deliberately — the
+shape of the page is what it is for — and nothing stopped them rendering.
+
+Filtered at the data layer in `src/lib/placeholder.ts`, so the rule holds for every field on every
+template and for anything pasted in later that still carries the marker: a placeholder string
+becomes null and the page's existing empty state fires; a page section that is still scaffolding is
+dropped, and when nothing survives `/for-cafes` falls back to the hand-written copy it already
+ships; a guide with no written body says it is being written and offers WhatsApp.
+
+**Bylines are withheld** until `facts.md` records a signed article. "Written by Akanksha Gupta"
+attributed a brief to a real person and "Checked by" claimed an internal review that has not
+happened. `author` and `reviewedBy` leave the Article schema with them, because structured data
+claiming an attribution the page does not show is worth distrusting. The markup is intact for the
+day one is signed off.
+
+#### 2. The academy has an SCA Authorised Trainer, and the site was not allowed to say so
+
+`content/facts.md` now records the source: the SCA public trainer directory lists **Akanksha Gupta
+as an SCA Trainer (AST), Karnataka**, for Introduction to Coffee, Barista Skills, Brewing, Sensory
+Skills, Roasting, CVA for Cuppers and Q Grader, checked 5 September 2026. Currency of the listing
+and which batches are assessed remain the academy's to confirm.
+
+The forbidden-claims list is **narrowed, not dropped**: "SCA-certified courses" and "SCA Premier
+Training Campus" stay forbidden, and AST stays forbidden for every trainer without a source. Her
+credentials, her profile, the certifications comparison and the "Are your courses SCA certified?"
+answer now say the academy has an AST on faculty and that assessed modules are available on batches
+the academy confirms — and tell the reader to ask which ones, and what the SCA charges, before
+booking. Course wording is unchanged.
+
+#### 3. FAQ answers were already server-rendered
+
+Checked by cold curl on `/faq` and all eight course pages: the FAQPage block is present on all nine
+and every answer it claims was already in the server HTML outside `<script>`. **Nothing needed
+fixing.** It is a test now, because the two halves can drift silently — an accordion that became
+client-rendered would keep passing every schema assertion while a crawler saw questions and no
+answers. The test compares each page against its own schema rather than a fixture.
+
+#### 4. Seven TBC rows became one line
+
+A course page carried seven cells that each said the same thing. A cell now appears when it has
+something to say, and what is missing is covered once: **"Fee, dates and duration are confirmed on
+WhatsApp before you pay"**. Same rule on the hub cards. The condition widened from four fields to
+all seven, so a course with only a syllabus written no longer looks fully specified.
+
+#### 5. Form copy, and the honeypot audited
+
+"Two fields and you are done" counts the form for the reader instead of telling them what to send;
+it is "Name and number are enough". "A trainer reads it" is "The academy reads it", matching the
+same change already made on `/thank-you`, the guides empty state and the auto-reply.
+
+**The honeypot needed no change** on either form: inside an `aria-hidden` wrapper, visually hidden,
+`tabindex="-1"`, `autocomplete="off"`. All four are asserted now, because none is visible in review
+and losing any one turns a bot trap into a trap for a real customer, whose submission is then
+silently dropped.
+
+#### 6. Three sentences that led with what is missing
+
+The home page's final CTA, the `/courses` cafe card and the certifications page each spent their
+words on what the academy has not published. The TBC states already carry that caveat wherever a
+value is shown. The certifications one was the worst: it drew attention to the absence of an
+employer list and a placement rate, both of which are on the forbidden-claims list, so the site was
+apologising for not stating numbers it is not allowed to state.
+
+The instruction called the home one "section 08"; the home page runs 01 to 07 and it is the last of
+them.
+
+#### 7. Contact is in the navigation, and the breakpoint moved to fit it
+
+A coffee school is a place people come to, and the address, the hours and the map lived only in the
+footer. Contact is the seventh item and **FAQ stays** — the instruction was to move it only if the
+nav passed seven, and it is also still in the footer's wider list.
+
+The constraint turned out not to be 390 but the desktop header. **Measured**: seven items widen the
+nav row from 564px to 660px and the header to 1122px, so at the old 1080 breakpoint the header was
+42px wider than its viewport — the defect this project already shipped at 1024 and fixed once.
+`--breakpoint-nav` is **1128**, that measurement on the 8px grid. The cost is a 48px band, 1080 to
+1127, that gets the mobile sheet instead of the nav row. Verified at 360, 390, 768, 1024, 1080,
+1127, 1128, 1200 and 1280: no overflow anywhere, and the row switches on exactly where the token
+says.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores

@@ -1,7 +1,7 @@
 import { TbcPill } from "@/components/site/TbcPill";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
-import { formatFeeAmount } from "@/lib/format";
-import type { Course } from "@/lib/content";
+import { formatFeeAmount, formatDate } from "@/lib/format";
+import { courseCta, feeForInstance, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface FeeBlockProps {
@@ -10,11 +10,25 @@ interface FeeBlockProps {
 }
 
 /**
- * What it costs. content/facts.md carries no fee for any course, so the figure is a TBC pill and
- * the reader is offered a real way to get the number today.
+ * What it costs.
+ *
+ * The course fee is not the only fee. A batch can carry a `priceOverride`, and that is what the
+ * checkout charges — so this block read `course.feeInclGst`, printed "Fee: TBC", and sat on a page
+ * whose hero, sticky bar and batch table all said "Book this batch". A reader was being sent to a
+ * payment window without ever having been shown a number. It reads the fee the bookable batch will
+ * actually charge, and falls back to the course fee, and only then to TBC.
  */
 export function FeeBlock({ course, className }: FeeBlockProps) {
-  const hasFee = course.feeInclGst !== null;
+  const cta = courseCta(course, course.instances);
+  const bookable = cta.instanceId
+    ? course.instances.find((instance) => instance.id === cta.instanceId)
+    : undefined;
+  const batchFee = bookable ? feeForInstance(course, bookable) : null;
+  const fee = batchFee ?? course.feeInclGst;
+  const hasFee = fee !== null;
+  /* Named, because a batch price is that batch's price and not the course's. */
+  const qualifier =
+    batchFee !== null && bookable?.startDate ? `for the ${formatDate(bookable.startDate)} batch` : null;
 
   return (
     <div className={cn("border border-white-2 bg-white-3 p-6 md:p-8", className)}>
@@ -22,10 +36,8 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
 
       {hasFee ? (
         <p className="mt-3">
-          <span className="type-numeral text-display text-black">
-            {formatFeeAmount(course.feeInclGst)}
-          </span>{" "}
-          <span className="type-body text-grey">incl. GST</span>
+          <span className="type-numeral text-display text-black">{formatFeeAmount(fee)}</span>{" "}
+          <span className="type-body text-grey">incl. GST{qualifier ? ` ${qualifier}` : ""}</span>
         </p>
       ) : (
         <div className="mt-3 flex items-center gap-3">

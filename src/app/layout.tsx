@@ -1,7 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { bebasNeue, montserrat } from "@/lib/fonts";
 import { siteUrl } from "@/lib/env";
-import { batchAction, getCourses, getNextInstanceForCourse, getSiteSettings } from "@/lib/content";
+import {
+  courseCta,
+  feeForInstance,
+  getCourses,
+  getNextInstanceForCourse,
+  getSiteSettings,
+} from "@/lib/content";
 import { formatDate, formatFee } from "@/lib/format";
 import { SkipLink } from "@/components/site/SkipLink";
 import { SiteChrome } from "@/components/site/SiteChrome";
@@ -60,17 +66,26 @@ export const viewport: Viewport = {
 async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
   const entries: Record<string, CourseBarEntry> = {};
   for (const course of await getCourses()) {
-    const next = getNextInstanceForCourse(course);
-    // The soonest batch someone could actually pay for. Null on every course today, because no
-    // batch has a fee yet, and the bar falls back to the enquiry form.
-    const bookable = course.instances.find((instance) => batchAction(course, instance) === "book");
+    /*
+     * The bar has to describe the batch its own button points at. It was reading the soonest batch
+     * for the date and the course for the fee, while the Book button pointed at the soonest
+     * *bookable* one — so on a course whose next batch is sold out it read "Fee: TBC · Next batch:
+     * 5 Sept" beside a button that would have charged for a different batch entirely.
+     */
+    const cta = courseCta(course, course.instances);
+    const bookable = cta.instanceId
+      ? course.instances.find((instance) => instance.id === cta.instanceId)
+      : undefined;
+    const shown = bookable ?? getNextInstanceForCourse(course);
+    const fee = bookable ? (feeForInstance(course, bookable) ?? course.feeInclGst) : course.feeInclGst;
+
     entries[course.slug] = {
       title: course.title,
-      feeLabel: formatFee(course.feeInclGst),
-      nextDateLabel: next?.startDate ? formatDate(next.startDate) : "TBC",
+      feeLabel: formatFee(fee),
+      nextDateLabel: shown?.startDate ? formatDate(shown.startDate) : "TBC",
       /* Nothing to say is not worth a line. While both are null the bar would pin
          "Fee: TBC / Next batch: TBC" to the bottom of every course page for the whole scroll. */
-      hasFacts: course.feeInclGst !== null || Boolean(next?.startDate),
+      hasFacts: fee !== null || Boolean(shown?.startDate),
       bookableInstanceId: bookable?.id ?? null,
     };
   }

@@ -471,11 +471,26 @@ export async function hasAnyDates(): Promise<boolean> {
  * Stripping here rather than at each render site means it holds for every caller.
  */
 function withoutPlaceholders(guide: Guide): Guide {
-  const body = guide.body?.filter((block) => !containsPlaceholder(block));
+  const kept = guide.body?.filter((block) => !containsPlaceholder(block));
+
+  /*
+   * A body has to keep at least one paragraph to be worth rendering.
+   *
+   * The seeded guides carry four question headings and a comparison table with no marker in them,
+   * and only the answers are marked PLACEHOLDER. Filtering block by block therefore left four
+   * questions with nothing underneath any of them — a page that looks like it answers four
+   * questions and answers none, which is worse than saying it is being written. So the body
+   * survives only if some prose does.
+   */
+  const hasProse = kept?.some((block) => {
+    const candidate = block as { _type?: string; style?: string };
+    return candidate._type === "block" && (candidate.style ?? "normal") === "normal";
+  });
+
   return {
     ...guide,
     excerpt: stripPlaceholder(guide.excerpt) ?? "",
-    ...(guide.body ? { body: body ?? [] } : {}),
+    ...(guide.body ? { body: hasProse ? (kept ?? []) : [] } : {}),
   };
 }
 

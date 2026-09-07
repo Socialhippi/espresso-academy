@@ -26,7 +26,13 @@ export async function generateMetadata({ params }: PageProps<"/guides/[slug]">):
 
   return pageMetadata({
     title: guide.seo?.title || guide.title,
-    description: clampDescription(guide.seo?.description || guide.excerpt),
+    /* The guide's own answer if it has one, then its SEO field, then the title as a sentence.
+       Never "": a stripped placeholder excerpt was shipping an empty meta description. */
+    description: clampDescription(
+      guide.seo?.description ||
+        guide.excerpt ||
+        `${guide.title} A straight answer from Espresso Academy India, the coffee school at the RMV 2nd Stage campus in Bengaluru.`,
+    ),
     path: `/guides/${guide.slug}`,
     type: "article",
   });
@@ -71,7 +77,11 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
 
               {/* Answer-first: the excerpt is the answer, printed before anything else, so a
                   reader who stops here still has one. */}
-              <p className="mt-5 measure type-body text-black">{guide.excerpt}</p>
+              {/* An unwritten answer is nothing, not an empty paragraph: `stripPlaceholder` turns
+                  the seeded brief into "", which rendered a 20px gap under the H1. */}
+              {guide.excerpt && (
+                <p className="mt-5 measure type-body text-black">{guide.excerpt}</p>
+              )}
 
               <dl className="mt-8 hairline flex flex-wrap gap-x-10 gap-y-4 pt-6 type-small">
                 {/*
@@ -190,7 +200,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
             "@type": "Article",
             "@id": absoluteUrl(`/guides/${guide.slug}#article`),
             headline: guide.title,
-            description: guide.excerpt,
+            ...(guide.excerpt ? { description: guide.excerpt } : {}),
             url: absoluteUrl(`/guides/${guide.slug}`),
             /* A named author and a named reviewer, or neither. An Article attributed to an
                organisation says nothing a reader could not already see. */

@@ -41,10 +41,10 @@ export default async function GuidesPage() {
         eyebrow="Guides"
         title="Straight answers about learning coffee"
         intro={
-          <p>
-            Written by the people who teach the courses, and checked by another one of them before
-            it goes up. Where the academy does not know something, these say so.
-          </p>
+          /* No editorial-process claim. facts.md records none, and the bylines were withheld for
+             exactly this reason: "checked by another one of them" described a review that has not
+             happened. */
+          <p>Where the academy does not know something, these say so.</p>
         }
         actions={
           <ButtonLink href="/courses" variant="secondary">

@@ -188,7 +188,18 @@ test.describe("the honeypot is invisible and untabbable", () => {
 
       const honeypot = page.locator('input[name="company"]').first();
       await expect(honeypot).toBeAttached();
-      await expect(honeypot, "a filled honeypot is dropped, so nobody may see it").toBeHidden();
+
+      /*
+       * Not `toBeHidden()`. The field is `sr-only`, which clips it to a 1px box rather than setting
+       * display:none — deliberately, because a bot reading the DOM should still find it. Playwright
+       * counts a 1px box as visible, so the assertion that matters is that the box is too small for
+       * a person to see or hit.
+       */
+      const box = await honeypot.boundingBox();
+      const area = box ? box.width * box.height : 0;
+      expect(area, "a filled honeypot is dropped, so nobody may see or tap it").toBeLessThanOrEqual(
+        4,
+      );
       await expect(honeypot).toHaveAttribute("tabindex", "-1");
       await expect(honeypot).toHaveAttribute("autocomplete", "off");
 
