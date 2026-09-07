@@ -964,13 +964,59 @@ Three separate things should have caught it and none did:
   one path refuses everybody. `featureFlags().turnstile` also reported `true` on the strength of
   the secret alone, which is how a broken bot check read as a working one; it needs both halves now.
 
+#### Fixed, deployed and verified on the deployment
+
+Production serves the fix. Deployment `ap54q8bxx`, state **READY**.
+
+| Check, against `https://espresso-academy-india.vercel.app` | Result |
+|---|---|
+| `tests/booking/checkout-opens.spec.ts` | **2 passed** — the widget renders, writes a token, the form submits and Razorpay's modal opens |
+| The same file before the fix | failed with "no Turnstile widget: NEXT_PUBLIC_TURNSTILE_SITE_KEY is missing" |
+| `/book` HTML | carries the site key; the widget renders |
+| `/enquire` | widget renders and produces a token |
+| `POST /api/orders` **with** a token | passes Turnstile and reaches the batch check — "That batch is no longer available" for a bogus id |
+| `POST /api/orders` **without** a token | still refused, and that is now correct: the browser is given a widget that produces one |
+| Boot log | `{"at":"boot","event":"feature-flags","flags":{...,"turnstile":true,...}}`, and no `half-configured` line |
+
+The last two rows are the shape of the fix. Before, *every* caller was refused because none could
+obtain a token. Now a tokenless POST is refused and a real browser is not, which is what a bot
+check is supposed to do.
+
+#### The deploy was blocked, and not for any reason in this repository
+
+Four production deploys were created and none built. `vercel ls` showed `UNKNOWN`; the API showed
+`readyState: BLOCKED` with
+
+> `seatBlock.blockCode: TEAM_ACCESS_REQUIRED` — "The deployment was blocked because the commit
+> author doesn't have permission to create deployments for this project."
+
+The CLI was authenticated as the team owner, but the deployment carries the **git commit author**
+from the local repository, and `ashrith@socialhippi.com` is not an identity on the `business-5121`
+Vercel account. The deployment that worked two days ago carried no git metadata at all, which is
+why nobody had met this before. Vercel would not accept a second email on the account and a team
+invite needs Pro, so the repository's git author is now `business@socialhippi.com`, HEAD was
+amended with `--reset-author`, and main was force-pushed with `--force-with-lease`.
+
+**That is a deliberate, one-off exception to "never force-push" in `.claude/rules/git.md`**, taken
+on the client's instruction on a single-author branch, and it is recorded here rather than left in
+a reflog. **Whoever deploys next must keep `git config user.email` pointing at an email verified on
+the Vercel account, or the deployment will be blocked again** — silently, because the CLI reports a
+blocked deployment as `Building…` and `vercel ls` reports it as `UNKNOWN`.
+
 #### Two things found on the way
 
 - **Deploys were uploading the local `.next`.** `.vercelignore` did not list it, so the first deploy
   after a local `pnpm build` spent over ten minutes uploading 515MB that the build machine throws
   away. Ignored now, along with `node_modules`; the upload is 492KB.
-- **`vercel ls` reports a building deployment as `UNKNOWN`**, which reads exactly like a stuck one.
-  The build state that matters is in `readyState` on the API, not in the CLI's table.
+- **`vercel ls` reports a building deployment as `UNKNOWN`**, which reads exactly like a stuck one,
+  and reports a *blocked* one the same way. The state that matters is `readyState` on the API, not
+  the CLI's table: `curl https://api.vercel.com/v6/deployments?projectId=...` with the CLI's token.
+- **Next 16.3 deprecates the `middleware` file convention** in favour of `proxy`; the build prints
+  the warning and names the codemod (`npx @next/codemod@canary middleware-to-proxy .`). The CSP
+  lives in `src/middleware.ts`, so this is a real piece of upkeep, not a cosmetic one.
+- **Nine `Playwright Student` bookings are in the dataset** from the local runs that proved this
+  fix. `tests/global-setup.ts` deletes every booking against the test batches and resets their
+  seats at the start of every run, so the next ordinary `pnpm test:e2e` clears them.
 
 ---
 
