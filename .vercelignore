@@ -1,6 +1,11 @@
 # Nothing here is needed to build or serve the site; excluding it keeps the upload small.
 # content/, design/ and docs/*.md stay: content/ is the site's data and the others are the
 # reference a developer picking this up will look for first.
+# The local build output. Vercel builds from source on its own runners, so uploading 500MB of
+# .next is pure wait — the first deploy after a local `pnpm build` took over ten minutes on it —
+# and a stale local build directory has no business travelling to a build machine.
+.next
+
 docs/screens
 docs/audits
 tests
