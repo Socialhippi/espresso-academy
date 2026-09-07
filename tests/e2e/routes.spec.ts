@@ -79,8 +79,28 @@ test.describe("every route", () => {
         .first()
         .getAttribute("content");
       if (route.index) {
-        expect(robots ?? "index").toContain("index");
-        expect(robots ?? "").not.toContain("noindex");
+        /*
+         * A guide withholds indexing while its body is still authoring scaffolding: a title, a
+         * date and an apology is a thin page, and the Article node is suppressed with it. So the
+         * assertion is the *relationship* rather than a fixed verdict — the same shape the
+         * calendar test uses. What must never happen is a page that is indexable and empty.
+         */
+        const hasArticle = typesIn(blocks).includes("Article");
+        const beingWritten = await page.getByText("This guide is being written").count();
+
+        if (beingWritten > 0) {
+          expect(
+            robots ?? "",
+            `${route.path} has no body, so it must not invite a crawler`,
+          ).toContain("noindex");
+          expect(
+            hasArticle,
+            `${route.path} has no body, so it must not claim an Article`,
+          ).toBe(false);
+        } else {
+          expect(robots ?? "index").toContain("index");
+          expect(robots ?? "").not.toContain("noindex");
+        }
       } else {
         expect(robots ?? "").toContain("noindex");
       }

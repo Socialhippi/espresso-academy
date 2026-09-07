@@ -151,7 +151,10 @@ function FallbackSections({
                   "The session runs, and everyone who attends knows what to practise next.",
                 ].map((step, index) => (
                   <li key={step} className="flex gap-4">
-                    <span className="type-numeral text-h3-lg text-red" aria-hidden="true">
+                    {/* Grey, not red. In red Bebas at this size it is byte-for-byte the section
+                        numeral treatment, so section 01 contained a second "01" 250px below the
+                        first and scanning the red numerals down the page read 01, 01, 02, 03, 02. */}
+                    <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">
                       {String(index + 1).padStart(2, "0")}
                     </span>
                     <span className="measure type-body text-black">{step}</span>

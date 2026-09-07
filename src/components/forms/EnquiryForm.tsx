@@ -455,22 +455,32 @@ export function EnquiryForm({
             the label beside it is associated by htmlFor, so tapping the sentence toggles the box.
             Padding the input itself does nothing, because padding around an input is not clickable. */}
         <div className="flex min-h-11 items-start gap-3">
-          <input
-            id={field("consent")}
-            name="consent"
-            type="checkbox"
-            checked={consent}
-            onChange={(event) => setConsent(event.target.checked)}
-            onBlur={onBlur("consent")}
-            aria-invalid={Boolean(errors.consent)}
-            aria-describedby={errors.consent ? field("consent-error") : undefined}
-            // size-6 is the 24px WCAG 2.2 target minimum; the associated label extends the hit area.
-            /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
-               44x44 without changing what is drawn, and the negative margin keeps the text aligned
-               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
-               44, and a checkbox is the control most often missed on a phone. */
-            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
-          />
+          {/*
+            24px box, 44px target, and the target has to be the wrapper.
+            Padding the input does nothing: Chrome resets padding and border on a checkbox with
+            `appearance: auto`, so an earlier attempt at `box-content p-2.5` left the hit area at
+            24x24 while its negative margins did apply — pulling the box 10px out of the form
+            column and closing the gap to the label to 2px. The label wraps the input instead, and
+            a wrapper the browser does not special-case keeps its 44x44. It carries no text, so the
+            accessible name still comes from the sentence beside it.
+          */}
+          {/* eslint-disable-next-line jsx-a11y/label-has-associated-control -- this label exists to
+              enlarge the target, not to name the control: it wraps the input and carries no text,
+              and the sentence beside it is the accessible name via htmlFor. Giving it text would
+              name the checkbox twice. */}
+          <label className="-m-2.5 flex size-11 shrink-0 cursor-pointer items-center justify-center">
+            <input
+              id={field("consent")}
+              name="consent"
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => setConsent(event.target.checked)}
+              onBlur={onBlur("consent")}
+              aria-invalid={Boolean(errors.consent)}
+              aria-describedby={errors.consent ? field("consent-error") : undefined}
+              className="size-6 shrink-0 accent-red"
+            />
+          </label>
           <label htmlFor={field("consent")} className="type-small text-grey">
             The academy may contact me about this enquiry on WhatsApp, phone or email (required).
             See the{" "}

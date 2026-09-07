@@ -418,23 +418,23 @@ export function CheckoutForm({
             htmlFor={field("prerequisiteAccepted")}
             className="flex min-h-11 cursor-pointer items-start gap-3 py-1 type-body text-black"
           >
-            <input
-              id={field("prerequisiteAccepted")}
-              name="prerequisiteAccepted"
-              type="checkbox"
-              checked={prerequisiteAccepted}
-              onChange={(event) => setPrerequisiteAccepted(event.target.checked)}
-              onBlur={onBlur("prerequisiteAccepted")}
-              aria-invalid={Boolean(errors.prerequisiteAccepted)}
-              aria-describedby={
-                errors.prerequisiteAccepted ? field("prerequisiteAccepted-error") : undefined
-              }
-              /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
-               44x44 without changing what is drawn, and the negative margin keeps the text aligned
-               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
-               44, and a checkbox is the control most often missed on a phone. */
-            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
-            />
+            {/* The box gets its own 44px cell. The label around it already makes the whole
+                row clickable; this is so the box a thumb aims at is a target too. */}
+            <span className="-m-2.5 flex size-11 shrink-0 items-center justify-center">
+              <input
+                id={field("prerequisiteAccepted")}
+                name="prerequisiteAccepted"
+                type="checkbox"
+                checked={prerequisiteAccepted}
+                onChange={(event) => setPrerequisiteAccepted(event.target.checked)}
+                onBlur={onBlur("prerequisiteAccepted")}
+                aria-invalid={Boolean(errors.prerequisiteAccepted)}
+                aria-describedby={
+                  errors.prerequisiteAccepted ? field("prerequisiteAccepted-error") : undefined
+                }
+              className="size-6 shrink-0 accent-red"
+              />
+            </span>
             <span>I confirm I meet the prerequisite: {prerequisite}</span>
           </label>
           <FieldError id={field("prerequisiteAccepted-error")} message={errors.prerequisiteAccepted} />
@@ -446,21 +446,21 @@ export function CheckoutForm({
           htmlFor={field("consent")}
           className="flex min-h-11 cursor-pointer items-start gap-3 py-1 type-body text-black"
         >
-          <input
-            id={field("consent")}
-            name="consent"
-            type="checkbox"
-            checked={consent}
-            onChange={(event) => setConsent(event.target.checked)}
-            onBlur={onBlur("consent")}
-            aria-invalid={Boolean(errors.consent)}
-            aria-describedby={errors.consent ? field("consent-error") : undefined}
-            /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
-               44x44 without changing what is drawn, and the negative margin keeps the text aligned
-               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
-               44, and a checkbox is the control most often missed on a phone. */
-            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
-          />
+          {/* The box gets its own 44px cell. The label around it already makes the whole
+              row clickable; this is so the box a thumb aims at is a target too. */}
+          <span className="-m-2.5 flex size-11 shrink-0 items-center justify-center">
+            <input
+              id={field("consent")}
+              name="consent"
+              type="checkbox"
+              checked={consent}
+              onChange={(event) => setConsent(event.target.checked)}
+              onBlur={onBlur("consent")}
+              aria-invalid={Boolean(errors.consent)}
+              aria-describedby={errors.consent ? field("consent-error") : undefined}
+              className="size-6 shrink-0 accent-red"
+            />
+          </span>
           <span>
             The academy may contact me about this booking. See the{" "}
             <Link href="/privacy" className="text-red underline decoration-1 underline-offset-4">

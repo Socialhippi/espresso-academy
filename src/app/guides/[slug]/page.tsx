@@ -7,6 +7,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { FinalCta } from "@/components/sections/FinalCta";
+import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { PortableText, faqEntriesFromBody } from "@/components/content/PortableText";
 import { GuideReadTracker } from "@/components/content/GuideReadTracker";
 import { getGuide, getGuideSlugs } from "@/lib/content";
@@ -24,7 +25,15 @@ export async function generateMetadata({ params }: PageProps<"/guides/[slug]">):
   const guide = await getGuide(slug);
   if (!guide) return { title: "Guide not found" };
 
+  /*
+   * A guide whose body is still authoring scaffolding is a title, a date and an apology. Letting a
+   * crawler index that is asking to be judged on a thin page, and the Article node below would be
+   * asserting an article that is not there. Both come back the moment a body does.
+   */
+  const hasBody = (guide.body?.length ?? 0) > 0;
+
   return pageMetadata({
+    noindex: !hasBody,
     title: guide.seo?.title || guide.title,
     /* The guide's own answer if it has one, then its SEO field, then the title as a sentence.
        Never "": a stripped placeholder excerpt was shipping an empty meta description. */
@@ -57,6 +66,8 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
 
   const faqs = faqEntriesFromBody(guide.body);
   const published = guide.publishedAt;
+  /** Same test `generateMetadata` uses to withhold indexing: no article, no Article node. */
+  const hasBodyForSchema = (guide.body?.length ?? 0) > 0;
   const updated = guide.updatedAt;
 
   return (
@@ -122,7 +133,9 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
 
               {(guide.primaryCourse || guide.primaryCertification) && (
                 <aside className="mt-8 border border-white-2 p-6">
-                  <h2 className="type-label text-grey">What this is about</h2>
+                  {/* A label for a widget, not a section heading: at 12px it sat in the outline
+                    beside the page's own 36px h2s. */}
+                <p className="type-label text-grey">What this is about</p>
                   <ul className="mt-3 flex flex-col gap-2 type-body">
                     {guide.primaryCourse && (
                       <li>
@@ -157,12 +170,19 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
               ) : (
                 /* Every paragraph in this guide is still the brief its writer was given, and the
                    data layer drops those. Saying so is honest; printing the brief was not. */
-                <div className="border border-white-2 bg-white-3 p-6 md:p-10">
+                <div className="rounded-sm border border-white-2 bg-white-3 p-6 md:p-10">
                   <p className="type-h3 text-black">This guide is being written</p>
                   <p className="mt-4 measure type-body text-grey">
                     The question in the title is a real one and the answer is on its way. Ask it on
                     WhatsApp in the meantime and the academy will answer it directly.
                   </p>
+                  {/* The sentence above promises WhatsApp; on desktop there is no sticky bar, so
+                      without this the instruction has no target anywhere near it. */}
+                  <WhatsAppButton
+                    course={guide.title}
+                    event="whatsapp_click_guide_empty"
+                    className="mt-6"
+                  />
                 </div>
               )}
 
@@ -184,6 +204,9 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
       </article>
 
       <FinalCta
+        /* Without this it takes FinalCta's "06" default and prints "06 NEXT STEP" on a page whose
+           sections do not go past one. */
+        number="01"
         title="Still not sure which one is yours?"
         body={
           <p>
@@ -196,8 +219,11 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
       <JsonLd
         id="guide-jsonld"
         data={graph([
-          {
-            "@type": "Article",
+          // No Article node without an article. Structured data that asserts content the page
+          // does not have is the kind of mismatch a search engine is entitled to distrust.
+          ...(hasBodyForSchema
+            ? [{
+            "@type": "Article" as const,
             "@id": absoluteUrl(`/guides/${guide.slug}#article`),
             headline: guide.title,
             ...(guide.excerpt ? { description: guide.excerpt } : {}),
@@ -212,7 +238,8 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
             publisher: { "@id": schemaIds.ORGANISATION_ID },
             inLanguage: "en-IN",
             isPartOf: { "@id": schemaIds.WEBSITE_ID },
-          },
+          }]
+            : []),
           ...(faqs.length > 0 ? [faqNode(faqs, `/guides/${guide.slug}`)] : []),
         ])}
       />

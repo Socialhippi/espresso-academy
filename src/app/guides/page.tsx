@@ -53,14 +53,23 @@ export default async function GuidesPage() {
         }
       />
 
-      <section className="section-y-sm" aria-labelledby="guides-heading">
+      <section className="section-y" aria-labelledby="guides-heading">
         <Container>
-          <SectionHeading number="01" eyebrow="Guides" title="Every guide" id="guides-heading" />
+          <SectionHeading
+            number="01"
+            eyebrow="Guides"
+            title="Every guide"
+            id="guides-heading"
+            /* Said once, here. Printing "The answer is being written" on every card put the same
+               sentence twice at the same height at 1280, which reads as a rendering fault rather
+               than as an honest state. */
+            description="Several of these are still being written. Ask on WhatsApp in the meantime and the academy will answer directly."
+          />
 
           {guides.length === 0 ? (
             /* TODO(client): no guide has been published yet. The empty state offers the two
                things a reader came here for rather than an apology. */
-            <div className="mt-8 border border-white-2 bg-white-3 p-6 md:p-10">
+            <div className="mt-8 rounded-sm border border-white-2 bg-white-3 p-6 md:p-10">
               <h3 className="type-h3 text-black">The guides are being written</h3>
               <p className="mt-4 measure type-body text-grey">
                 Until they are up, the fastest way to get an answer is to ask. The academy
@@ -95,25 +104,26 @@ export default async function GuidesPage() {
                       </h3>
                       {/* The answer, when there is one. A guide whose summary has not been
                           written says so rather than printing the brief the writer was given. */}
-                      <p className="mt-3 measure type-body text-grey">
-                        {guide.excerpt || "The answer is being written."}
-                      </p>
-                      <p className="mt-auto pt-5 flex items-center gap-2 type-label text-red">
+                      {guide.excerpt && (
+                        <p className="mt-3 measure type-body text-grey">{guide.excerpt}</p>
+                      )}
+                      {/* TODO(client): no byline until content/facts.md records a signed article.
+                          Attributing a placeholder to a named trainer puts words in their mouth,
+                          and "Checked by" claimed a review that has not happened. The date stays:
+                          it is a fact about the document. It sits above the call to action, which
+                          belongs last on a card. */}
+                      {guide.publishedAt && (
+                        <p className="mt-auto pt-5 type-small text-grey">
+                          {formatDate(guide.publishedAt)}
+                        </p>
+                      )}
+                      <p className="mt-3 flex items-center gap-2 type-label text-red">
                         Read it
                         <ArrowRight
                           className="size-4 transition-transform duration-200 group-hover:translate-x-1"
                           aria-hidden="true"
                         />
                       </p>
-                      {/* TODO(client): no byline until content/facts.md records a signed article.
-                          Attributing a placeholder to a named trainer puts words in their mouth,
-                          and "Checked by" claimed a review that has not happened. The date stays:
-                          it is a fact about the document. */}
-                      {guide.publishedAt && (
-                        <p className="mt-3 type-small text-grey">
-                          {formatDate(guide.publishedAt)}
-                        </p>
-                      )}
                     </Link>
                   </article>
                 </li>
@@ -125,6 +135,7 @@ export default async function GuidesPage() {
 
       <FinalCta
         number="02"
+        ctaLabel="Ask your question"
         title="Ask the question that is not answered here"
         body={
           <p>
