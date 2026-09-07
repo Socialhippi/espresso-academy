@@ -529,7 +529,20 @@ export const getLandingPage = cache(async (slug: string): Promise<LandingPage | 
     "landingPage",
     `landingPage:${slug}`,
   ]);
-  return page ?? undefined;
+  if (!page) return undefined;
+
+  /*
+   * Same rule as /for-cafes and the guides. A campaign page is noindexed and reachable only by its
+   * own URL, which is exactly why it was missed: nothing crawls it and nobody browses to it. It
+   * still shipped a document title of "PLACEHOLDER: the promise this campaign makes" into the
+   * browser tab, the Open Graph card and the H1 — on the one page type whose whole job is to be
+   * pasted into an ad.
+   */
+  return {
+    ...page,
+    title: stripPlaceholder(page.title) ?? page.course?.title ?? "Espresso Academy India",
+    sections: page.sections.filter((section) => !containsPlaceholder(section)),
+  };
 });
 
 export async function getLandingPageSlugs(): Promise<string[]> {
