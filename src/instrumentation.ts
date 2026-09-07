@@ -19,8 +19,10 @@ export function register(): void {
   if (broken.length > 0) {
     /*
      * Error level, not warn. Each of these renders a working-looking site with one path that
-     * refuses everyone, and the public half is inlined at build time, so the fix is a variable
-     * *and* a redeploy.
+     * refuses everyone: a bot check nobody can pass, a checkout that cannot open, or — the one
+     * that is live today — student confirmation emails that Resend refuses to deliver. For the
+     * key pairs the public half is inlined at build time, so the fix is a variable *and* a
+     * redeploy.
      */
     console.error(
       JSON.stringify({ at: "boot", event: "half-configured-integration", pairs: broken }),

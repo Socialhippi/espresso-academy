@@ -95,8 +95,8 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                   folder if it has not arrived in ten minutes.
                 </NextStep>
                 <NextStep number="02" title="A message from the academy">
-                  A trainer messages you on WhatsApp before the batch starts with the timings and
-                  what to bring.
+                  The academy messages you on WhatsApp before the batch starts with the timings
+                  and what to bring.
                 </NextStep>
                 <NextStep number="03" title="Turn up">
                   Come to the campus on the first morning. There is nothing to print.

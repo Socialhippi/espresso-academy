@@ -146,7 +146,12 @@ const KEY_PAIRS: Array<{ name: string; server: () => boolean; browser: () => boo
 function resendWarning(): string | null {
   if (!env.RESEND_API_KEY) return null;
   if (env.RESEND_FROM_EMAIL) return null;
-  return "resend: no RESEND_FROM_EMAIL, so mail sends from onboarding@resend.dev and Resend delivers it only to the account owner";
+  return (
+    "resend: STUDENT CONFIRMATION EMAILS ARE NOT BEING DELIVERED. RESEND_FROM_EMAIL is unset, so " +
+    "mail goes from onboarding@resend.dev, which Resend delivers only to the Resend account " +
+    "owner's own address; every other recipient is refused with a 403 and leaves no delivery " +
+    "record. Verify a domain at resend.com/domains and set RESEND_FROM_EMAIL to an address on it."
+  );
 }
 
 /** The pairs with exactly one half configured, as `name: which half is missing`. */

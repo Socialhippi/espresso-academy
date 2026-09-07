@@ -7,6 +7,14 @@ do. Updated at the end of every phase.
 
 Public, no login. Open it on a phone.
 
+> **⚠ Student confirmation emails are not being delivered.** `RESEND_FROM_EMAIL` is unset and no
+> domain is verified in Resend, so mail goes from `onboarding@resend.dev`, which Resend delivers
+> **only to the Resend account owner's own address**. A student who pays gets nothing; the
+> academy's own copy of the booking arrives normally, so the site looks like it is working. Every
+> server boot logs this. It is fixed by verifying a domain at resend.com/domains and setting
+> `RESEND_FROM_EMAIL` — see "Accounts and keys" in `docs/launch-checklist.md`. **Not a code
+> change: nothing in this repository can fix it.**
+
 > **Up to date.** Production serves the code at `4c6555a`, which is what `main` still carries under
 > `src/`: every commit since touches CI or this document. Verified on the deployment itself: every
 > route returns 200, nothing overflows at 360, 390, 768, 1024 or 1280, no forbidden colour pair
@@ -1386,6 +1394,16 @@ an account or a decision from the academy first, not development:
   arrives, so the figure tracks the machine more than the site. Performance is ≥95 on every route
   on every reading, so the score target is met on all of them. The lever that would end the
   argument is the client's photography: an image LCP can be preloaded and served as AVIF.
+- **Student confirmation emails are not delivered while `RESEND_FROM_EMAIL` is unset.** This is
+  the only known limitation that costs a paying customer something today. With no verified domain
+  the sender is `onboarding@resend.dev`, and Resend refuses that sender for every recipient except
+  the account owner, with a 403 and no delivery record. The booking still completes: the seat is
+  taken, the payment is captured, the confirmation page renders with the calendar file, and the
+  academy is emailed — so the only party left uninformed is the person who paid. Since 7 September
+  every server boot logs
+  `{"at":"boot","event":"half-configured-integration","pairs":["resend: STUDENT CONFIRMATION EMAILS ARE NOT BEING DELIVERED..."]}`
+  and every refused send logs `{"event":"notify-failed","task":"booking-confirmation",...}` with
+  Resend's own message. Both are `console.error`, so they show as errors in the Vercel log.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships. `pnpm audit --audit-level high` is clean, which is what CI gates on.
 - **HSTS is written but commented out** in `src/middleware.ts`. It must not be enabled until the
