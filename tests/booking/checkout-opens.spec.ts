@@ -72,3 +72,26 @@ test("the browser reaches Razorpay checkout, widget and all", async ({ page }) =
   expect(refusals, "the order was refused").toEqual([]);
   await expect(page.getByText(/could not verify that you are human/i)).toHaveCount(0);
 });
+
+/**
+ * The enquiry form has the same pair and a quieter failure: `/api/enquiry` answers a failed
+ * challenge with the WhatsApp handoff and a 200, so a missing site key did not look like an error
+ * at all — it silently stopped storing leads. Confirmed against production before the fix, where
+ * a well-formed enquiry came back `delivery: "whatsapp"` and no document was written.
+ *
+ * This stops at the token rather than submitting: a real submit on the deployment would write a
+ * lead into the academy's Sanity dataset and email them about it.
+ */
+test("the enquiry form gets a Turnstile token too", async ({ page }) => {
+  await page.goto("/enquire");
+  await page.locator("form[data-hydrated=true]").first().waitFor();
+
+  await expect(
+    page.getByTestId("turnstile"),
+    "no Turnstile widget on /enquire: NEXT_PUBLIC_TURNSTILE_SITE_KEY is missing",
+  ).toBeVisible();
+
+  await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, {
+    timeout: 20_000,
+  });
+});
