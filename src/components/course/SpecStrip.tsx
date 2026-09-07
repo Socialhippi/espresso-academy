@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { TbcPill } from "@/components/site/TbcPill";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
 import { formatLabel, getCertification, getNextInstanceForCourse, type Course } from "@/lib/content";
@@ -62,13 +61,25 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
 
   /*
-   * While the academy has confirmed none of the four variable facts, four TBC pills are the first
-   * thing under the H1 and the unknowns become the loudest thing on the page. Collapse them onto
-   * one line and keep the two facts that are real. The full six-cell strip returns the moment any
-   * one value lands, with no code change. CourseCard already does this on the hub.
+   * The unknowns must not be the loudest thing under the H1.
+   *
+   * Seven cells each carrying a TBC pill is a page that shouts about what it does not know before
+   * it says anything it does. One sentence says the same thing and offers the way to find out.
+   * Every cell that has a value is still shown; the sentence only stands in for the ones that do
+   * not, and it disappears entirely once the academy has filled them all in. No code change is
+   * needed when that happens.
    */
-  const unknownSpecs = !hasDuration && course.format === null && course.feeInclGst === null
-    && !nextInstance?.startDate;
+  const unknown = {
+    duration: !hasDuration,
+    format: course.format === null,
+    fee: course.feeInclGst === null,
+    dates: !nextInstance?.startDate,
+    prerequisites: course.prerequisites === null,
+    trainer: course.trainers.length === 0,
+    syllabus: course.modules === null || course.modules.length === 0,
+  };
+  const anyUnknown = Object.values(unknown).some(Boolean);
+  const unknownSpecs = Object.values(unknown).every(Boolean);
 
   const certificate = await certificateCell(course);
 
@@ -82,10 +93,8 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
         <Spec label={certificate.label}>{certificate.value}</Spec>
 
         <div className="col-span-2 flex flex-col gap-2 border-t border-white-2 pt-4">
-          <dt className="type-label text-grey">Duration, format, fee and dates</dt>
-          <dd className="type-body text-black">
-            <TbcPill />
-          </dd>
+          <dt className="type-label text-grey">Fee, dates and duration</dt>
+          <dd className="type-body text-black">Confirmed on WhatsApp before you pay</dd>
         </div>
       </dl>
     );
@@ -98,13 +107,13 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
         className,
       )}
     >
-      <Spec label="Duration">
-        {hasDuration ? formatDuration(course.durationDays, course.durationHours) : <TbcPill />}
-      </Spec>
+      {/* A cell appears when it has something to say. The ones that do not are covered by the one
+          line at the end, which is a sentence a reader can act on rather than a row of pills. */}
+      {hasDuration && (
+        <Spec label="Duration">{formatDuration(course.durationDays, course.durationHours)}</Spec>
+      )}
 
-      <Spec label="Format">
-        {course.format ? formatLabel[course.format] : <TbcPill />}
-      </Spec>
+      {course.format && <Spec label="Format">{formatLabel[course.format]}</Spec>}
 
       <Spec label="Level">
         <LevelBadge level={course.level} />
@@ -112,24 +121,25 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
 
       <Spec label={certificate.label}>{certificate.value}</Spec>
 
-      <Spec label="Fee">
-        {course.feeInclGst !== null ? (
-          <>
-            <span className="type-numeral text-h3-lg">{formatFeeAmount(course.feeInclGst)}</span>{" "}
-            <span className="type-small text-grey">incl. GST</span>
-          </>
-        ) : (
-          <TbcPill />
-        )}
-      </Spec>
+      {course.feeInclGst !== null && (
+        <Spec label="Fee">
+          <span className="type-numeral text-h3-lg">{formatFeeAmount(course.feeInclGst)}</span>{" "}
+          <span className="type-small text-grey">incl. GST</span>
+        </Spec>
+      )}
 
-      <Spec label="Next batch">
-        {nextInstance?.startDate ? (
+      {nextInstance?.startDate && (
+        <Spec label="Next batch">
           <time dateTime={nextInstance.startDate}>{formatDate(nextInstance.startDate)}</time>
-        ) : (
-          <TbcPill label="Dates TBC" />
-        )}
-      </Spec>
+        </Spec>
+      )}
+
+      {anyUnknown && (
+        <div className="col-span-2 flex flex-col gap-2 border-t border-white-2 pt-4 md:col-span-3 lg:col-span-2">
+          <dt className="type-label text-grey">Still to confirm</dt>
+          <dd className="type-body text-black">Confirmed on WhatsApp before you pay</dd>
+        </div>
+      )}
     </dl>
   );
 }

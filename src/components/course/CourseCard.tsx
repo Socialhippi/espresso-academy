@@ -2,7 +2,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
-import { TbcPill } from "@/components/site/TbcPill";
 import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
 import { courseCta, formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
@@ -29,8 +28,17 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
   const hasFee = course.feeInclGst !== null;
   const cta = courseCta(course, course.instances);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
+  /* Same rule as the course page's spec strip: a cell appears when it has something to say, and
+     one sentence covers the rest. `prerequisites`, `trainers` and `modules` are not shown on a
+     card, but they decide whether the card has anything specific to offer at all. */
   const allSpecsUnknown =
-    !hasDuration && !hasFee && course.format === null && !nextInstance?.startDate;
+    !hasDuration &&
+    !hasFee &&
+    course.format === null &&
+    !nextInstance?.startDate &&
+    course.prerequisites === null &&
+    course.trainers.length === 0 &&
+    (course.modules === null || course.modules.length === 0);
 
   return (
     <article className={cn("group h-full", className)}>
@@ -65,29 +73,25 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
             says the same thing. The full spec row returns the moment any value lands.
           */}
           {allSpecsUnknown ? (
-            <p className="mt-4 flex flex-wrap items-center gap-2 type-small text-grey">
-              Duration, format, fee and dates <TbcPill />
+            <p className="mt-4 type-small text-grey">
+              Fee, dates and duration are confirmed on WhatsApp before you pay
             </p>
           ) : (
             <ul className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-2 type-small text-grey">
-              <li className="flex items-center gap-2">
-                <span className="type-label text-grey">Duration</span>
-                {hasDuration ? (
+              {hasDuration && (
+                <li className="flex items-center gap-2">
+                  <span className="type-label text-grey">Duration</span>
                   <span className="text-black">
                     {formatDuration(course.durationDays, course.durationHours)}
                   </span>
-                ) : (
-                  <TbcPill />
-                )}
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="type-label text-grey">Format</span>
-                {course.format ? (
+                </li>
+              )}
+              {course.format && (
+                <li className="flex items-center gap-2">
+                  <span className="type-label text-grey">Format</span>
                   <span className="text-black">{formatLabel[course.format]}</span>
-                ) : (
-                  <TbcPill />
-                )}
-              </li>
+                </li>
+              )}
             </ul>
           )}
 
@@ -100,32 +104,24 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
 
           <div className="mt-auto flex items-end justify-between gap-4 pt-6">
             <div className="flex flex-wrap items-baseline gap-x-6 gap-y-2">
-              {!allSpecsUnknown && (
-                <>
-                  <p>
-                    <span className="block type-label text-grey">Fee</span>
-                    {hasFee ? (
-                      <span className="type-numeral text-h2 text-black">
-                        {formatFeeAmount(course.feeInclGst)}
-                      </span>
-                    ) : (
-                      <TbcPill className="mt-1" />
-                    )}
-                  </p>
-                  <p>
-                    <span className="block type-label text-grey">Next batch</span>
-                    {nextInstance?.startDate ? (
-                      <time
-                        dateTime={nextInstance.startDate}
-                        className="type-numeral text-h2 text-black"
-                      >
-                        {formatDate(nextInstance.startDate)}
-                      </time>
-                    ) : (
-                      <TbcPill className="mt-1" />
-                    )}
-                  </p>
-                </>
+              {hasFee && (
+                <p>
+                  <span className="block type-label text-grey">Fee</span>
+                  <span className="type-numeral text-h2 text-black">
+                    {formatFeeAmount(course.feeInclGst)}
+                  </span>
+                </p>
+              )}
+              {nextInstance?.startDate && (
+                <p>
+                  <span className="block type-label text-grey">Next batch</span>
+                  <time
+                    dateTime={nextInstance.startDate}
+                    className="type-numeral text-h2 text-black"
+                  >
+                    {formatDate(nextInstance.startDate)}
+                  </time>
+                </p>
               )}
             </div>
             <ArrowRight

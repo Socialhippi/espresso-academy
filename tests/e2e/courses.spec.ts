@@ -79,11 +79,15 @@ test.describe("course page", () => {
     await expect(book).toHaveAttribute("href", /^(\/book\/|#dates-heading)/);
   });
 
-  test("shows the TBC state for fee, duration and dates rather than a number", async ({ page }) => {
+  test("states what is unknown in one line rather than a row of pills", async ({ page }) => {
     await page.goto("/courses/sca-barista-skills-foundation");
 
-    // Every TBC pill announces itself; there is no invented figure anywhere on the page.
-    await expect(page.getByTitle("To be confirmed by the academy").first()).toBeVisible();
+    /*
+     * Seven cells each carrying a TBC pill made the unknowns the loudest thing under the H1. One
+     * sentence says the same and offers the way to find out. The point of the assertion is that
+     * the page still says the fee is unconfirmed — it just says it once, in words.
+     */
+    await expect(page.getByText("Confirmed on WhatsApp before you pay").first()).toBeVisible();
     await expect(page.getByText("Batch dates are being finalised").first()).toBeVisible();
     await expect(page.getByText("Syllabus being finalised")).toBeVisible();
 
