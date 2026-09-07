@@ -43,7 +43,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
       <Container className="py-10 md:py-16">
         <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">
-            <p className="eyebrow">Enrolment</p>
+            <p className="eyebrow">Enquiry</p>
             <h1 className="mt-3 type-h1 text-black">Ask about a seat</h1>
             <p className="mt-5 measure type-body text-grey">
               Two fields and you are done. A trainer reads it and replies with the fee incl. GST,

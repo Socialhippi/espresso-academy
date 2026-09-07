@@ -69,12 +69,12 @@ export function BatchTable({ course, className }: BatchTableProps) {
       <div className={cn("border border-white-2 bg-white-3 p-6 md:p-8", className)}>
         <p className="type-h3 text-black">Batch dates are being finalised</p>
         <p className="mt-3 measure type-body text-grey">
-          The academy sets dates a few weeks ahead. Leave your number and you will be told first,
+          Dates for the next batch are not published yet. Leave your number and you will be told first,
           before the batch is listed here.
         </p>
         <WaitlistInline course={course.title} className="mt-6" />
         <p className="mt-6 hairline pt-6 type-small text-grey">
-          Would rather just ask?
+          Or just ask.
         </p>
         <WhatsAppButton className="mt-3" size="sm" course={course.title} event="whatsapp_click_batches">
           Ask when this runs
@@ -102,7 +102,7 @@ export function BatchTable({ course, className }: BatchTableProps) {
               Status
             </th>
             <th scope="col" className="py-3 type-label text-grey">
-              <span className="sr-only">Reserve a seat</span>
+              <span className="sr-only">Book or ask</span>
             </th>
           </tr>
         </thead>

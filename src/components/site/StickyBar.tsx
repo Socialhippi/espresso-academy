@@ -71,7 +71,8 @@ export function StickyBar({ courseBar }: StickyBarProps) {
 
   /*
    * The consent banner is fixed to the same corner of the viewport. Whichever renders on top hides
-   * the other, and the bar carries WhatsApp, Call and Reserve, so it waits rather than competes.
+   * the other, and the bar carries WhatsApp, Call and the course action, so it waits rather than
+   * competes.
    * The banner is dismissed in one tap and never returns.
    */
   const visible = scrolledPast && consent !== null;
@@ -131,8 +132,8 @@ export function StickyBar({ courseBar }: StickyBarProps) {
         </a>
 
         {courseSlug && course?.bookableInstanceId ? (
-          /* A course with a bookable batch gets a Book button, because "Reserve" pointing at an
-             enquiry form when a seat can actually be paid for is a step nobody needs. */
+          /* A course with a bookable batch gets a Book button. Pointing at an enquiry form when a
+             seat can actually be paid for is a step nobody needs. */
           <Link
             href={`/book/${course.bookableInstanceId}`}
             data-event="book_click_sticky"
@@ -144,11 +145,12 @@ export function StickyBar({ courseBar }: StickyBarProps) {
         ) : courseSlug ? (
           <Link
             href={`/enquire?course=${courseSlug}`}
-            data-event="reserve_click_sticky"
+            data-event="enquire_click_sticky"
             className={cn(segmentClass, "bg-red text-white")}
           >
             <ArrowRight className="size-5" aria-hidden="true" />
-            Reserve
+            Enquire
+            <span className="sr-only"> about this course</span>
           </Link>
         ) : (
           <Link

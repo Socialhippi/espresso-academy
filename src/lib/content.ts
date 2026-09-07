@@ -521,7 +521,8 @@ export function getNextInstanceForCourse(course: {
 /* Seat, fee and bookability rules live in src/lib/batch.ts, which imports nothing and carries no
    `server-only`, so the unit suite can exercise them directly rather than through a rendered page.
    Re-exported here so every caller keeps one import. */
-export { batchAction, feeForInstance, rupeesToPaise, seatsLeft } from "@/lib/batch";
+export { batchAction, courseCta, feeForInstance, rupeesToPaise, seatsLeft } from "@/lib/batch";
+export type { CourseCta } from "@/lib/batch";
 
 /**
  * Courses to show alongside this one: same skill area first, then the adjacent rung of the ladder,

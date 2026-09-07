@@ -11,6 +11,8 @@ interface FinalCtaProps {
   /** Primary destination. Defaults to the enquiry form. */
   href?: string;
   ctaLabel?: string;
+  /** So a button that opens a checkout does not report itself as an enquiry. */
+  event?: string;
   /** Pre-fills the WhatsApp message with a course title. */
   course?: string;
   className?: string;
@@ -27,6 +29,7 @@ export function FinalCta({
   body,
   href = "/enquire",
   ctaLabel = "Enquire about a seat",
+  event = "enquire_click_final",
   course,
   className,
   number = "06",
@@ -50,7 +53,7 @@ export function FinalCta({
           <div className="lg:col-span-5">
             <div className="measure type-body text-grey-2">{body}</div>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-              <ButtonLink href={href} variant="primary" data-event="enquire_click_final">
+              <ButtonLink href={href} variant="primary" data-event={event}>
                 {ctaLabel}
               </ButtonLink>
               {/* design.md gives the WhatsApp button a black ground so red stays singular on a

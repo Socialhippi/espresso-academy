@@ -95,3 +95,51 @@ test("the enquiry form gets a Turnstile token too", async ({ page }) => {
     timeout: 20_000,
   });
 });
+
+
+/**
+ * The hero button, not the batch table.
+ *
+ * `/courses/latte-art` carries the ₹1 test batch, so its hero is in the "one open priced batch"
+ * state and must go straight to that batch's checkout. This is the path a reader who has decided
+ * actually takes: they do not scroll past the syllabus to find a Book button in a table.
+ */
+test("the course hero button reaches Razorpay checkout", async ({ page }) => {
+  await page.goto("/courses/latte-art");
+
+  /*
+   * Either wording is correct and which one appears depends on the data: one bookable batch gives
+   * "Book this batch" and goes straight to its checkout, more than one gives "Choose a date" and
+   * scrolls to the table rather than choosing for the reader. The seeded dataset has two, so the
+   * test follows whichever it is offered. What must never happen — and did — is a hero that offers
+   * an enquiry form while a seat can be paid for.
+   */
+  const hero = page.getByRole("link", { name: /^(Book this batch|Choose a date)/ }).first();
+  await expect(
+    hero,
+    "the Latte Art hero is not offering its bookable batch — check courseCta and the seeded test batch",
+  ).toBeVisible();
+  await hero.click();
+
+  if (!/\/book\//.test(page.url())) {
+    // "Choose a date" scrolled to the table. Take the batch the tests own.
+    await page.locator('a[href="/book/instance-e2e-test-batch"]').first().click();
+  }
+
+  await expect(page).toHaveURL(/\/book\/instance-e2e-test-batch/);
+  await page.locator("form[data-hydrated=true]").first().waitFor();
+  await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, {
+    timeout: 20_000,
+  });
+
+  await page.getByLabel(/Your name/).fill("Hero CTA");
+  await page.getByLabel(/Mobile number/).fill("9876543210");
+  await page.getByLabel(/Email/).fill("business@socialhippi.com");
+  await page.getByRole("checkbox", { name: /may contact me about this booking/i }).check();
+  await page.waitForTimeout(TIME_FLOOR_MS);
+  await page.getByRole("button", { name: /Pay/ }).click();
+
+  await expect(page.locator(".razorpay-container, iframe[src*='razorpay']").first()).toBeVisible({
+    timeout: 30_000,
+  });
+});

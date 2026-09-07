@@ -20,6 +20,7 @@ import { BatchTable } from "@/components/course/BatchTable";
 import { FeeBlock } from "@/components/course/FeeBlock";
 import { LevelLadder } from "@/components/course/LevelLadder";
 import {
+  courseCta,
   getCertification,
   getCourse,
   getCourseSlugs,
@@ -101,6 +102,8 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
   let sectionNumber = 0;
   const next = (): string => String(++sectionNumber).padStart(2, "0");
 
+  const cta = courseCta(course, course.instances);
+
   return (
     <>
       <section className="border-b border-white-2 pt-6 pb-10 md:pt-8 md:pb-16">
@@ -117,13 +120,15 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               <LevelBadge level={course.level} />
               <h1 className="mt-4 type-h1 text-black">{course.title}</h1>
               <p className="mt-5 measure type-body text-grey">{course.outcome}</p>
+              {/*
+                The primary action follows the batches, not the page template. One open priced
+                batch goes straight to its checkout; several scroll to the table; an unpriced or
+                undated batch asks. `courseCta` is the same rule the hub cards and the home batch
+                rows use, and it is unit-tested per state.
+              */}
               <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
-                <ButtonLink
-                  href={`/enquire?course=${course.slug}`}
-                  variant="primary"
-                  data-event="reserve_click_hero"
-                >
-                  Reserve a seat
+                <ButtonLink href={cta.href} variant="primary" data-event={`${cta.event}_hero`}>
+                  {cta.label}
                 </ButtonLink>
                 <WhatsAppButton course={course.title} event="whatsapp_click_course" />
               </div>
@@ -416,16 +421,28 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <FinalCta
         number={next()}
-        title="Reserve a seat on this course"
-        ctaLabel="Reserve a seat"
-        href={`/enquire?course=${course.slug}`}
+        title={cta.kind === "book" || cta.kind === "choose" ? "Book your seat" : "Ask about this course"}
+        ctaLabel={cta.label}
+        href={cta.href}
+        event={`${cta.event}_final`}
         course={course.title}
         body={
-          <p>
-            Send your name and number with a line about your experience, and ask whether{" "}
-            {course.title} is the right starting point. The fee incl. GST and the batch dates are
-            confirmed with you before you pay.
-          </p>
+          /* The body has to follow the button. "The fee and the batch dates are confirmed with you
+             before you pay" is true of an enquiry and false of a checkout, where nobody confirms
+             anything with anyone. */
+          cta.kind === "book" || cta.kind === "choose" ? (
+            <p>
+              The fee at checkout is stated incl. GST. Read the refund and reschedule policy before
+              you pay, and message on WhatsApp first if you are not sure this is the right starting
+              point.
+            </p>
+          ) : (
+            <p>
+              Send your name and number with a line about your experience, and ask whether{" "}
+              {course.title} is the right starting point. The fee incl. GST and the batch dates are
+              confirmed with you before you pay.
+            </p>
+          )
         }
       />
 

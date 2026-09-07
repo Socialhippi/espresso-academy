@@ -52,13 +52,31 @@ test.describe("course hub filters", () => {
 });
 
 test.describe("course page", () => {
-  test("Reserve a seat pre-fills the enquiry form with the course", async ({ page }) => {
-    await page.goto("/courses/latte-art");
-    await page.getByRole("link", { name: "Reserve a seat" }).first().click();
+  test("the hero button asks about the course when no batch can be booked", async ({ page }) => {
+    // A course with no priced batch has nothing to charge for, so its hero asks — and the enquiry
+    // form arrives with the course already chosen.
+    await page.goto("/courses/sca-barista-skills-foundation");
+    await page.getByRole("link", { name: /^Ask about the next batch$/ }).first().click();
 
-    await expect(page).toHaveURL(/\/enquire\?course=latte-art/);
+    await expect(page).toHaveURL(/\/enquire\?course=sca-barista-skills-foundation/);
     const select = page.getByLabel("Which course (optional)");
-    await expect(select).toHaveValue("latte-art");
+    await expect(select).toHaveValue("sca-barista-skills-foundation");
+  });
+
+  test("the hero button books when a batch can be booked", async ({ page }) => {
+    // The defect this covers: /courses/latte-art has an open priced batch and its hero offered
+    // "Reserve a seat", which went to the enquiry form. The only route to a checkout was the Book
+    // button in the batch table, most of a page further down.
+    await page.goto("/courses/latte-art");
+    /*
+     * Both wordings are correct and the data decides which: one bookable batch gives "Book this
+     * batch" pointing straight at its checkout, more than one gives "Book a batch" pointing at the
+     * table so the reader picks. What must never appear on a course with a payable seat is an
+     * enquiry link, which is what "Reserve a seat" was.
+     */
+    const book = page.getByRole("link", { name: /^(Book this batch|Choose a date)/ }).first();
+    await expect(book).toBeVisible();
+    await expect(book).toHaveAttribute("href", /^(\/book\/|#dates-heading)/);
   });
 
   test("shows the TBC state for fee, duration and dates rather than a number", async ({ page }) => {

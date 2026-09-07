@@ -147,7 +147,7 @@ test.describe("the consent banner and the sticky bar share the bottom of the vie
     await page.evaluate(() => window.scrollTo(0, 900));
     await expect(
       bar,
-      "the bar must not appear underneath the banner, which would hide WhatsApp, Call and Reserve",
+      "the bar must not appear underneath the banner, which would hide WhatsApp, Call and the course action",
     ).toHaveAttribute("data-visible", "false");
 
     await page.getByRole("button", { name: "That is fine" }).click();

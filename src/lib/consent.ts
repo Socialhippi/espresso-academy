@@ -15,7 +15,7 @@ export type Consent = "accepted" | "declined" | null;
  *
  * Two components need it: the banner, to know whether to render, and the sticky bar, to stay out
  * of the way while the banner is up. Both are fixed to the bottom of the viewport on mobile, and
- * without this the banner sits on top of the WhatsApp, Call and Reserve buttons, which are the
+ * without this the banner sits on top of the WhatsApp, Call and course-action buttons, which are the
  * site's primary conversion path for two thirds of its audience.
  */
 let listeners: (() => void)[] = [];

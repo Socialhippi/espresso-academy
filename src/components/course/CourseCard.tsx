@@ -4,7 +4,7 @@ import { LevelBadge } from "@/components/site/LevelBadge";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { TbcPill } from "@/components/site/TbcPill";
 import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
-import { formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
+import { courseCta, formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface CourseCardProps {
@@ -18,10 +18,16 @@ interface CourseCardProps {
  * The whole card is one link, per .claude/rules/a11y.md. Hover underlines the title and shifts the
  * arrow 4px; nothing scales. The level badge sits under the photo rather than over it, because
  * text never sits on top of an image.
+ *
+ * A course with a bookable batch also gets a second link below the card body, outside the card
+ * link because a link cannot contain a link. It is the only card state that shows one: everything
+ * else has nothing to charge for, and the card link already leads to the page that asks. Without
+ * it the hub was eight cards deep with no route to a checkout on any of them.
  */
 export function CourseCard({ course, className, priority = false }: CourseCardProps) {
   const nextInstance = getNextInstanceForCourse(course);
   const hasFee = course.feeInclGst !== null;
+  const cta = courseCta(course, course.instances);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
   const allSpecsUnknown =
     !hasDuration && !hasFee && course.format === null && !nextInstance?.startDate;
@@ -131,6 +137,17 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
           {hasFee && <p className="mt-2 type-small text-grey">incl. GST</p>}
         </div>
       </Link>
+
+      {cta.kind === "book" && (
+        <Link
+          href={cta.href}
+          data-event="book_click_card"
+          className="flex min-h-11 items-center justify-center border border-t-0 border-white-2 bg-white-3 px-6 py-3 type-label text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
+        >
+          {cta.label}
+          <span className="sr-only">: {course.title}</span>
+        </Link>
+      )}
     </article>
   );
 }
