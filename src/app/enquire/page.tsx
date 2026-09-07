@@ -46,7 +46,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
             <p className="eyebrow">Enquiry</p>
             <h1 className="mt-3 type-h1 text-black">Ask about a seat</h1>
             <p className="mt-5 measure type-body text-grey">
-              Two fields and you are done. A trainer reads it and replies with the fee incl. GST,
+              Name and number are enough. The academy reads it and replies with the fee incl. GST,
               the next batch date and a straight answer on whether the course you picked is the
               right starting point for you.
             </p>

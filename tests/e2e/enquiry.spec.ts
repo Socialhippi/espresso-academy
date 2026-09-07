@@ -170,3 +170,39 @@ test.describe("waitlist", () => {
     await expect(form.getByText("Enter a 10-digit Indian mobile number, without +91")).toBeVisible();
   });
 });
+
+/**
+ * The honeypot has to stay invisible to people and reachable only by a script.
+ *
+ * Four properties, and losing any one of them turns a bot trap into a trap for a real customer: a
+ * visible field somebody fills in and gets silently dropped for, a field a screen reader reads out
+ * as "Company", a field that catches a Tab on the way to the submit button, or a field a browser's
+ * autofill puts a company name into on their behalf. The server drops any submission that carries
+ * it, so all four are the difference between catching bots and losing leads.
+ */
+test.describe("the honeypot is invisible and untabbable", () => {
+  for (const route of ["/enquire", "/contact", "/for-cafes"]) {
+    test(`${route} hides its honeypot from people`, async ({ page }) => {
+      await page.goto(route);
+      await page.locator("form[data-hydrated=true]").first().waitFor();
+
+      const honeypot = page.locator('input[name="company"]').first();
+      await expect(honeypot).toBeAttached();
+      await expect(honeypot, "a filled honeypot is dropped, so nobody may see it").toBeHidden();
+      await expect(honeypot).toHaveAttribute("tabindex", "-1");
+      await expect(honeypot).toHaveAttribute("autocomplete", "off");
+
+      // aria-hidden sits on the wrapper, which is what takes the field out of the accessibility
+      // tree along with its label.
+      const hiddenAncestors = await honeypot.evaluate((element) => {
+        let node: HTMLElement | null = element.parentElement;
+        while (node) {
+          if (node.getAttribute("aria-hidden") === "true") return true;
+          node = node.parentElement;
+        }
+        return false;
+      });
+      expect(hiddenAncestors, "the honeypot is not inside an aria-hidden container").toBe(true);
+    });
+  }
+});

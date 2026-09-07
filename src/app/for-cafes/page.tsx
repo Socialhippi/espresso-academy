@@ -209,8 +209,8 @@ function FallbackSections({
                 id="enquire-heading"
               />
               <p className="mt-5 measure type-body text-grey">
-                Two fields and whatever detail you want to add. A trainer reads it, not a call
-                centre, and replies with a scope and a fee.
+                Name and number are enough, plus whatever detail you want to add. The academy
+                reads it and replies with a scope and a fee.
               </p>
             </div>
             <div className="lg:col-span-7">
