@@ -62,7 +62,7 @@ const howToChoose = [
   },
   {
     title: "If you run or are opening a cafe",
-    body: "Barista Skills Intermediate and Professional are the upper two rungs. Roasting and Cupping covers the roasting and cupping side, and the faculty hold Q Grader and CQI Q Processing credentials. Whether the academy runs cafe or team training is not published, so ask.",
+    body: "Barista Skills Intermediate and Professional are the upper two rungs. Roasting and Cupping covers the roasting and cupping side, and the faculty hold Q Grader and CQI Q Processing credentials. Ask about training a whole team and the academy will scope it with you.",
     href: "/contact?topic=cafe",
     cta: "Ask about team training",
   },

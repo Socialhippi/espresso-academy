@@ -158,9 +158,8 @@ export default async function CertificationsPage() {
                 pressure, texture milk consistently and keep a bar moving.
               </p>
               <p className="mt-4 measure type-body text-grey">
-                The academy does not publish a list of employers who recognise either certificate,
-                and it does not publish a placement rate. Ask before you book if that matters to
-                you, including when the answer is that nobody knows.
+                If what a certificate is worth to a particular employer matters to you, ask before
+                you book, and ask the employer too.
               </p>
             </div>
           </div>

@@ -145,9 +145,8 @@ export default async function HomePage() {
         title="Tell us where you are starting from"
         body={
           <p>
-            Send one message with your background and what you want to be able to do. Fees and
-            batch dates are not published yet, so ask for the current figures before you commit to
-            anything.
+            Send one message with your background and what you want to be able to do, and ask for
+            the fee incl. GST and the next batch date before you commit to anything.
           </p>
         }
       />
