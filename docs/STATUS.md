@@ -821,7 +821,8 @@ sensitive prefixes are still held back, and that the sitemap is pointed at.
 **The third CI run passed on every job** — `746b7fa`, run 33968945879. `static` 2m25s, `secrets`
 14s, `audit` 34s, and `e2e` 29m37s: **1727 tests passed and 260 skipped in 26.0 minutes**, followed
 by the four standing scripts, all clean. The 40-minute cap set after the second run's timeout
-leaves about ten minutes of headroom on a two-core runner.
+leaves about ten minutes of headroom on a two-core runner — `26f30cc` after it was green on all
+four jobs as well, with `e2e` at 31m08s, so treat that headroom as thin rather than generous.
 
 The 260 skips are the deliberate ones, not tests quietly not running: the mobile sheet and the
 sticky bar are asserted only on the phone and tablet projects, axe's webkit pass is skipped where
