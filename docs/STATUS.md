@@ -12,7 +12,11 @@ visitor to WhatsApp, which is right for them and invisible to everyone else — 
 here a broken integration runs for a week and looks exactly like a quiet week.
 
 <!-- lead-failures:start -->
-Not yet run against production.
+**Lead delivery, last 24 hours (checked 2026-09-07):** 0 of 0 stored enquiries
+were not emailed to the academy (0 ever). Parts that failed: none.
+
+A lead that never reached Sanity has no document to flag and is not in this number. Those are in
+the platform log only: `vercel logs <deployment> --since 24h --json | grep lead-delivery-failed`.
 <!-- lead-failures:end -->
 
 Public, no login. Open it on a phone.
