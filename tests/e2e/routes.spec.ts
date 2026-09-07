@@ -194,3 +194,46 @@ test.describe("WhatsApp links", () => {
     });
   }
 });
+
+/**
+ * An FAQ answer has to be in the HTML the server sent, not only in the structured data.
+ *
+ * These two can disagree in a way nothing else catches: the JSON-LD is built from the same data
+ * but written straight into the document, while the visible answers live inside an accordion. If
+ * that accordion ever became client-rendered, or rendered its answers only once opened, the page
+ * would still pass every schema check while a crawler — and a reader with JavaScript off — saw
+ * eight questions and no answers, and the structured data would be claiming content the page does
+ * not show.
+ *
+ * Compared against the JSON-LD rather than against a fixture, so it keeps working as the academy
+ * writes the answers.
+ */
+test.describe("FAQ answers are server-rendered", () => {
+  const FAQ_ROUTES = ["/faq", "/courses/latte-art", "/courses/sca-barista-skills-foundation"];
+
+  for (const route of FAQ_ROUTES) {
+    test(`${route} shows every answer its FAQPage schema claims`, async ({ request }) => {
+      const html = await (await request.get(route)).text();
+      const withoutScripts = html.replace(/<script[\s\S]*?<\/script>/g, "");
+
+      const graph = html.replace(/\\"/g, '"');
+      expect(graph.replace(/\s/g, ""), `${route} has no FAQPage schema`).toContain(
+        '"@type":"FAQPage"',
+      );
+
+      const answers = [
+        ...graph.matchAll(/"acceptedAnswer":\{"@type":"Answer","text":"(.{20,140}?)"/g),
+      ].map((match) => match[1] as string);
+      expect(answers.length, `${route} has an FAQPage with no answers`).toBeGreaterThan(0);
+
+      for (const answer of answers) {
+        // The opening of each answer, unescaped the way the DOM carries it.
+        const opening = answer.slice(0, 45).replace(/&#x27;|&apos;/g, "'").replace(/&amp;/g, "&");
+        expect(
+          withoutScripts.replace(/&#x27;/g, "'").replace(/&amp;/g, "&"),
+          `${route} claims an answer in its schema that is not in the page: "${opening}"`,
+        ).toContain(opening);
+      }
+    });
+  }
+});
