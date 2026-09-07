@@ -7,9 +7,11 @@ do. Updated at the end of every phase.
 
 Public, no login. Open it on a phone.
 
-> **Up to date.** Deployed from `cc5c0f0` and verified on the deployment itself: every route
-> returns 200, nothing overflows at 360, 390, 768, 1024 or 1280, no forbidden colour pair renders,
-> and every standalone tap target clears 44px. Safe to send.
+> **Up to date.** Production serves the code at `4c6555a`, which is what `main` still carries under
+> `src/`: every commit since touches CI or this document. Verified on the deployment itself: every
+> route returns 200, nothing overflows at 360, 390, 768, 1024 or 1280, no forbidden colour pair
+> renders, every standalone tap target clears 44px, and the nightly finds all 31 sitemap URLs and
+> all 36 internal links answering 200. Safe to send.
 
 A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
 are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
@@ -670,6 +672,8 @@ minutes, which is the measured figure plus room for the one retry `retries: 1` a
 stays at 2 because that is the core count; raising it would oversubscribe the same two cores the
 Next server is already running on. The suite is not slow, the runner is small.
 
+The third run passed on every job, and what the nightly then found is recorded below.
+
 **The e2e job therefore costs about half an hour of billed minutes per push.** Sharding it across
 parallel jobs would cut the wait without cutting coverage, and running the full seven-project
 matrix nightly against a smaller per-push set would cut the bill — both are worth doing and neither
@@ -742,7 +746,8 @@ matters.
 \* SEO's only failing audit is the deliberate pre-launch noindex; verified 100 with indexing on.
 
 Two routes still exceed the ≤2.5s LCP budget, at 2.8s and 2.9s. The score target is met; the budget
-is not, and the largest remaining lever is the client's photography.
+is not, and the largest remaining lever is the client's photography. (A later warm nightly puts
+every route inside the budget; see "The homepage was not slow" below for why these figures move.)
 
 #### Environment on Vercel
 
@@ -811,6 +816,72 @@ sensitive prefixes are still held back, and that the sitemap is pointed at.
 
 ---
 
+### CI is green, and the first thing the nightly found was itself
+
+**The third CI run passed on every job** — `746b7fa`, run 33968945879. `static` 2m25s, `secrets`
+14s, `audit` 34s, and `e2e` 29m37s: **1727 tests passed and 260 skipped in 26.0 minutes**, followed
+by the four standing scripts, all clean. The 40-minute cap set after the second run's timeout
+leaves about ten minutes of headroom on a two-core runner.
+
+The 260 skips are the deliberate ones, not tests quietly not running: the mobile sheet and the
+sticky bar are asserted only on the phone and tablet projects, axe's webkit pass is skipped where
+chromium and Pixel 7 already cover the same tree, WebKit's tab order is asserted for what Safari
+actually does rather than for a fiction, and the batch-filter test skips itself while no batch has
+a date.
+
+`.github/workflows/nightly.yml` has now run twice on schedule, on 6 and 7 September, and both were
+green. `check-links.mjs` found all 31 sitemap URLs and all 36 distinct internal links answering
+200. `stale-content.mjs` reports the same list the table below carries — 8 courses with no fee, 8
+with no duration, 7 with no trainer, 8 with no photograph, 8 batches with no date, 3 trainers with
+no role, six settings fields missing — plus its standing warning that the two ₹1 test batches are
+still in the dataset.
+
+#### The homepage was not slow. The runner was cold.
+
+Both scheduled nightlies scored `/` at 76 and 75, with 920ms and 930ms of blocking time, against 88
+to 98 and 150 to 220ms for the other five routes. Two nights agreeing is not noise, and the
+homepage is the page this site is judged on, so it read as the one real regression in the project.
+
+It was not a regression. `/` is the first route in `scripts/lighthouse.mjs`, and every Lighthouse
+report records what the machine was worth while it ran: **CPU benchmark index 1822 on the homepage
+against roughly 2330 on every route measured after it**, and 2898ms of total main-thread work
+against 1225 to 1675ms. The first measurement was paying for `npx` fetching Lighthouse, Chrome's
+first launch and an empty page cache — and mobile Lighthouse then multiplies observed CPU time by
+four to emulate a mid-range phone, so the cold start is charged four times over to whichever route
+happens to be measured first.
+
+The fix is a discarded warm-up pass before the measured routes, and printing the benchmark index on
+every row so that a score which moved because the machine was busy cannot be mistaken for one that
+moved because the site changed. Verified by dispatching the nightly against the same deployment,
+with no change to the site between the two runs:
+
+| Route | Cold (6 Sep nightly) | Warm (7 Sep dispatch) |
+|---|---|---|
+| `/` | 76, LCP 2.4s, TBT 920ms, cpu 1822 | **99**, LCP 2.1s, TBT 40ms, cpu 2860 |
+| `/courses` | 92, LCP 2.8s, TBT 200ms | 97, LCP 2.4s, TBT 80ms |
+| `/courses/latte-art` | 91, LCP 2.9s, TBT 220ms | 97, LCP 2.4s, TBT 70ms |
+| `/calendar` | 89, LCP 3.2s, TBT 170ms | **100**, LCP 1.8s, TBT 40ms |
+| `/enquire` | 97, LCP 2.0s, TBT 180ms | 98, LCP 2.3s, TBT 70ms |
+| `/book/[id]` | 98, LCP 2.1s, TBT 150ms | 98, LCP 2.4s, TBT 50ms |
+
+Every route clears the ≥95 launch target, and on this reading every route is also inside the ≤2.5s
+LCP budget for the first time. **That does not settle the LCP question**, and the same run says
+why: the benchmark index still ranged 2219 to 2981 across six routes, so the script now prints a
+line saying the scores are not comparable route to route. The same commit measured from this
+workstation the same morning gave LCP 2.4s to 3.0s and the homepage 94. A simulated LCP on a text
+hero moves with whatever the font does on the machine of the day. What has changed is that the
+nightly now measures the site rather than its own first thirty seconds.
+
+Also in `26f30cc`: **CI no longer runs on a push that only touches `docs/` or a `.md` file.** The
+e2e job costs about half an hour of billed runner minutes, and prose cannot change what it proves.
+
+One warning appears in every run and is not this repository's to fix: GitHub forces
+`pnpm/action-setup@v4`, `gitleaks/gitleaks-action@v2` and `actions/upload-artifact@v4` onto Node 24
+because they declare Node 20. They work today; when the fallback is removed they need a version
+bump.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores
@@ -820,7 +891,8 @@ site is deployed and verified on the deployment itself. The work is on `main`.
 
 ### The draft is deployed and nothing is outstanding
 
-`https://espresso-academy-india.vercel.app` serves `cc5c0f0`. `docs/CLIENT-REVIEW.md` carries that
+`https://espresso-academy-india.vercel.app` serves the code at `4c6555a`; the commits after it
+change CI and documentation and nothing the browser receives. `docs/CLIENT-REVIEW.md` carries that
 same URL and needs no edit, so the link can go to the client as it stands.
 
 To redeploy after any further change, from the repo root:
@@ -1025,14 +1097,21 @@ an account or a decision from the academy first, not development:
   traffic: the honeypot, the two-second floor and Turnstile are what actually stop a bot, and a
   per-IP number tight enough to interest an attacker also turns away a student behind Indian
   carrier CGNAT. A shared store is one file away if it is ever needed.
-- **Two routes exceed the ≤2.5s LCP budget on the deployment**, `/courses` at 2.8s and `/calendar`
-  at 2.9s. Performance is ≥95 on every route so the score target is met; the budget is not. The
-  largest remaining lever is the client's photography.
+- **LCP on the deployment is not one number.** The warm nightly of 7 September has every route
+  between 1.8s and 2.4s, inside the ≤2.5s budget; this workstation measured the same commit the
+  same morning at 2.4s to 3.0s; the cold nightlies before the warm-up fix reached 3.2s. Every one
+  of those is Lighthouse's simulated throttling on a text LCP that re-registers when Montserrat
+  arrives, so the figure tracks the machine more than the site. Performance is ≥95 on every route
+  on every reading, so the score target is met on all of them. The lever that would end the
+  argument is the client's photography: an image LCP can be preloaded and served as AVIF.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships. `pnpm audit --audit-level high` is clean, which is what CI gates on.
 - **HSTS is written but commented out** in `src/middleware.ts`. It must not be enabled until the
   real domain is serving HTTPS: a wrong HSTS header is cached by every browser that saw it for the
-  whole max-age and cannot be withdrawn.
+  whole max-age and cannot be withdrawn. Note that the review alias *does* answer
+  `strict-transport-security: max-age=63072000` — that is Vercel's own header on every
+  `*.vercel.app` hostname, not this code, and it will not follow the site onto the academy's
+  domain. Whoever launches still has to uncomment the block.
 - **The ₹1 test batches are still in the dataset.** Labelled "TEST BATCH, do not book" and harmless
   on test keys. `pnpm sanity:seed:test-batch -- --delete` before switching to live keys, because on
   live keys a mis-click really does charge a rupee.
