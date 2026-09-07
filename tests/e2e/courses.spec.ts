@@ -193,3 +193,46 @@ test.describe("no invented facts", () => {
     });
   }
 });
+
+/**
+ * A batch link has to carry the batch's document id, not its date.
+ *
+ * The enquiry schema keeps `instanceId` apart from the human `batch` label, and only the id makes
+ * the Sanity reference that puts a person on that batch's roster in the Studio. Two links to the
+ * same form disagreed about which to send: `courseCta` passed an id, the batch table passed a
+ * formatted date. The date matched no option in the form's select, so it preselected nothing and
+ * joined to no batch — a waitlist request that looked filed and reached no roster.
+ */
+test.describe("a batch link identifies its batch", () => {
+  test("every enquiry link from a batch row passes an instance id", async ({ page }) => {
+    await page.goto("/courses/latte-art");
+
+    const links = page.locator('a[href*="/enquire?course="][href*="batch="]');
+    const count = await links.count();
+    test.skip(count === 0, "No batch on this course links to the enquiry form in this dataset");
+
+    for (let i = 0; i < count; i++) {
+      const href = (await links.nth(i).getAttribute("href")) ?? "";
+      const batch = new URL(href, "http://localhost").searchParams.get("batch") ?? "";
+      expect(batch, `${href} should carry a batch id`).not.toBe("");
+      expect(
+        batch,
+        `${href} passes a date where the form's options are keyed by document id`,
+      ).toMatch(/^instance-/);
+    }
+  });
+
+  test("the enquiry form preselects the batch the link named", async ({ page }) => {
+    await page.goto("/courses/latte-art");
+    const link = page.locator('a[href*="/enquire?course="][href*="batch="]:visible').first();
+    const count = await link.count();
+    test.skip(count === 0, "No batch on this course links to the enquiry form in this dataset");
+
+    const href = (await link.getAttribute("href")) ?? "";
+    const expected = new URL(href, "http://localhost").searchParams.get("batch");
+    await link.click();
+
+    await page.locator("form[data-hydrated=true]").first().waitFor();
+    await expect(page.getByLabel("Which batch")).toHaveValue(expected ?? "");
+  });
+});

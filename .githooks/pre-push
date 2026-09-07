@@ -1,0 +1,26 @@
+#!/bin/sh
+# Refuse a push from a detached HEAD, or from any branch but main.
+#
+# Written after five commits went to a detached HEAD left behind by a bisect. `git push -q origin
+# main` reported success each time and printed nothing, because local main genuinely was up to
+# date — it had not moved either. The repo sat an hour behind the deployed site, and CI ran on a
+# stale commit whose failures were read as current.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+
+branch=$(git symbolic-ref --short -q HEAD)
+
+if [ -z "$branch" ]; then
+  echo "pre-push: HEAD is detached at $(git rev-parse --short HEAD)." >&2
+  echo "pre-push: commits made here belong to no branch and will not be pushed." >&2
+  echo "pre-push: fix with  git branch -f main HEAD && git checkout main" >&2
+  exit 1
+fi
+
+if [ "$branch" != "main" ]; then
+  echo "pre-push: on '$branch', not main. This project works on main (.claude/rules/git.md)." >&2
+  echo "pre-push: push anyway with --no-verify if that is deliberate." >&2
+  exit 1
+fi
+
+exit 0

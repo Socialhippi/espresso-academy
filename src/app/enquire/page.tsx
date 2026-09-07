@@ -35,7 +35,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
     title: course.title,
     batches: course.instances
       .filter((instance) => instance.startDate !== null)
-      .map((instance) => formatDate(instance.startDate)),
+      .map((instance) => ({ id: instance.id, label: formatDate(instance.startDate) })),
   }));
 
   return (

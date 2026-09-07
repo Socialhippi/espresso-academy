@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
+import { FinalCta } from "@/components/sections/FinalCta";
 import { PageHero } from "@/components/sections/Hero";
 import { PageSections, faqEntriesFromSections } from "@/components/sections/PageSections";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
@@ -61,7 +62,7 @@ export default async function ForCafesPage() {
     title: course.title,
     batches: course.instances
       .filter((instance) => instance.startDate !== null)
-      .map((instance) => formatDate(instance.startDate)),
+      .map((instance) => ({ id: instance.id, label: formatDate(instance.startDate) })),
   }));
 
   const title = page?.title ?? FALLBACK_TITLE;
@@ -121,12 +122,12 @@ function FallbackSections({
   courseOptions,
   replyPromise,
 }: {
-  courseOptions: { slug: string; title: string; batches: string[] }[];
+  courseOptions: { slug: string; title: string; batches: { id: string; label: string }[] }[];
   replyPromise: string | null;
 }) {
   return (
     <>
-      <section className="section-y-sm" aria-labelledby="how-heading">
+      <section className="section-y" aria-labelledby="how-heading">
         <Container>
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
@@ -198,7 +199,7 @@ function FallbackSections({
         </Container>
       </section>
 
-      <section className="section-y-sm" id="enquire" aria-labelledby="enquire-heading">
+      <section className="section-y" id="enquire" aria-labelledby="enquire-heading">
         <Container>
           <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
@@ -224,6 +225,25 @@ function FallbackSections({
           </div>
         </Container>
       </section>
+
+      {/*
+        design.md asks for exactly one black section per page, below the fold. The fallback had
+        none, so the page ran the form straight into the footer and ended flat — and it was the
+        only route without the WhatsApp escape hatch every sibling closes with.
+      */}
+      <FinalCta
+        number="04"
+        eyebrow="Next step"
+        title="Tell the academy about your bar"
+        href="#enquire"
+        ctaLabel="Ask for a proposal"
+        body={
+          <p>
+            What machine you run, how many people are behind it, and what keeps going wrong. That
+            is enough to come back with a scope and a fee incl. GST.
+          </p>
+        }
+      />
     </>
   );
 }

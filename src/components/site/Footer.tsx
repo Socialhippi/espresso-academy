@@ -38,9 +38,16 @@ export async function Footer() {
           </div>
 
           <nav aria-labelledby="footer-courses" className="lg:col-span-3">
-            <h2 id="footer-courses" className="type-label text-white">
+            {/* A 12px label is not a section heading. It sat in the document outline beside the
+                page's own 28/40px h2s, so a screen-reader user met four headings that look like
+                peers of "What people ask first" and are not. The visible text is a label now and
+                the landmark keeps a real, unstyled heading of its own. */}
+            <h2 id="footer-courses" className="sr-only">
               Courses by level
             </h2>
+            <p aria-hidden="true" className="type-label text-white">
+              Courses by level
+            </p>
             <ul className="mt-2 flex flex-col gap-1 type-small">
               {courses.map((course) => (
                 <li key={course.slug}>
@@ -53,9 +60,12 @@ export async function Footer() {
           </nav>
 
           <nav aria-labelledby="footer-learn" className="lg:col-span-2">
-            <h2 id="footer-learn" className="type-label text-white">
+            <h2 id="footer-learn" className="sr-only">
               Learn more
             </h2>
+            <p aria-hidden="true" className="type-label text-white">
+              Learn more
+            </p>
             <ul className="mt-2 flex flex-col gap-1 type-small">
               {learnMoreNav.map((item) => (
                 <li key={item.href}>
@@ -68,7 +78,10 @@ export async function Footer() {
           </nav>
 
           <div className="lg:col-span-2">
-            <h2 className="type-label text-white">Certifications</h2>
+            <h2 className="sr-only">Certifications</h2>
+            <p aria-hidden="true" className="type-label text-white">
+              Certifications
+            </p>
             <ul className="mt-2 flex flex-col gap-1 type-small">
               {certifications.map((certification) => (
                 <li key={certification.slug}>
@@ -81,7 +94,10 @@ export async function Footer() {
           </div>
 
           <div className="lg:col-span-2">
-            <h2 className="type-label text-white">Contact</h2>
+            <h2 className="sr-only">Contact</h2>
+            <p aria-hidden="true" className="type-label text-white">
+              Contact
+            </p>
             <address className="mt-2 flex flex-col gap-1 type-small text-grey-2 not-italic">
               <span className="py-2">
                 {settings.address.line1}

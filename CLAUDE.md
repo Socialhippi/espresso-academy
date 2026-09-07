@@ -57,6 +57,15 @@ The frontend-design plugin is installed: follow its craft guidance (hierarchy, t
 no generic AI aesthetics) but design/tokens.css and .claude/rules/design.md override any palette, font or
 radius it suggests. The brand is the client's, not the plugin's.
 
+## Pushing
+- `git config core.hooksPath .githooks` once per clone. `.githooks/pre-push` refuses a push from a
+  detached HEAD or from a branch other than main.
+- **Never `git push -q`.** Print the result, then print the remote tip and check it moved:
+  `git push origin main && git rev-parse --short origin/main`. A quiet push that reports success
+  can be a no-op: if HEAD is detached, local main has not moved either, so git is right to say
+  "Everything up-to-date" while the work sits on no branch at all. Five commits were lost this way
+  for an hour, and CI kept testing the stale tip.
+
 ## Working style
 - Plan each phase in docs/plans/<phase>.md before writing code; keep executing without asking unless a
   non-negotiable would be violated.

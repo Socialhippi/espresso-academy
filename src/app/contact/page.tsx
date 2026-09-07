@@ -40,7 +40,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
     title: course.title,
     batches: course.instances
       .filter((instance) => instance.startDate !== null)
-      .map((instance) => formatDate(instance.startDate)),
+      .map((instance) => ({ id: instance.id, label: formatDate(instance.startDate) })),
   }));
 
   return (

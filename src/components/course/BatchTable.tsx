@@ -2,7 +2,7 @@ import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { TbcPill } from "@/components/site/TbcPill";
 import { WaitlistInline } from "@/components/course/WaitlistInline";
-import { formatDate, formatDateRange } from "@/lib/format";
+import { formatDateRange } from "@/lib/format";
 import { batchAction, seatsLeft, type Course, type CourseInstance } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
@@ -43,10 +43,12 @@ function BatchCta({ course, instance }: { course: Course; instance: CourseInstan
     );
   }
 
-  const batchLabel = encodeURIComponent(formatDate(instance.startDate));
+  /* The id, not the date. `courseCta` already passes an id, the enquiry form's options are keyed
+     by id, and only an id links the enquiry to the batch document so the person shows up on that
+     batch's roster in the Studio. A formatted date matched no option and joined to nothing. */
   return (
     <ButtonLink
-      href={`/enquire?course=${course.slug}&batch=${batchLabel}`}
+      href={`/enquire?course=${course.slug}&batch=${instance.id}`}
       variant={action === "waitlist" ? "secondary" : "primary"}
       size="sm"
       data-event={action === "waitlist" ? "waitlist_click_batch" : "enquire_click_batch"}

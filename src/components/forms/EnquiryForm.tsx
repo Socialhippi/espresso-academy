@@ -26,7 +26,11 @@ export interface CourseOption {
   slug: string;
   title: string;
   /** Batch labels for this course. Empty while no instance carries a date. */
-  batches: string[];
+  /* The document id is the value and the date is the label. A batch has to travel as its id: the
+     enquiry schema carries `instanceId` separately from the human `batch` label, and only the id
+     puts the person on that batch's roster in the Studio. Passing the date meant a waitlist
+     enquiry stored a string nobody could join to a batch. */
+  batches: { id: string; label: string }[];
 }
 
 interface EnquiryFormProps {
@@ -35,7 +39,7 @@ interface EnquiryFormProps {
   /** Trust line under the submit, e.g. siteSettings.replyPromise. */
   replyPromise?: string | null;
   /**
-   * Course slug and batch label from the page's query string, read on the server. Deliberately
+   * Course slug and batch id from the page's query string, read on the server. Deliberately
    * not `useSearchParams`: that needs a Suspense boundary, which on a static page renders a
    * fallback and then swaps the whole form in, shifting the page under the reader.
    */
@@ -175,7 +179,10 @@ export function EnquiryForm({
           phone: phone.trim(),
           email: email.trim(),
           course: courseSlugForRequest,
-          batch,
+          /* Both halves: the id makes the reference, the label is what a person reads in the
+             academy's email and in the lead sheet. */
+          instanceId: batch,
+          batch: selected?.batches.find((option) => option.id === batch)?.label ?? "",
           message: message.trim(),
           consent: true,
           company,
@@ -235,7 +242,7 @@ export function EnquiryForm({
         <div className="mt-6 flex flex-col gap-4 sm:flex-row sm:flex-wrap">
           <WhatsAppButtonClient
             course={courseTitle}
-            batch={batch || undefined}
+            batch={selected?.batches.find((option) => option.id === batch)?.label || undefined}
             event="whatsapp_click_success"
           >
             Continue on WhatsApp
@@ -389,8 +396,8 @@ export function EnquiryForm({
             >
               <option value="">Any batch, tell me what is next</option>
               {selected?.batches.map((option) => (
-                <option key={option} value={option}>
-                  {option}
+                <option key={option.id} value={option.id}>
+                  {option.label}
                 </option>
               ))}
             </select>
@@ -458,7 +465,11 @@ export function EnquiryForm({
             aria-invalid={Boolean(errors.consent)}
             aria-describedby={errors.consent ? field("consent-error") : undefined}
             // size-6 is the 24px WCAG 2.2 target minimum; the associated label extends the hit area.
-            className="mt-0.5 size-6 shrink-0 rounded-xs border border-white-2 accent-red"
+            /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
+               44x44 without changing what is drawn, and the negative margin keeps the text aligned
+               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
+               44, and a checkbox is the control most often missed on a phone. */
+            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
           />
           <label htmlFor={field("consent")} className="type-small text-grey">
             The academy may contact me about this enquiry on WhatsApp, phone or email (required).
@@ -487,7 +498,7 @@ export function EnquiryForm({
             className="mt-4"
             size="sm"
             course={courseTitle}
-            batch={batch || undefined}
+            batch={selected?.batches.find((option) => option.id === batch)?.label || undefined}
             event="whatsapp_click_form_fallback"
           />
         </div>

@@ -429,7 +429,11 @@ export function CheckoutForm({
               aria-describedby={
                 errors.prerequisiteAccepted ? field("prerequisiteAccepted-error") : undefined
               }
-              className="mt-0.5 size-6 shrink-0 rounded-xs border border-white-2 accent-red"
+              /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
+               44x44 without changing what is drawn, and the negative margin keeps the text aligned
+               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
+               44, and a checkbox is the control most often missed on a phone. */
+            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
             />
             <span>I confirm I meet the prerequisite: {prerequisite}</span>
           </label>
@@ -451,7 +455,11 @@ export function CheckoutForm({
             onBlur={onBlur("consent")}
             aria-invalid={Boolean(errors.consent)}
             aria-describedby={errors.consent ? field("consent-error") : undefined}
-            className="mt-0.5 size-6 shrink-0 rounded-xs border border-white-2 accent-red"
+            /* 24px box, 44px target. `box-content` with 10px of padding grows the hit area to
+               44x44 without changing what is drawn, and the negative margin keeps the text aligned
+               to the box rather than to the padding. WCAG 2.5.8 asks for 24; this project asks for
+               44, and a checkbox is the control most often missed on a phone. */
+            className="-m-2.5 -mt-2 box-content size-6 shrink-0 rounded-xs border border-white-2 p-2.5 accent-red"
           />
           <span>
             The academy may contact me about this booking. See the{" "}

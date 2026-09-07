@@ -1393,6 +1393,17 @@ placeholder strings on `/for-cafes`, `/guides`, a guide and `/lp`**; the AST wor
   audience that is on a phone. Stacked rows below md now, mirroring the pattern `/courses` already
   used for the fee table.
 
+**Five commits went to a detached HEAD.** A bisect left the repo off `main`, so the honeypot fix,
+the `/lp` fix and two STATUS updates were committed to no branch; `git push -q origin main`
+reported success each time because local `main` had not moved either, and CI kept re-testing the
+stale tip whose failures I then read as current.
+
+**Fixed by `.githooks/pre-push`**, which refuses a push from a detached HEAD or from any branch but
+main (`git config core.hooksPath .githooks` once per clone), and by a rule in CLAUDE.md: never
+`git push -q`, and print `git rev-parse --short origin/main` after every push to confirm the remote
+actually moved. The deployment was never affected — `vercel deploy` uploads the working tree — but
+for an hour the repository was behind the live site, which is exactly backwards.
+
 **A false diagnosis, recorded because the trap is easy to fall into again.**
 
 Three suite runs failed on `/guides/*` and `/lp/example-campaign` with 404s that vanished when the
