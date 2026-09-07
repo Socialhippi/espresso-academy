@@ -25,7 +25,11 @@ env:
   # Content is not optional: a build without these should fail loudly rather than deploy an empty
   # site. Everything else degrades, which is what makes the rest of this file quiet.
   NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
-  NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+  # Not the secret, and not production. The suite creates bookings, takes seats and deletes
+  # documents; a CI run once removed a real booking from the academy's live dataset. A dataset name
+  # is not a credential, and writing it literally here means it cannot be quietly repointed at
+  # production by editing a secret. tests/global-setup.ts refuses to run against anything else.
+  NEXT_PUBLIC_SANITY_DATASET: ci
   NEXT_PUBLIC_SANITY_API_VERSION: "2026-09-05"
   SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
   SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}

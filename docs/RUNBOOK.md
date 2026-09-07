@@ -130,15 +130,43 @@ Screenshots of a passing run: `docs/screens/razorpay-checkout-390.png`,
 
 ## Sanity
 
+### Two datasets, and which one you are pointed at
+
+| Dataset | What it holds | Who writes to it |
+|---|---|---|
+| `production` | the real site: content, bookings, enquiries | the deployed site, and the Studio |
+| `ci` | a seeded copy of `content/data.ts` plus the two ₹1 test batches | the test suite, and nothing else |
+
+**The test suite must never run against `production`.** It creates bookings, takes seats and
+deletes documents: `tests/global-setup.ts` wipes every booking against the test batches before each
+run so the suite starts from a known state. While that ran against `production` a CI run deleted a
+real booking out of the academy's live dataset. `tests/global-setup.ts` now **throws** unless
+`NEXT_PUBLIC_SANITY_DATASET` is exactly `ci`, so the whole run stops before a single test can write
+to the wrong place.
+
+- `pnpm test:e2e` sets `NEXT_PUBLIC_SANITY_DATASET=ci` itself. Use it rather than `playwright test`.
+- `.github/workflows/ci.yml` sets `ci` literally rather than from a secret, so it cannot be
+  repointed at production by editing a secret. The nightly's stale-content report still reads
+  `production` from the secret, which is correct: it reports on the academy's real content.
+- Sanity tokens are project-scoped, not dataset-scoped, so `ci` needs no new tokens or webhook.
+- `ci` is disposable. If it drifts from the schema, delete it and seed it again.
+
 | Task | Command |
 |---|---|
 | Studio, locally | `pnpm sanity` (or `/studio` on any deployment) |
 | Deploy the Studio | `pnpm sanity:deploy` → <https://espresso-academy-india.sanity.studio> |
 | Seed from `content/data.ts` | `pnpm sanity:seed` (idempotent; safe to re-run) |
+| **Seed the whole `ci` dataset** | `pnpm sanity:seed:ci` (content + both test batches) |
 | Seed the test batches | `pnpm sanity:seed:test-batch` |
 | Delete the test batches | `pnpm sanity:seed:test-batch -- --delete` |
 | Export the dataset | `pnpm sanity:export` → a `.tar.gz` in the repo root |
 | Restore a dataset export | `npx sanity dataset import <file>.tar.gz production --replace` |
+| Recreate `ci` from nothing | `npx sanity dataset create ci --visibility private && pnpm sanity:seed:ci` |
+
+**The two ₹1 test batches still exist in `production`** as well, and stay there only until Ashrith
+has finished his manual checks. Delete them with `pnpm sanity:seed:test-batch -- --delete` before
+switching to live Razorpay keys — on live keys a mis-click really does charge a rupee. The copies in
+`ci` stay.
 
 ### Rotating a Sanity token
 

@@ -1172,6 +1172,50 @@ it is the embedded page's chrome rather than the Studio. Worth a look, not worth
 
 ---
 
+### The test suite had been running against the academy's live dataset
+
+Found while verifying something else: a booking created on production as evidence had vanished an
+hour later. A CI run had deleted it. `tests/global-setup.ts` wipes every booking against the two
+test batches and resets their seats before each run — correct in itself, and it was pointed at
+`production`, because the seed script had argued that a second dataset "would mean a second set of
+tokens, a second webhook and a second thing to keep in step with the schema".
+
+That reasoning was wrong on the facts: **Sanity tokens are project-scoped, not dataset-scoped**, so
+a second dataset needs no new token, no new webhook and no new secret. It costs its name.
+
+- **A `ci` dataset now exists** on the same project, private, seeded with `pnpm sanity:seed:ci`:
+  45 documents, the whole of `content/data.ts` plus both ₹1 test batches.
+- **`tests/global-setup.ts` throws** unless the dataset is exactly `ci`. A hard failure rather than
+  a skip, deliberately: skipping the reset would still let every test that follows write bookings
+  into whichever dataset it was pointed at, and the writing is the damage, not the reset.
+- **`pnpm test:e2e` sets `NEXT_PUBLIC_SANITY_DATASET=ci`** itself, so the safe path is the default
+  one and nobody has to remember.
+- **`.github/workflows/ci.yml` sets `ci` literally, not from a secret.** A dataset name is not a
+  credential, and a literal cannot be quietly repointed at production by editing a secret. This is
+  the one place I did not follow the instruction exactly, and the reason is in the next paragraph.
+
+**Where this deviates from the instruction, and why.** The instruction was to put
+`NEXT_PUBLIC_SANITY_DATASET=ci` in the GitHub secrets. `.github/workflows/nightly.yml` reads the
+same secret for `scripts/stale-content.mjs`, which reports what the academy still has to fill in —
+and that has to read `production`. Changing the secret would have quietly repointed the nightly
+report at an empty seeded copy and made it report nothing missing. The secret is unchanged; `ci` is
+pinned in the CI workflow where only the test job reads it.
+
+**Proof.** Booking counts before: `production: 9`, `ci: 0`. The booking project run against `ci`:
+27 passed. Counts after: **`production: 9` — unchanged — and `ci: 9`.** Pointed at production
+deliberately, the run stops before the first test:
+
+```
+Error: [global-setup] Refusing to run against the "production" dataset. This suite creates
+bookings, takes seats and deletes documents, so it runs only against "ci".
+```
+
+The two ₹1 test batches remain in `production` as well, and stay only until Ashrith has finished
+his manual checks; `pnpm sanity:seed:test-batch -- --delete` removes them, and it must be run before
+switching to live Razorpay keys. The `ci` copies stay.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores
