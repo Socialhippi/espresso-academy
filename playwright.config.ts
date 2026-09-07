@@ -36,6 +36,17 @@ export default defineConfig({
      * being charged; they deserve tests that run in milliseconds and do not need a page.
      */
     { name: "unit", testDir: "./tests/unit", use: {} },
+
+    /*
+     * The push gate. Chromium only, one file, the shortest set of checks that would have caught the
+     * failures this project has actually had. The full matrix runs nightly and on demand: half an
+     * hour before every commit is a gate people learn to route around.
+     */
+    {
+      name: "smoke",
+      testDir: "./tests/smoke",
+      use: { ...devices["Desktop Chrome"], viewport: { width: 1280, height: 800 } },
+    },
     /*
      * The payment path, in one project and one worker. It creates orders, fires webhooks and takes
      * seats from a shared batch in a shared dataset; running it in six browser projects at once

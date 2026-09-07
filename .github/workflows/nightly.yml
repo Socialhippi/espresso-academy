@@ -7,6 +7,55 @@ on:
   workflow_dispatch:
 
 jobs:
+  full-suite:
+    name: Full suite
+    runs-on: ubuntu-latest
+    # The 40-minute cap lives here now, and only here. Measured: about 2069 tests at ~1.17/sec on a
+    # two-core runner is ~29 minutes, plus install, browsers and the build. 25 once cut a run off at
+    # test 1569 with nothing failing.
+    timeout-minutes: 40
+    env:
+      NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+      # The suite writes: bookings, seats, enquiries. It runs against `ci` and tests/global-setup.ts
+      # refuses anything else. Never the secret, which the stale-content job needs pointing at
+      # production.
+      NEXT_PUBLIC_SANITY_DATASET: ci
+      NEXT_PUBLIC_SANITY_API_VERSION: "2026-09-05"
+      SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
+      SANITY_API_WRITE_TOKEN: ${{ secrets.SANITY_API_WRITE_TOKEN }}
+      RAZORPAY_KEY_ID: ${{ secrets.RAZORPAY_KEY_ID }}
+      RAZORPAY_KEY_SECRET: ${{ secrets.RAZORPAY_KEY_SECRET }}
+      NEXT_PUBLIC_RAZORPAY_KEY_ID: ${{ secrets.NEXT_PUBLIC_RAZORPAY_KEY_ID }}
+      RAZORPAY_WEBHOOK_SECRET: ${{ secrets.RAZORPAY_WEBHOOK_SECRET }}
+      NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${{ secrets.NEXT_PUBLIC_TURNSTILE_SITE_KEY }}
+      TURNSTILE_SECRET_KEY: ${{ secrets.TURNSTILE_SECRET_KEY }}
+      NEXT_PUBLIC_INDEXABLE: "false"
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: npx playwright install --with-deps chromium webkit
+      - run: pnpm build
+      - run: pnpm test:e2e
+      - name: The standing design and security scripts
+        run: |
+          pnpm start &
+          npx wait-on http://localhost:3000 --timeout 60000
+          node scripts/check-overflow.mjs
+          node scripts/check-brand-contrast.mjs
+          node scripts/check-target-size.mjs
+          node scripts/check-csp.mjs
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
   lighthouse:
     name: Lighthouse on production
     runs-on: ubuntu-latest
@@ -58,3 +107,36 @@ jobs:
           NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
           SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
         run: node scripts/stale-content.mjs
+
+  lead-failures:
+    name: Lead delivery report
+    runs-on: ubuntu-latest
+    # Writes the counter into docs/STATUS.md. Docs-only, so ci.yml's paths-ignore means this commit
+    # does not trigger a build.
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .node-version
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Count the leads that were stored and never delivered
+        env:
+          NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
+          NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
+          SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
+        run: node scripts/lead-failures.mjs --write
+      - name: Commit the count if it moved
+        run: |
+          if [ -n "$(git status --porcelain docs/STATUS.md)" ]; then
+            git config user.name "espresso-academy-bot"
+            git config user.email "business@socialhippi.com"
+            git add docs/STATUS.md
+            git commit -m "docs: nightly lead delivery count"
+            git push
+          else
+            echo "The count is unchanged."
+          fi

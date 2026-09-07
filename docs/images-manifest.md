@@ -9,6 +9,7 @@ Photos from the client's shoot drop into `public/images/` with these exact names
 | course-<slug> | public/images/courses/<slug>.jpg | 3:2 | Course card + course hero |
 | trainer-<slug> | public/images/trainers/<slug>.jpg | 4:5 | Trainer card + profile |
 | contact-campus | public/images/contact.jpg | 3:2 | Contact page |
+| for-cafes-team | public/images/for-cafes.jpg | 3:2 | For cafes and teams, section 01 |
 | og-default | generated | 1200x630 | Open Graph |
 
 Rules: JPEG or WebP, sRGB, max 2400px on the long edge, under 600KB each. No AI-generated people. Alt text comes from content/data.ts (heroAlt, trainer name) and docs alt list; if a slot needs a new alt, add it to data.ts.

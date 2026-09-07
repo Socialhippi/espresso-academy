@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 import { ArrowRight, Phone } from "lucide-react";
 import { WhatsAppGlyph } from "@/components/site/WhatsAppGlyph";
 import { useConsent } from "@/lib/consent";
-import { shouldShowStickyBar } from "@/lib/nav";
+import { shouldShowStickyBar, stickyPrimaryFor } from "@/lib/nav";
 import { useSiteConfig } from "@/lib/site-config";
 import { telHref, whatsappUrl } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -49,6 +49,7 @@ export function StickyBar({ courseBar }: StickyBarProps) {
   const consent = useConsent();
   const config = useSiteConfig();
   const [scrolledPast, setScrolledPast] = useState(false);
+  const routePrimary = stickyPrimaryFor(pathname);
 
   useEffect(() => {
     let frame = 0;
@@ -131,7 +132,19 @@ export function StickyBar({ courseBar }: StickyBarProps) {
           Call
         </a>
 
-        {courseSlug && course?.bookableInstanceId ? (
+        {routePrimary ? (
+          /* The route declared its own action. Checked before the course branches so a course page
+             could override too, though none needs to. */
+          <Link
+            href={routePrimary.href}
+            data-event={routePrimary.event}
+            className={cn(segmentClass, "bg-red text-white")}
+          >
+            <ArrowRight className="size-5" aria-hidden="true" />
+            {routePrimary.label}
+            {routePrimary.srSuffix && <span className="sr-only">{routePrimary.srSuffix}</span>}
+          </Link>
+        ) : courseSlug && course?.bookableInstanceId ? (
           /* A course with a bookable batch gets a Book button. Pointing at an enquiry form when a
              seat can actually be paid for is a step nobody needs. */
           <Link

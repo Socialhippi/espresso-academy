@@ -49,6 +49,46 @@ export const legalNav: NavItem[] = [
   { href: "/refund-policy", label: "Refund policy" },
 ];
 
+/**
+ * The sticky bar's third button, per route.
+ *
+ * The bar carries WhatsApp, Call and one contextual action, and that action used to fall through
+ * to "Courses" on every page that is not a course — including /for-cafes, whose entire job is a
+ * cafe proposal, and /workshops, whose job is the batch alert. The most prominent persistent
+ * control on a 64%-mobile site was sending those readers to the student course hub.
+ *
+ * A route declares its own primary here. Course pages are deliberately absent: their action
+ * depends on whether a batch can be paid for, which the bar already works out from `courseBar`.
+ * Anything not listed keeps the Courses default, which is the safest destination when a page has
+ * no single obvious next step.
+ */
+export interface StickyPrimary {
+  label: string;
+  href: string;
+  /** Analytics name, so the bar's button reports what it did rather than where it sat. */
+  event: string;
+  /** Appended for screen readers, because two-word labels lose their object out of context. */
+  srSuffix?: string;
+}
+
+const stickyPrimaryByRoute: Record<string, StickyPrimary> = {
+  "/for-cafes": {
+    label: "Request a proposal",
+    href: "/for-cafes#enquire",
+    event: "cafe_proposal_click_sticky",
+  },
+  "/workshops": {
+    label: "Get the alert",
+    href: "/workshops#batch-alert",
+    event: "waitlist_click_sticky",
+    srSuffix: " when a workshop is scheduled",
+  },
+};
+
+export function stickyPrimaryFor(pathname: string): StickyPrimary | undefined {
+  return stickyPrimaryByRoute[pathname];
+}
+
 /** Routes where the mobile sticky bar would compete with the page's own single action. */
 export const routesWithoutStickyBar: string[] = ["/enquire", "/thank-you"];
 

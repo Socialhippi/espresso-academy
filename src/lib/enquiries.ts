@@ -78,3 +78,27 @@ export async function createEnquiry(input: CreateEnquiryInput): Promise<CreateEn
     };
   }
 }
+
+/**
+ * Marks an enquiry whose delivery failed after it was stored.
+ *
+ * The record is what makes the failure countable. A store failure cannot be flagged — there is no
+ * document to flag — so those live only in the platform log; `scripts/lead-failures.mjs` says so
+ * rather than pretending its number is the whole picture.
+ *
+ * Never throws: this runs after the reader has been answered, and a failed flag must not turn a
+ * recoverable problem into an unhandled rejection.
+ */
+export async function flagDeliveryFailure(id: string, failed: string[]): Promise<void> {
+  if (!writeClient) return;
+  try {
+    await writeClient
+      .patch(id)
+      .set({ deliveryFailed: true, deliveryFailedParts: failed })
+      .commit({ visibility: "async" });
+  } catch (error) {
+    console.error(
+      JSON.stringify({ at: "enquiries", event: "flag-failed", id, error: String(error) }),
+    );
+  }
+}

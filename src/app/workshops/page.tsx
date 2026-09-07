@@ -101,7 +101,8 @@ export default async function WorkshopsPage() {
                 The academy announces a workshop once the date is fixed rather than listing one
                 that might move. Leave your number and you will hear before it appears here.
               </p>
-              <div className="mt-8">
+              {/* The sticky bar's primary action points here, so it needs a target. */}
+              <div className="mt-8" id="batch-alert">
                 <WaitlistInline course="Workshops" />
               </div>
             </div>

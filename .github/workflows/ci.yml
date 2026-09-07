@@ -89,13 +89,14 @@ jobs:
       # both inside the Sanity CLI's tree and reach nothing the site ships.
       - run: pnpm audit --audit-level high
 
-  e2e:
-    name: End to end
+  smoke:
+    name: Smoke
     runs-on: ubuntu-latest
-    # Measured, not guessed: 1987 tests at ~1.17/sec on the two-core runner a private repo gets is
-    # ~28.5 minutes, plus ~2.5 for install, browsers and the build. 25 cut it off at test 1569 with
-    # nothing failing. 40 leaves room for the retry a flaky test would trigger.
-    timeout-minutes: 40
+    # The full matrix is 2069 tests across seven projects and takes about half an hour on the
+    # two-core runner a private repository gets. Waiting that long before every commit is how a gate
+    # stops being a gate: people push and stop watching. It runs nightly and on demand instead, and
+    # this is the shortest set that would have caught what has actually broken here. Chromium only.
+    timeout-minutes: 12
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -104,17 +105,18 @@ jobs:
           node-version-file: .node-version
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: npx playwright install --with-deps chromium webkit
+      # Chromium only. Installing webkit as well costs about a minute and nothing here uses it.
+      - run: npx playwright install --with-deps chromium
       - run: pnpm build
       # The suite starts its own server (playwright.config.ts webServer) against the build above.
-      - run: pnpm test:e2e
-      - name: The standing design and security scripts
+      - run: pnpm test:e2e --project=smoke
+      - name: Overflow and CSP
+        # The two standing scripts that have caught the most, and the two that are quick. Contrast
+        # and target size run in the nightly with the rest.
         run: |
           pnpm start &
           npx wait-on http://localhost:3000 --timeout 60000
           node scripts/check-overflow.mjs
-          node scripts/check-brand-contrast.mjs
-          node scripts/check-target-size.mjs
           node scripts/check-csp.mjs
       - uses: actions/upload-artifact@v4
         if: ${{ !cancelled() }}

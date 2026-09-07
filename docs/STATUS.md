@@ -5,6 +5,16 @@ do. Updated at the end of every phase.
 
 **Review URL: https://espresso-academy-india.vercel.app**
 
+### Lead delivery
+
+Refreshed nightly by `scripts/lead-failures.mjs --write`. A dropped lead answers 200 and hands the
+visitor to WhatsApp, which is right for them and invisible to everyone else — so without a number
+here a broken integration runs for a week and looks exactly like a quiet week.
+
+<!-- lead-failures:start -->
+Not yet run against production.
+<!-- lead-failures:end -->
+
 Public, no login. Open it on a phone.
 
 > **⚠ Student confirmation emails are not being delivered.** `RESEND_FROM_EMAIL` is unset and no
@@ -1434,6 +1444,67 @@ alone, fails in the suite" as a question about which server answered rather than
 - The footer's four `h2`s are 12px, in the same outline as the page's 28/40px `h2`s.
 - A batch's waitlist link passes `?batch=5%20Sept%202027` — a formatted date where `courseCta`
   passes an instance id. One of the two is wrong.
+
+---
+
+### A dropped lead no longer looks like success, and CI got its speed back
+
+**Every failure on the enquiry routes still hands the visitor to WhatsApp**, which is right for
+them: a form that throws mid-enquiry loses the person outright, and the conversation can still
+happen. What was wrong is that it looked identical to a lead that arrived — same 200, same shape,
+nothing to reconcile against. The academy could have lost a week of leads and seen a quiet week.
+
+Each failure now leaves three traces, and **none of them carries the form's contents**. The name,
+the number, the email and the message are the reason to care and the reason not to copy them into a
+log or an alert inbox; what travels is the lead's shape — its type, its course, whether it had an
+email — which is enough to tell a bot storm from a broken integration.
+
+| Stage | What the visitor sees | What the academy gets |
+|---|---|---|
+| Turnstile refused the challenge | the WhatsApp handoff | error log + alert: usually a bot, worth watching if several arrive together |
+| Sanity did not store it | the WhatsApp handoff | error log + alert: **the lead is in no list anywhere** |
+| Stored, but the email did not send | the ordinary success state | error log + alert + `deliveryFailed` on the document; the lead is safe |
+
+**The alert is capped at six an hour per instance.** A failed challenge is the ordinary shape of a
+bot, and alerting on each one would fill the inbox and train the academy to ignore the alert that
+matters. The log is never capped.
+
+`scripts/lead-failures.mjs --write` counts them nightly into the block near the top of this file
+and commits it. It is explicit about what it cannot count: an enquiry that never reached Sanity has
+no document to flag, so those exist only in the platform log, and the line it writes says how to
+look.
+
+`tests/booking/enquiry-browser.spec.ts` fills the real form, presses the real button and then asks
+Sanity whether the lead is there. The existing pipeline tests post to the route directly, which is
+right for testing its branches and blind to everything the browser does on the way — a missing site
+key stopped every submission on the deployed site while they stayed green.
+
+`/api/health` answers whether the app can reach its content, lists what is switched on and names any
+integration configured on one side only. Booleans and names, never values. 503 when the content is
+unreachable, because a site that cannot read its own courses is down whatever its status line says.
+
+#### The CI split
+
+| Trigger | Job | Cap |
+|---|---|---|
+| push, PR | `static`, `secrets`, `audit`, **`smoke`** — build, 10 chromium checks, `check-overflow`, `check-csp` | 12 min |
+| nightly, or `gh workflow run nightly.yml` | **`full-suite`** — the whole matrix on chromium, webkit and the four device projects, then all four standing scripts | 40 min |
+
+The full matrix is about 2069 tests and takes half an hour on a two-core runner. Half an hour before
+every commit is how a gate stops being a gate: people push and stop watching, and a red run reads as
+"the slow one is unhappy again". The smoke set is the shortest that would have caught what has
+actually broken here — a checkout nobody could reach, a bot check nobody could pass, a page
+rendering its author's brief, a robots file that cancelled out its own noindex. **Run the full suite
+before anything that matters**: a deploy, a release, a change to the payment or lead paths.
+
+#### Also
+
+- **The sticky bar takes its primary action from the route.** It fell through to "Courses" on every
+  page that is not a course, including `/for-cafes`, whose whole job is a proposal, and
+  `/workshops`, whose job is the batch alert. Declared in `src/lib/nav.ts`; course pages still work
+  theirs out from whether a batch can be paid for; anything unlisted keeps the Courses default.
+- **`/for-cafes` has an image slot**, `for-cafes-team`, added to `docs/images-manifest.md`. It was
+  the only route with none, so it read as a text document and the client had nothing to fill.
 
 ---
 

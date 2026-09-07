@@ -6,6 +6,7 @@ import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FinalCta } from "@/components/sections/FinalCta";
+import { Placeholder } from "@/components/site/Placeholder";
 import { PageHero } from "@/components/sections/Hero";
 import { PageSections, faqEntriesFromSections } from "@/components/sections/PageSections";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
@@ -161,6 +162,11 @@ function FallbackSections({
                   </li>
                 ))}
               </ul>
+
+              {/* The route had no image slot at all — the only one — so it read as a text document
+                  and the client had nothing to fill. `for-cafes-team` is in
+                  docs/images-manifest.md; until a file lands this is the branded placeholder. */}
+              <Placeholder slot="for-cafes-team" aspect="photo" className="mt-10" />
             </div>
           </div>
         </Container>

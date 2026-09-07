@@ -50,6 +50,25 @@ export const enquiry = defineType({
     defineField({ name: "assignedTo", type: "string", description: "Who is following this up." }),
     defineField({ name: "notes", type: "text", rows: 3 }),
     defineField({ name: "createdAt", type: "datetime", readOnly: true }),
+    /*
+     * Set by the server when the lead was stored but the email about it was not sent. Read-only:
+     * it is a record of what happened, not a field to manage. `scripts/lead-failures.mjs` counts
+     * these nightly so a quiet integration failure cannot run for a week unnoticed.
+     */
+    defineField({
+      name: "deliveryFailed",
+      title: "Delivery failed",
+      type: "boolean",
+      readOnly: true,
+      description: "The academy was not emailed about this enquiry. It is safe here regardless.",
+    }),
+    defineField({
+      name: "deliveryFailedParts",
+      title: "Which parts failed",
+      type: "array",
+      of: [{ type: "string" }],
+      readOnly: true,
+    }),
   ],
   preview: {
     select: { name: "name", type: "type", status: "status", course: "course.title", createdAt: "createdAt" },

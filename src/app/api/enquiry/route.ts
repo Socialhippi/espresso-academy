@@ -8,7 +8,7 @@ import {
   sendEmail,
   withRetry,
 } from "@/lib/email";
-import { createEnquiry } from "@/lib/enquiries";
+import { createEnquiry, flagDeliveryFailure } from "@/lib/enquiries";
 import { MIN_TIME_ON_FORM_MS, enquiryTypeLabel, type EnquiryResponse } from "@/lib/enquiry";
 import { enquirySchema, type EnquiryInput } from "@/lib/enquiry-schema";
 import { whatsappUrl } from "@/lib/format";
@@ -16,6 +16,7 @@ import { trackLead } from "@/lib/meta/capi";
 import { absoluteUrl } from "@/lib/public-env";
 import { check, clientKey } from "@/lib/rate-limit";
 import { appendRow, isSheetsConfigured, leadRow } from "@/lib/sheets";
+import { alertLeadFailure } from "@/lib/lead-alert";
 import { verifyTurnstile } from "@/lib/turnstile";
 
 export const runtime = "nodejs";
@@ -100,6 +101,11 @@ export async function POST(request: Request): Promise<NextResponse<EnquiryRespon
   const turnstile = await verifyTurnstile(enquiry.turnstileToken, forwarded);
   if (turnstile.outcome === "failed") {
     log("dropped", { reason: "turnstile", codes: turnstile.errorCodes });
+    await alertLeadFailure({
+      stage: "turnstile",
+      reason: turnstile.errorCodes?.join(",") || "failed",
+      context: leadFields(enquiry),
+    });
     return NextResponse.json(whatsappHandoff(fallbackUrl), { status: 200 });
   }
 
@@ -139,6 +145,12 @@ export async function POST(request: Request): Promise<NextResponse<EnquiryRespon
      * record there is nothing to reconcile an email against.
      */
     log("store-failed", { reason: stored.reason, error: stored.error, ...leadFields(enquiry) });
+    await alertLeadFailure({
+      stage: "store",
+      reason: stored.reason,
+      detail: stored.error,
+      context: leadFields(enquiry),
+    });
     return NextResponse.json(whatsappHandoff(courseUrl), { status: 200 });
   }
 
@@ -158,7 +170,22 @@ export async function POST(request: Request): Promise<NextResponse<EnquiryRespon
   const failed = results
     .map((result, index) => (result.status === "rejected" ? FANOUT_NAMES[index] : null))
     .filter(Boolean);
-  if (failed.length > 0) log("fanout-partial", { id: stored.id, failed });
+  if (failed.length > 0) {
+    log("fanout-partial", { id: stored.id, failed });
+    /*
+     * The academy's own notification is the one that matters here: the lead is safe in Sanity, but
+     * if that email did not send then nobody has been told it arrived. The auto-reply, the sheet
+     * and the Meta event are all recoverable from the record.
+     */
+    if (failed.includes("academy-email")) {
+      await alertLeadFailure({
+        stage: "notify",
+        reason: failed.join(","),
+        context: { enquiryId: stored.id, ...leadFields(enquiry) },
+      });
+      await flagDeliveryFailure(stored.id, failed.filter(Boolean) as string[]);
+    }
+  }
 
   return NextResponse.json({ ok: true, delivery: "email", whatsappUrl: courseUrl }, { status: 200 });
 }
