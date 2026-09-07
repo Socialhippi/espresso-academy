@@ -161,10 +161,19 @@ async function notify({
   const venue = booking.instance?.venue;
   const confirmationUrl = absoluteUrl(`/booking/${booking.id}`);
 
-  const tasks: Promise<unknown>[] = [];
+  /*
+   * Labelled, because the result of each of these used to be thrown away. `sendEmail` returns
+   * `{ sent: false, reason }` rather than throwing — deliberately, so a mail failure cannot undo a
+   * payment — and `Promise.allSettled` then discarded it. A student's confirmation rejected by
+   * Resend with a 403 looked exactly like one that arrived, in the logs and everywhere else.
+   */
+  const tasks: Promise<{ label: string; result: unknown }>[] = [];
+  const track = (label: string, work: Promise<unknown>) =>
+    tasks.push(work.then((result) => ({ label, result })));
 
   if (canSendEmail() && booking.email) {
-    tasks.push(
+    track(
+      "booking-confirmation",
       withRetry("booking-confirmation", () =>
         sendEmail({
           to: booking.email as string,
@@ -178,7 +187,8 @@ async function notify({
 
   const academyTo = bookingRecipient();
   if (canSendEmail() && academyTo) {
-    tasks.push(
+    track(
+      "booking-notification",
       withRetry("booking-notification", () =>
         sendEmail({
           to: academyTo,
@@ -190,7 +200,8 @@ async function notify({
     );
   }
 
-  tasks.push(
+  track(
+    "capi-purchase",
     withRetry("capi-purchase", () =>
       trackPurchase({
         eventId: `purchase-${booking.id}`,
@@ -205,7 +216,35 @@ async function notify({
     ),
   );
 
-  await Promise.allSettled(tasks);
+  const settled = await Promise.allSettled(tasks);
+
+  /*
+   * Error level for a rejected send. The student paid and got nothing, which is the one failure in
+   * this route a person has to know about the same day: the seat is taken, the money is at the
+   * gateway, and the only party who does not know it worked is the person who paid.
+   */
+  for (const outcome of settled) {
+    if (outcome.status === "rejected") {
+      console.error(
+        JSON.stringify({ at: "api/webhooks/razorpay", event: "notify-threw", error: String(outcome.reason) }),
+      );
+      continue;
+    }
+    const { label, result } = outcome.value;
+    const sendResult = result as { sent?: boolean; reason?: string; error?: string } | undefined;
+    if (sendResult && sendResult.sent === false) {
+      console.error(
+        JSON.stringify({
+          at: "api/webhooks/razorpay",
+          event: "notify-failed",
+          task: label,
+          bookingId: booking.id,
+          reason: sendResult.reason,
+          error: sendResult.error,
+        }),
+      );
+    }
+  }
 }
 
 function studentEmail({

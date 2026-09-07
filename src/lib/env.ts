@@ -134,11 +134,28 @@ const KEY_PAIRS: Array<{ name: string; server: () => boolean; browser: () => boo
   },
 ];
 
+/**
+ * Resend is not a key pair, but it fails in the same shape and it did.
+ *
+ * With an API key and no `RESEND_FROM_EMAIL`, mail goes out from `onboarding@resend.dev`, and
+ * Resend will only deliver *that* sender to the account owner's own address. Everyone else gets a
+ * 403. So the academy's own copy of a booking arrives, the student's confirmation does not, and
+ * nothing about the configuration looks wrong. A verified domain is what fixes it; saying so at
+ * boot is what stops it being discovered by a customer.
+ */
+function resendWarning(): string | null {
+  if (!env.RESEND_API_KEY) return null;
+  if (env.RESEND_FROM_EMAIL) return null;
+  return "resend: no RESEND_FROM_EMAIL, so mail sends from onboarding@resend.dev and Resend delivers it only to the account owner";
+}
+
 /** The pairs with exactly one half configured, as `name: which half is missing`. */
 export function halfConfigured(): string[] {
-  return KEY_PAIRS.filter((pair) => pair.server() !== pair.browser()).map((pair) =>
+  const pairs = KEY_PAIRS.filter((pair) => pair.server() !== pair.browser()).map((pair) =>
     pair.server() ? `${pair.name}: browser key missing` : `${pair.name}: server key missing`,
   );
+  const resend = resendWarning();
+  return resend ? [...pairs, resend] : pairs;
 }
 
 /**
@@ -153,6 +170,8 @@ export function featureFlags(): Record<string, boolean> {
     payments: Boolean(env.RAZORPAY_KEY_ID && env.RAZORPAY_KEY_SECRET),
     paymentWebhook: Boolean(env.RAZORPAY_WEBHOOK_SECRET),
     email: Boolean(env.RESEND_API_KEY),
+    // Separately, because a key without a verified sender only reaches the Resend account owner.
+    emailToAnyone: Boolean(env.RESEND_API_KEY && env.RESEND_FROM_EMAIL),
     sheets: Boolean(
       env.GOOGLE_SHEETS_ID && env.GOOGLE_SHEETS_CLIENT_EMAIL && env.GOOGLE_SHEETS_PRIVATE_KEY,
     ),
