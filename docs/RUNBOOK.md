@@ -203,7 +203,8 @@ with `SANITY_REVALIDATE_SECRET`. If it stops working, the site is still correct 
 | every push and PR | `audit` | `pnpm audit --audit-level high` | — |
 | every push and PR | **`smoke`** | build, `--project=smoke` (chromium, 10 checks), then `check-overflow` and `check-csp` | 12 min |
 | nightly 03:00 IST, or `gh workflow run nightly.yml` | **`full-suite`** | build, the whole matrix on chromium and webkit plus the four device projects, then all four standing scripts | 40 min |
-| nightly | `lighthouse`, `links`, `stale-content`, `lead-failures` | production checks and the reports | — |
+| nightly | `lighthouse`, `links`, `stale-content` | production checks and the reports | — |
+| nightly | `lead-failures` | counts leads stored but never emailed; job summary always, alert email only when above zero | — |
 
 **Why the split.** The full matrix is about 2069 tests and takes half an hour on the two-core runner
 a private repository gets. Half an hour before every commit is how a gate stops being a gate:

@@ -111,10 +111,10 @@ jobs:
   lead-failures:
     name: Lead delivery report
     runs-on: ubuntu-latest
-    # Writes the counter into docs/STATUS.md. Docs-only, so ci.yml's paths-ignore means this commit
-    # does not trigger a build.
-    permissions:
-      contents: write
+    # Reports, never writes. The count goes to this job's summary every night and to the alert
+    # inbox only when it is above zero: a nightly "0 leads were lost" email is one people filter,
+    # and then the one that says 4 gets filtered with it. No contents: write, and nothing commits
+    # to main.
     steps:
       - uses: actions/checkout@v5
       - uses: pnpm/action-setup@v4
@@ -128,15 +128,9 @@ jobs:
           NEXT_PUBLIC_SANITY_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_SANITY_PROJECT_ID }}
           NEXT_PUBLIC_SANITY_DATASET: ${{ secrets.NEXT_PUBLIC_SANITY_DATASET }}
           SANITY_API_READ_TOKEN: ${{ secrets.SANITY_API_READ_TOKEN }}
-        run: node scripts/lead-failures.mjs --write
-      - name: Commit the count if it moved
-        run: |
-          if [ -n "$(git status --porcelain docs/STATUS.md)" ]; then
-            git config user.name "espresso-academy-bot"
-            git config user.email "business@socialhippi.com"
-            git add docs/STATUS.md
-            git commit -m "docs: nightly lead delivery count"
-            git push
-          else
-            echo "The count is unchanged."
-          fi
+          # Absent from this repository on purpose, so the alert half degrades and says so. Add
+          # both as secrets to have the academy emailed when the count is not zero.
+          RESEND_API_KEY: ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL: ${{ secrets.RESEND_FROM_EMAIL }}
+          LEAD_TO_EMAIL: ${{ secrets.LEAD_TO_EMAIL }}
+        run: node scripts/lead-failures.mjs

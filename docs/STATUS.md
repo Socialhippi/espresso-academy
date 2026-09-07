@@ -1,39 +1,48 @@
 # Status: Espresso Academy India website
 
-Running log of what is built, what is waiting on the client, and what a developer still has to
-do. Updated at the end of every phase.
+**Review URL: <https://espresso-academy-india.vercel.app>** — public, no login. Open it on a phone.
+Production serves the code `main` carries; the commits since touch CI and this document.
 
-**Review URL: https://espresso-academy-india.vercel.app**
+## Waiting on the client
 
-### Lead delivery
+Nothing here blocks a build or a deploy. Every one of them has a visible TBC state on the site
+today, and the site fills itself in the moment the value lands — no code change. They are ordered
+by what they cost while they are missing.
 
-Refreshed nightly by `scripts/lead-failures.mjs --write`. A dropped lead answers 200 and hands the
-visitor to WhatsApp, which is right for them and invisible to everyone else — so without a number
-here a broken integration runs for a week and looks exactly like a quiet week.
+1. **A verified sending domain in Resend, and `RESEND_FROM_EMAIL`.** The only item on this list
+   that is costing something right now: **a student who pays gets no confirmation email.** Mail
+   goes from `onboarding@resend.dev`, which Resend delivers only to the Resend account owner, so
+   the academy's copy of a booking arrives and the student's does not. Nothing in this repository
+   can fix it. See "Accounts and keys" in `docs/launch-checklist.md`.
+2. **Fees incl. GST, for all 8 courses.** Until then the course pages say the fee is confirmed on
+   WhatsApp before payment, and no course can be booked online.
+3. **Batch dates and seat counts.** Same consequence: no dates means nothing to book, and the
+   calendar shows its being-finalised state.
+4. **Duration, format, syllabus, what the fee includes, EMI, prerequisites** for each course.
+5. **Which trainer teaches which course**, and each trainer's role and philosophy quote.
+6. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
+   frame is a branded placeholder naming its slot.
+7. **WhatsApp number, public email address, opening hours, reply-promise wording.**
+8. **Legal copy**: privacy, terms, refund and reschedule policy. All three are placeholder text.
+9. **Testimonials with written permission.** The stories section stays empty until then, and the
+   query enforces it.
+10. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
+11. **Written permission for the "Official Partner" wording**, the correct "Forest Green" hex, the
+    correct plot number and map pin, and confirmation of the SCA campus status.
+12. **Whether the brochure's "17 branches", "Berry Co" and "Coorg planters" claims are current.**
+    None is used anywhere until it is confirmed.
 
-<!-- lead-failures:start -->
-**Lead delivery, last 24 hours (checked 2026-09-07):** 0 of 0 stored enquiries
-were not emailed to the academy (0 ever). Parts that failed: none.
+The detailed table, with the exact field behind each row, is under "Needs client" further down.
+`node scripts/stale-content.mjs` prints the same list live from Sanity, so it cannot go stale.
 
-A lead that never reached Sanity has no document to flag and is not in this number. Those are in
-the platform log only: `vercel logs <deployment> --since 24h --json | grep lead-delivery-failed`.
-<!-- lead-failures:end -->
+## What a developer still has to do
 
-Public, no login. Open it on a phone.
+Nothing is half-finished. What is left needs an account or a decision from the academy first:
+the Resend domain above, a Google Sheets service account for the lead mirror (optional), the Meta
+Pixel and Conversions API keys (both wired, both dormant), Cal.com if cafe enquiries should book a
+call, and the remaining six SEO guides, two of which are seeded as working templates.
 
-> **⚠ Student confirmation emails are not being delivered.** `RESEND_FROM_EMAIL` is unset and no
-> domain is verified in Resend, so mail goes from `onboarding@resend.dev`, which Resend delivers
-> **only to the Resend account owner's own address**. A student who pays gets nothing; the
-> academy's own copy of the booking arrives normally, so the site looks like it is working. Every
-> server boot logs this. It is fixed by verifying a domain at resend.com/domains and setting
-> `RESEND_FROM_EMAIL` — see "Accounts and keys" in `docs/launch-checklist.md`. **Not a code
-> change: nothing in this repository can fix it.**
-
-> **Up to date.** Production serves the code at `4c6555a`, which is what `main` still carries under
-> `src/`: every commit since touches CI or this document. Verified on the deployment itself: every
-> route returns 200, nothing overflows at 360, 390, 768, 1024 or 1280, no forbidden colour pair
-> renders, every standalone tap target clears 44px, and the nightly finds all 31 sitemap URLs and
-> all 36 internal links answering 200. Safe to send.
+---
 
 A note on why that is the alias and not a `-git-`/hash preview URL: previews on this Vercel team
 are protected by Vercel Authentication, so a preview link asks the client to log in to Vercel
@@ -1473,10 +1482,15 @@ email — which is enough to tell a bot storm from a broken integration.
 bot, and alerting on each one would fill the inbox and train the academy to ignore the alert that
 matters. The log is never capped.
 
-`scripts/lead-failures.mjs --write` counts them nightly into the block near the top of this file
-and commits it. It is explicit about what it cannot count: an enquiry that never reached Sanity has
-no document to flag, so those exist only in the platform log, and the line it writes says how to
-look.
+`scripts/lead-failures.mjs` counts them nightly into the job summary, and emails the alert inbox
+**only when the count is above zero** — a nightly "0 leads were lost" message is one people filter,
+and the one that says 4 gets filtered with it. It writes to no file and commits nothing. It is
+explicit about what it cannot count: an enquiry that never reached Sanity has no document to flag,
+so those exist only in the platform log, and it prints the command to look.
+
+The alert half needs `RESEND_API_KEY` and `LEAD_TO_EMAIL` as repository secrets, which this
+repository deliberately does not have — CI must never mail the academy from a test run. Until they
+are added the count still reaches the job summary and the script says what it could not do.
 
 `tests/booking/enquiry-browser.spec.ts` fills the real form, presses the real button and then asks
 Sanity whether the lead is there. The existing pipeline tests post to the route directly, which is
