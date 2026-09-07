@@ -55,7 +55,7 @@ export default async function GuidesPage() {
 
       <section className="section-y-sm" aria-labelledby="guides-heading">
         <Container>
-          <SectionHeading number="01" eyebrow="Reading" title="Every guide" id="guides-heading" />
+          <SectionHeading number="01" eyebrow="Guides" title="Every guide" id="guides-heading" />
 
           {guides.length === 0 ? (
             /* TODO(client): no guide has been published yet. The empty state offers the two
@@ -93,7 +93,11 @@ export default async function GuidesPage() {
                       <h3 className="mt-5 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                         {guide.title}
                       </h3>
-                      <p className="mt-3 measure type-body text-grey">{guide.excerpt}</p>
+                      {/* The answer, when there is one. A guide whose summary has not been
+                          written says so rather than printing the brief the writer was given. */}
+                      <p className="mt-3 measure type-body text-grey">
+                        {guide.excerpt || "The answer is being written."}
+                      </p>
                       <p className="mt-auto pt-5 flex items-center gap-2 type-label text-red">
                         Read it
                         <ArrowRight
@@ -101,10 +105,15 @@ export default async function GuidesPage() {
                           aria-hidden="true"
                         />
                       </p>
-                      <p className="mt-3 type-small text-grey">
-                        {guide.author ? `By ${guide.author.name}` : "By the academy"}
-                        {guide.publishedAt ? ` · ${formatDate(guide.publishedAt)}` : ""}
-                      </p>
+                      {/* TODO(client): no byline until content/facts.md records a signed article.
+                          Attributing a placeholder to a named trainer puts words in their mouth,
+                          and "Checked by" claimed a review that has not happened. The date stays:
+                          it is a fact about the document. */}
+                      {guide.publishedAt && (
+                        <p className="mt-3 type-small text-grey">
+                          {formatDate(guide.publishedAt)}
+                        </p>
+                      )}
                     </Link>
                   </article>
                 </li>

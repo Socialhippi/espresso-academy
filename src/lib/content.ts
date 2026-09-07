@@ -20,6 +20,7 @@ import "server-only";
  */
 import { cache } from "react";
 import { readClient } from "@/lib/sanity/client";
+import { containsPlaceholder, stripPlaceholder } from "@/lib/placeholder";
 import type { SanityImage } from "@/lib/sanity/image";
 import {
   certificationsQuery,
@@ -463,13 +464,28 @@ export async function hasAnyDates(): Promise<boolean> {
   return (await getNextInstances(1)).length > 0;
 }
 
+/*
+ * The seeded templates carry "PLACEHOLDER." paragraphs on purpose, and they were rendering. A
+ * guide whose answer reads "PLACEHOLDER. One or two sentences that answer the question in the
+ * title outright" is worse than a guide with no answer, because the page still claims to have one.
+ * Stripping here rather than at each render site means it holds for every caller.
+ */
+function withoutPlaceholders(guide: Guide): Guide {
+  const body = guide.body?.filter((block) => !containsPlaceholder(block));
+  return {
+    ...guide,
+    excerpt: stripPlaceholder(guide.excerpt) ?? "",
+    ...(guide.body ? { body: body ?? [] } : {}),
+  };
+}
+
 export const getGuides = cache(async (): Promise<Guide[]> => {
-  return query<Guide[]>(guidesQuery, {}, ["guide"]);
+  return (await query<Guide[]>(guidesQuery, {}, ["guide"])).map(withoutPlaceholders);
 });
 
 export const getGuide = cache(async (slug: string): Promise<Guide | undefined> => {
   const guide = await query<Guide | null>(guideBySlugQuery, { slug }, ["guide", `guide:${slug}`]);
-  return guide ?? undefined;
+  return guide ? withoutPlaceholders(guide) : undefined;
 });
 
 export async function getGuideSlugs(): Promise<string[]> {
@@ -478,7 +494,19 @@ export async function getGuideSlugs(): Promise<string[]> {
 
 export const getPage = cache(async (slug: string): Promise<ContentPage | undefined> => {
   const page = await query<ContentPage | null>(pageBySlugQuery, { slug }, ["page", `page:${slug}`]);
-  return page ?? undefined;
+  if (!page) return undefined;
+
+  /*
+   * A seeded page is a real document whose prose is still the brief its writer was given. Dropping
+   * the unwritten sections, and the whole document when nothing survives, hands the route back to
+   * the hand-written fallback it already ships — which is publishable copy rather than an
+   * apology. /for-cafes was showing "PLACEHOLDER. One sentence saying what the academy does for a
+   * cafe team" under its H1.
+   */
+  const sections = page.sections.filter((section) => !containsPlaceholder(section));
+  const intro = stripPlaceholder(page.intro);
+  if (!intro && sections.length === 0) return undefined;
+  return { ...page, intro, sections };
 });
 
 export const getLandingPage = cache(async (slug: string): Promise<LandingPage | undefined> => {

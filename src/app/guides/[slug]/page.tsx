@@ -74,33 +74,13 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
               <p className="mt-5 measure type-body text-black">{guide.excerpt}</p>
 
               <dl className="mt-8 hairline flex flex-wrap gap-x-10 gap-y-4 pt-6 type-small">
-                {guide.author && (
-                  <div>
-                    <dt className="type-label text-grey">Written by</dt>
-                    <dd className="mt-1 text-black">
-                      <Link
-                        href={`/trainers/${guide.author.slug}`}
-                        className="inline-flex min-h-11 items-center text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                      >
-                        {guide.author.name}
-                      </Link>
-                      {guide.author.role ? `, ${guide.author.role}` : ""}
-                    </dd>
-                  </div>
-                )}
-                {guide.reviewedBy && (
-                  <div>
-                    <dt className="type-label text-grey">Checked by</dt>
-                    <dd className="mt-1 text-black">
-                      <Link
-                        href={`/trainers/${guide.reviewedBy.slug}`}
-                        className="inline-flex min-h-11 items-center text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                      >
-                        {guide.reviewedBy.name}
-                      </Link>
-                    </dd>
-                  </div>
-                )}
+                {/*
+                  TODO(client): no author and no reviewer until content/facts.md records a signed
+                  article. The seeded guides carry both fields and every paragraph in them is
+                  marked PLACEHOLDER, so "Written by Akanksha Gupta" attributed a brief to a real
+                  person, and "Checked by" claimed an internal review that has not happened. The
+                  markup and the Article schema below are ready for the day one is signed off.
+                */}
                 {published && (
                   <div>
                     <dt className="type-label text-grey">Published</dt>
@@ -162,7 +142,19 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
 
           <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-8">
-              <PortableText value={guide.body} />
+              {guide.body && guide.body.length > 0 ? (
+                <PortableText value={guide.body} />
+              ) : (
+                /* Every paragraph in this guide is still the brief its writer was given, and the
+                   data layer drops those. Saying so is honest; printing the brief was not. */
+                <div className="border border-white-2 bg-white-3 p-6 md:p-10">
+                  <p className="type-h3 text-black">This guide is being written</p>
+                  <p className="mt-4 measure type-body text-grey">
+                    The question in the title is a real one and the answer is on its way. Ask it on
+                    WhatsApp in the meantime and the academy will answer it directly.
+                  </p>
+                </div>
+              )}
 
               {/* The sentinel sits after the body and before the calls to action, so reaching it
                   means the guide was read rather than that the footer was scrolled past. */}
@@ -202,24 +194,9 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
             url: absoluteUrl(`/guides/${guide.slug}`),
             /* A named author and a named reviewer, or neither. An Article attributed to an
                organisation says nothing a reader could not already see. */
-            ...(guide.author
-              ? {
-                  author: {
-                    "@type": "Person",
-                    name: guide.author.name,
-                    url: absoluteUrl(`/trainers/${guide.author.slug}`),
-                  },
-                }
-              : {}),
-            ...(guide.reviewedBy
-              ? {
-                  reviewedBy: {
-                    "@type": "Person",
-                    name: guide.reviewedBy.name,
-                    url: absoluteUrl(`/trainers/${guide.reviewedBy.slug}`),
-                  },
-                }
-              : {}),
+            /* No author or reviewedBy while the visible byline is withheld: structured data that
+               claims an attribution the page does not show is the kind of mismatch a search
+               engine is entitled to distrust. Both return together. */
             ...(published ? { datePublished: published } : {}),
             ...(updated ? { dateModified: updated } : {}),
             publisher: { "@id": schemaIds.ORGANISATION_ID },
