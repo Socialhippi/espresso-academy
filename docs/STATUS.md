@@ -1340,6 +1340,9 @@ says.
 The content-editor and design-reviewer ran on every route these commits touched. Their findings
 are worth recording separately, because half of them were mine.
 
+Gate: typecheck, lint and build clean; **1797 e2e tests passing, 0 failing**, 260 skipped by
+design, against the `ci` dataset.
+
 **Introduced by the hero-CTA commit and fixed before it shipped:**
 
 - `courseCta` did not require a batch to have a **date** before calling it bookable. `BatchTable`
@@ -1383,6 +1386,26 @@ are worth recording separately, because half of them were mine.
   scroller, so Book and Waitlist were cut mid-word with no scroll affordance — on the 64% of this
   audience that is on a phone. Stacked rows below md now, mirroring the pattern `/courses` already
   used for the fee table.
+
+**A false diagnosis, recorded because the trap is easy to fall into again.**
+
+Three suite runs failed on `/guides/*` and `/lp/example-campaign` with 404s that vanished when the
+same routes were run on their own. I diagnosed that as Sanity's CDN serving a stale, empty view of
+`guide` at build time — `generateStaticParams` decides which pages exist, so a stale read renders
+no guide rather than an old one — and changed `readClient` to bypass the CDN.
+
+**That diagnosis was wrong.** A `pnpm start` server was still bound to port 3100 from an earlier
+build, so every "fresh build" being curled was answered by a stale process that predated the
+seeding. A bisect run on top of that appeared to show `/lp` broken at a commit which touched no
+page code, because it was measuring the same stale server three times. On a free port the route
+returns 200 from the current code, and the full suite is green with the original client. The
+`useCdn` change is reverted: a change whose justification has collapsed is worse than the marginal
+argument for it.
+
+The mechanism that hid this is worth knowing: `playwright.config.ts` sets
+`reuseExistingServer: !process.env.CI`, so a stale local server is silently reused by the suite
+too. **`lsof -ti:3000 -ti:3100 | xargs kill -9` before trusting a local run**, and treat "passes
+alone, fails in the suite" as a question about which server answered rather than about the code.
 
 **Open, and deliberately not done in this pass:**
 
