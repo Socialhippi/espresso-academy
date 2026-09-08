@@ -52,15 +52,17 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
         <p>
           Espresso Academy in Florence issues it. The diploma is issued in Italy and sent to the
           authorised partner school that taught you, which in Bengaluru is Espresso Academy India,
-          an Official Partner of Espresso Academy, Florence. Espresso Academy also lists a partner
-          in New Delhi. The teaching happens here; the certificate comes from there.
+          an Official Partner of Espresso Academy, Florence. The certificate names the academy as
+          &ldquo;Espresso Academy India, under the supervision of Espresso Academy Florence&rdquo;.
+          The teaching happens here; the certificate comes from there.
         </p>
       ) : (
         <p>
           The Specialty Coffee Association issues it, not the school, and only on an assessed
-          module taught by an authorised trainer. The academy has an SCA Authorised Trainer on
-          faculty, and assessed modules run on batches the academy confirms. The academy does not
-          currently sell an SCA course, so if SCA certification is what you are after, ask first.
+          module taught by an authorised trainer. One of the trainers listed here is an SCA
+          Authorised Trainer, and assessed modules run on batches the academy confirms. The academy
+          does not currently sell an SCA course, so if SCA certification is what you are after, ask
+          first.
         </p>
       ),
     },
@@ -88,7 +90,7 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
           <p className="mt-4">
             {isIbc
               ? "The certificate is part of the course fee, so there is nothing separate to pay for it. The fee for each course is on that course's page; ₹5,000 holds a seat and the balance is paid at the academy."
-              : "Nothing, here. The academy does not sell an SCA course, so there is no fee to publish. The SCA charges its own assessment and certificate fee where a module is assessed."}
+              : "Nothing, here. The academy does not sell an SCA course, so there is no fee to publish. What the SCA itself charges for an assessment is between you and the SCA."}
           </p>
         </>
       ),

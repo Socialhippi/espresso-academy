@@ -201,7 +201,11 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
              */
             <ol className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 lg:grid-cols-2">
               {course.days.map((day) => (
-                <li key={day.number} id={`day-${day.number}`} className="bg-white p-6 md:p-8">
+                <li
+                  key={day.number}
+                  id={`day-${day.number}`}
+                  className="day-card bg-white p-6 md:p-8"
+                >
                   <p className="type-label text-grey">Day {day.number}</p>
                   <h3 className="mt-2 type-h3 text-black">{day.title}</h3>
                   <ul className="mt-5 flex flex-col gap-3">

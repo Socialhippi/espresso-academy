@@ -17,7 +17,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Short coffee workshops in Bengaluru for enthusiasts and cafe teams: one sitting, no prerequisite, book a seat online. Dates and fees as the academy confirms them.";
+  "The academy runs no short workshop at present. Latte art, brewing and roasting are days inside the four-day Italian Barista Course in Bengaluru. Ask, or join the alert.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Coffee Workshops in Bengaluru",
@@ -26,7 +26,13 @@ export const metadata: Metadata = pageMetadata({
 });
 
 /**
- * Workshops: the short, no-prerequisite end of the offer.
+ * Workshops: the short, no-prerequisite end of the offer, when there is one.
+ *
+ * There is not one today. Revision 2 of content/facts.md says the academy sells three courses and
+ * lists no short workshop, so this page stopped describing an afternoon nobody can book and now
+ * says so, and points at the day of the IBC that teaches the thing most people arrive here
+ * looking for. It stays indexed because "coffee workshop Bengaluru" is a real search and a page
+ * that answers it honestly is better than a 404 or a redirect that ignores the question.
  *
  * Calendar-first, unlike `/courses`, which leads with the ladder. Somebody looking for a workshop
  * is looking for a Saturday they are free on, not for a qualification pathway, so the dates come
@@ -47,14 +53,31 @@ export default async function WorkshopsPage() {
         eyebrow="Workshops"
         title="Short coffee workshops in Bengaluru"
         intro={
-          <p>
-            One sitting, no prerequisite, nothing to prepare. Come for an afternoon, leave able to
-            do something you could not do that morning. Every workshop runs at the RMV 2nd Stage
-            campus.
-          </p>
+          workshops.length > 0 ? (
+            <p>
+              One sitting, no prerequisite, nothing to prepare. Every workshop runs at the RMV 2nd
+              Stage campus.
+            </p>
+          ) : (
+            <p>
+              The academy does not run a short workshop at present. Latte art, brewing, and
+              roasting and cupping are taught as days 4, 2 and 1 of the four-day{" "}
+              <Link
+                href="/courses/italian-barista-course-basic"
+                className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+              >
+                Italian Barista Course
+              </Link>
+              , rather than as afternoons on their own. If a one-sitting workshop is what you are
+              after, leave your number below and you will hear if one is scheduled.
+            </p>
+          )
         }
         actions={
           <>
+            <ButtonLink href="/courses/italian-barista-course-basic" variant="primary">
+              See the four days
+            </ButtonLink>
             <ButtonLink href="/courses" variant="secondary">
               See the full courses
             </ButtonLink>

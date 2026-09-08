@@ -31,7 +31,7 @@ const comparison = [
     /* facts.md, Trainers: Akanksha Gupta is listed in the SCA public trainer directory as an
        Authorised Trainer, checked 5 Sept 2026. That supports "an AST on faculty" and nothing
        further: which batches are assessed is still the academy's to confirm. */
-    sca: "The Specialty Coffee Association, not the school, and only on an assessed module taught by an authorised trainer. The academy has an SCA Authorised Trainer on faculty and assessed modules run on batches the academy confirms.",
+    sca: "The Specialty Coffee Association, not the school, and only on an assessed module taught by an authorised trainer. One of the trainers listed here is an SCA Authorised Trainer, and assessed modules run on batches the academy confirms.",
   },
   {
     label: "Levels",
@@ -53,7 +53,9 @@ const comparison = [
   {
     label: "What it costs",
     ibc: "The certificate is part of the course fee. Nothing separate is charged for it.",
-    sca: "Not published here, because no SCA course is sold here. The SCA charges its own assessment and certificate fee.",
+    /* TODO(client): content/facts.md records no SCA fee of any kind. What the SCA charges for an
+       assessment is not ours to quote, so this row states only what is true of this academy. */
+    sca: "Not published here, because no SCA course is sold here.",
   },
 ];
 

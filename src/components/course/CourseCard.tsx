@@ -152,13 +152,20 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         </div>
       </Link>
 
-      {cta.kind === "book" && (
+      {(cta.kind === "book" || cta.kind === "choose") && (
+        /*
+         * `choose` belongs here as much as `book` does. The band was gated on `book` alone, which
+         * `courseCta` returns only when exactly one batch is bookable — so the day the IBC Basic
+         * got its three September and October batches the hub lost the only route to a checkout it
+         * had, on the only course that can be paid for. The href follows `cta`, so one bookable
+         * batch still goes straight to its checkout and several scroll to the table.
+         */
         <Link
           href={cta.href}
           data-event="book_click_card"
-          /* 14px sentence case, not a 12px uppercase label: this is the only route to a checkout
-             on the hub, and design.md puts a 16px floor under red text. */
-          className="flex min-h-12 items-center justify-center border-t border-white-2 bg-white-3 px-6 py-3 type-small font-medium text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
+          /* Sentence case at body size: this is the only route to a checkout on the hub, and
+             design.md puts a 16px floor under red text. */
+          className="flex min-h-12 items-center justify-center border-t border-white-2 bg-white-3 px-6 py-3 type-body font-medium text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
         >
           {cta.label}
           <span className="sr-only">: {course.title}</span>

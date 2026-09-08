@@ -105,9 +105,16 @@ function FeeCell({ course }: { course: Course }) {
       <span className="type-small text-grey">{feeSuffix(course.gstRate)}</span>
       {hasOffer && (
         <>
+          {/* The suffix belongs on the struck price too. Without it the hub read "₹26,700 + GST"
+              beside a bare "₹35,600", which invites the reader to compare a pre-tax figure with
+              something they cannot identify. The chip matches the course page's. */}
           <span className="sr-only">Usual price</span>
-          <s className="type-small text-grey">{formatFeeAmount(course.listPriceExGst)}</s>
-          <span className="type-small text-grey">{course.offerLabel}</span>
+          <s className="type-small text-grey">
+            {formatFeeAmount(course.listPriceExGst)} {feeSuffix(course.gstRate)}
+          </s>
+          <span className="inline-flex items-center rounded-xs bg-red-tint px-2 py-0.5 type-label text-black">
+            {course.offerLabel}
+          </span>
         </>
       )}
     </span>
@@ -195,27 +202,33 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             phone. The ?level= and ?area= parameters still narrow the list, because the level ladder
             links to one, so a narrowed view says so and offers the way back.
           */}
+          {/* The heading has to describe what is under it. At ?level=advanced the whole-catalogue
+              standfirst sat directly above two cards, telling a reader that three courses were the
+              whole catalogue while showing them two. */}
           <SectionHeading
             number="01"
             eyebrow="The courses"
-            title="Every course at the campus"
+            title={filtered ? `${filterSummary}` : "Every course at the campus"}
             id="course-list-heading"
-            description="Three courses, and that is the whole catalogue. Latte art, brewing and roasting are days inside the IBC Basic rather than courses you can buy on their own."
+            description={
+              filtered
+                ? undefined
+                : "Three courses, and that is the whole catalogue. Latte art, brewing and roasting are days inside the IBC Basic rather than courses you can buy on their own."
+            }
           />
-          <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2" aria-live="polite">
-            <span className="type-label text-grey">
-              {courses.length} of {allCourses.length} courses
-              {filterSummary ? `: ${filterSummary}` : ""}
-            </span>
-            {filtered && (
+          {filtered && (
+            <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2">
+              <span className="type-label text-grey">
+                {courses.length} of {allCourses.length} courses
+              </span>
               <Link
                 href="/courses"
-                className="inline-flex min-h-11 items-center type-small text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                className="inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
               >
                 Show all {allCourses.length}
               </Link>
-            )}
-          </p>
+            </p>
+          )}
 
           {courses.length === 0 ? (
             <div className="mt-6 border border-white-2 bg-white-3 p-6 md:p-10">
@@ -271,9 +284,11 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                     <span>
                       <span className="block type-h3 text-black">{route.title}</span>
                       <span className="mt-2 block measure type-body text-grey">{route.body}</span>
+                      {/* type-body, not type-label: design.md puts a 16px floor under red text
+                          and these three are the only calls to action in the section. */}
                       <Link
                         href={route.href}
-                        className="mt-3 inline-flex min-h-11 items-center type-label text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                        className="mt-3 inline-flex min-h-11 items-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                       >
                         {route.cta}
                       </Link>
@@ -382,10 +397,11 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                   <caption className="sr-only">
                     Fee, level and duration for every course at the Bengaluru campus
                   </caption>
-                  {/* Sticky: the head scrolls away otherwise, and every row then shows two
-                      identical grey TBC pills with nothing to tell the columns apart. */}
+                  {/* Not sticky. The scrollport is overflow-x only, so `sticky top-0` never
+                      fired; it was written when this table had eight rows and lost its head to a
+                      vertical scroll that does not exist here. */}
                   <thead>
-                    <tr className="sticky top-0 z-10 border-b border-white-2 bg-white-3">
+                    <tr className="border-b border-white-2 bg-white-3">
                       <th scope="col" className="py-3 pr-4 type-label text-grey">
                         Course
                       </th>
@@ -433,8 +449,8 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               )}
               {/* TODO(client): fees for the two Advanced courses are not published. */}
               <p className="mt-4 measure type-small text-grey">
-                The certificate is part of the course fee. No certification body charges a separate
-                fee on top of it.
+                The Italian Barista Certificate is part of the course fee. Nothing separate is
+                charged for it.
               </p>
             </div>
           </div>

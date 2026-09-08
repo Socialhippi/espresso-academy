@@ -26,19 +26,39 @@ const statusLabel: Record<CourseInstance["status"], string> = {
  * one function: three copies of "is this bookable" is three chances to offer a Book button for a
  * batch with no fee.
  */
-function BatchCta({ course, instance }: { course: Course; instance: CourseInstance }) {
+function BatchCta({
+  course,
+  instance,
+  emphasis = "primary",
+}: {
+  course: Course;
+  instance: CourseInstance;
+  /**
+   * Red on the first bookable row, outline on the rest.
+   *
+   * Three open batches turned the mobile list into three stacked full-width red pills with the
+   * red sticky bar under them, which is design.md's "must never look like a bar or a gym". They
+   * are the same action at the same weight, so only the soonest one carries the accent.
+   */
+  emphasis?: "primary" | "secondary";
+}) {
   const action = batchAction(course, instance);
+  /* The dates cell is the row header, so a screen reader announces it before this button in table
+     mode. The stacked list below md has no such structure, and three links whose entire
+     accessible name is "Book" is a WCAG 2.4.4 failure either way. */
+  const dates = formatDateRange(instance.startDate, instance.endDate);
 
   if (action === "book") {
     return (
       <ButtonLink
         href={`/book/${instance.id}`}
-        variant="primary"
+        variant={emphasis}
         size="sm"
         data-event="book_click_batch"
         data-course={course.slug}
       >
         Book
+        <span className="sr-only">: {dates}</span>
       </ButtonLink>
     );
   }
@@ -49,12 +69,13 @@ function BatchCta({ course, instance }: { course: Course; instance: CourseInstan
   return (
     <ButtonLink
       href={`/enquire?course=${course.slug}&batch=${instance.id}`}
-      variant={action === "waitlist" ? "secondary" : "primary"}
+      variant={action === "waitlist" ? "secondary" : emphasis}
       size="sm"
       data-event={action === "waitlist" ? "waitlist_click_batch" : "enquire_click_batch"}
       data-course={course.slug}
     >
       {action === "waitlist" ? "Waitlist" : "Enquire"}
+      <span className="sr-only">: {dates}</span>
     </ButtonLink>
   );
 }
@@ -95,7 +116,7 @@ export function BatchTable({ course, className }: BatchTableProps) {
         already used for the fee table on /courses.
       */}
       <ul className="divide-y divide-white-2 border-y border-white-2 md:hidden">
-        {dated.map((instance) => (
+        {dated.map((instance, index) => (
           <li key={instance.id} className="flex flex-col gap-3 py-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
               <time dateTime={instance.startDate ?? undefined} className="type-numeral text-h3-lg">
@@ -111,7 +132,14 @@ export function BatchTable({ course, className }: BatchTableProps) {
                 <span className="text-black">{seatsLeft(instance)} left</span>
               )}
             </div>
-            <BatchCta course={course} instance={instance} />
+            {/* self-start, or the flex column stretches a 350px-wide red pill across the row. */}
+            <div className="self-start">
+              <BatchCta
+                course={course}
+                instance={instance}
+                emphasis={index === 0 ? "primary" : "secondary"}
+              />
+            </div>
           </li>
         ))}
       </ul>
@@ -139,13 +167,15 @@ export function BatchTable({ course, className }: BatchTableProps) {
           </tr>
         </thead>
         <tbody>
-          {dated.map((instance) => (
+          {dated.map((instance, index) => (
             <tr key={instance.id} className="border-b border-white-2 align-middle">
-              <td className="py-4 pr-4">
+              {/* th, not td: it is what names the row, and it is what a screen reader announces
+                  before the Book button at the end of it. */}
+              <th scope="row" className="py-4 pr-4 text-left font-normal">
                 <time dateTime={instance.startDate ?? undefined} className="type-numeral text-h3-lg">
                   {formatDateRange(instance.startDate, instance.endDate)}
                 </time>
-              </td>
+              </th>
               <td className="py-4 pr-4 type-small text-grey">
                 {instance.schedule ?? <TbcPill />}
               </td>
@@ -158,7 +188,11 @@ export function BatchTable({ course, className }: BatchTableProps) {
               </td>
               <td className="py-4 pr-4 type-small text-black">{statusLabel[instance.status]}</td>
               <td className="py-4">
-                <BatchCta course={course} instance={instance} />
+                <BatchCta
+                  course={course}
+                  instance={instance}
+                  emphasis={index === 0 ? "primary" : "secondary"}
+                />
               </td>
             </tr>
           ))}

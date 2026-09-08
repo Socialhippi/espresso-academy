@@ -12,11 +12,12 @@ interface SpecStripProps {
 interface SpecProps {
   label: string;
   children: React.ReactNode;
+  className?: string;
 }
 
-function Spec({ label, children }: SpecProps) {
+function Spec({ label, children, className }: SpecProps) {
   return (
-    <div className="flex flex-col gap-2 border-t border-white-2 pt-4">
+    <div className={cn("flex flex-col gap-2 border-t border-white-2 pt-4", className)}>
       <dt className="type-label text-grey">{label}</dt>
       <dd className="type-body text-black">{children}</dd>
     </div>
@@ -26,12 +27,16 @@ function Spec({ label, children }: SpecProps) {
 /**
  * The certificate cell, label included.
  *
- * The label cannot be a constant "Certificate". content/facts.md line 25 permits only "training
- * aligned to the SCA Coffee Skills Program" and line 45 lists "SCA-certified courses" among the
- * phrases the site must never use, so a cell reading Certificate / SCA asserts exactly the claim
- * that is forbidden: the SCA issues its certification itself, on an assessed module, and whether a
- * given batch is assessed is not confirmed. The certification's own `status` carries the
+ * The label cannot be a constant "Certificate". content/facts.md lists "SCA-certified courses"
+ * among the phrases the site must never use, so a cell reading Certificate / SCA asserts exactly
+ * the claim that is forbidden: the SCA issues its certification itself, on an assessed module,
+ * and the academy does not run an SCA course at all. The certification's own `status` carries the
  * distinction already, so it drives the label rather than a slug hard-coded here.
+ *
+ * No course currently references the SCA certification, so this branch is unused today. It stays
+ * because the rule outlives the catalogue: the moment an editor points a course at the SCA
+ * document, the cell has to say "Programme" rather than "Certificate" without anyone remembering
+ * to ask for it.
  */
 async function certificateCell(course: Course): Promise<{ label: string; value: React.ReactNode }> {
   const certification = course.certification ? await getCertification(course.certification) : null;
@@ -45,16 +50,22 @@ async function certificateCell(course: Course): Promise<{ label: string; value: 
         className="inline-flex min-h-11 min-w-11 items-center text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
       >
         {/* The short name: the full awarded label runs to four lines here against one-line
-            neighbours and breaks the strip. It is stated in full in the body. */}
+            neighbours and breaks the strip. It is stated in full in the body. The suffix is for
+            a screen reader running a link list, where "IBC" on its own says nothing. */}
         {certification.shortName}
+        <span className="sr-only">: what this certificate is worth</span>
       </Link>
     ),
   };
 }
 
 /**
- * The six facts a reader wants before anything else. Every one that the client has not confirmed
- * shows a TBC pill rather than an assumption.
+ * The facts a reader wants before anything else. Every one the client has not confirmed shows a
+ * TBC pill rather than an assumption.
+ *
+ * Four columns, not six. Revision 2 filled in the duration, the hours, the format, the fee and
+ * three batch dates, and a seven-cell strip on a six-column grid orphaned "Next batch" alone on
+ * its own row at 1280, at 768 and at 390 — on the first screen of the highest-value page.
  */
 export async function SpecStrip({ course, className }: SpecStripProps) {
   const nextInstance = getNextInstanceForCourse(course);
@@ -110,7 +121,7 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
   return (
     <dl
       className={cn(
-        "grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-3 lg:grid-cols-6",
+        "grid grid-cols-2 gap-x-6 gap-y-5 md:grid-cols-4",
         className,
       )}
     >
@@ -140,8 +151,12 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
       )}
 
       {nextInstance?.startDate && (
-        <Spec label="Next batch">
-          <time dateTime={nextInstance.startDate}>{formatDate(nextInstance.startDate)}</time>
+        /* Bebas, like the fee beside it and like the same value on a course card. design.md
+           reserves the display face for fee figures and batch dates, and this is one. */
+        <Spec label="Next batch" className="max-md:col-span-2">
+          <time dateTime={nextInstance.startDate} className="type-numeral text-h3-lg">
+            {formatDate(nextInstance.startDate)}
+          </time>
         </Spec>
       )}
 

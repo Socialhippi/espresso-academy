@@ -92,7 +92,10 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
         </div>
       )}
 
-      <ul className="mt-6 flex flex-col gap-3 type-small text-grey">
+      {/* type-body, not type-small: design.md sets a 16px floor on mobile body copy, and the
+          first item here is the sentence explaining that GST is charged on top of the figure
+          above it. That is the last thing someone reads before deciding to pay. */}
+      <ul className="mt-6 flex flex-col gap-3 type-body text-grey">
         {hasFee && course.gstRate === null && (
           /* TODO(client): open question 1 in content/facts.md. Until it is answered the site
              cannot print a single tax-inclusive figure, and saying so is better than a reader
@@ -104,17 +107,14 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
           </li>
         )}
         <li>
-          The certificate is part of the fee. No certification body charges a separate fee on top
-          of it.
+          {/* Narrowed from "no certification body charges a separate fee", which said something
+              about the SCA that content/facts.md does not, and which the certifications pages
+              then contradicted. facts.md supports one thing here: the IBC is included. */}
+          The Italian Barista Certificate is part of the fee. Nothing separate is charged for it.
         </li>
-        <li className="flex flex-wrap items-center gap-2">
-          EMI:{" "}
-          {course.emiAvailable === null ? (
-            <TbcPill />
-          ) : (
-            <span className="text-black">{course.emiAvailable ? "Available" : "Not offered"}</span>
-          )}
-        </li>
+        {/* No EMI row. content/facts.md lists EMI among the claims the site may not make, and an
+            "EMI: TBC" pill is not the absence of a claim: it puts financing on the page as an
+            open question, which is how a reader learns to expect it. */}
         <li>
           What the fee includes:{" "}
           {course.includes && course.includes.length > 0 ? (

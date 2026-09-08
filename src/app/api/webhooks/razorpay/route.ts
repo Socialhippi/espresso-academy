@@ -9,7 +9,7 @@ import { getSiteSettings } from "@/lib/content";
 import { bookingRecipient, canSendEmail, sendEmail, withRetry } from "@/lib/email";
 import { BOOKING_TERMS } from "@/lib/booking-terms";
 import { absoluteUrl } from "@/lib/public-env";
-import { formatDateRange } from "@/lib/format";
+import { formatDateRange, formatFeeAmount } from "@/lib/format";
 import { getPaymentProvider } from "@/lib/payments/provider";
 import { check, clientKey } from "@/lib/rate-limit";
 import { trackPurchase } from "@/lib/meta/capi";
@@ -193,7 +193,7 @@ async function notify({
       withRetry("booking-notification", () =>
         sendEmail({
           to: academyTo,
-          subject: `${overbooked ? "OVERBOOKED " : ""}Booking: ${booking.name ?? "student"} — ${booking.courseTitle ?? "course"} (${dates})`,
+          subject: `${overbooked ? "OVERBOOKED " : ""}Booking: ${booking.name ?? "student"}, ${booking.courseTitle ?? "course"} (${dates})`,
           text: academyEmail({ booking, dates, paymentId, overbooked, confirmationUrl }),
           replyTo: booking.email ?? undefined,
         }),
@@ -269,17 +269,17 @@ function studentEmail({
     `Hello ${booking.name ?? "there"},`,
     "",
     owesBalance
-      ? `Your seat on ${booking.courseTitle ?? "the course"} is confirmed. The ₹${booking.amount ?? "?"} advance has been received.`
+      ? `Your seat on ${booking.courseTitle ?? "the course"} is confirmed. The ${formatFeeAmount(booking.amount)} advance has been received.`
       : `Your seat on ${booking.courseTitle ?? "the course"} is booked and paid for.`,
     "",
     `Course:  ${booking.courseTitle ?? "TBC"}`,
     `Dates:   ${dates}`,
     `Venue:   ${venueName ?? "Espresso Academy India, Bengaluru campus"}`,
     ...(mapsUrl ? [`Map:     ${mapsUrl}`] : []),
-    `Paid:    ₹${booking.amount ?? "?"}${owesBalance ? " advance" : ""}`,
+    `Paid:    ${formatFeeAmount(booking.amount)}${owesBalance ? " advance, part of the fee" : ""}`,
     ...(owesBalance
       ? [
-          `Balance: ₹${booking.balanceDueExGst ?? "?"}${booking.gstRate === null ? " + GST" : " incl. GST"}, paid at the academy before the first day`,
+          `Balance: ${formatFeeAmount(booking.balanceDueExGst)}${booking.gstRate === null ? " + GST" : " incl. GST"}, paid at the academy before the first day`,
         ]
       : []),
     "",
@@ -329,12 +329,12 @@ function academyEmail({
     `Email:   ${booking.email ?? "?"}`,
     `Course:  ${booking.courseTitle ?? "?"}`,
     `Dates:   ${dates}`,
-    `Paid:    ₹${booking.amount ?? "?"}${booking.paymentType === "advance" ? " (advance)" : " (full fee)"}`,
+    `Paid:    ${formatFeeAmount(booking.amount)}${booking.paymentType === "advance" ? " (advance)" : " (full fee)"}`,
     /* The roster line. The academy needs to know who still owes money before the batch starts,
        and this email is what they file. */
     `Balance: ${
       (booking.balanceDueExGst ?? 0) > 0
-        ? `₹${booking.balanceDueExGst}${booking.gstRate === null ? " + GST" : " incl. GST"} due at the academy`
+        ? `${formatFeeAmount(booking.balanceDueExGst)}${booking.gstRate === null ? " + GST" : " incl. GST"} due at the academy`
         : "nothing outstanding"
     }`,
     "",

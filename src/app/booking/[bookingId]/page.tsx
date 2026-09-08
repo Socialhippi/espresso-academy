@@ -147,7 +147,7 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                 </NextStep>
                 <NextStep number="03" title="Turn up">
                   Come to the campus on the first morning. There is nothing to print
-                  {owesBalance ? ", and the balance is settled when you arrive" : ""}.
+                  {owesBalance ? ", with the balance settled before the first day" : ""}.
                 </NextStep>
               </ol>
             </section>

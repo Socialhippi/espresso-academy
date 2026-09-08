@@ -23,7 +23,10 @@ export function LevelBadge({ level, className }: LevelBadgeProps) {
   return (
     <span
       className={cn(
-        "inline-flex items-center rounded-pill px-3 py-1 type-label",
+        /* whitespace-nowrap: "IBC Advanced" wrapped inside the pill in the /courses fee table,
+           rendering a 37px two-line badge beside 22px one-line ones. A pill that wraps is not a
+           pill. */
+        "inline-flex items-center whitespace-nowrap rounded-pill px-3 py-1 type-label",
         badge.className,
         className,
       )}

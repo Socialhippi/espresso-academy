@@ -18,8 +18,11 @@ import { faqNode, graph, webPageNode } from "@/lib/seo/schema";
 const SLUG = "for-cafes";
 
 const FALLBACK_TITLE = "Training for cafes and teams";
+/* TODO(client): content/facts.md records no cafe or team training: no format, no venue, no fee.
+   The page asks the question rather than describing a service the academy has not said it sells,
+   which is also what the homepage's second audience door says. The two disagreed. */
 const FALLBACK_DESCRIPTION =
-  "Barista training for cafe teams in Bengaluru: a session built around your bar, your machine and your menu. Tell the academy what your team needs and they will scope it.";
+  "Training for cafe teams in Bengaluru is not published as a package yet. Tell the academy your team size, your machine and what you want fixed, and ask what it can offer.";
 
 /**
  * Rendered per request so it can carry a CSP nonce.
@@ -141,15 +144,15 @@ function FallbackSections({
             </div>
             <div className="lg:col-span-7">
               <p className="measure type-body text-grey">
-                A team session is not a public course with your staff in it. The academy asks what
-                machine you run, what is on your menu and what keeps going wrong, then builds the
-                session around that. It can run at the RMV 2nd Stage campus or at your cafe.
+                No team package, length or venue is published yet. Tell the academy what machine
+                you run, what is on your menu and what keeps going wrong, and ask what it can do.
+                You will get options rather than a package.
               </p>
               <ul className="mt-8 flex flex-col gap-4">
                 {[
                   "Tell the academy your team size, your machine and what you want fixed.",
-                  "They come back with a scope, a length and a fee, in writing.",
-                  "The session runs, and everyone who attends knows what to practise next.",
+                  "They come back with what they can offer, in writing.",
+                  "If it runs, everyone who attends knows what to practise next.",
                 ].map((step, index) => (
                   <li key={step} className="flex gap-4">
                     {/* Grey, not red. In red Bebas at this size it is byte-for-byte the section

@@ -204,6 +204,18 @@
     scroll-margin-top: 6rem;
   }
 
+  /*
+   * A day card that was arrived at by anchor says so.
+   *
+   * Someone who followed /courses/latte-art gets a 301 to #day-4 and lands mid-page, scrolled to
+   * a card that looks like the three around it, with no sign that this is the thing they searched
+   * for. An inset rule on the leading edge marks it without an outline blob, and it is scoped to
+   * the day list so it cannot fire on the section headings that also carry ids.
+   */
+  .day-card:target {
+    box-shadow: inset 3px 0 0 var(--color-red);
+  }
+
   /* The mobile sticky bar is fixed to the bottom of the viewport, so a control the browser has
      just scrolled into view can end up underneath it. This leaves room for the bar. */
   @media (width < 48rem) {

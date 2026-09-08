@@ -21,10 +21,19 @@ export interface CourseBarEntry {
   /** False while both the fee and the next date are unknown, which hides the strip entirely. */
   hasFacts: boolean;
   /**
-   * The batch to send someone to when the third button says "Book". Null when nothing on this
-   * course is bookable, and the button falls back to the enquiry form.
+   * Where the third button goes, and what it says, straight from `courseCta`.
+   *
+   * It used to be a bare `bookableInstanceId`, which `courseCta` sets only when *exactly one*
+   * batch is bookable. The moment the IBC Basic got its three real September and October batches
+   * that id went undefined, and the single most-tapped control on a site that is 64% mobile
+   * quietly fell through to "Enquire" on a course with three payable seats, underneath a hero
+   * reading "Choose a date". Carrying the whole decision rather than one of its outputs means the
+   * bar cannot disagree with the hero again.
    */
-  bookableInstanceId: string | null;
+  primaryHref: string;
+  primaryLabel: string;
+  /** "book_click_sticky" or "enquire_click_sticky", so the event names what the button did. */
+  primaryEvent: string;
 }
 
 interface StickyBarProps {
@@ -144,26 +153,17 @@ export function StickyBar({ courseBar }: StickyBarProps) {
             {routePrimary.label}
             {routePrimary.srSuffix && <span className="sr-only">{routePrimary.srSuffix}</span>}
           </Link>
-        ) : courseSlug && course?.bookableInstanceId ? (
-          /* A course with a bookable batch gets a Book button. Pointing at an enquiry form when a
-             seat can actually be paid for is a step nobody needs. */
+        ) : courseSlug && course ? (
+          /* Whatever the hero offers, this offers. One bookable batch goes straight to its
+             checkout, several scroll to the table, an unpriced one asks. */
           <Link
-            href={`/book/${course.bookableInstanceId}`}
-            data-event="book_click_sticky"
+            href={course.primaryHref}
+            data-event={course.primaryEvent}
             className={cn(segmentClass, "bg-red text-white")}
           >
             <ArrowRight className="size-5" aria-hidden="true" />
-            Book
-          </Link>
-        ) : courseSlug ? (
-          <Link
-            href={`/enquire?course=${courseSlug}`}
-            data-event="enquire_click_sticky"
-            className={cn(segmentClass, "bg-red text-white")}
-          >
-            <ArrowRight className="size-5" aria-hidden="true" />
-            Enquire
-            <span className="sr-only"> about this course</span>
+            {course.primaryLabel}
+            <span className="sr-only">: {course.title}</span>
           </Link>
         ) : (
           <Link

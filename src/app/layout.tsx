@@ -86,7 +86,12 @@ async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
       /* Nothing to say is not worth a line. While both are null the bar would pin
          "Fee: TBC / Next batch: TBC" to the bottom of every course page for the whole scroll. */
       hasFacts: fee !== null || Boolean(shown?.startDate),
-      bookableInstanceId: bookable?.id ?? null,
+      /* The whole decision, not one of its outputs. `cta.label` is already the wording the hero
+         uses; the bar shortens it, because a 33%-wide segment cannot hold "Ask about the next
+         batch" and the icon beside it. */
+      primaryHref: cta.href,
+      primaryLabel: cta.kind === "book" || cta.kind === "choose" ? "Book" : "Ask",
+      primaryEvent: `${cta.event}_sticky`,
     };
   }
   return entries;

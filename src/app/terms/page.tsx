@@ -36,8 +36,8 @@ export default function TermsPage() {
       <LegalSection title="Fees and certificates">
         <p>
           Fees are quoted before GST, which is charged on top, and you are told the total before
-          you pay. The certificate is part of the course fee: no certification body charges a
-          separate assessment or certificate fee on top of it.
+          you pay. The Italian Barista Certificate is part of the course fee, and nothing separate
+          is charged for it.
         </p>
         <p>
           An advance of ₹5,000 confirms a seat. The balance is paid to the academy before the
@@ -60,8 +60,9 @@ export default function TermsPage() {
 
       <LegalSection title="Changes to a batch">
         <p>
-          Occasionally a batch has to move. If that happens the academy tells you as early as it
-          can and offers you the next batch or your money back. See the refund policy.
+          Occasionally a batch has to move. What the academy does when that happens is still being
+          confirmed, and the draft on the refund policy page offers you the next batch or a full
+          refund. Read it, and ask before you book if it matters to you.
         </p>
       </LegalSection>
     </LegalPlaceholder>

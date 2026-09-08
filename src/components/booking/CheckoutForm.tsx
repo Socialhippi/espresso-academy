@@ -514,8 +514,11 @@ export function CheckoutForm({
         <Button type="submit" variant="primary" size="block" disabled={busy} data-event="pay_click">
           {busy && <Loader2 className="size-5 animate-spin" aria-hidden="true" />}
           {status === "idle" &&
+            /* "the ₹5,000 advance", not "₹5,000": content/rules asks every price to be
+               qualified, and a bare figure on the pay button reads as the price of the course.
+               "+ GST" would be worse here, because ₹5,000 is exactly what the gateway charges. */
             (paymentType === "advance"
-              ? `Pay ₹${amountExGst.toLocaleString("en-IN")} and confirm the seat`
+              ? `Pay the ₹${amountExGst.toLocaleString("en-IN")} advance and confirm the seat`
               : `Pay ₹${amountExGst.toLocaleString("en-IN")} and book the seat`)}
           {status === "creating" && "Opening the payment window"}
           {status === "paying" && "Waiting for the payment"}

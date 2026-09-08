@@ -68,8 +68,8 @@ export default async function AboutPage() {
             Espresso Academy was founded in Florence 19 years ago, in{" "}
             {settings.foundedFlorence}, and has over 30 branches worldwide. Espresso Academy India
             launched in Bengaluru in {settings.launchedBengaluru} and is an {settings.partnerLine};
-            it teaches under the supervision of Espresso Academy Florence. Espresso Academy also
-            lists a partner in New Delhi, so the claim here is Bengaluru, not India.
+            it teaches under the supervision of Espresso Academy Florence. The campus is in
+            Bengaluru, and Bengaluru is the only campus this site speaks for.
           </p>
         }
         actions={
@@ -201,7 +201,7 @@ export default async function AboutPage() {
             eyebrow="Gallery"
             title="Inside the academy"
             id="gallery-heading"
-            description="Photographs from the campus. The photoshoot is done and the files are pending, so these are labelled placeholders rather than stock images."
+            description="Photographs from the campus. The files are being prepared, so these are labelled placeholders rather than stock images."
           />
           {/* A mosaic, not an even grid: the trainer grid directly below is already three even
               columns, and two equal grids back to back is the layout repetition the de-template
@@ -279,9 +279,9 @@ export default async function AboutPage() {
                 worth asking that employer, and us.
               </p>
               <p className="mt-4 measure type-body text-grey">
-                The academy does not run an SCA course. There is an SCA Authorised Trainer on
-                faculty and assessed SCA modules run on batches the academy confirms, but if the
-                SCA pathway is specifically what you want, say so before you book.
+                The academy does not run an SCA course. One of the trainers listed here is an SCA
+                Authorised Trainer and assessed SCA modules run on batches the academy confirms,
+                but if the SCA pathway is specifically what you want, say so before you book.
               </p>
               <p className="mt-4 measure type-body text-grey">
                 The academy does not claim to be the first, the only or the best coffee school in
@@ -308,8 +308,9 @@ export default async function AboutPage() {
         href="/contact"
         body={
           <p>
-            You are welcome to visit the campus before you book anything. Opening hours are not
-            published yet, so message the academy first and ask when a class is running.
+            You are welcome to visit the campus before you book anything. The academy is open 10
+            am to 7 pm, and which days it opens is being confirmed, so message first and ask when a
+            class is running.
           </p>
         }
       />

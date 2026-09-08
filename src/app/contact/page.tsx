@@ -52,8 +52,8 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         intro={
           <p>
             The campus is on 80 Feet Road, near Ramaiah Hospital. One number takes both the call
-            and the WhatsApp message, and the fastest reply is WhatsApp. The academy is open 10 am
-            to 7 pm.
+            and the WhatsApp message, and the fastest reply is WhatsApp. Opening hours are 10 am
+            to 7 pm, and which days the academy opens is being confirmed.
           </p>
         }
         actions={

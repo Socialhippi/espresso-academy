@@ -85,7 +85,6 @@ export default async function RefundPolicyPage() {
               start date. Tell the academy as early as you can: the new batch has to have a seat
               free, and seats are capped.
             </p>
-            <p>There is no charge for moving batch within that window.</p>
           </Clause>
 
           <Clause title="If you do not attend">
@@ -125,9 +124,8 @@ export default async function RefundPolicyPage() {
 
           <Clause title="The certificate and the fee">
             <p>
-              The Italian Barista Certificate is part of the course fee. No certification body
-              charges a separate assessment or certificate fee on top of it, so there is nothing
-              further to pay and nothing further to refund.
+              The Italian Barista Certificate is part of the course fee. Nothing separate is
+              charged for it, so there is nothing further to pay and nothing further to refund.
             </p>
             <p>
               GST is charged on the fee. The academy is confirming the rate, so no tax-inclusive
