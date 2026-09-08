@@ -22,8 +22,14 @@ empty, because they are what a student came to find out.
 - [ ] A **fourth question** on each course. Same publish gate.
 - [x] **WhatsApp number confirmed** — +91 79757 09407, from the client's own document, on both the
       call and the WhatsApp link. The two older numbers are removed from the site.
-- [x] **Public email address** — `espressocademyindia@gmail.com`, exactly as the client wrote it.
-- [ ] **Email spelling** — it looks like a typo, missing the "a" in "academy". Open question 6.
+- [x] **Public email address** — `espressoacademyindia@gmail.com`. The .docx spelling was a typo,
+      confirmed by the client on 8 September. It is on the site, in the JSON-LD, and set as the
+      reply-to on the enquiry auto-reply and the booking confirmation.
+- [x] **`LEAD_TO_EMAIL` on Vercel production** points at the academy.
+- [ ] **`BOOKING_TO_EMAIL` on Vercel production** still points at Social Hippi, on purpose. Until
+      the live Razorpay keys go in, every booking is a test booking, and one landing in the
+      academy's inbox is a phone call to a student who never paid. Switch it on launch day, in the
+      same change as the live keys.
 - [x] **Opening hours** — 10 am to 7 pm.
 - [ ] **Opening days** — open question 7. Until they land, no `openingHoursSpecification` is
       emitted in the JSON-LD, because that markup has no way to say "these hours, days unknown".
@@ -33,8 +39,15 @@ empty, because they are what a student came to find out.
       the balance at the campus, the 3-month reschedule window, the no-refund rule.
 - [ ] **Sign-off on the academy-cancellation clause**, the one clause on that page the client has
       not stated. Open question 5.
-- [ ] **GST rate** — open question 1. Until it lands the site prints no tax-inclusive total
-      anywhere, and the full-payment path stays switched off.
+- [x] **GST rate** — 18%, confirmed 8 September. Every fee shows both the ex-GST figure and the
+      total including GST, and the balance due is a rupee figure.
+- [ ] **GST number for the invoice footer** — still outstanding.
+- [ ] **Decide whether to switch on `BOOKING_FULL_PAYMENT`.** It is now possible: the flag refuses
+      to run without a confirmed rate, and there is one. It stays off because the academy's stated
+      policy is a ₹5,000 advance, and that is a business decision, not a technical one.
+- [ ] **End the 55th-batch offer at batch 70.** One tick-box in the Studio; see
+      docs/RUNBOOK.md, "Ending the 55th-batch offer". Nothing here can count batches, so this is a
+      diary note for the academy.
 - [ ] **Photographs** for the slots in `docs/images-manifest.md`. Also the single biggest
       performance lever left: every page's largest element is text today.
 - [ ] **Testimonials with written permission**, if any. The stories page stays empty until then, by

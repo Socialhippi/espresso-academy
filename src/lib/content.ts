@@ -155,17 +155,19 @@ export interface Course {
   /** The daily hours, e.g. "10 am to 5 pm". Null renders a TBC state. */
   schedule: string | null;
   /**
-   * The fee before GST, in whole rupees.
+   * The standard fee before GST, in whole rupees. What the course costs with no offer running.
    *
-   * Ex-GST because that is how the client quotes it, and because the GST rate is not confirmed:
-   * a tax-inclusive figure would mean storing a rate nobody has given us. Nothing on the site may
-   * print an incl-GST total while `gstRate` is null.
+   * Ex-GST because that is how the client quotes it, and because the rate is a separate fact that
+   * can change without the fee changing. Nothing on the site may print an incl-GST total while
+   * `gstRate` is null.
    */
   feeExGst: number | null;
-  /** The fee before the offer, ex-GST. Struck through beside `feeExGst`. */
-  listPriceExGst: number | null;
-  /** Why the fee is below the list price, e.g. "25% off, 55th batch offer". */
+  /** The discounted fee, ex-GST. Charged instead of `feeExGst` while `offerActive`. */
+  offerFeeExGst: number | null;
+  /** Why the fee is below the standard one, e.g. "25% off, 55th batch offer". */
   offerLabel: string | null;
+  /** Untick in the Studio and the standard fee is charged again. */
+  offerActive: boolean;
   /** Per cent, e.g. 18. Null while the academy has not confirmed it. */
   gstRate: number | null;
   emiAvailable: boolean | null;
@@ -613,7 +615,15 @@ export function getNextInstanceForCourse(course: {
 /* Seat, fee and bookability rules live in src/lib/batch.ts, which imports nothing and carries no
    `server-only`, so the unit suite can exercise them directly rather than through a rendered page.
    Re-exported here so every caller keeps one import. */
-export { batchAction, courseCta, feeForInstance, rupeesToPaise, seatsLeft } from "@/lib/batch";
+export {
+  batchAction,
+  courseCta,
+  courseFeeExGst,
+  feeForInstance,
+  hasLiveOffer,
+  rupeesToPaise,
+  seatsLeft,
+} from "@/lib/batch";
 export type { CourseCta } from "@/lib/batch";
 
 /**

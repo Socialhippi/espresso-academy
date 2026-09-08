@@ -128,8 +128,9 @@ export default async function RefundPolicyPage() {
               charged for it, so there is nothing further to pay and nothing further to refund.
             </p>
             <p>
-              GST is charged on the fee. The academy is confirming the rate, so no tax-inclusive
-              total appears on this site yet; you are told the total before you pay anything.
+              GST is charged at 18% on the fee, and every course page shows both the fee and the
+              total including it. The ₹5,000 advance comes off that total rather than being added
+              to it.
             </p>
           </Clause>
 

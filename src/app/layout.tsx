@@ -3,6 +3,7 @@ import { bebasNeue, montserrat } from "@/lib/fonts";
 import { siteUrl } from "@/lib/env";
 import {
   courseCta,
+  courseFeeExGst,
   feeForInstance,
   getCourses,
   getNextInstanceForCourse,
@@ -77,7 +78,9 @@ async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
       ? course.instances.find((instance) => instance.id === cta.instanceId)
       : undefined;
     const shown = bookable ?? getNextInstanceForCourse(course);
-    const fee = bookable ? (feeForInstance(course, bookable) ?? course.feeExGst) : course.feeExGst;
+    const fee = bookable
+      ? (feeForInstance(course, bookable) ?? courseFeeExGst(course))
+      : courseFeeExGst(course);
 
     entries[course.slug] = {
       title: course.title,

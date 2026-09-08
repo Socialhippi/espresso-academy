@@ -178,7 +178,9 @@ async function notify({
       withRetry("booking-confirmation", () =>
         sendEmail({
           to: booking.email as string,
-          subject: `Your seat is booked: ${booking.courseTitle ?? "Espresso Academy India"}`,
+          /* "confirmed", not "booked". A seat held by a ₹5,000 advance is confirmed; the course
+             is not paid for, and the subject line is the part a student reads in a list. */
+          subject: `Your seat is confirmed: ${booking.courseTitle ?? "Espresso Academy India"}`,
           text: studentEmail({ booking, dates, venueName: venue?.name ?? null, mapsUrl: venue?.mapsUrl ?? null, confirmationUrl, whatsappNumber: settings.whatsappNumber }),
           replyTo: settings.email ?? undefined,
         }),
@@ -264,7 +266,10 @@ function studentEmail({
   whatsappNumber: string;
 }): string {
   const owesBalance =
-    booking.paymentType === "advance" && (booking.balanceDueExGst ?? 0) > 0;
+    booking.paymentType === "advance" && (booking.balanceDue ?? 0) > 0;
+  /* The basis this booking was taken on, not today's: a booking taken before the academy confirmed
+     the rate keeps its "+ GST" wording in the mailbox it was filed in. */
+  const grossSuffix = booking.gstRate === null ? " + GST" : " incl. GST";
   return [
     `Hello ${booking.name ?? "there"},`,
     "",
@@ -276,10 +281,16 @@ function studentEmail({
     `Dates:   ${dates}`,
     `Venue:   ${venueName ?? "Espresso Academy India, Bengaluru campus"}`,
     ...(mapsUrl ? [`Map:     ${mapsUrl}`] : []),
+    /* The three figures reconcile, in the order a student checks them. Before the rate was
+       confirmed the fee line could not be stated on the same basis as the payment, so it was left
+       out; now they add up and leaving it out would be the omission. */
+    ...(booking.payable !== null
+      ? [`Fee:     ${formatFeeAmount(booking.payable)}${grossSuffix}`]
+      : []),
     `Paid:    ${formatFeeAmount(booking.amount)}${owesBalance ? " advance, part of the fee" : ""}`,
     ...(owesBalance
       ? [
-          `Balance: ${formatFeeAmount(booking.balanceDueExGst)}${booking.gstRate === null ? " + GST" : " incl. GST"}, paid at the academy before the first day`,
+          `Balance: ${formatFeeAmount(booking.balanceDue)}${grossSuffix}, paid at the academy before the first day`,
         ]
       : []),
     "",
@@ -333,10 +344,13 @@ function academyEmail({
     /* The roster line. The academy needs to know who still owes money before the batch starts,
        and this email is what they file. */
     `Balance: ${
-      (booking.balanceDueExGst ?? 0) > 0
-        ? `${formatFeeAmount(booking.balanceDueExGst)}${booking.gstRate === null ? " + GST" : " incl. GST"} due at the academy`
+      (booking.balanceDue ?? 0) > 0
+        ? `${formatFeeAmount(booking.balanceDue)}${booking.gstRate === null ? " + GST" : " incl. GST"} due at the academy`
         : "nothing outstanding"
     }`,
+    ...(booking.payable !== null
+      ? [`Fee:     ${formatFeeAmount(booking.payable)}${booking.gstRate === null ? " + GST" : " incl. GST"}`]
+      : []),
     "",
     `Razorpay payment: ${paymentId}`,
     `Booking page:     ${confirmationUrl}`,

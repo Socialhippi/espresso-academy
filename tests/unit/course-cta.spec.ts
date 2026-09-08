@@ -9,8 +9,8 @@ import { courseCta, type CtaInstance } from "@/lib/batch";
  * with an open, priced batch sitting in the table below it.
  */
 
-const COURSE = { slug: "ibc-advanced-roasting", feeExGst: null, gstRate: null };
-const PRICED_COURSE = { slug: "italian-barista-course-basic", feeExGst: 12000, gstRate: null };
+const COURSE = { slug: "ibc-advanced-roasting", feeExGst: null, offerFeeExGst: null, offerActive: false, gstRate: null };
+const PRICED_COURSE = { slug: "italian-barista-course-basic", feeExGst: 12000, offerFeeExGst: null, offerActive: false, gstRate: null };
 
 function batch(overrides: Partial<CtaInstance> = {}): CtaInstance {
   return {

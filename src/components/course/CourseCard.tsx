@@ -2,8 +2,14 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
-import { formatDate, formatDuration, formatFeeAmount, feeSuffix } from "@/lib/format";
-import { courseCta, formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
+import { EX_GST, feeInclGst, formatDate, formatDuration, formatFeeAmount, INCL_GST } from "@/lib/format";
+import {
+  courseCta,
+  courseFeeExGst,
+  formatLabel,
+  getNextInstanceForCourse,
+  type Course,
+} from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface CourseCardProps {
@@ -25,7 +31,11 @@ interface CourseCardProps {
  */
 export function CourseCard({ course, className, priority = false }: CourseCardProps) {
   const nextInstance = getNextInstanceForCourse(course);
-  const hasFee = course.feeExGst !== null;
+  /* After any offer. `course.feeExGst` is the standard fee now, and a card quoting it would be
+     quoting a price the checkout does not charge. */
+  const fee = courseFeeExGst(course);
+  const hasFee = fee !== null;
+  const total = feeInclGst({ exGst: fee, gstRate: course.gstRate });
   const cta = courseCta(course, course.instances);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
   /* Same rule as the course page's spec strip: a cell appears when it has something to say, and
@@ -120,12 +130,18 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
               {hasFee && (
                 <p>
                   <span className="block type-label text-grey">Fee</span>
-                  <span className="type-numeral text-h2 text-black">
-                    {formatFeeAmount(course.feeExGst)}
-                  </span>
-                  {/* The strike-through belongs on the course page, where there is room to say
-                      what the offer is. A crossed-out number on a card with no reason beside it
-                      is the thing design.md calls a sales trick. */}
+                  {/*
+                    The suffix sits with the figure, not two elements below it. It used to hang
+                    under the whole row, past the next-batch date and the arrow, so a reader
+                    scanning the card met a bare ₹26,700 and had to look for its basis. A price
+                    without a basis is the one thing .claude/rules/content.md will not have.
+
+                    The strike-through still belongs on the course page, where there is room to
+                    say what the offer is. A crossed-out number on a card with no reason beside it
+                    is the thing design.md calls a sales trick.
+                  */}
+                  <span className="type-numeral text-h2 text-black">{formatFeeAmount(fee)}</span>{" "}
+                  <span className="type-small text-grey">{EX_GST}</span>
                 </p>
               )}
               {nextInstance?.startDate && (
@@ -146,8 +162,10 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
             />
           </div>
 
-          {hasFee && (
-            <p className="mt-2 type-small text-grey">{feeSuffix(course.gstRate)}</p>
+          {hasFee && total !== null && (
+            <p className="mt-2 type-small text-grey">
+              {formatFeeAmount(total)} {INCL_GST}
+            </p>
           )}
         </div>
       </Link>

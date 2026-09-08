@@ -74,18 +74,25 @@ export interface Course {
   durationHours: number | null;
   schedule: string | null;   // "10 am to 5 pm", from the client's brochure
   /**
-   * The fee the client quotes, before GST, in whole rupees.
+   * The standard fee, before GST, in whole rupees. What the course costs with no offer running.
    *
-   * Ex-GST because that is how the client quotes it and because the GST rate is not confirmed:
-   * storing a tax-inclusive figure would mean storing a rate nobody has given us. 18% is the usual
-   * rate on commercial training and facts.md says so, but it says so as an assumption, which is
-   * exactly why it is not in this file.
+   * Ex-GST because that is how the client quotes it, and because the rate is a separate fact that
+   * can change without the fee changing.
    */
   feeExGst: number | null;
-  /** What the fee is before the offer, ex-GST. Struck through beside the fee. */
-  listPriceExGst: number | null;
-  /** Why the fee is below the list price, e.g. "25% off, 55th batch offer". */
+  /**
+   * The discounted fee, before GST. Null when the course has never had an offer.
+   *
+   * This is the charged fee while `offerActive` is true, and `feeExGst` is what gets struck
+   * through beside it. It used to be the other way round, with `feeExGst` holding the discounted
+   * figure and a `listPriceExGst` beside it, which made "switch the offer off" mean "edit two
+   * numbers and hope"; now it means untick a box.
+   */
+  offerFeeExGst: number | null;
+  /** Why the fee is below the standard one, e.g. "25% off, 55th batch offer". */
   offerLabel: string | null;
+  /** Untick to charge the standard fee and drop the strike-through. */
+  offerActive: boolean;
   /** Per cent, e.g. 18. Null means no incl-GST total may be printed anywhere. */
   gstRate: number | null;
   emiAvailable: boolean | null;
@@ -141,11 +148,9 @@ export const siteSettings = {
   phoneSecondary: null as string | null,
   whatsappNumber: "917975709407",
   whatsappConfirmed: true,
-  /* facts.md line 17: exactly as the client wrote it. It looks like a typo, missing the "a" in
-     "academy", and the client has been asked. Until they answer, the site prints what they gave
-     us rather than a corrected address that might bounce.
-     TODO(client): confirm espressocademyindia@ or espressoacademyindia@. */
-  email: "espressocademyindia@gmail.com" as string | null,
+  /* Client answers, 8 Sept: the .docx spelling was a typo. This is the academy's real address,
+     and it is the reply-to on every student-facing email the site sends. */
+  email: "espressoacademyindia@gmail.com" as string | null,
   /* facts.md line 18: the hours are confirmed, the days are not.
      TODO(client): which days of the week the academy is open. */
   hours: "10 am to 7 pm" as string | null,
@@ -164,7 +169,7 @@ export const certifications: Certification[] = [
     issuer: "Espresso Academy, Florence",
     /* facts.md, Organisation: the certificate line is the client's own wording, and the reach
        claim is attributed to the issuer rather than made on our own behalf. */
-    summary: "The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence, and sent to its authorised partner schools. Espresso Academy India teaches under the supervision of Espresso Academy Florence, which has over 30 branches worldwide. The certificate is awarded at Basic Barista, Advanced Barista and Advanced Roasting.",
+    summary: "The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence. Espresso Academy India teaches under the supervision of Espresso Academy Florence, which has over 30 branches worldwide. The certificate is awarded at Basic Barista, Advanced Barista and Advanced Roasting.",
     levels: ["Basic Barista", "Advanced Barista", "Advanced Roasting"],
     recognitionNote: "A certificate helps you get an interview; your skills get you the job. Ask us which employers recognise the IBC in your city and we will answer plainly.",
     status: "confirmed",
@@ -268,7 +273,7 @@ const batch = (
 
 const courseFaqCommon = (name: string): { q: string; a: string; link?: { label: string; href: string } }[] => [
   { q: `Do I need experience before ${name}?`, a: "Prerequisites are listed above. If the field says TBC, message us on WhatsApp with your background and we will tell you plainly whether this is the right starting point.", link: { label: "See every course and level", href: "/courses" } },
-  { q: "Is the certificate included in the fee?", a: "Yes. The certificate is part of the course, and there is no separate certification fee to pay.", link: { label: "What the certificate is", href: "/certifications/italian-barista-certificate" } },
+  { q: "Is the certificate included in the fee?", a: "Yes. The certificate is part of the course, and there is no separate certification fee to pay. GST at 18% is included in the total shown on this page.", link: { label: "What the certificate is", href: "/certifications/italian-barista-certificate" } },
   { q: "How do I hold a seat?", a: "An advance of ₹5,000 confirms your seat. The balance is paid at the academy before the first day. Seats are capped per batch, so the advance is what reserves one.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
   { q: "Where are classes held?", a: "At the Bengaluru campus, Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital.", link: { label: "Directions to the campus", href: "/contact" } },
 ];
@@ -282,10 +287,12 @@ export const courses: Course[] = [
     /* facts.md line 26: the wording on the diploma itself. */
     certificateAwardedLabel: "Italian Barista Certificate, Basic Barista",
     format: "in-person", durationDays: 4, durationHours: null, schedule: "10 am to 5 pm",
-    /* facts.md line 32: ₹35,600 + GST list price, 25% off "as it's the 55th batch", ₹26,700 + GST.
-       The GST rate is not stated, so gstRate stays null and the site prints no incl-GST total.
-       TODO(client): confirm the GST rate, and which batches the offer covers and until when. */
-    feeExGst: 26700, listPriceExGst: 35600, offerLabel: "25% off, 55th batch offer", gstRate: null,
+    /* facts.md line 32 and the client answers of 8 Sept: ₹35,600 + GST standard, 25% off "as it's
+       the 55th batch" giving ₹26,700 + GST, and the offer runs on every Basic batch until the
+       academy's 70th. No end date is shown, because a reader cannot check a batch count; the
+       academy unticks `offerActive` when batch 70 comes round. See docs/RUNBOOK.md. */
+    feeExGst: 35600, offerFeeExGst: 26700, offerLabel: "25% off, every Basic batch",
+    offerActive: true, gstRate: 18,
     emiAvailable: null, seatsMax: 8,
     outcome: "Four days, one module a day, from green coffee and roasting through brewing and espresso to latte art, ending in the Italian Barista Certificate at Basic Barista.",
     forWhom: [
@@ -370,8 +377,9 @@ export const courses: Course[] = [
     certification: "italian-barista-certificate",
     certificateAwardedLabel: "Italian Barista Certificate, Advanced Barista",
     format: "in-person", durationDays: 2, durationHours: null, schedule: null,
-    /* TODO(client): facts.md line 42 gives no fee for either Advanced course. */
-    feeExGst: null, listPriceExGst: null, offerLabel: null, gstRate: null,
+    /* Client answers, 8 Sept: ₹35,400 including GST, which is ₹30,000 + 18%. Stored ex-GST like
+       every other fee, so one rate change moves every figure on the site at once. */
+    feeExGst: 30000, offerFeeExGst: null, offerLabel: null, offerActive: false, gstRate: 18,
     emiAvailable: null, seatsMax: 4,
     outcome: "Two days on varietals, extraction and speed for people already working a bar, ending in the Italian Barista Certificate at Advanced Barista.",
     forWhom: [
@@ -426,8 +434,8 @@ export const courses: Course[] = [
     certification: "italian-barista-certificate",
     certificateAwardedLabel: "Italian Barista Certificate, Advanced Roasting",
     format: "in-person", durationDays: 2, durationHours: null, schedule: null,
-    /* TODO(client): facts.md line 49 gives no fee for either Advanced course. */
-    feeExGst: null, listPriceExGst: null, offerLabel: null, gstRate: null,
+    /* Client answers, 8 Sept: ₹35,400 including GST, which is ₹30,000 + 18%. */
+    feeExGst: 30000, offerFeeExGst: null, offerLabel: null, offerActive: false, gstRate: 18,
     emiAvailable: null, seatsMax: 4,
     outcome: "Two days on roast curves, defects and cupping for people who already roast, ending in the Italian Barista Certificate at Advanced Roasting.",
     forWhom: [
@@ -498,10 +506,10 @@ export const redirects: Redirect[] = [
 export const faqs: FaqItem[] = [
   { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with the IBC Basic. It runs four days and covers roasting, brewing, espresso and latte art, one a day. If you already pull shots daily, look at IBC Advanced Barista; if you already roast, look at IBC Advanced Roasting.", link: { label: "See all three courses", href: "/courses" } },
   { category: "courses", q: "Do you teach latte art or brewing on their own?", a: "Not as separate courses. Latte art is day 4 of the IBC Basic and brewing is day 2, and you take the whole four days rather than one of them.", link: { label: "See the four days", href: "/courses/italian-barista-course-basic" } },
-  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India teaches under the supervision of Espresso Academy Florence and awards it at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
+  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence. Espresso Academy India teaches under the supervision of Espresso Academy Florence and awards it at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
   { category: "certification", q: "Are your courses SCA certified?", a: "No. The academy runs the Italian Barista Course, not an SCA course. One of the trainers listed here is an SCA Authorised Trainer, and assessed SCA modules run on batches the academy confirms, but no SCA course, fee or date is published here. Ask if you want the SCA route specifically.", link: { label: "How the two compare", href: "/certifications" } },
-  { category: "fees", q: "What does the course cost?", a: "The IBC Basic is ₹26,700 + GST, down from ₹35,600 + GST for the 55th batch. The GST rate is being confirmed, so no tax-inclusive total is printed anywhere on this site yet. No fee is published for either Advanced course; ask and the academy will quote for the batch.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
-  { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000. That advance confirms your seat, and the balance is paid at the academy before the first day. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
+  { category: "fees", q: "What does the course cost?", a: "The IBC Basic is ₹26,700 + GST, which is ₹31,506 including GST, down from ₹35,600 + GST. Each Advanced course is ₹30,000 + GST, which is ₹35,400 including GST. Those are the totals: there is nothing to add for the certificate.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
+  { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000, whichever course you take. That advance confirms your seat and comes off the fee; the balance is paid at the academy before the first day. On the IBC Basic at the offer price that leaves ₹26,506 incl. GST, and on either Advanced course ₹30,400 incl. GST. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
   { category: "schedule", q: "When is the next batch?", a: "Batch dates are on each course page and on the calendar. A batch drops off the calendar once it has started.", link: { label: "See the batch calendar", href: "/calendar" } },
   { category: "campus", q: "Where is the academy?", a: "Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
   { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. The IBC Basic is four days of machine time and ends in an assessed exam for that reason.", link: { label: "What the certificate is worth", href: "/certifications" } },

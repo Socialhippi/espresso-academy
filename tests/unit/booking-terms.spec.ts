@@ -3,43 +3,77 @@ import { ADVANCE_RUPEES, BOOKING_TERMS, chargeFor } from "@/lib/booking-terms";
 import { todayInIndia } from "@/lib/format";
 
 /**
- * The academy takes an advance, not the fee. Everything here is about the two ways that can go
- * wrong with real money: charging more than the course costs, and charging a full fee that
- * quietly leaves the tax off.
+ * The academy takes an advance, not the fee. Everything here is about the ways that can go wrong
+ * with real money: charging more than the course costs, charging a full fee that quietly leaves
+ * the tax off, and quoting a balance on a different basis from the payment.
  */
 test.describe("chargeFor", () => {
   const off = { fullPaymentEnabled: false };
 
-  test("takes the advance and leaves the rest as the balance", () => {
-    expect(chargeFor({ feeExGst: 26700, gstRate: null, ...off })).toEqual({
-      amountExGst: 5000,
-      balanceExGst: 21700,
+  test("takes the advance and leaves the rest, gross, once the rate is known", () => {
+    /*
+     * The IBC Basic at the offer price: ₹26,700 + 18% is ₹31,506, and ₹5,000 of that is paid at
+     * the gateway. The balance is ₹26,506, not ₹21,700. Quoting the ex-GST balance beside a gross
+     * payment would leave the student ₹4,806 short at the counter, which is the arithmetic this
+     * test exists to pin down.
+     */
+    expect(chargeFor({ feeExGst: 26700, gstRate: 18, ...off })).toEqual({
+      amount: 5000,
+      balance: 26506,
+      payable: 31506,
+      gstIncluded: true,
       kind: "advance",
     });
   });
 
-  test("never charges more than the fee", () => {
+  test("either Advanced course, at ₹30,000 + 18%", () => {
+    expect(chargeFor({ feeExGst: 30000, gstRate: 18, ...off })).toEqual({
+      amount: 5000,
+      balance: 30400,
+      payable: 35400,
+      gstIncluded: true,
+      kind: "advance",
+    });
+  });
+
+  test("stays ex-GST, and says so, while the rate is unconfirmed", () => {
+    expect(chargeFor({ feeExGst: 26700, gstRate: null, ...off })).toEqual({
+      amount: 5000,
+      balance: 21700,
+      payable: 26700,
+      gstIncluded: false,
+      kind: "advance",
+    });
+  });
+
+  test("never charges more than the payable", () => {
     /* The ₹1 end-to-end batch. Without the cap the suite would put ₹5,000 through the gateway for
        a course priced at a rupee, and report a balance of minus ₹4,999 to the student. */
     expect(chargeFor({ feeExGst: 1, gstRate: null, ...off })).toEqual({
-      amountExGst: 1,
-      balanceExGst: 0,
+      amount: 1,
+      balance: 0,
+      payable: 1,
+      gstIncluded: false,
       kind: "advance",
     });
   });
 
-  test("leaves no balance when the fee is exactly the advance", () => {
+  test("leaves no balance when the payable is exactly the advance", () => {
     expect(chargeFor({ feeExGst: ADVANCE_RUPEES, gstRate: null, ...off })).toEqual({
-      amountExGst: 5000,
-      balanceExGst: 0,
+      amount: 5000,
+      balance: 0,
+      payable: 5000,
+      gstIncluded: false,
       kind: "advance",
     });
   });
 
-  test("charges the whole fee when full payment is on and the GST rate is confirmed", () => {
+  test("charges the whole gross fee when full payment is on and the rate is confirmed", () => {
     expect(chargeFor({ feeExGst: 26700, gstRate: 18, fullPaymentEnabled: true })).toEqual({
-      amountExGst: 26700,
-      balanceExGst: 0,
+      amount: 31506,
+      balance: 0,
+      payable: 31506,
+      gstIncluded: true,
       kind: "full",
     });
   });
@@ -51,19 +85,36 @@ test.describe("chargeFor", () => {
      * on is not enough; the rate has to exist.
      */
     expect(chargeFor({ feeExGst: 26700, gstRate: null, fullPaymentEnabled: true })).toEqual({
-      amountExGst: 5000,
-      balanceExGst: 21700,
+      amount: 5000,
+      balance: 21700,
+      payable: 26700,
+      gstIncluded: false,
       kind: "advance",
     });
+  });
+
+  test("the parts always add up to the payable", () => {
+    for (const feeExGst of [1, 4999, 5000, 5001, 26700, 30000, 35600]) {
+      for (const gstRate of [null, 18]) {
+        const charge = chargeFor({ feeExGst, gstRate, ...off });
+        expect(
+          charge.amount + charge.balance,
+          `₹${feeExGst} at ${gstRate ?? "no"}% does not reconcile`,
+        ).toBe(charge.payable);
+      }
+    }
   });
 });
 
 test.describe("BOOKING_TERMS", () => {
-  test("states the reschedule window and the no-refund rule", () => {
+  test("states the reschedule window, the no-refund rule and that the advance comes off the fee", () => {
     const joined = BOOKING_TERMS.join(" ");
     expect(joined).toContain("3 months");
     expect(joined).toContain("not refunded");
     expect(joined).toContain("₹5,000");
+    expect(joined, "an advance charged on top of the fee is a different deal").toContain(
+      "comes off the fee",
+    );
   });
 });
 

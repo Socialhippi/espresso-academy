@@ -15,18 +15,20 @@ import { Placeholder } from "@/components/site/Placeholder";
 import { CourseCard } from "@/components/course/CourseCard";
 import { LevelLadder } from "@/components/course/LevelLadder";
 import {
+  courseFeeExGst,
   getCertifications,
   getCourses,
   getFaqsByCategories,
   getLevels,
   getSkillAreas,
+  hasLiveOffer,
   levelBadge,
   skillAreaLabel,
   type Course,
   type Level,
   type SkillArea,
 } from "@/lib/content";
-import { feeSuffix, formatDuration, formatFeeAmount } from "@/lib/format";
+import { EX_GST, feeInclGst, formatDuration, formatFeeAmount, INCL_GST } from "@/lib/format";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { courseListNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
@@ -91,31 +93,37 @@ const howToChoose = [
  * its own is a sales trick, and the reason it is crossed out is a fact from content/facts.md.
  */
 function FeeCell({ course }: { course: Course }) {
-  if (course.feeExGst === null) return <TbcPill />;
-  const hasOffer =
-    course.listPriceExGst !== null &&
-    course.listPriceExGst > course.feeExGst &&
-    course.offerLabel !== null;
+  const fee = courseFeeExGst(course);
+  if (fee === null) return <TbcPill />;
+  const total = feeInclGst({ exGst: fee, gstRate: course.gstRate });
+  const offer = hasLiveOffer(course) && course.offerLabel;
 
   return (
-    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
-      <span className="type-numeral text-h3-lg text-black">
-        {formatFeeAmount(course.feeExGst)}
+    /* A column, not a wrapping row. With the total and the struck standard fee both present this
+       cell carries four figures, and inline they wrapped mid-price at 1024. */
+    <span className="flex flex-col gap-1">
+      <span className="flex flex-wrap items-baseline gap-x-2">
+        <span className="type-numeral text-h3-lg text-black">{formatFeeAmount(fee)}</span>
+        <span className="type-small text-grey">{EX_GST}</span>
       </span>
-      <span className="type-small text-grey">{feeSuffix(course.gstRate)}</span>
-      {hasOffer && (
-        <>
+      {total !== null && (
+        <span className="type-small text-black">
+          {formatFeeAmount(total)} {INCL_GST}
+        </span>
+      )}
+      {offer && (
+        <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
           {/* The suffix belongs on the struck price too. Without it the hub read "₹26,700 + GST"
               beside a bare "₹35,600", which invites the reader to compare a pre-tax figure with
-              something they cannot identify. The chip matches the course page's. */}
+              something they cannot identify. */}
           <span className="sr-only">Usual price</span>
           <s className="type-small text-grey">
-            {formatFeeAmount(course.listPriceExGst)} {feeSuffix(course.gstRate)}
+            {formatFeeAmount(course.feeExGst)} {EX_GST}
           </s>
           <span className="inline-flex items-center rounded-xs bg-red-tint px-2 py-0.5 type-label text-black">
             {course.offerLabel}
           </span>
-        </>
+        </span>
       )}
     </span>
   );
@@ -141,7 +149,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
   /* The fee section renders its list only when there is something in it to read. */
   const anyFeeOrDuration = allCourses.some(
     (course) =>
-      course.feeExGst !== null ||
+      courseFeeExGst(course) !== null ||
       course.durationDays !== null ||
       course.durationHours !== null,
   );
@@ -325,7 +333,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 eyebrow="Fees"
                 title="What each course costs"
                 id="fees-heading"
-                description="Quoted before GST, the way the academy quotes it. The GST rate is being confirmed, so no tax-inclusive total appears anywhere on this site yet."
+                description="Quoted before GST, the way the academy quotes it, with the total including GST at 18% under each one. ₹5,000 holds a seat on any of the three and comes off the fee."
                 className="lg:sticky lg:top-28"
               />
             </div>
@@ -381,7 +389,10 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                           )}
                         </dd>
                       </div>
-                      <div className="flex items-center gap-2">
+                      {/* items-baseline, not items-center. The fee cell grew from one line to
+                          four when the incl-GST total and the struck standard fee arrived, and a
+                          centred "FEE" label floated down beside the third of them. */}
+                      <div className="flex items-baseline gap-2">
                         <dt className="type-label text-grey">Fee</dt>
                         <dd>
                           <FeeCell course={course} />
@@ -447,7 +458,6 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               </div>
                 </>
               )}
-              {/* TODO(client): fees for the two Advanced courses are not published. */}
               <p className="mt-4 measure type-small text-grey">
                 The Italian Barista Certificate is part of the course fee. Nothing separate is
                 charged for it.

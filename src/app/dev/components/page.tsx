@@ -281,9 +281,10 @@ export default async function ComponentGalleryPage() {
               <FeeBlock
                 course={{
                   ...first,
-                  feeExGst: 26700,
-                  listPriceExGst: 35600,
+                  feeExGst: 35600,
+                  offerFeeExGst: 26700,
                   offerLabel: "25% off, 55th batch offer",
+                  offerActive: true,
                   gstRate: null,
                   emiAvailable: true,
                   includes: ["Certification"],
@@ -298,9 +299,10 @@ export default async function ComponentGalleryPage() {
               <FeeBlock
                 course={{
                   ...first,
-                  feeExGst: 26700,
-                  listPriceExGst: 35600,
+                  feeExGst: 35600,
+                  offerFeeExGst: 26700,
                   offerLabel: "25% off, 55th batch offer",
+                  offerActive: true,
                   gstRate: 18,
                   emiAvailable: true,
                   includes: ["Certification"],

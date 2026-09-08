@@ -1,7 +1,8 @@
 import { TbcPill } from "@/components/site/TbcPill";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
-import { formatFeeAmount, formatDate, feeInclGst, feeSuffix } from "@/lib/format";
-import { courseCta, feeForInstance, type Course } from "@/lib/content";
+import { EX_GST, formatFeeAmount, formatDate, feeInclGst, INCL_GST } from "@/lib/format";
+import { ADVANCE_RUPEES } from "@/lib/booking-terms";
+import { courseCta, courseFeeExGst, feeForInstance, hasLiveOffer, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface FeeBlockProps {
@@ -18,12 +19,11 @@ interface FeeBlockProps {
  * to a payment window without ever having been shown a number. It reads the fee the bookable batch
  * will actually charge, falls back to the course fee, and only then to TBC.
  *
- * Two rules from revision 2 of content/facts.md govern what it may print:
- *
- * - The figure is ex-GST, and reads "+ GST", because that is how the client quotes it.
- * - While `gstRate` is null no tax-inclusive total appears. facts.md notes 18% as the usual rate
- *   on commercial training and notes it as an assumption; a total derived from an assumption is a
- *   number the academy would have to argue with a student about.
+ * The client quotes ex-GST, so the ex-GST figure leads and the tax-inclusive total sits under it.
+ * That order is deliberate: a reader comparing this page against the academy's own brochure or a
+ * WhatsApp quote is looking for the number they were given, and the total is what they will
+ * actually pay. Before the rate was confirmed the total was simply absent, which is the same
+ * component with one field null.
  */
 export function FeeBlock({ course, className }: FeeBlockProps) {
   const cta = courseCta(course, course.instances);
@@ -31,22 +31,38 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
     ? course.instances.find((instance) => instance.id === cta.instanceId)
     : undefined;
   const batchFee = bookable ? feeForInstance(course, bookable) : null;
-  const fee = batchFee ?? course.feeExGst;
+  /*
+   * Whether this batch sets its own price, which is not the same as whether a batch was found.
+   * `feeForInstance` falls back to the course fee, so `batchFee` is non-null for any bookable
+   * batch, and both the "for the 15 Sept batch" qualifier and the offer suppression below were
+   * keyed on it. The Advanced Roasting page read "₹30,000 + GST for the 15 Sept 2026 batch" for a
+   * price that is simply the course's, and an offer would have been hidden on any course with
+   * exactly one bookable batch.
+   */
+  const batchOverride = bookable?.priceOverrideExGst ?? null;
+  /* `course.feeExGst` is the standard fee now, and the offer fee is what the checkout charges.
+     Reading the standard one here quoted ₹35,600 on a page whose Book button takes a slice of
+     ₹26,700, and derived the balance from the wrong total. */
+  const fee = batchFee ?? courseFeeExGst(course);
   const hasFee = fee !== null;
   const total = feeInclGst({ exGst: fee, gstRate: course.gstRate });
   /* Named, because a batch price is that batch's price and not the course's. */
   const qualifier =
-    batchFee !== null && bookable?.startDate ? `for the ${formatDate(bookable.startDate)} batch` : null;
+    batchOverride !== null && bookable?.startDate
+      ? `for the ${formatDate(bookable.startDate)} batch`
+      : null;
 
-  /* An offer only makes sense against the course's own list price. A batch override is a different
-     price for a different cohort, not a discount off this one, so the strike-through goes away
-     with it rather than claiming a saving nobody is getting. */
-  const showsOffer =
-    hasFee &&
-    batchFee === null &&
-    course.listPriceExGst !== null &&
-    course.listPriceExGst > fee &&
-    course.offerLabel !== null;
+  /* An offer only makes sense against the course's own standard fee. A batch override is a
+     different price for a different cohort, not a discount off this one, so the strike-through
+     goes away with it rather than claiming a saving nobody is getting. */
+  const showsOffer = hasFee && batchOverride === null && hasLiveOffer(course) && course.offerLabel;
+  const standardTotal = showsOffer
+    ? feeInclGst({ exGst: course.feeExGst, gstRate: course.gstRate })
+    : null;
+  /* What a booking actually leaves outstanding. The advance is capped at the payable, so a
+     hypothetical batch priced under ₹5,000 reports no balance rather than a negative one. */
+  const payable = total ?? fee;
+  const balance = payable === null ? null : Math.max(0, payable - Math.min(ADVANCE_RUPEES, payable));
 
   return (
     <div className={cn("border border-white-2 bg-white-3 p-6 md:p-8", className)}>
@@ -57,18 +73,25 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
           <p className="mt-3">
             <span className="type-numeral text-display text-black">{formatFeeAmount(fee)}</span>{" "}
             <span className="type-body text-grey">
-              {feeSuffix(course.gstRate)}
+              {EX_GST}
               {qualifier ? ` ${qualifier}` : ""}
             </span>
           </p>
 
+          {total !== null && (
+            <p className="mt-2 type-body text-black">
+              {formatFeeAmount(total)} including GST at {course.gstRate}%
+            </p>
+          )}
+
           {showsOffer && (
-            <p className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-2">
+            <p className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
               {/* The strike-through is decoration to a screen reader, so the relationship is
                   said in words rather than drawn. */}
               <span className="sr-only">Usual price</span>
               <s className="type-body text-grey">
-                {formatFeeAmount(course.listPriceExGst)} {feeSuffix(course.gstRate)}
+                {formatFeeAmount(course.feeExGst)} {EX_GST}
+                {standardTotal !== null ? `, ${formatFeeAmount(standardTotal)} ${INCL_GST}` : ""}
               </s>
               {/* Black on red-tint, not red text: design.md puts a 16px floor under red type and
                   this label is 12px. red-tint is the token for exactly this kind of chip. */}
@@ -77,17 +100,12 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
               </span>
             </p>
           )}
-
-          {total !== null && (
-            <p className="mt-2 type-small text-grey">
-              {formatFeeAmount(total)} incl. GST at {course.gstRate}%
-            </p>
-          )}
         </>
       ) : (
         <div className="mt-3 flex items-center gap-3">
           <TbcPill />
-          {/* TODO(client): facts.md publishes no fee for either Advanced course. */}
+          {/* Every course carries a fee today. This is the state a new course starts in, and the
+              state a batch with no price falls back to, not a state the catalogue is in. */}
           <p className="type-body text-black">The academy confirms the fee for each batch.</p>
         </div>
       )}
@@ -97,13 +115,20 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
           above it. That is the last thing someone reads before deciding to pay. */}
       <ul className="mt-6 flex flex-col gap-3 type-body text-grey">
         {hasFee && course.gstRate === null && (
-          /* TODO(client): open question 1 in content/facts.md. Until it is answered the site
-             cannot print a single tax-inclusive figure, and saying so is better than a reader
-             working one out and being surprised at the counter. */
+          /* Only while a course has no confirmed rate. Every course has 18% today, so this is the
+             state the component falls back to rather than the state it is in. */
           <li>
-            GST is charged on top of this figure. The academy is confirming the rate, so no
-            tax-inclusive total is shown here yet. Ask and you will be told the total before you
-            pay anything.
+            GST is charged on top of this figure. No tax-inclusive total is published for this
+            course yet. Ask and you will be told the total before you pay anything.
+          </li>
+        )}
+        {balance !== null && balance > 0 && (
+          /* The fee is not the number a reader has to find today. ₹5,000 is. */
+          <li>
+            {formatFeeAmount(ADVANCE_RUPEES)} confirms your seat and comes off the fee. The
+            balance, {formatFeeAmount(balance)}
+            {total !== null ? " including GST" : ` ${EX_GST}`}, is paid at the
+            academy before the first day.
           </li>
         )}
         <li>

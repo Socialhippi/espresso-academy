@@ -12,7 +12,7 @@ import { WaitlistInline } from "@/components/course/WaitlistInline";
 import { feeInRupees, getInstanceForCheckout, hasStarted, seatsRemaining } from "@/lib/bookings";
 import { BOOKING_TERMS, chargeFor, isFullPaymentEnabled } from "@/lib/booking-terms";
 import { getSiteSettings } from "@/lib/content";
-import { feeSuffix, formatDateRange, formatFeeAmount } from "@/lib/format";
+import { formatDateRange, formatFeeAmount } from "@/lib/format";
 import { isPaymentConfigured } from "@/lib/payments/provider";
 
 /**
@@ -68,6 +68,8 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
           gstRate: course.gstRate,
           fullPaymentEnabled: isFullPaymentEnabled(),
         });
+  /* One suffix for every figure in this column, because they are all on the same basis. */
+  const chargeSuffix = charge?.gstIncluded ? "incl. GST" : "+ GST";
 
   return (
     <Container className="py-10 md:py-16">
@@ -122,26 +124,36 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
                   {charge.kind === "advance" ? "To pay now" : "Fee"}
                 </p>
                 <p className="mt-2 type-numeral text-display-lg text-black">
-                  {formatFeeAmount(charge.amountExGst)}
+                  {formatFeeAmount(charge.amount)}
                 </p>
                 <p className="mt-1 type-small text-grey">
                   {charge.kind === "advance"
-                    ? "advance, which confirms your seat"
-                    : feeSuffix(course.gstRate)}
+                    ? "advance, which confirms your seat and comes off the fee"
+                    : chargeSuffix}
                 </p>
 
+                {/*
+                  The three lines add up, in the order a student checks them: what the course
+                  costs, what is going now, what is left. Before the rate was confirmed the middle
+                  row could not be stated, so it was two rows and a "+ GST" on each; now they are
+                  one basis and they reconcile, which is the whole point of showing them together.
+                */}
                 <dl className="mt-6 flex flex-col gap-3 type-small">
                   <div className="flex flex-wrap justify-between gap-x-4">
                     <dt className="text-grey">Course fee</dt>
                     <dd className="text-black">
-                      {formatFeeAmount(fee)} {feeSuffix(course.gstRate)}
+                      {formatFeeAmount(charge.payable)} {chargeSuffix}
                     </dd>
                   </div>
-                  {charge.balanceExGst > 0 && (
-                    <div className="flex flex-wrap justify-between gap-x-4">
-                      <dt className="text-grey">Balance, at the academy</dt>
-                      <dd className="text-black">
-                        {formatFeeAmount(charge.balanceExGst)} {feeSuffix(course.gstRate)}
+                  <div className="flex flex-wrap justify-between gap-x-4">
+                    <dt className="text-grey">Paid now</dt>
+                    <dd className="text-black">&minus;{formatFeeAmount(charge.amount)}</dd>
+                  </div>
+                  {charge.balance > 0 && (
+                    <div className="flex flex-wrap justify-between gap-x-4 hairline pt-3">
+                      <dt className="font-medium text-black">Balance, at the academy</dt>
+                      <dd className="font-medium text-black">
+                        {formatFeeAmount(charge.balance)} {chargeSuffix}
                       </dd>
                     </div>
                   )}
@@ -182,10 +194,10 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
               instanceId={instance.id}
               courseSlug={course.slug}
               courseTitle={course.title}
-              amountExGst={charge.amountExGst}
-              balanceExGst={charge.balanceExGst}
+              amount={charge.amount}
+              balance={charge.balance}
               paymentType={charge.kind}
-              gstRate={course.gstRate}
+              gstIncluded={charge.gstIncluded}
               prerequisite={course.prerequisites}
               turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             />

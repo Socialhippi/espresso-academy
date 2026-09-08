@@ -41,13 +41,15 @@ export interface BookingRecord {
   name: string | null;
   phone: string | null;
   email: string | null;
-  /** What was taken at the gateway, ex-GST. The advance, on the ordinary path. */
+  /** What was taken at the gateway. The advance, on the ordinary path. */
   amount: number | null;
   paymentType: PaymentType;
-  /** The whole fee as it stood when the booking was taken, ex-GST. */
+  /** The course fee before GST as it stood when the booking was taken. */
   courseFeeExGst: number | null;
-  /** Fee minus amount. Paid at the academy before the first day. */
-  balanceDueExGst: number | null;
+  /** The whole payable when the booking was taken, incl. GST if the rate was known then. */
+  payable: number | null;
+  /** Payable minus amount. Paid at the academy before the first day. */
+  balanceDue: number | null;
   /** The rate as it stood when the booking was taken. Null means it was unconfirmed. */
   gstRate: number | null;
   currency: string | null;
@@ -103,7 +105,8 @@ export interface BookingByOrder {
   amount: number | null;
   paymentType: PaymentType;
   courseFeeExGst: number | null;
-  balanceDueExGst: number | null;
+  payable: number | null;
+  balanceDue: number | null;
   gstRate: number | null;
   name: string | null;
   email: string | null;
@@ -140,12 +143,14 @@ export interface CreateBookingInput {
   name: string;
   phone: string;
   email: string;
-  /** What the gateway is being asked for, ex-GST. */
+  /** What the gateway is being asked for. */
   amountInRupees: number;
   paymentType: PaymentType;
-  /** The whole fee at the moment of booking, ex-GST. */
+  /** The course fee before GST at the moment of booking. */
   courseFeeExGst: number;
-  balanceDueExGst: number;
+  /** The whole payable at the moment of booking, incl. GST when the rate was known. */
+  payable: number;
+  balanceDue: number;
   gstRate: number | null;
   razorpayOrderId: string;
   prerequisiteAccepted: boolean;
@@ -170,7 +175,8 @@ export async function createBooking(input: CreateBookingInput): Promise<string> 
        they paid the advance is the balance the academy is owed, not whatever the course says in
        November. */
     courseFeeExGst: input.courseFeeExGst,
-    balanceDueExGst: input.balanceDueExGst,
+    payable: input.payable,
+    balanceDue: input.balanceDue,
     gstRate: input.gstRate,
     currency: "INR",
     razorpayOrderId: input.razorpayOrderId,

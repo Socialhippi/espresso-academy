@@ -219,6 +219,28 @@ or lead paths. `gh workflow run nightly.yml` and watch, or `pnpm test:e2e` local
 Anything the smoke set starts catching that the nightly does not is a sign the nightly is missing
 coverage, not that the smoke file should grow.
 
+## Ending the 55th-batch offer
+
+The IBC Basic is sold at ₹26,700 + GST instead of ₹35,600 + GST, and the academy has said the
+offer runs until its **70th batch**. Nothing in this repository can count batches, and no end date
+is shown on the site, because a reader cannot check a batch count and a date the academy has not
+committed to would be a promise nobody made.
+
+So ending it is one action:
+
+1. Open the Studio, `/studio`, and the **Italian Barista Course (IBC), Basic** document.
+2. Under **Fee and format**, untick **Offer is running**.
+3. Publish.
+
+The standard fee is charged from that moment: on the card, on the course page, in the fee table, at
+the checkout and in the amount the gateway is asked for. The strike-through and the offer chip
+disappear with it. `src/lib/batch.ts` resolves all six from one function, `courseFeeExGst`, so
+there is no second number to remember and no deploy to wait for.
+
+Do not do this by editing the fee. `feeExGst` is the standard fee and `offerFeeExGst` is the
+discounted one; swapping the numbers would leave a course that charges the right amount and shows
+a strike-through against itself.
+
 ## Deploying
 
 ```
@@ -227,9 +249,23 @@ npx vercel deploy --prod --yes                                 # the public alia
 node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app
 node scripts/check-brand-contrast.mjs https://espresso-academy-india.vercel.app
 node scripts/check-target-size.mjs https://espresso-academy-india.vercel.app
+node scripts/check-figures.mjs https://espresso-academy-india.vercel.app
 ```
 
-Run the three standing scripts against the deployment, not only against localhost.
+Run the four standing scripts against the deployment, not only against localhost.
+
+### When a field stops being null
+
+Run all four, and look at the routes the field touches at 390, 1024 and 1280. This has caught
+something every time:
+
+- `settings.email` went from a 40px TBC pill to a 29-character unbreakable token. It pushed every
+  route 127px sideways at 1024, where the footer's four columns are tightest, and turned the
+  contact link into a 26px touch target. 390, 768 and 1280 were all clean.
+- `course.gstRate` turned every one-figure fee cell into a three-figure one, and revealed that the
+  suffix helper had been labelling the ex-GST figure "incl. GST" from the moment a rate existed.
+
+A pill is not a value. Nothing that was reviewed while a field was null has been reviewed.
 
 ### Rolling back
 

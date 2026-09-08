@@ -90,3 +90,30 @@ The academy sells three courses. Latte Art, Brewing, and Roasting and Cupping ar
 8. Do Akanksha, Sowmya and Nirupam still teach; role titles; and "IBM trainer" meaning.
 9. Student photo releases for the Drive images.
 10. Registrar login for espressoacademy.in; Razorpay live keys.
+
+## Client answers, 8 September 2026
+These answer open questions 1, 2, 3 and 6 above. Where an answer contradicts an earlier line, the
+answer wins and the earlier line is superseded.
+
+- **GST rate: 18%** (CLIENT). Supersedes the "18% is the usual rate, TBC" assumption on line 32.
+  The site may now print tax-inclusive totals. IBC Basic: list ₹35,600 + GST = ₹42,008 incl. GST;
+  offer ₹26,700 + GST = ₹31,506 incl. GST.
+  Still open: the GST number for the invoice footer.
+- **IBC Advanced Barista and IBC Advanced Roasting: ₹35,400 including GST each** (CLIENT), which
+  is ₹30,000 + 18%. Supersedes "Fee: TBC" on both, and supersedes the "any fee for the Advanced
+  courses" entry under "Claims we may NOT make". Both are bookable on the same ₹5,000 advance as
+  the Basic, so the 15 to 16 Sept Roasting batch can be booked online.
+- **The 25% offer applies to every IBC Basic batch until the academy's 70th batch** (CLIENT).
+  Answers "which batches and until when" on line 84. The academy does not want an end date shown,
+  because the count of batches is not something a reader can check; the offer is switched off in
+  the Studio when batch 70 comes round. See docs/RUNBOOK.md, "Ending the 55th-batch offer".
+- **Email: espressoacademyindia@gmail.com** (CLIENT). The .docx spelling on line 17,
+  espressocademyindia@gmail.com, was a typo. Use the corrected address everywhere, and as the
+  reply-to on booking and enquiry email so a student's reply reaches the academy.
+- Balance due, with the rate confirmed, is a rupee figure: the fee incl. GST minus the ₹5,000
+  advance. IBC Basic at the offer price: ₹31,506 − ₹5,000 = ₹26,506. Advanced: ₹35,400 − ₹5,000 =
+  ₹30,400.
+
+Still open after these answers: 4 (when the balance falls due, and how it is paid), 5 (cancellation
+and academy-cancelled batches), 7 (opening days), 8 (trainer roles and the "IBM trainer" line),
+9 (photo releases), 10 (registrar and live Razorpay keys), and the GST number.

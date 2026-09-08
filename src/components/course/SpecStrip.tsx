@@ -1,7 +1,13 @@
 import Link from "next/link";
 import { LevelBadge } from "@/components/site/LevelBadge";
-import { formatDate, formatDuration, formatFeeAmount, feeSuffix } from "@/lib/format";
-import { formatLabel, getCertification, getNextInstanceForCourse, type Course } from "@/lib/content";
+import { EX_GST, feeInclGst, formatDate, formatDuration, formatFeeAmount, INCL_GST } from "@/lib/format";
+import {
+  courseFeeExGst,
+  formatLabel,
+  getCertification,
+  getNextInstanceForCourse,
+  type Course,
+} from "@/lib/content";
 import { cn } from "@/lib/utils";
 
 interface SpecStripProps {
@@ -70,6 +76,10 @@ async function certificateCell(course: Course): Promise<{ label: string; value: 
 export async function SpecStrip({ course, className }: SpecStripProps) {
   const nextInstance = getNextInstanceForCourse(course);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
+  /* The fee after any offer, not the standard one. `course.feeExGst` is what gets struck through
+     on the fee block below; printing it here would quote a price nobody is charged. */
+  const fee = courseFeeExGst(course);
+  const total = feeInclGst({ exGst: fee, gstRate: course.gstRate });
 
   /*
    * The unknowns must not be the loudest thing under the H1.
@@ -93,7 +103,7 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
     duration: !hasDuration,
     schedule: course.schedule === null,
     format: course.format === null,
-    fee: course.feeExGst === null,
+    fee: fee === null,
     dates: !nextInstance?.startDate,
   };
   const anyUnknown = Object.values(unknown).some(Boolean);
@@ -143,10 +153,17 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
 
       <Spec label={certificate.label}>{certificate.value}</Spec>
 
-      {course.feeExGst !== null && (
+      {fee !== null && (
         <Spec label="Fee">
-          <span className="type-numeral text-h3-lg">{formatFeeAmount(course.feeExGst)}</span>{" "}
-          <span className="type-small text-grey">{feeSuffix(course.gstRate)}</span>
+          <span className="type-numeral text-h3-lg">{formatFeeAmount(fee)}</span>{" "}
+          <span className="type-small text-grey">{EX_GST}</span>
+          {total !== null && (
+            /* The total on its own line rather than trailing the suffix: at 390 the strip is two
+               columns and "₹26,700 + GST ₹31,506 incl. GST" on one line wraps mid-figure. */
+            <span className="mt-1 block type-small text-black">
+              {formatFeeAmount(total)} {INCL_GST}
+            </span>
+          )}
         </Spec>
       )}
 

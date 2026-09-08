@@ -27,10 +27,19 @@ export interface Fee {
   gstRate: number | null;
 }
 
-/** "+ GST" while the rate is unknown, "incl. GST" once a total can honestly be shown. */
-export function feeSuffix(gstRate: number | null): string {
-  return gstRate === null ? "+ GST" : "incl. GST";
-}
+/**
+ * What to write after a fee that is stored before GST. Always "+ GST".
+ *
+ * It used to be `feeSuffix(gstRate)`, returning "+ GST" while the rate was null and "incl. GST"
+ * once it was known — which was wrong the moment the rate landed, because the *figure* beside it
+ * never changed. Every course showed "₹26,700 incl. GST" next to "₹31,506 incl. GST". A function
+ * of the rate invites that mistake; a constant cannot make it. The gross figure has its own
+ * label, and `Charge.gstIncluded` says which basis a checkout is quoting.
+ */
+export const EX_GST = "+ GST";
+
+/** What to write after a fee that already includes GST. */
+export const INCL_GST = "incl. GST";
 
 /**
  * The tax-inclusive total, or null while the rate is unconfirmed.

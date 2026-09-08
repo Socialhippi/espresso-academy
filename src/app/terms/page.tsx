@@ -35,13 +35,14 @@ export default function TermsPage() {
 
       <LegalSection title="Fees and certificates">
         <p>
-          Fees are quoted before GST, which is charged on top, and you are told the total before
-          you pay. The Italian Barista Certificate is part of the course fee, and nothing separate
-          is charged for it.
+          Fees are quoted before GST, the way the academy quotes them, and GST is charged at 18%.
+          Every course page prints both: the fee before GST and the total including it. The Italian
+          Barista Certificate is part of the course fee, and nothing separate is charged for it.
         </p>
         <p>
-          An advance of ₹5,000 confirms a seat. The balance is paid to the academy before the
-          first day. The reschedule and refund terms are on the{" "}
+          An advance of ₹5,000 confirms a seat. It comes off the total including GST rather than
+          being charged on top of it. The balance is paid to the academy before the first day. The
+          reschedule and refund terms are on the{" "}
           <Link
             href="/refund-policy"
             className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"

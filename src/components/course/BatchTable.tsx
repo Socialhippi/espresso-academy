@@ -81,8 +81,8 @@ function BatchCta({
 }
 
 /**
- * The scheduled batches for one course. Every instance in content/data.ts is currently a `tbc`
- * placeholder, so this renders the empty state and the batch alert rather than an empty table.
+ * The scheduled batches for one course. Four batches carry dates; IBC Advanced Barista has none,
+ * so that page renders the empty state and the batch alert rather than an empty table.
  */
 export function BatchTable({ course, className }: BatchTableProps) {
   const dated = course.instances.filter((instance) => instance.startDate !== null);

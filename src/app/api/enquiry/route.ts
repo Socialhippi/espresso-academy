@@ -162,7 +162,12 @@ export async function POST(request: Request): Promise<NextResponse<EnquiryRespon
    */
   const results = await Promise.allSettled([
     notifyAcademy({ enquiry, enquiryId: stored.id, courseUrl }),
-    autoReplyToStudent({ enquiry, courseUrl, replyPromise: settings.replyPromise }),
+    autoReplyToStudent({
+      enquiry,
+      courseUrl,
+      replyPromise: settings.replyPromise,
+      academyEmail: settings.email,
+    }),
     mirrorToSheet({ enquiry, enquiryId: stored.id }),
     sendLeadEvent({ enquiry, enquiryId: stored.id, forwarded }),
   ]);
@@ -236,10 +241,13 @@ async function autoReplyToStudent({
   enquiry,
   courseUrl,
   replyPromise,
+  academyEmail,
 }: {
   enquiry: EnquiryInput;
   courseUrl: string;
   replyPromise: string | null;
+  /** The academy's own address, so a reply to this mail reaches a person. */
+  academyEmail: string | null;
 }): Promise<void> {
   if (!canSendEmail() || !enquiry.email) {
     log("skipped", { step: "auto-reply", reason: enquiry.email ? "no-key" : "no-email" });
@@ -251,6 +259,13 @@ async function autoReplyToStudent({
       to: enquiry.email as string,
       subject: "We have your enquiry, Espresso Academy India",
       text: studentBody(enquiry, courseUrl, replyPromise),
+      /*
+       * The academy's address, not the sending domain. This mail goes out from Resend, and until
+       * the academy's own domain is verified it goes from a shared sandbox sender that nobody
+       * reads. A student who hits reply on an auto-reply expects a person, and this is the one
+       * header that decides whether they get one.
+       */
+      replyTo: academyEmail ?? undefined,
     });
     if (!result.sent && result.reason === "provider-error") throw new Error(result.error ?? "send failed");
     return result;

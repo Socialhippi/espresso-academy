@@ -185,20 +185,29 @@ export const course = defineType({
         "Whole rupees, not paise, before GST. The server multiplies by 100 when it creates a Razorpay order, and never reads an amount from the browser.",
       validation: (rule) => rule.integer().positive(),
     }),
+    /*
+     * The offer is three fields and a switch, not a second price to keep in step by hand.
+     *
+     * `feeExGst` above is the standard fee and never moves for an offer. `offerFeeExGst` is what
+     * is charged while `offerActive` is ticked, and the standard fee is what gets struck through
+     * beside it. The 25% offer runs until the academy's 70th batch, which nothing in this codebase
+     * can count, so ending it has to be one deliberate action an editor can take without a
+     * developer and without touching a number a payment depends on.
+     */
     defineField({
-      name: "listPriceExGst",
-      title: "List price before GST (₹)",
+      name: "offerFeeExGst",
+      title: "Offer fee before GST (₹)",
       type: "number",
       group: "commercial",
       description:
-        "What the course costs without the offer. Shown struck through beside the fee. Leave empty when there is no offer.",
+        "What the course costs while the offer is running. The standard fee above is shown struck through beside it. Leave empty when the course has no offer.",
       validation: (rule) =>
         rule.integer().positive().custom((value, context) => {
           const fee = (context.document as { feeExGst?: number } | undefined)?.feeExGst;
           if (typeof value !== "number" || typeof fee !== "number") return true;
-          return value > fee
+          return value < fee
             ? true
-            : "A list price at or below the fee is not an offer. Clear it, or raise it above the fee.";
+            : "An offer fee at or above the standard fee is not an offer. Clear it, or lower it below the standard fee.";
         }),
     }),
     defineField({
@@ -207,15 +216,24 @@ export const course = defineType({
       type: "string",
       group: "commercial",
       description:
-        'Shown beside the struck-through list price, for example "25% off, 55th batch offer". Required when a list price is set.',
+        'Shown beside the struck-through standard fee, for example "25% off, 55th batch offer". Required when an offer fee is set.',
       validation: (rule) =>
         rule.custom((value, context) => {
-          const list = (context.document as { listPriceExGst?: number } | undefined)?.listPriceExGst;
-          if (typeof list !== "number") return true;
+          const offer = (context.document as { offerFeeExGst?: number } | undefined)?.offerFeeExGst;
+          if (typeof offer !== "number") return true;
           return value
             ? true
             : "A struck-through price with no reason beside it reads as a sales trick. Say what the offer is.";
         }),
+    }),
+    defineField({
+      name: "offerActive",
+      title: "Offer is running",
+      type: "boolean",
+      group: "commercial",
+      initialValue: false,
+      description:
+        "Untick to end the offer. The standard fee is charged again immediately, the strike-through disappears, and nothing else has to change. The 25% IBC Basic offer ends at the academy's 70th batch.",
     }),
     /*
      * Null until the academy confirms it, and null means the site prints no tax-inclusive figure
@@ -228,7 +246,7 @@ export const course = defineType({
       type: "number",
       group: "commercial",
       description:
-        "Leave empty until the academy confirms it. While it is empty every fee reads \"+ GST\" and no tax-inclusive total is shown.",
+        "18% as of 8 September 2026. Empty means every fee reads \"+ GST\" and no tax-inclusive total is shown anywhere, including in the confirmation email.",
       validation: (rule) => rule.min(0).max(100),
     }),
     defineField({ name: "emiAvailable", title: "EMI available", type: "boolean", group: "commercial" }),

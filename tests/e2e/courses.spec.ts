@@ -14,14 +14,24 @@ const IBC_BASIC = "/courses/italian-barista-course-basic";
  * number, which is the thing the rule is actually about.
  */
 const ALLOWED_RUPEE_FIGURES = [
-  "35,600", // IBC Basic list price
-  "26,700", // IBC Basic after the 55th-batch offer
-  "21,700", // the balance due at the academy
-  "5,000", // the advance that confirms a seat
+  "35,600", // IBC Basic standard fee, ex-GST
+  "42,008", // and the same with GST at 18%
+  "26,700", // IBC Basic while the 55th-batch offer runs, ex-GST
+  "31,506", // and the same with GST
+  "26,506", // what is left after the advance on the IBC Basic
+  "30,000", // either Advanced course, ex-GST
+  "35,400", // and the same with GST
+  "30,400", // what is left after the advance on either Advanced course
+  "5,000", // the advance that confirms a seat, on any of the three
 ];
 
 function unknownRupeeFigures(body: string): string[] {
-  return [...body.matchAll(/₹\s?([\d,]+)/g)]
+  /*
+   * `[\d,]*\d`, not `[\d,]+`: the greedy version swallows the comma after a figure in a sentence,
+   * so "₹26,506 incl. GST, and" yielded "26,506," and read as a figure nobody has heard of. The
+   * allow-list would then have failed on true copy, which is the worst kind of red.
+   */
+  return [...body.matchAll(/₹\s?([\d,]*\d)/g)]
     .map((match) => match[1] as string)
     .filter((figure) => !ALLOWED_RUPEE_FIGURES.includes(figure));
 }
@@ -76,18 +86,24 @@ test.describe("course hub", () => {
 });
 
 test.describe("course page", () => {
-  test("the hero asks about the batch when the batch has no fee", async ({ page }) => {
+  test("the priced Roasting batch offers a checkout, not an enquiry", async ({ page }) => {
     /*
-     * IBC Advanced Roasting has a dated batch and no fee: facts.md gives 15 and 16 September but
-     * no figure. There is nothing to charge, so the hero asks about that batch rather than
-     * offering a checkout, and it names the batch rather than the next one.
+     * This used to assert the opposite, and correctly: IBC Advanced Roasting had a dated batch and
+     * no fee, so the hero asked about it. The client priced it at ₹30,000 + GST on 8 September and
+     * asked for the 15 to 16 September batch to be bookable, so the hero has to have moved with
+     * the fee. `courseCta`'s enquire-batch branch still exists for an unpriced dated batch and is
+     * covered in tests/unit/course-cta.spec.ts, which does not need a dataset to exercise it.
      */
     await page.goto("/courses/ibc-advanced-roasting");
-    await page.getByRole("link", { name: /^Ask about this batch$/ }).first().click();
 
-    await expect(page).toHaveURL(/\/enquire\?course=ibc-advanced-roasting/);
-    const select = page.getByLabel("Which course (optional)");
-    await expect(select).toHaveValue("ibc-advanced-roasting");
+    const book = page.getByRole("link", { name: /^(Book this batch|Choose a date)/ }).first();
+    await expect(book).toBeVisible();
+    await expect(book).toHaveAttribute("href", /^(\/book\/|#dates-heading)/);
+
+    await expect(
+      page.getByRole("link", { name: /^Ask about this batch$/ }),
+      "a priced, open, dated batch must not be offering an enquiry as its primary action",
+    ).toHaveCount(0);
   });
 
   test("the hero button books when a batch can be booked", async ({ page }) => {
@@ -106,16 +122,35 @@ test.describe("course page", () => {
     await expect(book).toHaveAttribute("href", /^(\/book\/|#dates-heading)/);
   });
 
-  test("an unpriced course says the fee is unconfirmed and invents no figure", async ({ page }) => {
+  test("every fee is stated twice: before GST and including it", async ({ page }) => {
+    /*
+     * The client quotes ex-GST and the student pays gross, so both have to be on the page and
+     * they have to agree. ₹30,000 + 18% is ₹35,400; a page showing one without the other, or the
+     * wrong pair, is the failure that costs the academy an argument at the counter.
+     */
     await page.goto("/courses/ibc-advanced-roasting");
-
-    await expect(page.getByText("The academy confirms the fee for each batch.")).toBeVisible();
-
     const body = await page.locator("body").innerText();
+
+    expect(body).toContain("₹30,000");
+    expect(body).toContain("₹35,400");
     expect(
       unknownRupeeFigures(body),
-      "an unpriced course must print no figure that content/facts.md does not give",
+      "every rupee figure has to come from content/facts.md or be arithmetic on one",
     ).toEqual([]);
+  });
+
+  test("the offer shows the discounted fee, the standard fee and the reason", async ({ page }) => {
+    await page.goto(IBC_BASIC);
+    const body = await page.locator("body").innerText();
+
+    expect(body, "the charged fee").toContain("₹26,700");
+    expect(body, "and the same figure with GST").toContain("₹31,506");
+    expect(body, "the standard fee it is struck through against").toContain("₹35,600");
+    /* A crossed-out number with no reason beside it is a sales trick, and .claude/rules/design.md
+       says so. The reason is what makes it a fact.
+       Case-insensitive: the chip is a `type-label`, which design.md sets in uppercase, and
+       `innerText` returns what the browser rendered rather than what the source said. */
+    expect(body.toLowerCase(), "the reason the price is lower").toContain("25% off");
   });
 
   test("the syllabus renders a day at a time, and each day is addressable", async ({ page }) => {

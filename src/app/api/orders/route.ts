@@ -192,7 +192,7 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
     );
   }
 
-  const amountInPaise = rupeesToPaise(charge.amountExGst);
+  const amountInPaise = rupeesToPaise(charge.amount);
 
   try {
     const order = await provider.createOrder({
@@ -203,7 +203,7 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
         instanceId: instance.id,
         courseSlug: instance.course.slug,
         paymentType: charge.kind,
-        balanceDueExGst: String(charge.balanceExGst),
+        balanceDue: String(charge.balance),
         name: input.name,
         phone: input.phone,
         email: input.email,
@@ -216,10 +216,11 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
       name: input.name,
       phone: `+91${input.phone}`,
       email: input.email,
-      amountInRupees: charge.amountExGst,
+      amountInRupees: charge.amount,
       paymentType: charge.kind,
       courseFeeExGst: fee,
-      balanceDueExGst: charge.balanceExGst,
+      payable: charge.payable,
+      balanceDue: charge.balance,
       gstRate: instance.course.gstRate,
       razorpayOrderId: order.orderId,
       prerequisiteAccepted: Boolean(input.prerequisiteAccepted),
@@ -241,7 +242,7 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
       courseSlug: instance.course.slug,
       amountInPaise,
       paymentType: charge.kind,
-      balanceDueExGst: charge.balanceExGst,
+      balanceDue: charge.balance,
       seatsRemaining: seats,
     });
 

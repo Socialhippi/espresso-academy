@@ -3,7 +3,14 @@ import { ButtonLink } from "@/components/site/Button";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { TbcPill } from "@/components/site/TbcPill";
 import { batchAction, feeForInstance, seatsLeft, type Course, type CourseInstance } from "@/lib/content";
-import { feeSuffix, formatDate, formatDateRange, formatFeeAmount } from "@/lib/format";
+import {
+  EX_GST,
+  feeInclGst,
+  formatDate,
+  formatDateRange,
+  formatFeeAmount,
+  INCL_GST,
+} from "@/lib/format";
 
 interface BatchRowProps {
   course: Course;
@@ -24,6 +31,7 @@ export function BatchRow({ course, instance, variant = "calendar" }: BatchRowPro
   const action = batchAction(course, instance);
   const fee = feeForInstance(course, instance);
   const seats = seatsLeft(instance);
+  const total = feeInclGst({ exGst: fee, gstRate: course.gstRate });
   const batchLabel = encodeURIComponent(formatDate(instance.startDate));
 
   return (
@@ -51,11 +59,22 @@ export function BatchRow({ course, instance, variant = "calendar" }: BatchRowPro
         </td>
       ) : (
         <td className="py-4 pr-4 type-body text-black">
-          {/* TODO(client): every fee is null today, so this is a TBC pill on every row. */}
+          {/* Both figures, like every other fee surface. This one showed the ex-GST price alone,
+              which is the only place on the site a reader could have met a price and not been
+              told whether tax was on top of it. */}
           {fee === null ? (
             <TbcPill label="Fee TBC" />
           ) : (
-            `${formatFeeAmount(fee)} ${feeSuffix(course.gstRate)}`
+            <>
+              <span className="block">
+                {formatFeeAmount(fee)} {EX_GST}
+              </span>
+              {total !== null && (
+                <span className="block type-small text-grey">
+                  {formatFeeAmount(total)} {INCL_GST}
+                </span>
+              )}
+            </>
           )}
         </td>
       )}

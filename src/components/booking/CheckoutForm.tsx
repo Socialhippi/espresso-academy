@@ -24,10 +24,11 @@ export interface CheckoutFormProps {
    * Sanity and ignores anything the browser says about money (CLAUDE.md rule 11). These are here
    * so the button can name the figure the student is about to be charged.
    */
-  amountExGst: number;
-  balanceExGst: number;
+  amount: number;
+  balance: number;
   paymentType: "advance" | "full";
-  gstRate: number | null;
+  /** Whether `amount` and `balance` include GST. Decides the suffix, nothing else. */
+  gstIncluded: boolean;
   /** Present when the course states one; the confirmation checkbox is then required. */
   prerequisite: string | null;
   turnstileSiteKey: string | undefined;
@@ -88,10 +89,10 @@ export function CheckoutForm({
   instanceId,
   courseSlug,
   courseTitle,
-  amountExGst,
-  balanceExGst,
+  amount,
+  balance,
   paymentType,
-  gstRate,
+  gstIncluded,
   prerequisite,
   turnstileSiteKey,
   className,
@@ -138,10 +139,10 @@ export function CheckoutForm({
     track("begin_checkout", {
       instance_id: instanceId,
       course_id: courseSlug,
-      value: amountExGst,
+      value: amount,
       currency: "INR",
     });
-  }, [instanceId, courseSlug, amountExGst]);
+  }, [instanceId, courseSlug, amount]);
 
   const onToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
@@ -213,7 +214,7 @@ export function CheckoutForm({
     }
 
     setStatus("creating");
-    track("add_payment_info", { instance_id: instanceId, course_id: courseSlug, value: amountExGst });
+    track("add_payment_info", { instance_id: instanceId, course_id: courseSlug, value: amount });
 
     let body: OrderResponseBody;
     try {
@@ -518,20 +519,20 @@ export function CheckoutForm({
                qualified, and a bare figure on the pay button reads as the price of the course.
                "+ GST" would be worse here, because ₹5,000 is exactly what the gateway charges. */
             (paymentType === "advance"
-              ? `Pay the ₹${amountExGst.toLocaleString("en-IN")} advance and confirm the seat`
-              : `Pay ₹${amountExGst.toLocaleString("en-IN")} and book the seat`)}
+              ? `Pay the ₹${amount.toLocaleString("en-IN")} advance and confirm the seat`
+              : `Pay ₹${amount.toLocaleString("en-IN")} and book the seat`)}
           {status === "creating" && "Opening the payment window"}
           {status === "paying" && "Waiting for the payment"}
           {status === "verifying" && "Confirming your booking"}
         </Button>
-        {paymentType === "advance" && balanceExGst > 0 && (
+        {paymentType === "advance" && balance > 0 && (
           /* Directly under the button, not up beside the fee. This is the sentence that stops a
              student believing the course is paid for, and it has to be the last thing read before
              the payment window opens. */
           <p className="type-small text-grey">
-            The balance of ₹{balanceExGst.toLocaleString("en-IN")}
-            {gstRate === null ? " + GST" : " incl. GST"} is paid to the academy before the first
-            day. This payment confirms your seat, it does not pay for the course in full.
+            The balance of ₹{balance.toLocaleString("en-IN")}
+            {gstIncluded ? " incl. GST" : " + GST"} is paid to the academy before the first day.
+            This payment confirms your seat, it does not pay for the course in full.
           </p>
         )}
         <p aria-live="polite" className="sr-only">

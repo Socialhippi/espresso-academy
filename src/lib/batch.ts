@@ -21,10 +21,39 @@ export interface BatchPricing {
 }
 
 export interface CoursePricing {
-  /** Whole rupees, before GST. */
+  /** The standard fee, whole rupees, before GST. */
   feeExGst: number | null;
+  /** The discounted fee, before GST. Charged instead of `feeExGst` while `offerActive`. */
+  offerFeeExGst: number | null;
+  /** Untick and the standard fee is charged again. */
+  offerActive: boolean;
   /** Per cent. Null means no tax-inclusive total may be shown or charged. */
   gstRate: number | null;
+}
+
+/**
+ * The course's own fee before GST, after any offer.
+ *
+ * One function, because "is the offer on" has to be answered identically by the price on the card,
+ * the price on the course page, the price at the checkout and the amount the gateway is asked for.
+ * The offer ends at the academy's 70th batch, which nothing in this codebase can count, so it ends
+ * by an editor unticking `offerActive` and the price returns to `feeExGst` on its own.
+ */
+export function courseFeeExGst(course: CoursePricing): number | null {
+  if (course.offerActive && course.offerFeeExGst !== null) return course.offerFeeExGst;
+  return course.feeExGst;
+}
+
+/** True when this course is being sold below its standard fee right now. */
+export function hasLiveOffer(
+  course: CoursePricing,
+): course is CoursePricing & { feeExGst: number; offerFeeExGst: number } {
+  return (
+    course.offerActive &&
+    course.offerFeeExGst !== null &&
+    course.feeExGst !== null &&
+    course.offerFeeExGst < course.feeExGst
+  );
 }
 
 export interface BatchState extends BatchSeats, BatchPricing {
@@ -48,7 +77,7 @@ export function seatsLeft(instance: BatchState): number | null {
  * state of both Advanced courses.
  */
 export function feeForInstance(course: CoursePricing, instance: BatchPricing): number | null {
-  return instance.priceOverrideExGst ?? course.feeExGst ?? null;
+  return instance.priceOverrideExGst ?? courseFeeExGst(course) ?? null;
 }
 
 /**

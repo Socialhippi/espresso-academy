@@ -10,7 +10,7 @@ import { BookingStatusPoll } from "@/components/booking/BookingStatusPoll";
 import { getBooking } from "@/lib/bookings";
 import { BOOKING_TERMS } from "@/lib/booking-terms";
 import { getSiteSettings } from "@/lib/content";
-import { feeSuffix, formatDateRange, formatFeeAmount, formatPhone, telHref } from "@/lib/format";
+import { formatDateRange, formatFeeAmount, formatPhone, telHref } from "@/lib/format";
 
 /**
  * The confirmation page.
@@ -37,7 +37,10 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
     ? formatDateRange(booking.instance.startDate, booking.instance.endDate)
     : null;
   const venue = booking.instance?.venue;
-  const balance = booking.balanceDueExGst ?? 0;
+  const balance = booking.balanceDue ?? 0;
+  /* The basis this booking was taken on, not today's. A booking taken before the rate was
+     confirmed keeps its "+ GST" wording for as long as anyone can open its page. */
+  const bookingSuffix = booking.gstRate === null ? "+ GST" : "incl. GST";
   const owesBalance = booking.paymentType === "advance" && balance > 0;
 
   return (
@@ -103,12 +106,12 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                 <span className="type-numeral text-display text-black">
                   {formatFeeAmount(balance)}
                 </span>{" "}
-                <span className="type-body text-grey">{feeSuffix(booking.gstRate)}</span>
+                <span className="type-body text-grey">{bookingSuffix}</span>
               </p>
               <p className="mt-3 measure type-body text-grey">
                 Paid to the academy before the first day.
-                {booking.courseFeeExGst !== null
-                  ? ` The course fee is ${formatFeeAmount(booking.courseFeeExGst)} ${feeSuffix(booking.gstRate)}, and ${formatFeeAmount(booking.amount)} of it has been paid.`
+                {booking.payable !== null
+                  ? ` The course fee is ${formatFeeAmount(booking.payable)} ${bookingSuffix}, and ${formatFeeAmount(booking.amount)} of it has been paid.`
                   : ""}
               </p>
               <ul className="mt-5 flex flex-col gap-2 type-small text-grey">
