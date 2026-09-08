@@ -25,8 +25,21 @@ const paths = [
    The pattern is that defects live at the widths nobody listed, so the list is the guard. */
 const WIDTHS = [360, 390, 768, 1024, 1280];
 
+/*
+ * A route that only exists in one dataset is a skip, not a failure.
+ *
+ * /book/<id> hangs off a batch document. The ₹1 end-to-end batches live in the `ci` dataset and
+ * were deleted from production when the real September and October batches landed, so this route
+ * 404s against production and renders normally against ci. Reporting that as FAIL five times, once
+ * per width, trains whoever runs this to skim past red — which is the failure mode a standing
+ * script exists to avoid. A 404 on an indexed route is still a failure; only the non-indexed ones,
+ * which are the dataset-dependent ones, are allowed to be absent.
+ */
+const optional = new Set(manifest.nonIndexedRoutes.map((r) => r.path));
+
 const browser = await chromium.launch();
 let failures = 0;
+let skipped = 0;
 
 for (const width of WIDTHS) {
   const page = await browser.newPage({ viewport: { width, height: 900 } });
@@ -35,6 +48,12 @@ for (const width of WIDTHS) {
   for (const path of paths) {
     const response = await page.goto(base + path, { waitUntil: "domcontentloaded" });
     const status = response?.status() ?? 0;
+
+    if (status === 404 && optional.has(path)) {
+      skipped++;
+      console.log(`skip 404 ${path} (not in this dataset)`);
+      continue;
+    }
 
     const result = await page.evaluate(() => {
       const doc = document.documentElement;
@@ -83,4 +102,7 @@ console.log(
     ? `\nNo overflow at ${WIDTHS.join(", ")}.`
     : `\n${failures} route/width combination(s) failed.`,
 );
+if (skipped > 0) {
+  console.log(`${skipped} check(s) skipped: a non-indexed route that this dataset does not carry.`);
+}
 process.exit(failures === 0 ? 0 : 1);

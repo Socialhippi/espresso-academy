@@ -138,9 +138,12 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                         "academy", and they have been asked; printing a corrected address that
                         might bounce would be worse than printing the one they gave us. */}
                     {settings.email ? (
+                      /* min-h-11 like the phone link above it. While `settings.email` was null
+                         this cell held a TBC pill, which is not a target; the real address made it
+                         a 26px-tall link, under the 44px floor in .claude/rules/a11y.md. */
                       <a
                         href={`mailto:${settings.email}`}
-                        className="type-body break-all text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                        className="inline-flex min-h-11 items-center type-body break-all text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                       >
                         {settings.email}
                       </a>
