@@ -179,109 +179,130 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <section className="section-y bg-white-3" aria-labelledby="learn-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-5">
-              <SectionHeading
-                number={next()}
-                eyebrow="Syllabus"
-                title="What you will learn"
-                id="learn-heading"
-              />
-              <div className="mt-8 border border-white-2 bg-white p-6">
-                <p className="type-label text-grey">What you get</p>
-                {course.certificateAwardedLabel ? (
-                  <p className="mt-3 type-body text-black">
-                    {course.certificateAwardedLabel}
-                    {certification && (
-                      <>
-                        {". "}
-                        <Link
-                          href={`/certifications/${certification.slug}`}
-                          className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                        >
-                          What the {certification.shortName} is worth
-                        </Link>
-                      </>
-                    )}
-                  </p>
-                ) : (
-                  <p className="mt-3 type-body text-black">
-                    No certificate is issued for this course. You leave with the skill, not a
-                    piece of paper.
-                  </p>
-                )}
-                {/* "What the fee includes" is not repeated here: FeeBlock states it beside the
-                    fee itself, which is where a reader looks for it, and this card was printing
-                    the same label and the same TBC pill a second time on the same page. */}
+          <SectionHeading
+            number={next()}
+            eyebrow="Syllabus"
+            title="What you will learn"
+            id="learn-heading"
+            description={
+              course.days && course.days.length > 0
+                ? `${course.days.length} ${course.days.length === 1 ? "day" : "days"}, one module a day. You take the whole course, not a single day of it.`
+                : undefined
+            }
+          />
+
+          {course.days && course.days.length > 0 ? (
+            /*
+             * A day is an addressable thing, not the nth item in a list. /courses/latte-art and
+             * /courses/brewing were retired when revision 2 of facts.md folded them into the IBC,
+             * and they now redirect to #day-4 and #day-2 here. Someone who searched for a latte
+             * art course lands on the latte art day rather than on a page that mentions it
+             * somewhere. `:target` in globals.css already clears the sticky header.
+             */
+            <ol className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 lg:grid-cols-2">
+              {course.days.map((day) => (
+                <li key={day.number} id={`day-${day.number}`} className="bg-white p-6 md:p-8">
+                  <p className="type-label text-grey">Day {day.number}</p>
+                  <h3 className="mt-2 type-h3 text-black">{day.title}</h3>
+                  <ul className="mt-5 flex flex-col gap-3">
+                    {day.topics.map((topic) => (
+                      <li key={topic} className="flex gap-3 type-body text-grey">
+                        {/* A 1px red rule rather than a tick: the ticks in the "who this is for"
+                            panel above mean "this applies to you", and reusing them here would
+                            make a syllabus look like a checklist of promises. */}
+                        <span
+                          className="mt-3 h-px w-3 shrink-0 bg-red"
+                          aria-hidden="true"
+                        />
+                        {topic}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              ))}
+            </ol>
+          ) : (
+            /* TODO(client): course.days. No day-by-day outline has been supplied for this course. */
+            <div className="mt-10 border border-white-2 bg-white p-6 md:mt-14 md:p-10">
+              <div className="flex items-center gap-3">
+                <TbcPill label="Syllabus TBC" />
               </div>
+              <p className="mt-4 type-h3 text-black">Syllabus being finalised</p>
+              <p className="mt-3 measure type-body text-grey">
+                The day-by-day outline for this course is not published yet. Ask on WhatsApp and
+                the academy will send the current one.
+              </p>
+              <WhatsAppButton
+                className="mt-6"
+                size="sm"
+                course={course.title}
+                message={`Hi, please send the current outline for ${course.title}.`}
+                event="whatsapp_click_syllabus"
+              >
+                Ask on WhatsApp for the outline
+              </WhatsAppButton>
+            </div>
+          )}
+
+          <div className="mt-8 grid gap-8 md:grid-cols-2">
+            <div className="border border-white-2 bg-white p-6">
+              <p className="type-label text-grey">What you get</p>
+              {course.certificateAwardedLabel ? (
+                <p className="mt-3 type-body text-black">
+                  {course.certificateAwardedLabel}
+                  {certification && (
+                    <>
+                      {". "}
+                      <Link
+                        href={`/certifications/${certification.slug}`}
+                        className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                      >
+                        What the {certification.shortName} is worth
+                      </Link>
+                    </>
+                  )}
+                </p>
+              ) : (
+                <p className="mt-3 type-body text-black">
+                  No certificate is issued for this course. You leave with the skill, not a
+                  piece of paper.
+                </p>
+              )}
+              {/* "What the fee includes" is not repeated here: FeeBlock states it beside the
+                  fee itself, which is where a reader looks for it, and this card was printing
+                  the same label and the same TBC pill a second time on the same page. */}
             </div>
 
-            <div className="lg:col-span-7">
-              {course.modules && course.modules.length > 0 ? (
-                <ol className="divide-y divide-white-2 border-y border-white-2">
-                  {course.modules.map((module, index) => (
-                    <li key={module} className="flex gap-6 py-5">
-                      <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">
-                        {String(index + 1).padStart(2, "0")}
-                      </span>
-                      <span className="type-body text-black">{module}</span>
-                    </li>
-                  ))}
-                </ol>
-              ) : (
-                /* TODO(client): course.modules. No syllabus has been supplied for any course. */
-                <div className="border border-white-2 bg-white p-6 md:p-10">
-                  <div className="flex items-center gap-3">
-                    <TbcPill label="Syllabus TBC" />
-                  </div>
-                  <p className="mt-4 type-h3 text-black">Syllabus being finalised</p>
-                  <p className="mt-3 measure type-body text-grey">
-                    The session-by-session outline for this course is not published yet. Ask on
-                    WhatsApp and the academy will send the current one.
-                  </p>
-                  <WhatsAppButton
-                    className="mt-6"
-                    size="sm"
-                    course={course.title}
-                    message={`Hi, please send the current outline for ${course.title}.`}
-                    event="whatsapp_click_syllabus"
+            <div className="border border-white-2 bg-white p-6">
+              <p className="type-label text-grey">Before you start</p>
+              <p className="mt-3 type-body text-black">
+                {course.prerequisites ?? "Prerequisites for this course are not published yet."}
+              </p>
+              {trainers.length === 0 && (
+                /* TODO(client): courses[].trainers is empty for this course. */
+                <p className="mt-4 type-small text-grey">
+                  The trainer is set per batch and is not listed yet.{" "}
+                  <Link
+                    href="/trainers"
+                    className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                   >
-                    Ask on WhatsApp for the outline
-                  </WhatsAppButton>
-                </div>
-              )}
-
-              <div className="mt-8 border border-white-2 bg-white p-6">
-                <p className="type-label text-grey">Before you start</p>
-                <p className="mt-3 type-body text-black">
-                  {course.prerequisites ?? "Prerequisites for this course are not published yet."}
+                    Read the trainer profiles
+                  </Link>
+                  .
                 </p>
-                {trainers.length === 0 && (
-                  /* TODO(client): courses[].trainers is empty for this course. */
-                  <p className="mt-4 type-small text-grey">
-                    The trainer is set per batch and is not listed yet.{" "}
-                    <Link
-                      href="/trainers"
-                      className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                    >
-                      Read the trainer profiles
-                    </Link>
-                    .
-                  </p>
-                )}
-                {previousCourse && (
-                  <p className="mt-3 type-small text-grey">
-                    The rung below is{" "}
-                    <Link
-                      href={`/courses/${previousCourse.slug}`}
-                      className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                    >
-                      {previousCourse.title}
-                    </Link>
-                    .
-                  </p>
-                )}
-              </div>
+              )}
+              {previousCourse && (
+                <p className="mt-3 type-small text-grey">
+                  The rung below is{" "}
+                  <Link
+                    href={`/courses/${previousCourse.slug}`}
+                    className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                  >
+                    {previousCourse.title}
+                  </Link>
+                  .
+                </p>
+              )}
             </div>
           </div>
         </Container>

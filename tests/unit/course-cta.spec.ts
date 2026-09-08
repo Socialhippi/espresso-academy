@@ -9,8 +9,8 @@ import { courseCta, type CtaInstance } from "@/lib/batch";
  * with an open, priced batch sitting in the table below it.
  */
 
-const COURSE = { slug: "latte-art", feeInclGst: null };
-const PRICED_COURSE = { slug: "brewing", feeInclGst: 12000 };
+const COURSE = { slug: "ibc-advanced-roasting", feeInclGst: null };
+const PRICED_COURSE = { slug: "italian-barista-course-basic", feeInclGst: 12000 };
 
 function batch(overrides: Partial<CtaInstance> = {}): CtaInstance {
   return {
@@ -51,7 +51,7 @@ test("a dated batch with no fee asks about that batch", () => {
   expect(cta).toMatchObject({
     kind: "enquire-batch",
     label: "Ask about this batch",
-    href: "/enquire?course=latte-art&batch=instance-one",
+    href: "/enquire?course=ibc-advanced-roasting&batch=instance-one",
     batchAlert: false,
   });
 });
@@ -61,7 +61,7 @@ test("no batch at all asks about the next one, and offers the alert", () => {
   expect(cta).toMatchObject({
     kind: "enquire-next",
     label: "Ask about the next batch",
-    href: "/enquire?course=latte-art",
+    href: "/enquire?course=ibc-advanced-roasting",
     batchAlert: true,
   });
 });

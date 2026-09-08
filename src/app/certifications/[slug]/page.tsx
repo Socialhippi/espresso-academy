@@ -57,10 +57,10 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
         </p>
       ) : (
         <p>
-          The Specialty Coffee Association issues it, not the school. The academy teaches training
-          aligned to the SCA Coffee Skills Program. Whether a given batch is assessed for SCA
-          certification, and who runs that assessment, is confirmed at enrolment, so ask before you
-          book if the certificate is what you are after.
+          The Specialty Coffee Association issues it, not the school, and only on an assessed
+          module taught by an authorised trainer. The academy has an SCA Authorised Trainer on
+          faculty, and assessed modules run on batches the academy confirms. The academy does not
+          currently sell an SCA course, so if SCA certification is what you are after, ask first.
         </p>
       ),
     },
@@ -71,8 +71,8 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
         <p>
           {certification.levels.join(" and ")}
           {isIbc
-            ? ". The academy offers it at Junior and Advanced level, and there is no level above Advanced. IBC Junior assumes no machine experience; IBC Advanced is for people already working on a bar. The full syllabus for each level is not published yet."
-            : ". The program is taught across five modules, each at Foundation, Intermediate and Professional level. The academy offers training aligned to it across those five modules. The syllabus for each is not published yet."}
+            ? ". IBC Basic is four days and assumes no machine experience. Above it sit two Advanced courses of two days each, Advanced Barista for the bar and Advanced Roasting for the roaster, and neither requires the other."
+            : ". Each of the five SCA areas is examined at all three levels. The academy runs no SCA course of its own, so no level of it is offered here."}
         </p>
       ),
     },
@@ -86,11 +86,9 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
             <TbcPill label="Fee TBC" />
           </p>
           <p className="mt-4">
-            No fee is published for this certificate or for the courses that lead to it. The
-            academy confirms the figure incl. GST for each batch before you pay.{" "}
             {isIbc
-              ? "Ask on WhatsApp for the current figure."
-              : "Whether the SCA charges its own assessment and certificate fee on top of the course fee is confirmed at enrolment."}
+              ? "The certificate is part of the course fee, so there is nothing separate to pay for it. The fee for each course is on that course's page; ₹5,000 holds a seat and the balance is paid at the academy."
+              : "Nothing, here. The academy does not sell an SCA course, so there is no fee to publish. The SCA charges its own assessment and certificate fee where a module is assessed."}
           </p>
         </>
       ),
@@ -98,16 +96,25 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
     {
       id: "courses",
       question: "Which courses lead to it?",
-      body: (
-        <p>
-          {courseCount === 1
-            ? "One course at the Bengaluru campus leads to it."
-            : `${courseCount} courses at the Bengaluru campus lead to it.`}{" "}
-          Each is listed below with the level it sits at. If you are not sure which rung matches
-          what you can already do, send a message describing your experience and ask which level to
-          start at.
-        </p>
-      ),
+      body:
+        courseCount === 0 ? (
+          /* facts.md line 53: the client's document lists no SCA course, fee or date the academy
+             offers, so this page explains the framework and stops there. */
+          <p>
+            None. The academy runs the Italian Barista Course, not an SCA course, and this page is
+            here so you can tell the two apart before you choose. Ask if the SCA route is what you
+            want and you will get a straight answer about where to take it.
+          </p>
+        ) : (
+          <p>
+            {courseCount === 1
+              ? "One course at the Bengaluru campus leads to it."
+              : `${courseCount} courses at the Bengaluru campus lead to it.`}{" "}
+            Each is listed below with the level it sits at. If you are not sure which one matches
+            what you can already do, send a message describing your experience and ask which to
+            start at.
+          </p>
+        ),
     },
     {
       id: "worth",
@@ -219,28 +226,32 @@ export default async function CertificationPage({ params }: PageProps<"/certific
         </Container>
       </section>
 
-      <section className="section-y-sm bg-white-3" aria-labelledby="cert-courses-heading">
-        <Container>
-          <SectionHeading
-            number="07"
-            eyebrow="Courses"
-            title={`Courses that lead to the ${certification.shortName}`}
-            id="cert-courses-heading"
-            action={
-              <ButtonLink href="/courses" variant="tertiary" size="inline">
-                See all courses
-              </ButtonLink>
-            }
-          />
-          <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {courses.map((course, index) => (
-              <li key={course.slug}>
-                <CourseCard course={course} priority={index === 0} />
-              </li>
-            ))}
-          </ul>
-        </Container>
-      </section>
+      {/* No cards when no course leads here. An empty grid under a heading promising courses is
+          the page asserting a pathway the academy does not sell. */}
+      {courses.length > 0 && (
+        <section className="section-y-sm bg-white-3" aria-labelledby="cert-courses-heading">
+          <Container>
+            <SectionHeading
+              number="07"
+              eyebrow="Courses"
+              title={`Courses that lead to the ${certification.shortName}`}
+              id="cert-courses-heading"
+              action={
+                <ButtonLink href="/courses" variant="tertiary" size="inline">
+                  See all courses
+                </ButtonLink>
+              }
+            />
+            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+              {courses.map((course, index) => (
+                <li key={course.slug}>
+                  <CourseCard course={course} priority={index === 0} />
+                </li>
+              ))}
+            </ul>
+          </Container>
+        </section>
+      )}
 
       <section className="section-y-sm" aria-labelledby="cert-faq-heading">
         <Container>

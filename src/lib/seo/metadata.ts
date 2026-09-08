@@ -20,7 +20,7 @@ interface PageMetadataInput {
   /** Without the suffix: the root layout's template appends it. */
   title: string;
   description: string;
-  /** Site-relative, e.g. "/courses/latte-art". */
+  /** Site-relative, e.g. "/courses/italian-barista-course-basic". */
   path: string;
   /**
    * Absolute URL of this route's Open Graph card. Defaults to the site-wide one.

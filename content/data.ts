@@ -1,11 +1,17 @@
 /**
  * Espresso Academy India: typed content.
  * Every field that the client has not confirmed is null and renders as a TBC state.
- * Shape maps 1:1 to the future Sanity schema (course, courseInstance, certification, trainer, story, faqItem, siteSettings).
+ * Shape maps 1:1 to the Sanity schema (course, courseInstance, certification, trainer, story,
+ * faqItem, redirect, siteSettings).
  * Facts here must trace to content/facts.md. Do not add values without a source.
+ *
+ * Revision 2 (facts.md, 8 September 2026) cut the catalogue from eight courses to three. Latte
+ * Art, Brewing, Roasting and Cupping are days inside the IBC rather than courses, and the three
+ * Barista Skills courses are not offered at all: the client's document describes the SCA as a
+ * standards body and lists no SCA course, fee or date. Their URLs are redirected below.
  */
 
-export type Level = "foundation" | "intermediate" | "professional" | "junior" | "advanced" | "open";
+export type Level = "basic" | "advanced";
 export type Format = "in-person" | "hybrid" | "online";
 export type SkillArea =
   | "barista-skills" | "latte-art" | "brewing" | "roasting-cupping" | "sensory" | "green-coffee" | "mixology" | "cafe-management";
@@ -37,9 +43,22 @@ export interface CourseInstance {
   startDate: string | null;  // ISO
   endDate: string | null;
   schedule: string | null;
-  seatsAvailable: number | null;
+  seatsMax: number | null;
   status: "open" | "waitlist" | "soldout" | "tbc";
-  paymentPageUrl: string | null;
+}
+
+/**
+ * One day of a course.
+ *
+ * The client gives the syllabus as one module per day, and the day is the unit a reader is sold:
+ * "latte art" is day 4 of the IBC, not a course. It is also the unit the redirects land on, so
+ * each day renders with `id="day-<number>"` on the course page and the old /courses/latte-art URL
+ * points at it.
+ */
+export interface CourseDay {
+  number: number;
+  title: string;
+  topics: string[];
 }
 
 export interface Course {
@@ -53,13 +72,14 @@ export interface Course {
   format: Format | null;
   durationDays: number | null;
   durationHours: number | null;
+  schedule: string | null;   // "10 am to 5 pm", from the client's brochure
   feeInclGst: number | null;
   emiAvailable: boolean | null;
   seatsMax: number | null;
   outcome: string;           // one sentence, outcome-led, no claims beyond facts
   forWhom: string[];
   notForWhom: string[];
-  modules: string[] | null;  // TBC until client syllabus arrives
+  days: CourseDay[] | null;  // TBC renders the "syllabus being finalised" panel
   includes: string[] | null;
   prerequisites: string | null;
   trainers: string[];        // trainer slugs; empty until client assigns
@@ -74,6 +94,9 @@ export interface Course {
 export interface FaqItem { q: string; a: string; category: "courses" | "fees" | "certification" | "schedule" | "campus" | "careers"; link?: { label: string; href: string } }
 
 export interface Story { id: string; name: string; course: string; outcome: string; quote: string; image: string | null; permission: boolean }
+
+/** A retired URL and where it goes now. Seeded into Sanity; next.config.ts reads them at build. */
+export interface Redirect { from: string; to: string; statusCode: 301 | 302 | 307 | 308 }
 
 export const siteSettings = {
   name: "Espresso Academy India",
@@ -110,8 +133,10 @@ export const certifications: Certification[] = [
     name: "Italian Barista Certificate (IBC)",
     shortName: "IBC",
     issuer: "Espresso Academy, Florence",
-    summary: "The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence, and sent to its authorised partner schools. Espresso Academy India teaches to the same method and offers the IBC at Junior and Advanced levels.",
-    levels: ["Junior", "Advanced"],
+    /* facts.md, Organisation: the certificate line is the client's own wording, and the reach
+       claim is attributed to the issuer rather than made on our own behalf. */
+    summary: "The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence, and sent to its authorised partner schools. Espresso Academy India teaches under the supervision of Espresso Academy Florence, which has over 30 branches worldwide. The certificate is awarded at Basic Barista, Advanced Barista and Advanced Roasting.",
+    levels: ["Basic Barista", "Advanced Barista", "Advanced Roasting"],
     recognitionNote: "A certificate helps you get an interview; your skills get you the job. Ask us which employers recognise the IBC in your city and we will answer plainly.",
     status: "confirmed",
   },
@@ -120,14 +145,33 @@ export const certifications: Certification[] = [
     name: "SCA Coffee Skills Program",
     shortName: "SCA",
     issuer: "Specialty Coffee Association",
-    summary: "The Specialty Coffee Association's Coffee Skills Program is a modular curriculum (Introduction to Coffee, Barista Skills, Brewing, Green Coffee, Roasting, Sensory Skills) taught at Foundation, Intermediate and Professional levels. Espresso Academy India offers training aligned to the program across five modules.",
+    /* facts.md, SCA: the client's document describes the standards body and its exams. It lists
+       no SCA course, fee or date the academy offers, so neither does this. */
+    summary: "The Specialty Coffee Association sets standards for the coffee trade and examines them in five areas: Introduction to Coffee, Green Coffee, Sensory Skills, Roasting, and Barista Skills and Brewing. Each runs at Foundation, Intermediate and Professional level. The academy does not currently run an SCA course of its own, and this page is here so you can tell the two certificates apart before you choose.",
     levels: ["Foundation", "Intermediate", "Professional"],
-    recognitionNote: "Certification is issued by the SCA on completion of an assessed module with an authorised trainer, usually with a separate SCA fee. Whether a given batch is assessed for SCA certification is confirmed at enrolment.",
+    recognitionNote: "SCA certification is issued by the SCA, not by a school, on an assessed module taught by an authorised trainer and usually for a separate SCA fee. The academy has an SCA Authorised Trainer on faculty, and assessed modules run on batches the academy confirms. No SCA course, fee or date is published here.",
     status: "wording-pending",
   },
 ];
 
 export const trainers: Trainer[] = [
+  {
+    slug: "nageswara-rao-k",
+    name: "Nageswara Rao K",
+    role: null,
+    credentials: [
+      { name: "Post Graduate Diploma in Coffee Quality Management", issuer: "Coffee Board of India" },
+      { name: "Q Grader", issuer: "Coffee Quality Institute" },
+      { name: "SCA certified Sensory Professional", issuer: "Specialty Coffee Association" },
+      /* facts.md, Trainers: the client wrote "authorised IBM trainer", almost certainly IBC.
+         TODO(client): confirm before this line is published as anything more specific. */
+      { name: "Authorised trainer", issuer: null },
+    ],
+    bio: "Nagesh is a postgraduate in agriculture with a Post Graduate Diploma in Coffee Quality Management from the Coffee Board of India. He is a certified Q Grader and an SCA certified Sensory Professional, an experienced roaster, and sits on the judging panel for national coffee competitions. He teaches at the Bengaluru campus.",
+    philosophy: null,
+    image: null,
+    sameAs: [],
+  },
   {
     slug: "akanksha-gupta",
     name: "Akanksha Gupta",
@@ -175,139 +219,259 @@ export const trainers: Trainer[] = [
   },
 ];
 
-const tbcInstance = (courseSlug: string): CourseInstance => ({ id: `${courseSlug}-tbc`, startDate: null, endDate: null, schedule: null, seatsAvailable: null, status: "tbc", paymentPageUrl: null });
+/* The batches the client listed, seeded so a fresh dataset renders the real calendar. Dates are
+   ISO; the site renders them in Asia/Kolkata. */
+const batch = (
+  courseSlug: string,
+  startDate: string,
+  endDate: string,
+  seatsMax: number,
+): CourseInstance => ({
+  id: `${courseSlug}-${startDate}`,
+  startDate,
+  endDate,
+  schedule: "10 am to 5 pm",
+  seatsMax,
+  status: "open",
+});
 
 const courseFaqCommon = (name: string): { q: string; a: string; link?: { label: string; href: string } }[] => [
   { q: `Do I need experience before ${name}?`, a: "Prerequisites are listed above. If the field says TBC, message us on WhatsApp with your background and we will tell you plainly whether this is the right starting point.", link: { label: "See every course and level", href: "/courses" } },
-  { q: "Is the certificate included in the fee?", a: "Fees and what they include are confirmed by the academy at enrolment. Where a certification body charges a separate fee, we say so before you pay.", link: { label: "What the certificates are", href: "/certifications" } },
-  { q: "Where are classes held?", a: "At the Bengaluru campus, Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital.", link: { label: "Directions to the campus", href: "/contact" } },
+  { q: "Is the certificate included in the fee?", a: "Yes. The certificate is part of the course, and there is no separate certification fee to pay.", link: { label: "What the certificate is", href: "/certifications/italian-barista-certificate" } },
+  { q: "How do I hold a seat?", a: "An advance of ₹5,000 confirms your seat. The balance is paid at the academy before the first day. Seats are capped per batch, so the advance is what reserves one.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
+  { q: "Where are classes held?", a: "At the Bengaluru campus, Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital.", link: { label: "Directions to the campus", href: "/contact" } },
 ];
 
 export const courses: Course[] = [
   {
-    slug: "italian-barista-certificate-junior",
-    title: "Italian Barista Certificate, Junior",
-    skillArea: "barista-skills", level: "junior", levelLabel: "IBC Junior",
-    certification: "italian-barista-certificate", certificateAwardedLabel: "Italian Barista Certificate (Junior), issued by Espresso Academy, Florence",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Learn espresso and milk fundamentals the Florence way and earn the Italian Barista Certificate at Junior level.",
-    forWhom: ["Career changers who want a barista job", "Beginners with no machine experience", "Cafe staff who need a structured foundation"],
-    notForWhom: ["Working baristas who already pull consistent shots (see IBC Advanced)", "Home enthusiasts who want a one-day experience (see workshops when announced)"],
-    modules: null, includes: null, prerequisites: null, trainers: [], nextInLadder: "italian-barista-certificate-advanced",
-    faq: courseFaqCommon("IBC Junior"), instances: [tbcInstance("italian-barista-certificate-junior")], heroImage: null,
+    slug: "italian-barista-course-basic",
+    title: "Italian Barista Course (IBC), Basic",
+    skillArea: "barista-skills", level: "basic", levelLabel: "IBC Basic",
+    certification: "italian-barista-certificate",
+    /* facts.md line 26: the wording on the diploma itself. */
+    certificateAwardedLabel: "Italian Barista Certificate, Basic Barista",
+    format: "in-person", durationDays: 4, durationHours: null, schedule: "10 am to 5 pm",
+    feeInclGst: null, emiAvailable: null, seatsMax: 8,
+    outcome: "Four days, one module a day, from green coffee and roasting through brewing and espresso to latte art, ending in the Italian Barista Certificate at Basic Barista.",
+    forWhom: [
+      "Career changers who want a barista job",
+      "Beginners who have never used an espresso machine",
+      "Cafe staff who need the whole picture rather than one skill",
+      "Cafe owners who want to know what their team should know",
+    ],
+    notForWhom: [
+      "Working baristas who already pull consistent shots (see IBC Advanced Barista)",
+      "Anyone who only wants to roast (see IBC Advanced Roasting)",
+      "Anyone who cannot give four consecutive days, 10 am to 5 pm",
+    ],
+    days: [
+      {
+        number: 1,
+        title: "Roasting and Cupping",
+        topics: [
+          "The history of coffee",
+          "Green coffee, its role and its value",
+          "Physical evaluation of the green bean",
+          "Choosing roasting equipment",
+          "Hands-on roasting on a Bullet roaster",
+          "The roasting stages: drying, Maillard, development",
+          "Introduction to sensory analysis",
+          "Cupping",
+        ],
+      },
+      {
+        number: 2,
+        title: "Brewing Techniques",
+        topics: [
+          "Brewing history and how it evolved",
+          "The brew ratio guide",
+          "The SCA brewing chart",
+          "Brewing fundamentals",
+          "How water quality changes the taste",
+          "Hands-on manual brewing: pour over, AeroPress, French press, moka pot, syphon",
+        ],
+      },
+      {
+        number: 3,
+        title: "Basic Barista Training",
+        topics: [
+          "The coffee plant: anatomy, cherry structure, Arabica and Robusta",
+          "Where coffee grows",
+          "Harvesting and processing",
+          "Italian coffee bar culture",
+          "How espresso machines evolved",
+          "The key parts of an espresso machine",
+          "Handling and maintenance",
+          "The Basic Barista Exam (IBC), 8 minutes",
+        ],
+      },
+      {
+        number: 4,
+        title: "Latte Art",
+        topics: [
+          "Steaming milk",
+          "Pouring technique",
+          "Latte art patterns",
+          "Practice on the heart and the tulip",
+        ],
+      },
+    ],
+    includes: ["Certification"],
+    prerequisites: "None. The course starts from the coffee plant and assumes no machine experience.",
+    trainers: [], nextInLadder: "ibc-advanced-barista",
+    faq: courseFaqCommon("the IBC Basic"),
+    instances: [
+      batch("italian-barista-course-basic", "2026-09-10", "2026-09-13", 8),
+      batch("italian-barista-course-basic", "2026-09-24", "2026-09-27", 8),
+      batch("italian-barista-course-basic", "2026-10-08", "2026-10-11", 8),
+    ],
+    heroImage: null,
     heroAlt: "Student learning espresso extraction at Espresso Academy India, Bengaluru", priority: 1,
   },
   {
-    slug: "italian-barista-certificate-advanced",
-    title: "Italian Barista Certificate, Advanced",
-    skillArea: "barista-skills", level: "advanced", levelLabel: "IBC Advanced",
-    certification: "italian-barista-certificate", certificateAwardedLabel: "Italian Barista Certificate (Advanced), issued by Espresso Academy, Florence",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Refine extraction, milk texture and workflow to professional standard and earn the IBC at Advanced level.",
-    forWhom: ["Working baristas", "IBC Junior graduates", "Cafe owners who want to set the standard for their team"],
-    notForWhom: ["Complete beginners (start with IBC Junior)"],
-    modules: null, includes: null, prerequisites: "IBC Junior or equivalent experience (to be confirmed by the academy)", trainers: [], nextInLadder: null,
-    faq: courseFaqCommon("IBC Advanced"), instances: [tbcInstance("italian-barista-certificate-advanced")], heroImage: null,
+    slug: "ibc-advanced-barista",
+    title: "IBC Advanced Barista",
+    skillArea: "barista-skills", level: "advanced", levelLabel: "IBC Advanced Barista",
+    certification: "italian-barista-certificate",
+    certificateAwardedLabel: "Italian Barista Certificate, Advanced Barista",
+    format: "in-person", durationDays: 2, durationHours: null, schedule: null,
+    feeInclGst: null, emiAvailable: null, seatsMax: 4,
+    outcome: "Two days on varietals, extraction and speed for people already working a bar, ending in the Italian Barista Certificate at Advanced Barista.",
+    forWhom: [
+      "Working baristas who want the next certificate",
+      "IBC Basic graduates",
+      "Head baristas setting the standard for a team",
+    ],
+    notForWhom: [
+      "Complete beginners (start with the IBC Basic)",
+      "Anyone who wants the roasting side (see IBC Advanced Roasting)",
+    ],
+    days: [
+      {
+        number: 1,
+        title: "Coffee, roast and machine",
+        topics: [
+          "Coffee varietals",
+          "Plantation and processing",
+          "Roasting and blending",
+          "Water and coffee",
+          "Espresso machines",
+        ],
+      },
+      {
+        number: 2,
+        title: "Extraction, recipes and speed",
+        topics: [
+          "Espresso tasting",
+          "The Italian espresso recipe",
+          "Coffee recipes",
+          "Latte art",
+          "Plant-based milk",
+          "Barista skills and speed test",
+        ],
+      },
+    ],
+    includes: ["Certification"],
+    /* facts.md line 42: prerequisites are TBC. IBC Basic or equivalent is the sensible default and
+       is written as a suggestion rather than a rule until the academy confirms it.
+       TODO(client): confirm the prerequisite for IBC Advanced Barista. */
+    prerequisites: "To be confirmed by the academy. The IBC Basic, or equivalent time on a bar, is the sensible starting point. Ask before you book and you will get a straight answer.",
+    trainers: [], nextInLadder: null,
+    faq: courseFaqCommon("the IBC Advanced Barista"),
+    instances: [],
+    heroImage: null,
     heroAlt: "Advanced barista training on a professional espresso machine, Bengaluru", priority: 2,
   },
   {
-    slug: "sca-barista-skills-foundation",
-    title: "Barista Skills, Foundation",
-    skillArea: "barista-skills", level: "foundation", levelLabel: "Foundation",
-    certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Barista Skills Foundation",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Build the core barista skills of the SCA Coffee Skills Program: grinding, dosing, extraction, milk and workflow.",
-    forWhom: ["Aspiring baristas who want the SCA pathway", "Cafe staff being upskilled", "Enthusiasts serious about espresso"],
-    notForWhom: ["Baristas with two or more years on a machine (see Intermediate)"],
-    modules: null, includes: null, prerequisites: "None", trainers: [], nextInLadder: "sca-barista-skills-intermediate",
-    faq: courseFaqCommon("Barista Skills Foundation"), instances: [tbcInstance("sca-barista-skills-foundation")], heroImage: null,
-    heroAlt: "Barista Skills Foundation class at Espresso Academy India", priority: 3,
-  },
-  {
-    slug: "sca-barista-skills-intermediate",
-    title: "Barista Skills, Intermediate",
-    skillArea: "barista-skills", level: "intermediate", levelLabel: "Intermediate",
-    certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Barista Skills Intermediate",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Dial in with intent: extraction theory, sensory evaluation of espresso, milk science and bar efficiency.",
-    forWhom: ["Working baristas", "Foundation graduates", "Cafe owners and head baristas"],
-    notForWhom: ["Beginners (start with Foundation)"],
-    modules: null, includes: null, prerequisites: "Foundation or equivalent experience (to be confirmed by the academy)", trainers: [], nextInLadder: "sca-barista-skills-professional",
-    faq: courseFaqCommon("Barista Skills Intermediate"), instances: [tbcInstance("sca-barista-skills-intermediate")], heroImage: null,
-    heroAlt: "Intermediate barista skills training, espresso dialling in", priority: 4,
-  },
-  {
-    slug: "sca-barista-skills-professional",
-    title: "Barista Skills, Professional",
-    skillArea: "barista-skills", level: "professional", levelLabel: "Professional",
-    certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Barista Skills Professional",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Master advanced extraction, competition-level milk and bar management for head barista and trainer roles.",
-    forWhom: ["Head baristas and trainers", "Intermediate graduates", "Competitors"],
-    notForWhom: ["Anyone without Intermediate-level skills"],
-    modules: null, includes: null, prerequisites: "Intermediate (to be confirmed by the academy)", trainers: [], nextInLadder: null,
-    faq: courseFaqCommon("Barista Skills Professional"), instances: [tbcInstance("sca-barista-skills-professional")], heroImage: null,
-    heroAlt: "Professional-level barista training, Bengaluru", priority: 5,
-  },
-  {
-    slug: "latte-art",
-    title: "Latte Art",
-    skillArea: "latte-art", level: "open", levelLabel: "Open level",
-    certification: null, certificateAwardedLabel: null,
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Steam, pour and control: from a clean heart to rosettas and tulips, with the milk science behind them.",
-    forWhom: ["Baristas who want consistent pours", "Enthusiasts with a home machine", "Cafe teams before a menu launch"],
-    notForWhom: ["People who have never used a steam wand and want a full barista foundation first"],
-    modules: null, includes: null, prerequisites: null, trainers: [], nextInLadder: null,
-    faq: courseFaqCommon("Latte Art"), instances: [tbcInstance("latte-art")], heroImage: null,
-    heroAlt: "Latte art pour at Espresso Academy India", priority: 6,
-  },
-  {
-    slug: "brewing",
-    title: "Brewing",
-    skillArea: "brewing", level: "open", levelLabel: "Open level",
-    certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Brewing",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Understand extraction, ratios, grind and water across pour-over, immersion and batch brewing.",
-    forWhom: ["Cafe teams adding a manual brew bar", "Home brewers", "Roasters and cafe owners"],
-    notForWhom: ["People looking only for espresso skills (see Barista Skills)"],
-    modules: null, includes: null, prerequisites: "None", trainers: [], nextInLadder: null,
-    faq: courseFaqCommon("Brewing"), instances: [tbcInstance("brewing")], heroImage: null,
-    heroAlt: "Manual brewing class with pour-over equipment", priority: 7,
-  },
-  {
-    slug: "roasting-and-cupping",
-    title: "Roasting and Cupping",
-    skillArea: "roasting-cupping", level: "open", levelLabel: "Open level",
-    certification: "sca-coffee-skills-program", certificateAwardedLabel: "Training aligned to the SCA Coffee Skills Program, Roasting and Sensory Skills",
-    format: null, durationDays: null, durationHours: null, feeInclGst: null, emiAvailable: null, seatsMax: null,
-    outcome: "Roast profiles, defects and cupping protocol, taught by faculty with Q Grader and Q Processing credentials.",
-    forWhom: ["Aspiring roasters", "Cafe owners sourcing coffee", "Planters and estate teams"],
-    notForWhom: ["Beginners who want to make better espresso first"],
-    modules: null, includes: null, prerequisites: null, trainers: ["nirupam-ranjan", "sowmya-r"], nextInLadder: null,
-    faq: courseFaqCommon("Roasting and Cupping"), instances: [tbcInstance("roasting-and-cupping")], heroImage: null,
-    heroAlt: "Cupping session with roasted coffee samples", priority: 8,
+    slug: "ibc-advanced-roasting",
+    title: "IBC Advanced Roasting",
+    skillArea: "roasting-cupping", level: "advanced", levelLabel: "IBC Advanced Roasting",
+    certification: "italian-barista-certificate",
+    certificateAwardedLabel: "Italian Barista Certificate, Advanced Roasting",
+    format: "in-person", durationDays: 2, durationHours: null, schedule: null,
+    feeInclGst: null, emiAvailable: null, seatsMax: 4,
+    outcome: "Two days on roast curves, defects and cupping for people who already roast, ending in the Italian Barista Certificate at Advanced Roasting.",
+    forWhom: [
+      "Roasters who want to control a curve rather than follow one",
+      "Cafe owners roasting their own coffee",
+      "Planters and estate teams",
+    ],
+    notForWhom: [
+      "Anyone who has never roasted (day 1 of the IBC Basic is the place to start)",
+      "Anyone looking for espresso and milk skills (see IBC Advanced Barista)",
+    ],
+    days: [
+      {
+        number: 1,
+        title: "Curves and measurement",
+        topics: [
+          "Roasting theory and curve fundamentals",
+          "Roasting software and technology",
+          "Measurement and colour analysis",
+          "Green coffee and roast adjustments",
+        ],
+      },
+      {
+        number: 2,
+        title: "Control and defects",
+        topics: [
+          "Advanced roast control and parameters",
+          "Recognising defects and troubleshooting them",
+          "Sensory evaluation, cupping",
+        ],
+      },
+    ],
+    includes: ["Certification"],
+    /* TODO(client): confirm the prerequisite for IBC Advanced Roasting. */
+    prerequisites: "To be confirmed by the academy. Roasting experience is assumed. Ask before you book and you will get a straight answer.",
+    trainers: [], nextInLadder: null,
+    faq: courseFaqCommon("the IBC Advanced Roasting"),
+    instances: [batch("ibc-advanced-roasting", "2026-09-15", "2026-09-16", 4)],
+    heroImage: null,
+    heroAlt: "Cupping session with roasted coffee samples", priority: 3,
   },
 ];
 
+/**
+ * Retired URLs.
+ *
+ * Latte Art, Brewing and Roasting and Cupping stopped being courses and became days inside the
+ * IBC, so each one points at the day that teaches it rather than at the hub: someone who searched
+ * for a latte art course should land on the latte art day, not on a list.
+ *
+ * The three Barista Skills URLs all land on day 3, the only barista training the academy runs.
+ * There is no intermediate or professional equivalent to send them to, and pointing them at a
+ * course that does not exist would be worse than pointing them at the one that does.
+ */
+const IBC_BASIC = "/courses/italian-barista-course-basic";
+
+export const redirects: Redirect[] = [
+  { from: "/courses/roasting-and-cupping", to: `${IBC_BASIC}#day-1`, statusCode: 301 },
+  { from: "/courses/brewing", to: `${IBC_BASIC}#day-2`, statusCode: 301 },
+  { from: "/courses/sca-barista-skills-foundation", to: `${IBC_BASIC}#day-3`, statusCode: 301 },
+  { from: "/courses/sca-barista-skills-intermediate", to: `${IBC_BASIC}#day-3`, statusCode: 301 },
+  { from: "/courses/sca-barista-skills-professional", to: `${IBC_BASIC}#day-3`, statusCode: 301 },
+  { from: "/courses/latte-art", to: `${IBC_BASIC}#day-4`, statusCode: 301 },
+  { from: "/courses/italian-barista-certificate-junior", to: IBC_BASIC, statusCode: 301 },
+  { from: "/courses/italian-barista-certificate-advanced", to: "/courses/ibc-advanced-barista", statusCode: 301 },
+];
+
 export const faqs: FaqItem[] = [
-  { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with IBC Junior or Barista Skills Foundation. If you already pull shots daily, start at Intermediate or IBC Advanced. Message us on WhatsApp with your background and we will point you to the right one.", link: { label: "See all courses", href: "/courses" } },
-  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India offers it at Junior and Advanced levels.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
-  { category: "certification", q: "Are your courses SCA certified?", a: "The academy has an SCA Authorised Trainer on faculty, and assessed SCA modules are available on batches the academy confirms. The courses themselves are described as training aligned to the SCA Coffee Skills Program, across five modules at Foundation, Intermediate and Professional levels. Ask which batches are assessed, and what the SCA charges for the assessment, before you book.", link: { label: "About the SCA program", href: "/certifications/sca-coffee-skills-program" } },
-  { category: "fees", q: "How much do the courses cost?", a: "Fees are confirmed by the academy for each batch and stated incl. GST before you pay. Message us on WhatsApp for the current fee sheet.", link: { label: "See the fee table", href: "/courses" } },
-  { category: "schedule", q: "When is the next batch?", a: "Batch dates are announced on each course page and on the calendar. Join the batch alert on any course to be told first.", link: { label: "See the batch calendar", href: "/calendar" } },
-  { category: "campus", q: "Where is the academy?", a: "Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
-  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. Our courses are built around machine time and assessment for that reason.", link: { label: "Compare the two certificates", href: "/certifications" } },
+  { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with the IBC Basic. It runs four days and covers roasting, brewing, espresso and latte art, one a day. If you already pull shots daily, look at IBC Advanced Barista; if you already roast, look at IBC Advanced Roasting.", link: { label: "See all three courses", href: "/courses" } },
+  { category: "courses", q: "Do you teach latte art or brewing on their own?", a: "Not as separate courses. Latte art is day 4 of the IBC Basic and brewing is day 2, and you take the whole four days rather than one of them.", link: { label: "See the four days", href: "/courses/italian-barista-course-basic" } },
+  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India teaches under the supervision of Espresso Academy Florence and awards it at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
+  { category: "certification", q: "Are your courses SCA certified?", a: "No. The academy runs the Italian Barista Course, not an SCA course. There is an SCA Authorised Trainer on faculty, and assessed SCA modules run on batches the academy confirms, but no SCA course, fee or date is published here. Ask if you want the SCA route specifically.", link: { label: "How the two compare", href: "/certifications" } },
+  { category: "fees", q: "What does the course cost?", a: "The fee for the IBC Basic is on its course page. The two Advanced courses are priced per batch and the academy confirms the figure before you pay. Message us on WhatsApp for either.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
+  { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000. That advance confirms your seat, and the balance is paid at the academy before the first day. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
+  { category: "schedule", q: "When is the next batch?", a: "Batch dates are on each course page and on the calendar. A batch drops off the calendar once it has started.", link: { label: "See the batch calendar", href: "/calendar" } },
+  { category: "campus", q: "Where is the academy?", a: "Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
+  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. The IBC Basic is four days of machine time and ends in an assessed exam for that reason.", link: { label: "What the certificate is worth", href: "/certifications" } },
   { category: "courses", q: "Do you train cafe teams?", a: "Ask us. Message the academy on WhatsApp with your cafe, team size and goal and we will reply with options.", link: { label: "Ask about team training", href: "/contact?topic=cafe" } },
 ];
 
 export const stories: Story[] = []; // stays empty until real, permitted stories arrive
 
 export const levelBadge: Record<Level, { label: string; className: string }> = {
-  foundation: { label: "Foundation", className: "bg-mustard text-black" },
-  intermediate: { label: "Intermediate", className: "bg-blue text-white" },
-  professional: { label: "Professional", className: "bg-purple text-white" },
-  junior: { label: "IBC Junior", className: "bg-mustard text-black" },
+  basic: { label: "IBC Basic", className: "bg-mustard text-black" },
   advanced: { label: "IBC Advanced", className: "bg-blue text-white" },
-  open: { label: "Open level", className: "bg-white-2 text-black" },
 };

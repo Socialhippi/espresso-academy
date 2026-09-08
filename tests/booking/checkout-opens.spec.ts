@@ -100,12 +100,12 @@ test("the enquiry form gets a Turnstile token too", async ({ page }) => {
 /**
  * The hero button, not the batch table.
  *
- * `/courses/latte-art` carries the ₹1 test batch, so its hero is in the "one open priced batch"
+ * `/courses/ibc-advanced-barista` carries the ₹1 test batch, so its hero is in the "one open priced batch"
  * state and must go straight to that batch's checkout. This is the path a reader who has decided
  * actually takes: they do not scroll past the syllabus to find a Book button in a table.
  */
 test("the course hero button reaches Razorpay checkout", async ({ page }) => {
-  await page.goto("/courses/latte-art");
+  await page.goto("/courses/ibc-advanced-barista");
 
   /*
    * Either wording is correct and which one appears depends on the data: one bookable batch gives
@@ -117,7 +117,7 @@ test("the course hero button reaches Razorpay checkout", async ({ page }) => {
   const hero = page.getByRole("link", { name: /^(Book this batch|Choose a date)/ }).first();
   await expect(
     hero,
-    "the Latte Art hero is not offering its bookable batch — check courseCta and the seeded test batch",
+    "the IBC Advanced Barista hero is not offering its bookable batch — check courseCta and the seeded test batch",
   ).toBeVisible();
   await hero.click();
 

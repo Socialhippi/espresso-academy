@@ -62,6 +62,42 @@ export const linkRef = defineType({
 });
 
 /** A question and its answer, with an optional deep link. Used inline on courses and guides. */
+/**
+ * One day of a course: a number, a title and the topics covered.
+ *
+ * The number is stored rather than derived from the array index because it is the anchor a
+ * redirect lands on (/courses/latte-art now points at #day-4), and an anchor that moves when an
+ * editor reorders the array is an anchor that breaks a link somebody already published.
+ */
+export const courseDay = defineType({
+  name: "courseDay",
+  title: "Day",
+  type: "object",
+  fields: [
+    defineField({
+      name: "number",
+      title: "Day number",
+      type: "number",
+      description: "1 for the first day. Used as the #day-N anchor, so it must not change once published.",
+      validation: (rule) => rule.required().integer().min(1),
+    }),
+    defineField({ name: "title", type: "string", validation: (rule) => rule.required() }),
+    defineField({
+      name: "topics",
+      type: "array",
+      of: [defineArrayMember({ type: "string" })],
+      validation: (rule) => rule.required().min(1),
+    }),
+  ],
+  preview: {
+    select: { number: "number", title: "title", topics: "topics" },
+    prepare: ({ number, title, topics }) => ({
+      title: `Day ${number ?? "?"}: ${title ?? ""}`,
+      subtitle: `${(topics ?? []).length} topics`,
+    }),
+  },
+});
+
 export const faqEntry = defineType({
   name: "faqEntry",
   title: "Question",
@@ -154,6 +190,7 @@ export const sharedObjects = [
   brandImage,
   credential,
   linkRef,
+  courseDay,
   faqEntry,
   seoFields,
   attributionSource,

@@ -9,8 +9,10 @@
  * so nobody could mistake it, priced at ₹1 so a mis-click costs a rupee in test mode, and it is
  * the only document in the dataset that carries a fee.
  *
- * The course it hangs off is real, so the course's own `feeInclGst` stays null and the site keeps
- * its TBC state everywhere else: the fee lives on the batch as a `priceOverride`.
+ * The course it hangs off is IBC Advanced Barista, which has no fee of its own and no dated batch,
+ * so the test batch cannot be confused with a real one and cannot shadow a real fee. The fee lives
+ * on the batch as a `priceOverride`, and the checkout takes the smaller of the advance and the
+ * fee, so a ₹1 batch charges ₹1 rather than the ₹5,000 advance.
  *
  * Delete it with:  pnpm sanity:seed:test-batch -- --delete
  */
@@ -21,7 +23,7 @@ const client = getCliClient({ apiVersion: "2026-09-05" });
 const INSTANCE_ID = "instance-e2e-test-batch";
 /** One seat, so the sold-out path can be exercised without exhausting the main test batch. */
 const SOLDOUT_ID = "instance-e2e-soldout-batch";
-const COURSE_ID = "course-latte-art";
+const COURSE_ID = "course-ibc-advanced-barista";
 
 /** Far enough out that the schema's "start date must be in the future" rule keeps passing. */
 function startDate(): string {

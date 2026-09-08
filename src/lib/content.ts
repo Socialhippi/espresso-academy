@@ -45,7 +45,11 @@ import {
  * Types. These were in content/data.ts; they live here now because src/ no longer imports it.
  * ------------------------------------------------------------------------------------------- */
 
-export type Level = "foundation" | "intermediate" | "professional" | "junior" | "advanced" | "open";
+/**
+ * Two levels, not six. Revision 2 of content/facts.md cut the catalogue to three courses on one
+ * ladder: the IBC Basic, and the two Advanced courses that follow it.
+ */
+export type Level = "basic" | "advanced";
 export type Format = "in-person" | "hybrid" | "online";
 export type SkillArea =
   | "barista-skills"
@@ -114,6 +118,19 @@ export interface CourseInstance {
   venue: Venue | null;
 }
 
+/**
+ * One day of a course.
+ *
+ * The client gives the syllabus a module at a time, one module per day, and the day is the unit a
+ * reader is sold: latte art is day 4 of the IBC, not a course of its own. It is also what the
+ * retired /courses/latte-art URL redirects to, so each day renders with `id="day-<number>"`.
+ */
+export interface CourseDay {
+  number: number;
+  title: string;
+  topics: string[];
+}
+
 export interface CourseFaq {
   q: string;
   a: string;
@@ -134,13 +151,15 @@ export interface Course {
   format: Format | null;
   durationDays: number | null;
   durationHours: number | null;
+  /** The daily hours, e.g. "10 am to 5 pm". Null renders a TBC state. */
+  schedule: string | null;
   feeInclGst: number | null;
   emiAvailable: boolean | null;
   seatsMax: number | null;
   outcome: string;
   forWhom: string[];
   notForWhom: string[];
-  modules: string[] | null;
+  days: CourseDay[] | null;
   includes: string[] | null;
   prerequisites: string | null;
   trainers: string[];
@@ -309,7 +328,7 @@ function normaliseCourse(raw: Course): Course {
     isWorkshop: raw.isWorkshop ?? false,
     forWhom: raw.forWhom ?? [],
     notForWhom: raw.notForWhom ?? [],
-    modules: nullIfEmpty(raw.modules),
+    days: nullIfEmpty(raw.days),
     includes: nullIfEmpty(raw.includes),
     trainers: (raw.trainers ?? []).filter((slug): slug is string => Boolean(slug)),
     faq: raw.faq ?? [],
@@ -364,14 +383,7 @@ export async function getSkillAreas(): Promise<SkillArea[]> {
 
 /** The levels that actually have a course, in ladder order. */
 export async function getLevels(): Promise<Level[]> {
-  const ladder: Level[] = [
-    "foundation",
-    "intermediate",
-    "professional",
-    "junior",
-    "advanced",
-    "open",
-  ];
+  const ladder: Level[] = ["basic", "advanced"];
   const present = new Set((await getCourses()).map((course) => course.level));
   return ladder.filter((level) => present.has(level));
 }
@@ -618,12 +630,8 @@ export async function getPreviousInLadder(course: Course): Promise<Course | unde
  * ------------------------------------------------------------------------------------------- */
 
 export const levelBadge: Record<Level, { label: string; className: string }> = {
-  foundation: { label: "Foundation", className: "bg-mustard text-black" },
-  intermediate: { label: "Intermediate", className: "bg-blue text-white" },
-  professional: { label: "Professional", className: "bg-purple text-white" },
-  junior: { label: "IBC Junior", className: "bg-mustard text-black" },
+  basic: { label: "IBC Basic", className: "bg-mustard text-black" },
   advanced: { label: "IBC Advanced", className: "bg-blue text-white" },
-  open: { label: "Open level", className: "bg-white-2 text-black" },
 };
 
 export const skillAreaLabel: Record<SkillArea, string> = {

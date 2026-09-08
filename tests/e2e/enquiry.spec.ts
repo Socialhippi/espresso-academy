@@ -75,7 +75,7 @@ test.describe("enquiry form", () => {
       });
     });
 
-    await page.goto("/enquire?course=latte-art");
+    await page.goto("/enquire?course=ibc-advanced-roasting");
     await waitForHydratedForm(page);
     await page.getByLabel("Your name (required)").fill("Test Person");
     await page.getByLabel("Mobile number (required)").fill("9876543210");
@@ -86,7 +86,7 @@ test.describe("enquiry form", () => {
     await expect(page.getByText("We have your enquiry")).toBeVisible();
     await expect(page.getByText(/fastest reply is on WhatsApp/)).toBeVisible();
     const link = page.getByRole("link", { name: "Continue on WhatsApp" });
-    await expect(link).toHaveAttribute("href", /Latte%20Art/);
+    await expect(link).toHaveAttribute("href", /IBC%20Advanced%20Roasting/);
   });
 
   test("a server failure shows the WhatsApp handoff instead of a dead end", async ({ page }) => {
@@ -110,8 +110,8 @@ test.describe("enquiry form", () => {
   });
 
   test("the query string pre-fills the course", async ({ page }) => {
-    await page.goto("/enquire?course=brewing");
-    await expect(page.getByLabel("Which course (optional)")).toHaveValue("brewing");
+    await page.goto("/enquire?course=ibc-advanced-barista");
+    await expect(page.getByLabel("Which course (optional)")).toHaveValue("ibc-advanced-barista");
   });
 });
 

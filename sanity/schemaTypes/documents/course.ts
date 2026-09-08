@@ -8,12 +8,8 @@
 import { defineArrayMember, defineField, defineType } from "sanity";
 
 const LEVELS = [
-  { title: "Foundation", value: "foundation" },
-  { title: "Intermediate", value: "intermediate" },
-  { title: "Professional", value: "professional" },
-  { title: "IBC Junior", value: "junior" },
+  { title: "IBC Basic", value: "basic" },
   { title: "IBC Advanced", value: "advanced" },
-  { title: "Open level", value: "open" },
 ];
 
 const SKILL_AREAS = [
@@ -108,12 +104,20 @@ export const course = defineType({
       of: [defineArrayMember({ type: "string" })],
       validation: (rule) => rule.required().min(1),
     }),
+    /*
+     * The syllabus, a day at a time.
+     *
+     * It was a flat list of module names. The academy teaches one module per day and sells the
+     * course that way ("4 days, including certification"), and the retired /courses/latte-art URL
+     * now redirects to day 4 of this course, so a day has to be an addressable thing rather than
+     * the fourth string in an array.
+     */
     defineField({
-      name: "modules",
-      title: "What you will learn",
+      name: "days",
+      title: "The syllabus, day by day",
       type: "array",
       group: "content",
-      of: [defineArrayMember({ type: "string" })],
+      of: [defineArrayMember({ type: "courseDay" })],
       description: "Leave empty until the syllabus is confirmed; the page shows a TBC panel.",
     }),
     defineField({
@@ -157,6 +161,13 @@ export const course = defineType({
       },
     }),
     defineField({ name: "durationDays", title: "Duration (days)", type: "number", group: "commercial", validation: (rule) => rule.positive() }),
+    defineField({
+      name: "schedule",
+      title: "Daily hours",
+      type: "string",
+      group: "commercial",
+      description: 'The hours each day runs, for example "10 am to 5 pm". Empty renders a TBC state.',
+    }),
     defineField({ name: "durationHours", title: "Duration (hours)", type: "number", group: "commercial", validation: (rule) => rule.positive() }),
     defineField({
       name: "feeInclGst",

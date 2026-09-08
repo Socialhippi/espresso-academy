@@ -31,27 +31,29 @@ const comparison = [
     /* facts.md, Trainers: Akanksha Gupta is listed in the SCA public trainer directory as an
        Authorised Trainer, checked 5 Sept 2026. That supports "an AST on faculty" and nothing
        further: which batches are assessed is still the academy's to confirm. */
-    sca: "The Specialty Coffee Association, not the school. The academy has an SCA Authorised Trainer on faculty, and assessed SCA modules are available on batches the academy confirms. The courses are described as training aligned to the program.",
+    sca: "The Specialty Coffee Association, not the school, and only on an assessed module taught by an authorised trainer. The academy has an SCA Authorised Trainer on faculty and assessed modules run on batches the academy confirms.",
   },
   {
     label: "Levels",
-    ibc: "Junior, then Advanced.",
-    sca: "Foundation, Intermediate, then Professional, across five modules.",
+    ibc: "Basic Barista, then Advanced Barista or Advanced Roasting.",
+    sca: "Foundation, Intermediate, then Professional, across five areas.",
+  },
+  {
+    label: "Taught here",
+    ibc: "Yes. All three courses at the Bengaluru campus lead to it.",
+    /* facts.md line 53: the client's document describes the framework and lists no SCA course,
+       fee or date the academy offers. Saying so plainly is the whole point of this row. */
+    sca: "No. The academy runs no SCA course of its own, and this page is here so you can tell the two certificates apart.",
   },
   {
     label: "Who it suits",
     ibc: "People who want one certificate, issued by Espresso Academy, Florence, start to finish.",
-    sca: "People who want a modular program they can add to, module by module, over years.",
+    sca: "People who want a modular programme they can add to, area by area, over years.",
   },
   {
     label: "What it costs",
-    ibc: null,
-    sca: null,
-  },
-  {
-    label: "How it fits the ladder",
-    ibc: "Two rungs, Junior then Advanced. IBC Junior assumes no machine experience.",
-    sca: "Three levels per module. Which level suits you is agreed with the academy first.",
+    ibc: "The certificate is part of the course fee. Nothing separate is charged for it.",
+    sca: "Not published here, because no SCA course is sold here. The SCA charges its own assessment and certificate fee.",
   },
 ];
 
@@ -76,9 +78,10 @@ export default async function CertificationsPage() {
         title="Which coffee certificate is worth your time"
         intro={
           <p>
-            Two certificates run through the courses at the Bengaluru campus. They are issued by
-            different bodies, cover different ground and suit different people. This page sets them
-            side by side so you can pick on the facts rather than on the acronym.
+            Two certificates come up when people look for barista training in India. The academy
+            teaches one of them, the Italian Barista Certificate. The other, the SCA Coffee Skills
+            Program, is explained here because you deserve to know what you are not getting. This
+            page sets them side by side so you can choose on the facts rather than on the acronym.
           </p>
         }
       />
@@ -122,11 +125,10 @@ export default async function CertificationsPage() {
                       {row.label}
                     </th>
                     <td className="py-5 pr-6 type-small text-black">
-                      {/* TODO(client): certification fees are not published. */}
-                      {row.ibc ?? <TbcPill label="Fee TBC" />}
+                      {row.ibc ?? <TbcPill />}
                     </td>
                     <td className="py-5 pr-6 type-small text-black">
-                      {row.sca ?? <TbcPill label="Fee TBC" />}
+                      {row.sca ?? <TbcPill />}
                     </td>
                   </tr>
                 ))}
@@ -179,18 +181,27 @@ export default async function CertificationsPage() {
               return (
                 <div key={certification.slug} className="border border-white-2 p-6 md:p-8">
                   <h3 className="type-h3 text-black">{certification.name}</h3>
-                  <ul className="mt-5 flex flex-col gap-3">
-                    {courses.map((course) => (
-                      <li key={course.slug} className="border-t border-white-2 pt-3">
-                        <Link
-                          href={`/courses/${course.slug}`}
-                          className="inline-flex min-h-11 items-center type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
-                        >
-                          {course.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                  {courses.length > 0 ? (
+                    <ul className="mt-5 flex flex-col gap-3">
+                      {courses.map((course) => (
+                        <li key={course.slug} className="border-t border-white-2 pt-3">
+                          <Link
+                            href={`/courses/${course.slug}`}
+                            className="inline-flex min-h-11 items-center type-body text-black underline decoration-white-2 underline-offset-4 hover:text-red hover:decoration-red"
+                          >
+                            {course.title}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    /* An empty list under a heading that promises courses reads as a page that
+                       has lost its data. This says the true thing instead. */
+                    <p className="mt-5 border-t border-white-2 pt-3 type-body text-black">
+                      No course here leads to it. The academy runs the Italian Barista Course, not
+                      an SCA course.
+                    </p>
+                  )}
                   <p className="mt-6 measure type-small text-grey">
                     {certification.recognitionNote}
                   </p>
@@ -208,9 +219,9 @@ export default async function CertificationsPage() {
               <SectionHeading
                 number="04"
                 eyebrow="Levels"
-                title="The two ladders"
+                title="The IBC ladder"
                 id="ladder-heading"
-                description="Neither ladder depends on the other. The IBC runs at Junior and Advanced; the SCA-aligned training runs at Foundation, Intermediate and Professional."
+                description="The IBC runs at Basic, then at two Advanced courses. Neither Advanced course requires the other."
               />
             </div>
             <div className="lg:col-span-8">
@@ -254,7 +265,8 @@ export default async function CertificationsPage() {
         body={
           <p>
             Tell the academy what you want to be doing in a year, and ask which certificate helps
-            and which one is beside the point. The fee for both is not published yet.
+            and which one is beside the point. You will get a straight answer, including when the
+            answer is that the academy does not teach what you need.
           </p>
         }
       />

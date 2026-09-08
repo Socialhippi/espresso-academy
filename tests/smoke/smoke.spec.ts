@@ -20,7 +20,7 @@ import { expect, test } from "@playwright/test";
 const ROUTES = [
   "/",
   "/courses",
-  "/courses/latte-art",
+  "/courses/italian-barista-course-basic",
   "/calendar",
   "/enquire",
   "/thank-you",
@@ -73,7 +73,7 @@ test("robots.txt lets crawlers in and holds the private routes back", async ({ r
 test("a bookable batch can be reached and its checkout form renders", async ({ page }) => {
   // The whole commercial path in one check: the hub offers the course, the course offers the batch,
   // the batch offers a form. Each of those three links has broken separately.
-  await page.goto("/courses/latte-art");
+  await page.goto("/courses/italian-barista-course-basic");
   const book = page.getByRole("link", { name: /^(Book this batch|Choose a date)/ }).first();
   await expect(book, "the course with a payable batch is not offering it").toBeVisible();
 

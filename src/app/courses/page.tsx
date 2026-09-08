@@ -13,7 +13,6 @@ import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { Placeholder } from "@/components/site/Placeholder";
 import { CourseCard } from "@/components/course/CourseCard";
-import { CourseFilters } from "@/components/course/CourseFilters";
 import { LevelLadder } from "@/components/course/LevelLadder";
 import {
   getCertifications,
@@ -31,7 +30,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { courseListNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Every barista, latte art, brewing, roasting and cupping course at the Bengaluru campus, with the level and the certificate for each. Fees and dates are TBC.";
+  "Three courses at the Bengaluru campus: the four-day Italian Barista Course, IBC Advanced Barista and IBC Advanced Roasting. Dates, seats and what each day covers.";
 
 /** Canonical is always /courses: a filtered view is the same set, narrowed (.claude/rules/seo.md). */
 export const metadata: Metadata = pageMetadata({
@@ -52,25 +51,34 @@ function firstValue(value: string | string[] | undefined): string | undefined {
   return Array.isArray(value) ? value[0] : value;
 }
 
-/** The three routes through the course list. Facts only; every gap is named as unpublished. */
+const IBC_BASIC = "/courses/italian-barista-course-basic";
+
+/**
+ * The three routes through the catalogue.
+ *
+ * Revision 2 of content/facts.md cut the catalogue from eight courses to three, and the third
+ * route used to send "I just love coffee" to a filter of open-level courses that no longer exist.
+ * Latte art and brewing are still taught; they are days 4 and 2 of the IBC Basic, so that is where
+ * the link goes.
+ */
 const howToChoose = [
   {
     title: "If you want a barista job",
-    body: "Start with IBC Junior or Barista Skills Foundation. IBC Junior leads to the Italian Barista Certificate (IBC), issued by Espresso Academy, Florence. Barista Skills Foundation is training aligned to the SCA Coffee Skills Program. Neither assumes you have used a machine before.",
-    href: "/courses?level=foundation",
-    cta: "See foundation courses",
+    body: "Take the IBC Basic. Four days, one module a day, from green coffee and roasting through brewing and espresso to latte art, ending in an assessed exam and the Italian Barista Certificate at Basic Barista. It assumes you have never touched a machine.",
+    href: IBC_BASIC,
+    cta: "See the four days",
   },
   {
-    title: "If you run or are opening a cafe",
-    body: "Barista Skills Intermediate and Professional are the upper two rungs. Roasting and Cupping covers the roasting and cupping side, and the faculty hold Q Grader and CQI Q Processing credentials. Ask about training a whole team and the academy will scope it with you.",
-    href: "/contact?topic=cafe",
-    cta: "Ask about team training",
+    title: "If you already work on a bar",
+    body: "IBC Advanced Barista is two days on varietals, extraction, recipes and a speed test. IBC Advanced Roasting is two days on curves, defects and cupping. Take either, or both: neither requires the other, and both are capped at 4 seats.",
+    href: "/courses?level=advanced",
+    cta: "See both Advanced courses",
   },
   {
     title: "If you just love coffee",
-    body: "Latte Art and Brewing are open to any level, so you do not need to work in a cafe first. The fee, duration and dates for both are not published yet.",
-    href: "/courses?level=open",
-    cta: "See open-level courses",
+    body: "Latte art and brewing are not sold on their own. Latte art is day 4 of the IBC Basic and brewing is day 2, so you learn them inside the whole four days rather than in an afternoon.",
+    href: `${IBC_BASIC}#day-4`,
+    cta: "See the latte art day",
   },
 ];
 
@@ -99,6 +107,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       course.durationHours !== null,
   );
 
+  const filtered = activeLevel !== null || activeArea !== null;
   const filterSummary = [
     activeLevel ? levelBadge[activeLevel].label : null,
     activeArea ? skillAreaLabel[activeArea] : null,
@@ -110,28 +119,21 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
     <>
       <PageHero
         above={<Breadcrumbs items={[{ label: "Courses", href: "/courses" }]} />}
-        eyebrow="Eight courses, two ladders"
+        eyebrow="Three courses, one certificate"
         title="Barista and coffee courses in Bengaluru"
         intro={
           <>
             <p>
-              The academy teaches at the RMV 2nd Stage campus across barista skills, latte art,
-              brewing, and roasting and cupping. Two certificate ladders run through them. The{" "}
+              The academy runs the Italian Barista Course at the RMV 2nd Stage campus. Four days at
+              Basic, then two Advanced courses of two days each, one for the bar and one for the
+              roaster. All three lead to the{" "}
               <Link
                 href="/certifications/italian-barista-certificate"
                 className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
               >
                 Italian Barista Certificate
-              </Link>{" "}
-              is issued in Italy by Espresso Academy, Florence, at Junior and Advanced level. The
-              other courses are{" "}
-              <Link
-                href="/certifications/sca-coffee-skills-program"
-                className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-              >
-                training aligned to the SCA Coffee Skills Program
-              </Link>{" "}
-              at Foundation, Intermediate and Professional level.
+              </Link>
+              , which is issued in Italy by Espresso Academy, Florence.
             </p>
           </>
         }
@@ -155,26 +157,32 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
 
       <section className="section-y-sm" aria-labelledby="course-list-heading">
         <Container>
-          <CourseFilters
-            levels={levels}
-            skillAreas={skillAreas}
-            activeLevel={activeLevel}
-            activeArea={activeArea}
-          />
-
-          {/* The card grid is the page's main content and was the only band with no numbered
-              opener, so the section numbering started at 01 on a secondary block. */}
+          {/*
+            No filter chips. They were built for eight courses across two ladders; over three
+            courses a chip bar is more controls than content, and every card is above the fold on a
+            phone. The ?level= and ?area= parameters still narrow the list, because the level ladder
+            links to one, so a narrowed view says so and offers the way back.
+          */}
           <SectionHeading
             number="01"
             eyebrow="The courses"
             title="Every course at the campus"
             id="course-list-heading"
-            className="mt-12"
-            description="No fee or batch date is published yet. Where a course shows TBC, the number is not confirmed, so ask the academy for the current figure."
+            description="Three courses, and that is the whole catalogue. Latte art, brewing and roasting are days inside the IBC Basic rather than courses you can buy on their own."
           />
-          <p className="mt-8 type-label text-grey" aria-live="polite">
-            {courses.length} of {allCourses.length} courses
-            {filterSummary ? `: ${filterSummary}` : ""}
+          <p className="mt-8 flex flex-wrap items-center gap-x-4 gap-y-2" aria-live="polite">
+            <span className="type-label text-grey">
+              {courses.length} of {allCourses.length} courses
+              {filterSummary ? `: ${filterSummary}` : ""}
+            </span>
+            {filtered && (
+              <Link
+                href="/courses"
+                className="inline-flex min-h-11 items-center type-small text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+              >
+                Show all {allCourses.length}
+              </Link>
+            )}
           </p>
 
           {courses.length === 0 ? (
@@ -217,7 +225,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 eyebrow="How to choose"
                 title="Which one is yours"
                 id="choose-heading"
-                description="Three routes through the same eight courses. Pick the one that sounds like where you are now, not where you want to end up."
+                description="Three routes through three courses. Pick the one that sounds like where you are now, not where you want to end up."
                 className="lg:sticky lg:top-28"
               />
             </div>
@@ -246,16 +254,16 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
         </Container>
       </section>
 
-      {/* Full width. The section above it is already a 4/8 split, and the ladder's five badges
-          want the horizontal room. */}
+      {/* Full width. The section above it is already a 4/8 split, and the ladder's badges want the
+          horizontal room. */}
       <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
           <SectionHeading
             number="03"
             eyebrow="Levels"
-            title="The two ladders"
+            title="Where each course sits"
             id="ladder-heading"
-            description="Foundation to Professional on the SCA side, Junior to Advanced on the IBC side. They run in parallel."
+            description="One ladder. IBC Basic first, then either Advanced course, or both. Neither Advanced course requires the other."
           />
           <LevelLadder current={activeLevel ?? undefined} className="mt-10" />
         </Container>
@@ -270,7 +278,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 eyebrow="Fees"
                 title="What each course costs"
                 id="fees-heading"
-                description="Stated incl. GST, always, and confirmed before you pay. Nothing here is published yet."
+                description="Confirmed before you pay, always. ₹5,000 holds a seat and the balance is paid at the academy before the first day."
                 className="lg:sticky lg:top-28"
               />
             </div>
@@ -281,18 +289,15 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               {!anyFeeOrDuration ? (
                 /*
                  * design.md's states rule is "empty state copy + WhatsApp", and this is the one
-                 * place the site owed one and did not give it. With every cell null the list was
-                 * eight rows of two identical grey pills, roughly 1300px at 390, restating the
-                 * course titles and level badges the card grid above already shows in full, to
-                 * prove the point the section description makes in one sentence. It comes back
-                 * whole, with no code change, as soon as one fee or one duration lands.
+                 * place the site owed one and did not give it. It comes back whole, with no code
+                 * change, as soon as one fee or one duration lands.
                  */
                 <div className="mt-4 border border-white-2 bg-white p-6 md:p-8">
                   <p className="type-h3 text-black">No fee is published yet</p>
                   <p className="mt-3 measure type-body text-grey">
                     Not for any of the {allCourses.length} courses. Rather than print a number the
                     academy has not confirmed, this page shows nothing. Ask on WhatsApp and you
-                    will get the current fee for the course you want, incl. GST.
+                    will get the current fee for the course you want.
                   </p>
                   <div className="mt-6">
                     <WhatsAppButton event="whatsapp_click_fees" />
@@ -330,7 +335,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                         </dd>
                       </div>
                       <div className="flex items-center gap-2">
-                        <dt className="type-label text-grey">Fee incl. GST</dt>
+                        <dt className="type-label text-grey">Fee</dt>
                         <dd>
                           {course.feeInclGst === null ? (
                             <TbcPill />
@@ -365,7 +370,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                         Duration
                       </th>
                       <th scope="col" className="py-3 type-label text-grey">
-                        Fee incl. GST
+                        Fee
                       </th>
                     </tr>
                   </thead>
@@ -406,10 +411,10 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               </div>
                 </>
               )}
-              {/* TODO(client): no fee is published for any course. Every cell is a TBC pill. */}
+              {/* TODO(client): fees for the two Advanced courses are not published. */}
               <p className="mt-4 measure type-small text-grey">
-                Whether a certification body charges its own fee on top of the course fee is not
-                published either, so ask before you pay.
+                The certificate is part of the course fee. No certification body charges a separate
+                fee on top of it.
               </p>
             </div>
           </div>

@@ -168,7 +168,9 @@ export async function courseNode(course: Course): Promise<JsonLdNode> {
     provider: { "@id": ORGANISATION_ID },
     inLanguage: "en-IN",
     educationalLevel: course.levelLabel,
-    teaches: course.modules ?? undefined,
+    /* Every topic across every day, flattened. schema.org `teaches` takes what the course
+       teaches, not how the days are arranged, and the day structure is on the page itself. */
+    teaches: course.days?.flatMap((day) => day.topics) ?? undefined,
     coursePrerequisites: course.prerequisites ?? undefined,
     /* Google requires either hasCourseInstance or offers on a Course. Neither can be stated
        honestly yet, so the course is described without them and gains them the day the client

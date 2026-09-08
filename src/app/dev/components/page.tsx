@@ -51,14 +51,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false, nocache: true },
 };
 
-const allLevels: Level[] = [
-  "foundation",
-  "intermediate",
-  "professional",
-  "junior",
-  "advanced",
-  "open",
-];
+const allLevels: Level[] = ["basic", "advanced"];
 
 interface SpecimenProps {
   title: string;
@@ -145,12 +138,12 @@ export default async function ComponentGalleryPage() {
           <div className="flex flex-wrap items-center gap-4">
             <WhatsAppButton />
             <WhatsAppButton size="icon" />
-            <WhatsAppButton size="sm" course="Barista Skills, Foundation" />
+            <WhatsAppButton size="sm" course="Italian Barista Course (IBC), Basic" />
             <CallButton phone={settings.phonePrimary} />
             <CallButton phone={settings.phonePrimary} size="icon" />
           </div>
           <p className="mt-4 type-small text-grey">
-            Pre-filled WhatsApp text: <code className="break-all text-black">{whatsappUrl({ course: "Latte Art", number: settings.whatsappNumber, template: settings.whatsappText })}</code>
+            Pre-filled WhatsApp text: <code className="break-all text-black">{whatsappUrl({ course: "IBC Basic", number: settings.whatsappNumber, template: settings.whatsappText })}</code>
           </p>
         </Specimen>
 
@@ -206,7 +199,7 @@ export default async function ComponentGalleryPage() {
           <Breadcrumbs
             items={[
               { label: "Courses", href: "/courses" },
-              { label: "Barista Skills, Foundation", href: "/courses/sca-barista-skills-foundation" },
+              { label: "Italian Barista Course (IBC), Basic", href: "/courses/italian-barista-course-basic" },
             ]}
           />
         </Specimen>
@@ -335,19 +328,19 @@ export default async function ComponentGalleryPage() {
         )}
 
         <Specimen title="Level ladder">
-          <LevelLadder current="foundation" />
+          <LevelLadder current="basic" />
         </Specimen>
 
         <Specimen title="Level ladder on the black ground" dark>
-          <LevelLadder current="junior" onDark />
+          <LevelLadder current="advanced" onDark />
         </Specimen>
 
         <Specimen title="Waitlist, inline form" note="Idle state. Submit with an empty name to see the error state and focus move.">
-          <WaitlistInline course="Barista Skills, Foundation" />
+          <WaitlistInline course="Italian Barista Course (IBC), Basic" />
         </Specimen>
 
         <Specimen title="Waitlist on the black ground" dark>
-          <WaitlistInline course="Latte Art" onDark />
+          <WaitlistInline course="IBC Advanced Roasting" onDark />
         </Specimen>
 
         <Specimen title="Course filters, nothing selected">
@@ -358,7 +351,7 @@ export default async function ComponentGalleryPage() {
           <CourseFilters
             levels={await getLevels()}
             skillAreas={await getSkillAreas()}
-            activeLevel="foundation"
+            activeLevel="basic"
           />
         </Specimen>
 
@@ -421,7 +414,7 @@ export default async function ComponentGalleryPage() {
           note="Blur a field empty for the inline error. Submitting with an invalid phone moves focus to it. With no RESEND_API_KEY set, a valid submit returns the WhatsApp handoff."
         >
           <div className="md:max-w-xl">
-            <EnquiryForm variant="student" courses={courseOptions} defaultCourse="latte-art" />
+            <EnquiryForm variant="student" courses={courseOptions} defaultCourse="italian-barista-course-basic" />
           </div>
         </Specimen>
 

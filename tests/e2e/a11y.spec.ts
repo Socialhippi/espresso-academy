@@ -66,7 +66,7 @@ test.describe("axe", () => {
     await page.goto("/faq");
     // hiddenUntilFound keeps the panel mounted, which is what makes the copy crawlable.
     const answer = page.getByText(
-      "If you have never worked a machine, start with IBC Junior",
+      "If you have never worked a machine, start with the IBC Basic",
       { exact: false },
     );
     await expect(answer).toHaveCount(1);

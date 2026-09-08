@@ -89,10 +89,10 @@ test.describe("the enquiry pipeline", () => {
 
   test("a student enquiry lands in Sanity with its course and its campaign", async ({ request }) => {
     const { status, body } = await submit(request, {
-      course: "latte-art",
+      course: "italian-barista-course-basic",
       email: "playwright@example.com",
       message: "PLAYWRIGHT: which level should I start at?",
-      utm: { utm_source: "google", utm_medium: "cpc", utm_campaign: "latte-art-sept" },
+      utm: { utm_source: "google", utm_medium: "cpc", utm_campaign: "ibc-basic-sept" },
     });
 
     expect(status).toBe(200);
@@ -105,9 +105,9 @@ test.describe("the enquiry pipeline", () => {
     expect(enquiry?.phone).toBe("+919876543210");
     expect(enquiry?.email).toBe("playwright@example.com");
     // The form sends a slug; the route resolves it to a real course reference.
-    expect(enquiry?.courseSlug).toBe("latte-art");
+    expect(enquiry?.courseSlug).toBe("italian-barista-course-basic");
     expect(enquiry?.status).toBe("new");
-    expect(enquiry?.source?.utm_campaign).toBe("latte-art-sept");
+    expect(enquiry?.source?.utm_campaign).toBe("ibc-basic-sept");
   });
 
   test("a waitlist enquiry is linked to the batch, so it appears on that batch's roster", async ({
@@ -115,7 +115,7 @@ test.describe("the enquiry pipeline", () => {
   }) => {
     const { status } = await submit(request, {
       type: "waitlist",
-      course: "latte-art",
+      course: "italian-barista-course-basic",
       instanceId: "instance-e2e-test-batch",
     });
     expect(status).toBe(200);

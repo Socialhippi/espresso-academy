@@ -151,7 +151,7 @@ async function main(): Promise<void> {
         "PLACEHOLDER. One or two sentences that answer the question in the title outright, before anyone scrolls. This is what a search result and an assistant will quote.",
       authorId: "trainer-akanksha-gupta",
       reviewerId: "trainer-nirupam-ranjan",
-      primaryCourseId: "course-sca-barista-skills-foundation",
+      primaryCourseId: "course-italian-barista-course-basic",
       questions: [
         "Do you need any experience to start?",
         "What is the difference between the IBC and the SCA route?",
@@ -163,8 +163,9 @@ async function main(): Promise<void> {
         columns: ["", "Italian Barista Certificate", "SCA Coffee Skills Program"],
         rows: [
           ["Issued by", "Espresso Academy, Florence", "Specialty Coffee Association"],
-          ["Levels", "Junior, Advanced", "Foundation, Intermediate, Professional"],
+          ["Levels", "Basic, Advanced Barista, Advanced Roasting", "Foundation, Intermediate, Professional"],
           ["Where the diploma comes from", "Italy, sent to partner schools", "The SCA, on an assessed module"],
+          ["Taught at this academy", "Yes, all three courses", "No SCA course is offered"],
         ],
       },
       faq: [
@@ -277,7 +278,7 @@ async function main(): Promise<void> {
     slug: { _type: "slug", current: "example-campaign" },
     campaign: "example-campaign",
     noindex: true,
-    course: { _type: "reference", _ref: "course-latte-art" },
+    course: { _type: "reference", _ref: "course-italian-barista-course-basic" },
     sections: [
       {
         _type: "heroSection",

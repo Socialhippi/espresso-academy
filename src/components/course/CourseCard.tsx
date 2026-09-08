@@ -29,7 +29,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
   const cta = courseCta(course, course.instances);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
   /* Same rule as the course page's spec strip: a cell appears when it has something to say, and
-     one sentence covers the rest. `prerequisites`, `trainers` and `modules` are not shown on a
+     one sentence covers the rest. `prerequisites`, `trainers` and `days` are not shown on a
      card, but they decide whether the card has anything specific to offer at all. */
   const allSpecsUnknown =
     !hasDuration &&
@@ -38,7 +38,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
     !nextInstance?.startDate &&
     course.prerequisites === null &&
     course.trainers.length === 0 &&
-    (course.modules === null || course.modules.length === 0);
+    (course.days === null || course.days.length === 0);
 
   return (
     /* The article is the flex column, not the link inside it. With `h-full` on the link and a

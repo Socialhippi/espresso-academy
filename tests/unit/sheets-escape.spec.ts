@@ -69,14 +69,14 @@ test.describe("the row the academy's sheet expects", () => {
       name: "Test Student",
       phone: "+919876543210",
       email: "test@example.com",
-      course: "latte-art",
+      course: "italian-barista-course-basic",
       batch: null,
       message: null,
       page: "/enquire",
       referrer: null,
       utmSource: "google",
       utmMedium: "cpc",
-      utmCampaign: "latte-art-sept",
+      utmCampaign: "ibc-basic-sept",
       sanityId: "abc123",
     });
     expect(row).toHaveLength(14);

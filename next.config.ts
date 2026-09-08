@@ -40,7 +40,7 @@ const nextConfig: NextConfig = {
     if (!projectId || !dataset) return [];
 
     const query = encodeURIComponent(
-      '*[_type == "redirect" && defined(from) && defined(to)]{from, to, "permanent": coalesce(permanent, true)}',
+      '*[_type == "redirect" && defined(from) && defined(to)]{from, to, "permanent": coalesce(permanent, true), statusCode}',
     );
     const url = `https://${projectId}.apicdn.sanity.io/v2026-09-05/data/query/${dataset}?query=${query}`;
 
@@ -49,13 +49,20 @@ const nextConfig: NextConfig = {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!response.ok) throw new Error(`Sanity answered ${response.status}`);
-      const body: { result?: { from: string; to: string; permanent: boolean }[] } =
-        await response.json();
-      return (body.result ?? []).map((rule) => ({
-        source: rule.from,
-        destination: rule.to,
-        permanent: rule.permanent,
-      }));
+      const body: {
+        result?: { from: string; to: string; permanent: boolean; statusCode?: number | null }[];
+      } = await response.json();
+      /*
+       * `statusCode` and `permanent` are mutually exclusive in Next's redirect type: passing both
+       * is a build error. The retired course URLs carry 301 because that is what was asked for and
+       * what the academy's SEO consultant will look for; everything else keeps the boolean, which
+       * Next renders as 308.
+       */
+      return (body.result ?? []).map((rule) =>
+        typeof rule.statusCode === "number"
+          ? { source: rule.from, destination: rule.to, statusCode: rule.statusCode }
+          : { source: rule.from, destination: rule.to, permanent: rule.permanent },
+      );
     } catch (error) {
       console.warn("[redirects] Could not read redirects from Sanity:", String(error));
       return [];

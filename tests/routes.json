@@ -23,57 +23,22 @@
       "breadcrumbs": true
     },
     {
-      "path": "/courses/italian-barista-certificate-junior",
-      "name": "Course: IBC Junior",
+      "path": "/courses/italian-barista-course-basic",
+      "name": "Course: IBC Basic",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true
     },
     {
-      "path": "/courses/italian-barista-certificate-advanced",
-      "name": "Course: IBC Advanced",
+      "path": "/courses/ibc-advanced-barista",
+      "name": "Course: IBC Advanced Barista",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true
     },
     {
-      "path": "/courses/sca-barista-skills-foundation",
-      "name": "Course: Barista Skills Foundation",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/courses/sca-barista-skills-intermediate",
-      "name": "Course: Barista Skills Intermediate",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/courses/sca-barista-skills-professional",
-      "name": "Course: Barista Skills Professional",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/courses/latte-art",
-      "name": "Course: Latte Art",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/courses/brewing",
-      "name": "Course: Brewing",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/courses/roasting-and-cupping",
-      "name": "Course: Roasting and Cupping",
+      "path": "/courses/ibc-advanced-roasting",
+      "name": "Course: IBC Advanced Roasting",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true
@@ -130,6 +95,13 @@
     {
       "path": "/trainers",
       "name": "Trainers",
+      "index": true,
+      "stickyBar": true,
+      "breadcrumbs": true
+    },
+    {
+      "path": "/trainers/nageswara-rao-k",
+      "name": "Trainer: Nageswara Rao K",
       "index": true,
       "stickyBar": true,
       "breadcrumbs": true

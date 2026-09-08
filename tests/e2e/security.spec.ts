@@ -9,7 +9,13 @@ import { allRoutes } from "./helpers";
  */
 
 /** One representative of each kind of route: static, dynamic, transactional, campaign, API. */
-const SAMPLE_ROUTES = ["/", "/courses/latte-art", "/enquire", "/book/instance-e2e-test-batch", "/lp/example-campaign"];
+const SAMPLE_ROUTES = [
+  "/",
+  "/courses/italian-barista-course-basic",
+  "/enquire",
+  "/book/instance-e2e-test-batch",
+  "/lp/example-campaign",
+];
 
 test.describe("security headers", () => {
   for (const path of SAMPLE_ROUTES) {
@@ -57,7 +63,7 @@ test.describe("security headers", () => {
   }
 
   test("a content page keeps unsafe-inline, and nothing else", async ({ request }) => {
-    const scriptSrc = await scriptSrcOf(request, "/courses/latte-art");
+    const scriptSrc = await scriptSrcOf(request, "/courses/italian-barista-course-basic");
 
     expect(scriptSrc).toContain("'unsafe-inline'");
     expect(scriptSrc, "unsafe-eval must never reach a public page").not.toContain("'unsafe-eval'");
@@ -89,7 +95,7 @@ test.describe("security headers", () => {
      * dynamic and put two Sanity round trips in front of every page view. Nothing looked wrong;
      * the suite just took four times as long.
      */
-    const response = await request.get("/courses/latte-art");
+    const response = await request.get("/courses/italian-barista-course-basic");
     expect(
       response.headers()["x-nextjs-prerender"] ?? response.headers()["cache-control"] ?? "",
       "a content page must not be server-rendered per request",
@@ -202,7 +208,7 @@ test.describe("robots.txt lets crawlers in so the noindex can be read", () => {
 test.describe("write routes refuse what they should", () => {
   test("the Sanity revalidate webhook rejects an unsigned POST", async ({ request }) => {
     const response = await request.post("/api/revalidate", {
-      data: { _type: "course", _id: "course-latte-art" },
+      data: { _type: "course", _id: "course-italian-barista-course-basic" },
     });
     expect([400, 401]).toContain(response.status());
   });

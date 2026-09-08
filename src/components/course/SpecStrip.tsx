@@ -71,12 +71,13 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
    */
   const unknown = {
     duration: !hasDuration,
+    schedule: course.schedule === null,
     format: course.format === null,
     fee: course.feeInclGst === null,
     dates: !nextInstance?.startDate,
     prerequisites: course.prerequisites === null,
     trainer: course.trainers.length === 0,
-    syllabus: course.modules === null || course.modules.length === 0,
+    syllabus: course.days === null || course.days.length === 0,
   };
   const anyUnknown = Object.values(unknown).some(Boolean);
   const unknownSpecs = Object.values(unknown).every(Boolean);
@@ -114,6 +115,10 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
       )}
 
       {course.format && <Spec label="Format">{formatLabel[course.format]}</Spec>}
+
+      {/* The daily hours, not the total: "4 days" above is the length, this is when to be there,
+          and it is the question the academy gets asked most after the fee. */}
+      {course.schedule && <Spec label="Hours">{course.schedule}</Spec>}
 
       <Spec label="Level">
         <LevelBadge level={course.level} />

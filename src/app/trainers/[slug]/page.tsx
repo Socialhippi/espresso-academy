@@ -178,7 +178,8 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
               ))}
             </ul>
           ) : (
-            /* TODO(client): courses[].trainers is empty for every course except roasting-and-cupping. */
+            /* TODO(client): courses[].trainers is empty for all three courses. facts.md does not say
+               which trainer teaches which, and the academy sets it per batch. */
             <p className="mt-8 measure type-body text-grey">
               Assigned per batch. The academy sets which trainer takes which intake nearer the
               date. If you want to learn from {trainer.name.split(" ")[0]} in particular, say so

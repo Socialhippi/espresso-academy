@@ -7,11 +7,19 @@ interface LevelBadgeProps {
 }
 
 /**
- * The only place the mustard, blue and purple accents appear. design.md restricts them to level
- * badges: mustard takes black text, blue and purple take white.
+ * The only place the mustard and blue accents appear. design.md restricts them to level badges:
+ * mustard takes black text, blue takes white.
+ *
+ * The lookup is guarded because `level` is typed but not trusted. It comes from a Sanity string
+ * field, and the set of levels shrank from six to two when revision 2 of content/facts.md cut the
+ * catalogue. A dataset that still holds a retired value used to take the whole page down with
+ * "Cannot read properties of undefined" — the build failed on it, which is the good case; the bad
+ * case is an editor typing a level into the Studio and a live course page 500ing. The unknown
+ * value is shown as it is stored, on the neutral ground, which is legible and tells whoever sees
+ * it what to fix.
  */
 export function LevelBadge({ level, className }: LevelBadgeProps) {
-  const badge = levelBadge[level];
+  const badge = levelBadge[level] ?? { label: level, className: "bg-white-2 text-black" };
   return (
     <span
       className={cn(

@@ -14,8 +14,14 @@ interface LevelLadderProps {
   id?: string;
 }
 
-const scaRungs: Level[] = ["foundation", "intermediate", "professional"];
-const ibcRungs: Level[] = ["junior", "advanced"];
+/**
+ * One ladder now, not two.
+ *
+ * Revision 2 of content/facts.md removed the SCA courses: the client's document describes the SCA
+ * as a standards body and lists no SCA course the academy runs. A second ladder with nothing on it
+ * would have been the site claiming a pathway it does not sell.
+ */
+const rungs: Level[] = ["basic", "advanced"];
 
 interface RungProps {
   level: Level;
@@ -49,6 +55,8 @@ async function Rung({ level, current, onDark }: RungProps) {
         )}
       </span>
       <span className={cn("type-small text-balance", onDark ? "text-grey-2" : "text-grey")}>
+        {/* With two Advanced courses the count is the useful thing to say; with one it is the
+            title, because "1 course" tells a reader nothing they cannot see. */}
         {courses.length === 1 && first
           ? first.title
           : `${courses.length} ${courses.length === 1 ? "course" : "courses"}`}
@@ -72,8 +80,8 @@ async function Rung({ level, current, onDark }: RungProps) {
 }
 
 /**
- * Foundation to Professional on one row, the IBC pair on a second. The visual ladder is hidden
- * from assistive tech and replaced by the plain list below it, per .claude/rules/a11y.md.
+ * IBC Basic, then IBC Advanced. The visual ladder is exposed as a labelled group and backed by the
+ * plain-prose equivalent below it, per .claude/rules/a11y.md.
  */
 export function LevelLadder({ current, className, onDark = false, id }: LevelLadderProps) {
   /* Rung is async because it reads the courses at that level. React renders an async child in a
@@ -89,37 +97,16 @@ export function LevelLadder({ current, className, onDark = false, id }: LevelLad
       */}
       <div
         role="group"
-        aria-label="The two certificate ladders"
+        aria-label="The Italian Barista Certificate ladder"
         aria-describedby={describedBy}
         className="flex flex-col gap-6"
       >
         <div>
           <p className={cn("type-label", onDark ? "text-grey-2" : "text-grey")}>
-            SCA Coffee Skills Program
-          </p>
-          <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-stretch">
-            {scaRungs.map((level, index) => (
-              <div key={level} className="flex min-w-0 flex-1 items-stretch gap-2">
-                {index > 0 && (
-                  <ChevronRight
-                    className={cn(
-                      "mt-4 hidden size-5 shrink-0 self-start md:block",
-                      onDark ? "text-black-2" : "text-white-2",
-                    )}
-                  />
-                )}
-                <Rung level={level} current={current === level} onDark={onDark} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div>
-          <p className={cn("type-label", onDark ? "text-grey-2" : "text-grey")}>
             Italian Barista Certificate
           </p>
           <div className="mt-3 flex flex-col gap-2 md:flex-row md:items-stretch">
-            {ibcRungs.map((level, index) => (
+            {rungs.map((level, index) => (
               <div key={level} className="flex min-w-0 flex-1 items-stretch gap-2">
                 {index > 0 && (
                   <ChevronRight
@@ -137,11 +124,13 @@ export function LevelLadder({ current, className, onDark = false, id }: LevelLad
       </div>
 
       <p id={describedBy} className="sr-only">
-        The SCA Coffee Skills Program runs from Foundation to Intermediate to Professional. The
-        Italian Barista Certificate runs from Junior to Advanced. The two ladders are separate; you
-        do not have to finish one before starting the other, and you do not have to start at the
-        bottom of either.
-        {current ? ` You are looking at the ${levelBadge[current].label} level.` : ""}
+        The Italian Barista Certificate runs at two levels. IBC Basic is four days and assumes no
+        machine experience. Above it sit two Advanced courses, Advanced Barista and Advanced
+        Roasting, of two days each. The two Advanced courses are separate: you can take either, or
+        both, and neither requires the other.
+        {/* Guarded for the same reason LevelBadge is: `current` comes from a ?level= parameter
+            and from a Sanity string field, and the set of levels shrank in revision 2. */}
+        {current ? ` You are looking at the ${levelBadge[current]?.label ?? current} level.` : ""}
       </p>
     </div>
   );

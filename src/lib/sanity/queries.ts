@@ -50,13 +50,14 @@ const COURSE_FIELDS = /* groq */ `
   format,
   durationDays,
   durationHours,
+  schedule,
   feeInclGst,
   emiAvailable,
   seatsMax,
   outcome,
   forWhom,
   notForWhom,
-  modules,
+  days[]{ number, title, topics },
   includes,
   prerequisites,
   "trainers": trainers[]->slug.current,
@@ -254,7 +255,12 @@ export const landingPageSlugsQuery = /* groq */ `
 `;
 
 export const redirectsQuery = /* groq */ `
-  *[_type == "redirect" && defined(from) && defined(to)] { from, to, "permanent": coalesce(permanent, true) }
+  *[_type == "redirect" && defined(from) && defined(to)] {
+    from,
+    to,
+    "permanent": coalesce(permanent, true),
+    statusCode
+  }
 `;
 
 /** The status of one booking, for the confirmation page's poll. Never returns anything else. */

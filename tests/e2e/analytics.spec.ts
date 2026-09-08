@@ -101,7 +101,7 @@ test.describe("journey 1: course to enquiry", () => {
       });
     });
 
-    await page.goto("/courses/latte-art");
+    await page.goto("/courses/italian-barista-course-basic");
 
     /*
      * Polled. `page_view` is pushed from an effect after hydration, and `goto` resolves on load,
@@ -115,9 +115,9 @@ test.describe("journey 1: course to enquiry", () => {
     const onCourse = await readLayer(page);
     const view = onCourse.find((entry) => entry.event === "page_view");
     expect(view?.page_type).toBe("course");
-    expect(view?.course_id).toBe("latte-art");
+    expect(view?.course_id).toBe("italian-barista-course-basic");
 
-    await page.goto("/enquire?course=latte-art");
+    await page.goto("/enquire?course=italian-barista-course-basic");
     await waitForHydratedForm(page);
 
     await page.getByLabel("Your name (required)").fill("Test Person");
@@ -142,7 +142,9 @@ test.describe("journey 1: course to enquiry", () => {
     expect(names.lastIndexOf("generate_lead")).toBeGreaterThan(names.lastIndexOf("form_submit"));
 
     const lead = (await readLayer(page)).find((entry) => entry.event === "generate_lead");
-    expect(lead?.course_id, "a lead has to say which course it was about").toBe("latte-art");
+    expect(lead?.course_id, "a lead has to say which course it was about").toBe(
+      "italian-barista-course-basic",
+    );
     expect(lead?.event_id, "the browser half needs an id to pair with the server half").toBeTruthy();
   });
 

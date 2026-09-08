@@ -229,7 +229,11 @@ test.describe("WhatsApp links", () => {
  * writes the answers.
  */
 test.describe("FAQ answers are server-rendered", () => {
-  const FAQ_ROUTES = ["/faq", "/courses/latte-art", "/courses/sca-barista-skills-foundation"];
+  const FAQ_ROUTES = [
+    "/faq",
+    "/courses/italian-barista-course-basic",
+    "/courses/ibc-advanced-roasting",
+  ];
 
   for (const route of FAQ_ROUTES) {
     test(`${route} shows every answer its FAQPage schema claims`, async ({ request }) => {

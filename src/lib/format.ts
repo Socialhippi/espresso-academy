@@ -125,7 +125,7 @@ export function formatPhone(e164: string): string {
 }
 
 export interface WhatsAppMessageOptions {
-  /** Course title, e.g. "Barista Skills, Foundation". */
+  /** Course title, e.g. "Italian Barista Course (IBC), Basic". */
   course?: string | null;
   /** Batch start date, ISO or already formatted. */
   batch?: string | null;

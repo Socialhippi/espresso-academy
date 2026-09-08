@@ -59,7 +59,7 @@ test.describe("/enquire, from the browser to the dataset", () => {
 
     await page.getByLabel(/Your name/).fill(TEST_NAME);
     await page.getByLabel(/Mobile number/).fill("9876500011");
-    await page.getByRole("combobox", { name: /Which course/ }).selectOption("latte-art");
+    await page.getByRole("combobox", { name: /Which course/ }).selectOption("italian-barista-course-basic");
     await page.getByRole("checkbox", { name: /may contact me/i }).check();
 
     // The route drops anything submitted inside two seconds of the form mounting.
@@ -95,6 +95,8 @@ test.describe("/enquire, from the browser to the dataset", () => {
     expect(stored[0]?.phone, "the phone number the form sent should be stored").toContain(
       "9876500011",
     );
-    expect(stored[0]?.courseSlug, "the course the form chose should be linked").toBe("latte-art");
+    expect(stored[0]?.courseSlug, "the course the form chose should be linked").toBe(
+      "italian-barista-course-basic",
+    );
   });
 });

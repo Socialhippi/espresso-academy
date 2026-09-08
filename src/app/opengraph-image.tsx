@@ -9,6 +9,6 @@ export default async function OpengraphImage() {
   return ogCard({
     eyebrow: "Coffee education",
     title: "Barista training in Bengaluru, the Florence way",
-    subtitle: "Barista skills, latte art, brewing, roasting and cupping.",
+    subtitle: "Roasting, brewing, espresso and latte art, the Italian way.",
   });
 }

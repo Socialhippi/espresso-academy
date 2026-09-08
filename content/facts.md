@@ -2,62 +2,91 @@
 
 The only facts the website may state. Every line has a source and a date. Anything not here is TBC on the site and a question for the client. Update this file first; the site follows.
 
+Revision 2, 8 September 2026: client content received (course details .docx, brochure V3 PDF, course Google Doc, Drive folder of photos and videos). Lines marked CLIENT come from those files. Earlier lines that the client's files contradict are struck and replaced.
+
 ## Organisation
-- Trading name used on the site: Espresso Academy India (source: espressoacademy.in and brand guidelines, 2026-09-04). Legal entity name: TBC (client).
-- Relationship: listed by Espresso Academy (Florence) as "Espresso Academy Official Partner in India" (source: espressoacademy.it/en/find-out-the-espresso-academy-branch-in-your-country/, 2026-09-04). Contract wording to be confirmed by client; until then use "Official Partner of Espresso Academy, Florence".
-- Espresso Academy was founded in Florence, Italy, and has focused on coffee education since 2007 (source: espressoacademy.in, 2026-09-04).
-- Espresso Academy India launched in Bengaluru in 2023 (source: espressoacademy.in and brand brochure, 2026-09-04).
-- Italian Barista Certificate (IBC) diplomas are issued in Italy by Espresso Academy and sent to authorised partner schools (source: espressoacademy.it/en/our-partners/, 2026-09-04).
-- Espresso Academy lists a second Indian partner, Italian Coffee Academy, New Delhi (source: espressoacademy.it/en/our-partners/, 2026-09-04). Consequence: do not claim national exclusivity; say Bengaluru.
-- Tagline used on brand collateral: "Happy Coffee People" (source: brand guidelines brochure page, 2026-09-04). Use only if client confirms it is current.
+- Trading name: Espresso Academy India (brand guidelines, 2026-09-04).
+- Relationship: "Espresso Academy Official Partner in India" (espressoacademy.it, 2026-09-04). Certificate wording, CLIENT: "Espresso Academy India, under the supervision of Espresso Academy Florence". Use both: "Official Partner of Espresso Academy, Florence" in copy; the certificate line verbatim on the IBC page.
+- Espresso Academy founded in Florence 19 years ago (CLIENT Google Doc), consistent with 2007. Over 30 branches worldwide (CLIENT). India launched 2023 in Bengaluru (CLIENT).
+- IBC diplomas issued in Italy by Espresso Academy (espressoacademy.it). CLIENT brochure: "Certification from Espresso Academy Italy". Client's claim "globally accepted": state as "issued in Italy by Espresso Academy, Florence, which has over 30 branches worldwide"; do not write "globally accepted" or "globally recognised" as our own claim.
+- Tagline "Happy Coffee People" appears in the CLIENT Google Doc: confirmed current, may be used.
 
-## Campus and contact
-- Address: Microexcel Plaza, Plot No. 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094 (source: espressoacademy.in, 2026-09-04). Note: the brand brochure prints "9 Plot No" and the current site's map embed is pinned to "Siddarth Plaza"; client to confirm plot number and correct pin.
-- Phone numbers published on the current site: +91 94481 06100 (header "Enquiry") and +91 98866 46411 (Location section) (source: espressoacademy.in, 2026-09-04). Brochure prints 79757 09407. WhatsApp number: TBC (client). Until confirmed, use +91 94481 06100 for both call and WhatsApp and mark TBC in STATUS.md.
-- Email: none published. TBC (client).
-- Opening hours: TBC (client).
-- Instagram: @espressoacademyindia (source: search results and brand brochure, 2026-09-04). Follower count unknown; the 206K in the brand mockup is a mockup.
-- Website domain: espressoacademy.in (source: current site).
+## Campus and contact (CLIENT .docx and Google Doc, 2026-09-08)
+- Address: Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, near Ramaiah Hospital, RMV 2nd Stage, Ashwath Nagar, Bengaluru, Karnataka 560094. Both numbers are correct: 9 is the plot, 72 is the building number on 80 Feet Road. Map pin: https://maps.app.goo.gl/d6HgcwxSFUvCEjys9 (replaces the Siddarth Plaza pin).
+- Phone and WhatsApp: +91 79757 09407 (CLIENT). The two older numbers on the old site (94481 06100, 98866 46411) are no longer the published contact; remove from the site.
+- Email: espressocademyindia@gmail.com exactly as written by the client. Spelling looks like a typo (missing "a"); confirm before it goes on the site or in the booking flow.
+- Opening hours: 10 am to 7 pm (CLIENT). Days of the week: TBC.
+- Instagram: @espressoacademyindia.
+- Photos and videos: Drive folder https://drive.google.com/drive/folders/18rp90nYZ7M1CLkOu4pIRAwy_t7XYHyap (CLIENT). Releases for students pictured: TBC.
 
-## Offer (areas only; no fees, durations, dates or seat counts are known)
-- Skill areas listed: green coffee, roasting and cupping, sensory training, brewing, barista skills, latte art, mixology, cafe management (source: espressoacademy.in "Coffee Skills Program", 2026-09-04).
-- IBC offered at Junior and Advanced levels (source: espressoacademy.in, 2026-09-04).
-- SCA Coffee Skills Program training described across five modules at Foundation, Intermediate and Professional levels (source: espressoacademy.in, 2026-09-04). SCA campus status and trainer AST status: TBC (client). Until confirmed write "training aligned to the SCA Coffee Skills Program", never "SCA-certified course".
-- Florence's India page says the Bengaluru partner offers barista, latte art, brewing, roasting and cupping courses "validated for SCA certifications", with green coffee, sensory, machine-technician and shop-management courses planned (source: espressoacademy.it/en/espresso-academy-and-its-barista-course-in-india/, 2026-09-04).
-- Fees: none published. TBC (client). Market context for internal use only, not for the site: local SCA Foundation courses are listed at ₹24,000 to ₹25,300 (SCAI, Araku), one-day barista skills at ₹8,299 (Something's Brewing), enthusiast workshops ₹699 to ₹1,000 (Westend, Blue Tokai) (sources fetched 2026-09-04).
-- Batch dates: none published. TBC (client).
-- Workshops for enthusiasts: not stated on the site. TBC (client).
-- Corporate and cafe training: not stated on the site. Brochure mentions "hospitality professionals" among faculty; offering TBC (client).
+## Courses (CLIENT, 2026-09-08). This replaces the eight-course catalogue.
+The academy sells three courses. Latte Art, Brewing, and Roasting and Cupping are days inside the IBC, not separate courses. "Barista Skills Foundation / Intermediate / Professional" are not offered as courses; SCA is described only as a certification framework (see below).
 
-## Trainers (source: espressoacademy.in "Team", 2026-09-04; also listed as authorised trainers on espressoacademy.it/en/our-authorized-trainers/)
-- Akanksha Gupta: biotechnology graduate; Coffee Board of India diploma; SCA-certified in sensory, barista and roasting modules; competition judge. Exact module levels: TBC.
-- Akanksha Gupta is listed in the SCA public trainer directory as an **SCA Trainer (AST)**, Karnataka, for Introduction to Coffee, Barista Skills, Brewing, Sensory Skills, Roasting, CVA for Cuppers and Q Grader. Source: SCA public trainer directory, checked 5 Sept 2026. Currency of the listing, and which batches are assessed, are still to be confirmed by the academy.
-- Sowmya R: biotechnology graduate; Coffee Board of India diploma; CQI Q Processing professional; FSSAI Food Safety Supervisor.
-- Nirupam Ranjan: life sciences graduate; Coffee Board of India diploma; Q Grader (Arabica and Robusta); former operations head at a gourmet roaster.
-- Four further India-affiliated authorised trainers appear on the Florence list (Nagesh K, Sabin Pathak, Arjun Sethi, Rabin Pathak); whether they teach in Bengaluru: TBC (client). Do not list them yet.
-- Photos: TBC (photoshoot done; files pending).
+### 1. Italian Barista Course (IBC), Basic
+- Certificate name on the diploma: "Italian Barista Certificate, Basic Barista" (CLIENT certificate text). The site's "IBC Junior" is wrong; use "IBC Basic".
+- Duration: 4 days, 10 am to 5 pm, one module per day (CLIENT brochure and doc).
+- Day 1, Roasting and Cupping: history of coffee; green coffee, role and value; green bean physical evaluation; roasting equipment selection; hands-on roasting on a Bullet roaster; roasting stages (drying, Maillard, development); introduction to sensory analysis; cupping.
+- Day 2, Brewing Techniques: brewing history and evolution; brew ratio guide; SCA brewing chart; brewing fundamentals; impact of water quality on taste; hands-on manual brew methods: pour over, AeroPress, French press, moka pot, syphon.
+- Day 3, Basic Barista Training: the coffee plant (anatomy, cherry structure, Arabica and Robusta); global growing regions; harvesting and processing; Italian coffee bar culture; evolution of espresso machines; key parts of an espresso machine; handling and maintenance; Basic Barista Exam (IBC), 8 minutes.
+- Day 4, Latte Art: milk steaming; pouring techniques; latte art patterns; practice on heart and tulip.
+- Fee: ₹35,600 + GST list price. Current offer: 25% off "as it's the 55th batch", ₹26,700 + GST (CLIENT .docx). GST rate not stated; 18% is the usual rate for commercial training, so ₹42,008 / ₹31,506 incl. GST, TBC until the client confirms the rate. Which batches the offer applies to and when it ends: TBC.
+- Seats: maximum 8 per batch (CLIENT policy).
+- Prerequisites: none stated; assume none.
+- Upcoming batches (CLIENT): 10 to 13 Sept 2026; 24 to 27 Sept 2026; 8 to 11 Oct 2026. Venue: the Bengaluru campus.
+- Includes certification (CLIENT: "4 days, including certification").
 
-## Brand (source: EA Brand Guidelines PDF, 2026-09-04)
-- Colours: Cynical Black #171717, Milk White #FEFCFF, Burnt Red #B20003; secondary #640000, #373737, #E4E4E4; energetic accents Mustard #F1BD00, Electric Blue #030696, Imperial Purple #490396, "Forest Green" hex printed as #89392B (a brown; correct value TBC).
-- Typefaces: Bebas Neue Bold (display), Gotham Medium and Book (headlines and body). Gotham web licence: TBC; Montserrat is the interim substitute.
-- Logo: fleur-de-lis with portafilter, hand-lettered wordmark "- Espresso Academy -" with "INDIA" in red. SVG: TBC (only raster renders available).
+### 2. IBC Advanced Barista
+- Certificate: "globally certified in Advance level Barista" (CLIENT wording); use "Italian Barista Certificate, Advanced Barista".
+- Duration: 2 days, including certification.
+- Day 1: coffee varietals; plantation and processing; roasting and blending; water and coffee; espresso machines. Day 2: espresso tasting; Italian espresso recipe; coffee recipes; latte art; plant-based milk; barista skills and speed test.
+- Fee: TBC. Seats: maximum 4 per batch (CLIENT). Prerequisites: TBC (IBC Basic or equivalent experience is the sensible default; confirm).
+- Upcoming batches: none given.
 
-## Claims we may NOT make (until the client confirms in writing)
-- "SCA-certified courses" and "SCA Premier Training Campus". Neither is sourced, and a course being
-  aligned to the Coffee Skills Program is not the same as a course the SCA certifies.
-- "AST" for any named trainer **except Akanksha Gupta**, whose listing is sourced above. Even for
-  her the site says the academy has an SCA Authorised Trainer on faculty and that assessed modules
-  are available on batches the academy confirms; it does not say a given course is assessed, does
-  not name a module as certified, and does not state a fee for an assessment.
-- "17 branches worldwide", "partnership with Berry Co", "Coorg's next-gen coffee planters" (brochure claims, unverified).
-- Any fee, discount, EMI, duration, seat count, batch date, placement rate, graduate count, review count or rating.
-- "India's first / only / best" anything.
-- Any testimonial. The stories section stays in its empty state until real, permitted stories arrive.
+### 3. IBC Advanced Roasting
+- Certificate: "Italian Barista Certificate, Advanced Roasting" (from CLIENT wording).
+- Duration: 2 days, including certification.
+- Day 1: roasting theory and curve fundamentals; roasting software and technology; measurement and colour analysis; green coffee and roast adjustments. Day 2: advanced roast control and parameters; defect recognition and troubleshooting; sensory evaluation (cupping).
+- Fee: TBC. Seats: maximum 4. Prerequisites: TBC.
+- Upcoming batch (CLIENT): 15 and 16 Sept 2026.
 
-## Open questions for the client (mirror of docs/STATUS.md)
-1. Course list with fee incl. GST, duration, level, certificate, next batch date.
-2. WhatsApp number, email, opening hours; correct plot number and map pin.
-3. Permission for "Official Partner of Espresso Academy, Florence"; SCA campus and AST status.
-4. Logo SVG; Gotham web licence; correct green hex.
-5. Testimonials with permission; Google Business Profile link.
-6. Which brochure claims are current and may be stated.
+### SCA (CLIENT Google Doc)
+- The doc describes the SCA as a standards body with certification exams in five areas (Introduction, Green Coffee, Sensory, Roasting, Barista and Brewing) at Foundation, Intermediate and Professional. It does not list SCA courses, fees or dates offered by the academy. Keep the Certifications page explainer; no SCA course cards until the client supplies courses, fees and dates.
+- Akanksha Gupta is listed in the SCA trainer directory as an SCA Trainer (AST) for Karnataka (checked 2026-09-05). Wording stays "training aligned to the SCA Coffee Skills Program"; assessed modules "on batches the academy confirms".
+
+## Booking, payment and refund policy (CLIENT .docx, 2026-09-08)
+- An advance of ₹5,000 confirms the seat. Balance is paid to the academy (when: TBC, assume before the first day).
+- Batch size: Basic 8, Advanced 4.
+- Reschedule: with prior notice, to any batch within 3 months of the original date, subject to seats.
+- No refund for non-attendance.
+- Not stated: what happens if the student cancels with notice (only reschedule is offered), and what happens if the academy moves or cancels a batch. Draft for the policy page: academy-cancelled batch gives the choice of the next batch or a full refund; needs client sign-off.
+- Consequence for the site: the online booking charges the ₹5,000 advance, not the full fee; the confirmation page and email state the balance due and the reschedule and no-refund terms. Full payment online can be added once the GST rate is confirmed.
+
+## Trainers
+- Nageswara Rao K ("Nagesh"): postgraduate in Agriculture; Post Graduate Diploma in Coffee Quality Management, Coffee Board of India; certified Q Grader; SCA certified Sensory Professional; experienced roaster; "authorised IBM trainer" (CLIENT wording, probably IBC; confirm); member of the judging panel for national-level coffee competitions (CLIENT Google Doc). Not on the current site; add.
+- Akanksha Gupta, Sowmya R, Nirupam Ranjan: as before (old site and Florence list). Whether all three still teach: TBC. Role titles: TBC.
+- Faculty description (CLIENT): "certified Q graders and processors, authorised trainers, experienced hands-on professionals; international instructors visit the academy regularly". Usable.
+- Team origin (CLIENT): "seasoned FnB and hospitality professionals and Coorg's next-gen coffee planters". Now confirmed by the client; may be used.
+
+## Facility (CLIENT Google Doc)
+- "Comfortable learning spaces, fully equipped professional labs, industry-leading equipment". Named equipment: Bullet roaster (Day 1). Espresso machine brand: TBC.
+
+## Brand
+- Unchanged from revision 1. Logo files: still need the SVG; the PNG lockup on white is in hand (2026-09-08).
+
+## Claims we may NOT make
+- "Globally accepted / recognised" as our own claim; attribute to the certificate issuer's reach instead.
+- "SCA-certified courses", "SCA Premier Training Campus".
+- "17 branches worldwide": superseded by CLIENT "over 30"; use "over 30".
+- Any fee for the Advanced courses; any SCA course; EMI; placement rate; testimonials.
+
+## Open questions for the client, revision 2
+1. GST rate on the course fee (18%?) and the GST number for the invoice footer.
+2. Does the 25% offer apply to all three listed Basic batches, and until when?
+3. Fees for Advanced Barista and Advanced Roasting; prerequisites for both.
+4. Balance payment: due on or before day 1? Cash, UPI, card at the academy?
+5. If a student cancels with notice, is a refund ever given, or reschedule only? If the academy cancels a batch?
+6. Email address spelling: espressocademyindia@gmail.com or espressoacademyindia@gmail.com.
+7. Opening days (Mon to Sat?).
+8. Do Akanksha, Sowmya and Nirupam still teach; role titles; and "IBM trainer" meaning.
+9. Student photo releases for the Drive images.
+10. Registrar login for espressoacademy.in; Razorpay live keys.

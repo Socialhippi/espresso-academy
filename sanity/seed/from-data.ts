@@ -17,9 +17,11 @@ import {
   certifications,
   courses,
   faqs,
+  redirects,
   siteSettings,
   trainers,
   type Course,
+  type CourseInstance,
 } from "../../content/data";
 
 const client = getCliClient({ apiVersion: "2026-09-05" });
@@ -30,7 +32,9 @@ const id = {
   certification: (slug: string) => `certification-${slug}`,
   trainer: (slug: string) => `trainer-${slug}`,
   course: (slug: string) => `course-${slug}`,
-  instance: (slug: string) => `instance-${slug}-tbc`,
+  instance: (instanceId: string) => `instance-${instanceId}`,
+  instanceTbc: (slug: string) => `instance-${slug}-tbc`,
+  redirect: (from: string) => `redirect-${from.replace(/[^a-z0-9]+/gi, "-").replace(/^-|-$/g, "")}`,
   faq: (index: number) => `faq-${String(index + 1).padStart(2, "0")}`,
 };
 
@@ -56,7 +60,15 @@ function courseDoc(course: Course): Doc {
     outcome: course.outcome,
     forWhom: course.forWhom,
     notForWhom: course.notForWhom,
-    modules: course.modules ?? undefined,
+    days: keyed(
+      (course.days ?? []).map((day) => ({
+        _type: "courseDay",
+        number: day.number,
+        title: day.title,
+        topics: day.topics,
+      })),
+      `${course.slug}-day`,
+    ),
     includes: course.includes ?? undefined,
     prerequisites: course.prerequisites ?? undefined,
     certification: course.certification ? ref(id.certification(course.certification)) : undefined,
@@ -64,6 +76,7 @@ function courseDoc(course: Course): Doc {
     format: course.format ?? undefined,
     durationDays: course.durationDays ?? undefined,
     durationHours: course.durationHours ?? undefined,
+    schedule: course.schedule ?? undefined,
     feeInclGst: course.feeInclGst ?? undefined,
     emiAvailable: course.emiAvailable ?? undefined,
     seatsMax: course.seatsMax ?? undefined,
@@ -85,20 +98,35 @@ function courseDoc(course: Course): Doc {
   };
 }
 
-/**
- * One batch per course, with no date and status `tbc`. The site already renders that as
- * "dates being finalised", and it gives the academy a row to edit rather than a blank list to
- * work out how to start.
- */
-function instanceDoc(course: Course): Doc {
+/** A batch the client has actually given dates for. */
+function instanceDoc(course: Course, instance: CourseInstance): Doc {
   return {
-    _id: id.instance(course.slug),
+    _id: id.instance(instance.id),
+    _type: "courseInstance",
+    course: ref(id.course(course.slug)),
+    status: instance.status,
+    startDate: instance.startDate ?? undefined,
+    endDate: instance.endDate ?? undefined,
+    schedule: instance.schedule ?? undefined,
+    seatsMax: instance.seatsMax ?? course.seatsMax ?? 1,
+    seatsBooked: 0,
+    venue: ref(id.venue),
+    notes: "Created by the seed from the batch list in content/facts.md.",
+  };
+}
+
+/**
+ * The placeholder batch for a course the client has given no dates for.
+ *
+ * The site renders it as "dates being finalised", and it gives the academy a row to edit rather
+ * than a blank list to work out how to start. Only IBC Advanced Barista needs one today.
+ */
+function tbcInstanceDoc(course: Course): Doc {
+  return {
+    _id: id.instanceTbc(course.slug),
     _type: "courseInstance",
     course: ref(id.course(course.slug)),
     status: "tbc",
-    // seatsMax is required by the schema, and the academy has not published a seat count.
-    // 1 is the schema's floor and the most conservative thing that is not a made-up number:
-    // it renders as "1 seat" nowhere, because a tbc batch shows no seat count at all.
     seatsMax: course.seatsMax ?? 1,
     seatsBooked: 0,
     venue: ref(id.venue),
@@ -202,7 +230,25 @@ async function main(): Promise<void> {
   }
 
   for (const course of courses) docs.push(courseDoc(course));
-  for (const course of courses) docs.push(instanceDoc(course));
+  for (const course of courses) {
+    if (course.instances.length === 0) {
+      docs.push(tbcInstanceDoc(course));
+      continue;
+    }
+    for (const instance of course.instances) docs.push(instanceDoc(course, instance));
+  }
+
+  /* The retired course URLs. next.config.ts reads these at build time. */
+  for (const rule of redirects) {
+    docs.push({
+      _id: id.redirect(rule.from),
+      _type: "redirect",
+      from: rule.from,
+      to: rule.to,
+      permanent: rule.statusCode === 301 || rule.statusCode === 308,
+      statusCode: rule.statusCode,
+    });
+  }
 
   faqs.forEach((faq, index) => {
     docs.push({

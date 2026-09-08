@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s | Espresso Academy India",
   },
   description:
-    "Barista, latte art, brewing, roasting and cupping courses in Bengaluru. Official Partner of Espresso Academy, Florence, teaching coffee since 2007.",
+    "The Italian Barista Course in Bengaluru: roasting, brewing, espresso and latte art. Official Partner of Espresso Academy, Florence, teaching coffee since 2007.",
   applicationName: SITE_NAME,
   authors: [{ name: SITE_NAME }],
   creator: SITE_NAME,
