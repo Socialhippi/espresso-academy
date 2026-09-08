@@ -12,16 +12,49 @@ const rupees = new Intl.NumberFormat("en-IN", {
   maximumFractionDigits: 0,
 });
 
-/** "Fee: TBC" when null, otherwise "₹25,300 incl. GST". */
-export function formatFee(feeInclGst: number | null): string {
-  if (feeInclGst === null) return "Fee: TBC";
-  return `${formatFeeAmount(feeInclGst)} incl. GST`;
+/**
+ * A fee as the site stores it: before GST, with the rate beside it.
+ *
+ * The rate is nullable and that nullability is the point. content/facts.md gives the fee ex-GST
+ * and does not give the rate; 18% is noted there as the usual rate on commercial training, which
+ * is an assumption, and an assumption is not something to put in front of somebody about to pay.
+ * While `gstRate` is null nothing on the site prints a tax-inclusive total.
+ */
+export interface Fee {
+  /** Whole rupees, before GST. */
+  exGst: number | null;
+  /** Per cent, e.g. 18. Null while the academy has not confirmed it. */
+  gstRate: number | null;
+}
+
+/** "+ GST" while the rate is unknown, "incl. GST" once a total can honestly be shown. */
+export function feeSuffix(gstRate: number | null): string {
+  return gstRate === null ? "+ GST" : "incl. GST";
+}
+
+/**
+ * The tax-inclusive total, or null while the rate is unconfirmed.
+ *
+ * Null is not an error state. It is the answer, and every caller has to render it as one rather
+ * than falling back to the ex-GST figure with an "incl. GST" label beside it.
+ */
+export function feeInclGst({ exGst, gstRate }: Fee): number | null {
+  if (exGst === null || gstRate === null) return null;
+  return Math.round(exGst * (1 + gstRate / 100));
+}
+
+/** "Fee: TBC" when null, "₹26,700 + GST" while the rate is unknown, else "₹31,506 incl. GST". */
+export function formatFee(fee: Fee): string {
+  if (fee.exGst === null) return "Fee: TBC";
+  const total = feeInclGst(fee);
+  if (total === null) return `${formatFeeAmount(fee.exGst)} + GST`;
+  return `${formatFeeAmount(total)} incl. GST`;
 }
 
 /** Just the figure, for the Bebas numeral on a card. "TBC" when null. */
-export function formatFeeAmount(feeInclGst: number | null): string {
-  if (feeInclGst === null) return "TBC";
-  return rupees.format(feeInclGst);
+export function formatFeeAmount(amount: number | null): string {
+  if (amount === null) return "TBC";
+  return rupees.format(amount);
 }
 
 /** "3 days", "18 hours", "3 days, 18 hours", or "Duration: TBC". */

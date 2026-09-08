@@ -113,8 +113,8 @@ export interface CourseInstance {
   seatsBooked: number;
   /** Derived in GROQ as seatsMax - seatsBooked. Null while the academy has not set seatsMax. */
   seatsAvailable: number | null;
-  /** Overrides the course fee for this batch only, in whole rupees. */
-  priceOverride: number | null;
+  /** Overrides the course fee for this batch only, in whole rupees, before GST. */
+  priceOverrideExGst: number | null;
   venue: Venue | null;
 }
 
@@ -153,7 +153,20 @@ export interface Course {
   durationHours: number | null;
   /** The daily hours, e.g. "10 am to 5 pm". Null renders a TBC state. */
   schedule: string | null;
-  feeInclGst: number | null;
+  /**
+   * The fee before GST, in whole rupees.
+   *
+   * Ex-GST because that is how the client quotes it, and because the GST rate is not confirmed:
+   * a tax-inclusive figure would mean storing a rate nobody has given us. Nothing on the site may
+   * print an incl-GST total while `gstRate` is null.
+   */
+  feeExGst: number | null;
+  /** The fee before the offer, ex-GST. Struck through beside `feeExGst`. */
+  listPriceExGst: number | null;
+  /** Why the fee is below the list price, e.g. "25% off, 55th batch offer". */
+  offerLabel: string | null;
+  /** Per cent, e.g. 18. Null while the academy has not confirmed it. */
+  gstRate: number | null;
   emiAvailable: boolean | null;
   seatsMax: number | null;
   outcome: string;
@@ -268,7 +281,7 @@ export interface LandingPage {
   slug: string;
   title: string;
   campaign: string | null;
-  course: { slug: string; title: string; feeInclGst: number | null } | null;
+  course: { slug: string; title: string; feeExGst: number | null; gstRate: number | null } | null;
   sections: PageSection[];
 }
 

@@ -9,8 +9,8 @@ import { courseCta, type CtaInstance } from "@/lib/batch";
  * with an open, priced batch sitting in the table below it.
  */
 
-const COURSE = { slug: "ibc-advanced-roasting", feeInclGst: null };
-const PRICED_COURSE = { slug: "italian-barista-course-basic", feeInclGst: 12000 };
+const COURSE = { slug: "ibc-advanced-roasting", feeExGst: null, gstRate: null };
+const PRICED_COURSE = { slug: "italian-barista-course-basic", feeExGst: 12000, gstRate: null };
 
 function batch(overrides: Partial<CtaInstance> = {}): CtaInstance {
   return {
@@ -20,7 +20,7 @@ function batch(overrides: Partial<CtaInstance> = {}): CtaInstance {
     seatsMax: 12,
     seatsBooked: 0,
     seatsAvailable: 12,
-    priceOverride: 9000,
+    priceOverrideExGst: 9000,
     ...overrides,
   };
 }
@@ -37,7 +37,7 @@ test("one open batch with a fee goes straight to that batch's checkout", () => {
 });
 
 test("the fee may come from the course rather than the batch", () => {
-  const cta = courseCta(PRICED_COURSE, [batch({ priceOverride: null })]);
+  const cta = courseCta(PRICED_COURSE, [batch({ priceOverrideExGst: null })]);
   expect(cta.kind).toBe("book");
 });
 
@@ -47,7 +47,7 @@ test("two open batches scroll to the table instead of choosing for the reader", 
 });
 
 test("a dated batch with no fee asks about that batch", () => {
-  const cta = courseCta(COURSE, [batch({ priceOverride: null })]);
+  const cta = courseCta(COURSE, [batch({ priceOverrideExGst: null })]);
   expect(cta).toMatchObject({
     kind: "enquire-batch",
     label: "Ask about this batch",
@@ -76,7 +76,7 @@ test("a priced open batch with no date is not bookable either", () => {
 test("a placeholder batch with no date counts as no batch", () => {
   // The seeded `instance-<course>-tbc` rows exist so the calendar has something to say. They are
   // not a batch anyone can be told about.
-  const cta = courseCta(COURSE, [batch({ status: "tbc", startDate: null, priceOverride: null })]);
+  const cta = courseCta(COURSE, [batch({ status: "tbc", startDate: null, priceOverrideExGst: null })]);
   expect(cta.kind).toBe("enquire-next");
   expect(cta.batchAlert).toBe(true);
 });

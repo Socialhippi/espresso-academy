@@ -11,7 +11,7 @@
  *
  * The course it hangs off is IBC Advanced Barista, which has no fee of its own and no dated batch,
  * so the test batch cannot be confused with a real one and cannot shadow a real fee. The fee lives
- * on the batch as a `priceOverride`, and the checkout takes the smaller of the advance and the
+ * on the batch as a `priceOverrideExGst`, and the checkout takes the smaller of the advance and
  * fee, so a ₹1 batch charges ₹1 rather than the ₹5,000 advance.
  *
  * Delete it with:  pnpm sanity:seed:test-batch -- --delete
@@ -59,7 +59,7 @@ async function main(): Promise<void> {
     seatsBooked: 0,
     // ₹1. Real enough for Razorpay's test mode to produce a real order; small enough that a
     // mis-click on a live key would cost a rupee rather than a fee.
-    priceOverride: 1,
+    priceOverrideExGst: 1,
   };
 
   await client.createOrReplace({

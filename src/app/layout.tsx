@@ -77,11 +77,11 @@ async function buildCourseBar(): Promise<Record<string, CourseBarEntry>> {
       ? course.instances.find((instance) => instance.id === cta.instanceId)
       : undefined;
     const shown = bookable ?? getNextInstanceForCourse(course);
-    const fee = bookable ? (feeForInstance(course, bookable) ?? course.feeInclGst) : course.feeInclGst;
+    const fee = bookable ? (feeForInstance(course, bookable) ?? course.feeExGst) : course.feeExGst;
 
     entries[course.slug] = {
       title: course.title,
-      feeLabel: formatFee(fee),
+      feeLabel: formatFee({ exGst: fee, gstRate: course.gstRate }),
       nextDateLabel: shown?.startDate ? formatDate(shown.startDate) : "TBC",
       /* Nothing to say is not worth a line. While both are null the bar would pin
          "Fee: TBC / Next batch: TBC" to the bottom of every course page for the whole scroll. */

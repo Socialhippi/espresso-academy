@@ -77,7 +77,10 @@ function courseDoc(course: Course): Doc {
     durationDays: course.durationDays ?? undefined,
     durationHours: course.durationHours ?? undefined,
     schedule: course.schedule ?? undefined,
-    feeInclGst: course.feeInclGst ?? undefined,
+    feeExGst: course.feeExGst ?? undefined,
+    listPriceExGst: course.listPriceExGst ?? undefined,
+    offerLabel: course.offerLabel ?? undefined,
+    gstRate: course.gstRate ?? undefined,
     emiAvailable: course.emiAvailable ?? undefined,
     seatsMax: course.seatsMax ?? undefined,
     trainers: keyed(

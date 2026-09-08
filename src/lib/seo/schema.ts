@@ -142,18 +142,26 @@ export async function courseNode(course: Course): Promise<JsonLdNode> {
           url: absoluteUrl(`/trainers/${trainer.slug}`),
         }));
       }
-      // Offer only exists when there is a real fee to state.
-      if (course.feeInclGst !== null) {
+      /*
+       * Offer only exists when there is a real fee to state, and it states the fee the way the
+       * academy quotes it: before GST. `valueAddedTaxIncluded: false` is the schema.org field that
+       * says so, and it matters because a search result showing ₹26,700 next to a total the
+       * student is actually charged would be the site under-quoting itself in the one place it
+       * cannot correct. The batch override wins over the course fee, same as at the checkout.
+       */
+      const feeExGst = instance.priceOverrideExGst ?? course.feeExGst;
+      if (feeExGst !== null) {
         node.offers = {
           "@type": "Offer",
-          price: course.feeInclGst,
+          price: feeExGst,
           priceCurrency: "INR",
-          category: "Fee includes GST",
+          valueAddedTaxIncluded: false,
+          category: "Course fee, before GST",
           availability:
             instance.status === "soldout"
               ? "https://schema.org/SoldOut"
               : "https://schema.org/InStock",
-          url: absoluteUrl(`/enquire?course=${course.slug}`),
+          url: absoluteUrl(`/courses/${course.slug}`),
         };
       }
       return node;

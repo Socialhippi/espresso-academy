@@ -72,10 +72,11 @@ export const courseInstance = defineType({
       validation: (rule) => rule.integer().min(0),
     }),
     defineField({
-      name: "priceOverride",
-      title: "Fee for this batch incl. GST (₹)",
+      name: "priceOverrideExGst",
+      title: "Fee for this batch before GST (₹)",
       type: "number",
-      description: "Overrides the course fee for this batch only. Whole rupees.",
+      description:
+        "Overrides the course fee for this batch only. Whole rupees, before GST, same as the course field.",
       validation: (rule) => rule.integer().positive(),
     }),
     defineField({ name: "notes", type: "text", rows: 3 }),

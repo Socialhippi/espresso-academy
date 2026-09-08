@@ -22,10 +22,11 @@ import {
   getSkillAreas,
   levelBadge,
   skillAreaLabel,
+  type Course,
   type Level,
   type SkillArea,
 } from "@/lib/content";
-import { formatDuration, formatFeeAmount } from "@/lib/format";
+import { feeSuffix, formatDuration, formatFeeAmount } from "@/lib/format";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { courseListNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
@@ -82,6 +83,37 @@ const howToChoose = [
   },
 ];
 
+/**
+ * One fee, as it appears in both the stacked list and the table.
+ *
+ * Defined once because the two renderings of the same row are the classic place for a number to
+ * drift. The offer is stated in words next to the struck-through price: a crossed-out figure on
+ * its own is a sales trick, and the reason it is crossed out is a fact from content/facts.md.
+ */
+function FeeCell({ course }: { course: Course }) {
+  if (course.feeExGst === null) return <TbcPill />;
+  const hasOffer =
+    course.listPriceExGst !== null &&
+    course.listPriceExGst > course.feeExGst &&
+    course.offerLabel !== null;
+
+  return (
+    <span className="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+      <span className="type-numeral text-h3-lg text-black">
+        {formatFeeAmount(course.feeExGst)}
+      </span>
+      <span className="type-small text-grey">{feeSuffix(course.gstRate)}</span>
+      {hasOffer && (
+        <>
+          <span className="sr-only">Usual price</span>
+          <s className="type-small text-grey">{formatFeeAmount(course.listPriceExGst)}</s>
+          <span className="type-small text-grey">{course.offerLabel}</span>
+        </>
+      )}
+    </span>
+  );
+}
+
 export default async function CoursesPage({ searchParams }: PageProps<"/courses">) {
   const params = await searchParams;
   const levels = await getLevels();
@@ -102,7 +134,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
   /* The fee section renders its list only when there is something in it to read. */
   const anyFeeOrDuration = allCourses.some(
     (course) =>
-      course.feeInclGst !== null ||
+      course.feeExGst !== null ||
       course.durationDays !== null ||
       course.durationHours !== null,
   );
@@ -278,7 +310,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                 eyebrow="Fees"
                 title="What each course costs"
                 id="fees-heading"
-                description="Confirmed before you pay, always. ₹5,000 holds a seat and the balance is paid at the academy before the first day."
+                description="Quoted before GST, the way the academy quotes it. The GST rate is being confirmed, so no tax-inclusive total appears anywhere on this site yet."
                 className="lg:sticky lg:top-28"
               />
             </div>
@@ -337,13 +369,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                       <div className="flex items-center gap-2">
                         <dt className="type-label text-grey">Fee</dt>
                         <dd>
-                          {course.feeInclGst === null ? (
-                            <TbcPill />
-                          ) : (
-                            <span className="type-numeral text-h3-lg text-black">
-                              {formatFeeAmount(course.feeInclGst)}
-                            </span>
-                          )}
+                          <FeeCell course={course} />
                         </dd>
                       </div>
                     </dl>
@@ -396,13 +422,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
                           )}
                         </td>
                         <td className="py-4">
-                          {course.feeInclGst === null ? (
-                            <TbcPill />
-                          ) : (
-                            <span className="type-numeral text-h3-lg text-black">
-                              {formatFeeAmount(course.feeInclGst)}
-                            </span>
-                          )}
+                          <FeeCell course={course} />
                         </td>
                       </tr>
                     ))}

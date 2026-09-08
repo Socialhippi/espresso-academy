@@ -73,7 +73,21 @@ export interface Course {
   durationDays: number | null;
   durationHours: number | null;
   schedule: string | null;   // "10 am to 5 pm", from the client's brochure
-  feeInclGst: number | null;
+  /**
+   * The fee the client quotes, before GST, in whole rupees.
+   *
+   * Ex-GST because that is how the client quotes it and because the GST rate is not confirmed:
+   * storing a tax-inclusive figure would mean storing a rate nobody has given us. 18% is the usual
+   * rate on commercial training and facts.md says so, but it says so as an assumption, which is
+   * exactly why it is not in this file.
+   */
+  feeExGst: number | null;
+  /** What the fee is before the offer, ex-GST. Struck through beside the fee. */
+  listPriceExGst: number | null;
+  /** Why the fee is below the list price, e.g. "25% off, 55th batch offer". */
+  offerLabel: string | null;
+  /** Per cent, e.g. 18. Null means no incl-GST total may be printed anywhere. */
+  gstRate: number | null;
   emiAvailable: boolean | null;
   seatsMax: number | null;
   outcome: string;           // one sentence, outcome-led, no claims beyond facts
@@ -251,7 +265,11 @@ export const courses: Course[] = [
     /* facts.md line 26: the wording on the diploma itself. */
     certificateAwardedLabel: "Italian Barista Certificate, Basic Barista",
     format: "in-person", durationDays: 4, durationHours: null, schedule: "10 am to 5 pm",
-    feeInclGst: null, emiAvailable: null, seatsMax: 8,
+    /* facts.md line 32: ₹35,600 + GST list price, 25% off "as it's the 55th batch", ₹26,700 + GST.
+       The GST rate is not stated, so gstRate stays null and the site prints no incl-GST total.
+       TODO(client): confirm the GST rate, and which batches the offer covers and until when. */
+    feeExGst: 26700, listPriceExGst: 35600, offerLabel: "25% off, 55th batch offer", gstRate: null,
+    emiAvailable: null, seatsMax: 8,
     outcome: "Four days, one module a day, from green coffee and roasting through brewing and espresso to latte art, ending in the Italian Barista Certificate at Basic Barista.",
     forWhom: [
       "Career changers who want a barista job",
@@ -335,7 +353,9 @@ export const courses: Course[] = [
     certification: "italian-barista-certificate",
     certificateAwardedLabel: "Italian Barista Certificate, Advanced Barista",
     format: "in-person", durationDays: 2, durationHours: null, schedule: null,
-    feeInclGst: null, emiAvailable: null, seatsMax: 4,
+    /* TODO(client): facts.md line 42 gives no fee for either Advanced course. */
+    feeExGst: null, listPriceExGst: null, offerLabel: null, gstRate: null,
+    emiAvailable: null, seatsMax: 4,
     outcome: "Two days on varietals, extraction and speed for people already working a bar, ending in the Italian Barista Certificate at Advanced Barista.",
     forWhom: [
       "Working baristas who want the next certificate",
@@ -389,7 +409,9 @@ export const courses: Course[] = [
     certification: "italian-barista-certificate",
     certificateAwardedLabel: "Italian Barista Certificate, Advanced Roasting",
     format: "in-person", durationDays: 2, durationHours: null, schedule: null,
-    feeInclGst: null, emiAvailable: null, seatsMax: 4,
+    /* TODO(client): facts.md line 49 gives no fee for either Advanced course. */
+    feeExGst: null, listPriceExGst: null, offerLabel: null, gstRate: null,
+    emiAvailable: null, seatsMax: 4,
     outcome: "Two days on roast curves, defects and cupping for people who already roast, ending in the Italian Barista Certificate at Advanced Roasting.",
     forWhom: [
       "Roasters who want to control a curve rather than follow one",
@@ -461,7 +483,7 @@ export const faqs: FaqItem[] = [
   { category: "courses", q: "Do you teach latte art or brewing on their own?", a: "Not as separate courses. Latte art is day 4 of the IBC Basic and brewing is day 2, and you take the whole four days rather than one of them.", link: { label: "See the four days", href: "/courses/italian-barista-course-basic" } },
   { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence, and sent to authorised partner schools. Espresso Academy India teaches under the supervision of Espresso Academy Florence and awards it at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
   { category: "certification", q: "Are your courses SCA certified?", a: "No. The academy runs the Italian Barista Course, not an SCA course. There is an SCA Authorised Trainer on faculty, and assessed SCA modules run on batches the academy confirms, but no SCA course, fee or date is published here. Ask if you want the SCA route specifically.", link: { label: "How the two compare", href: "/certifications" } },
-  { category: "fees", q: "What does the course cost?", a: "The fee for the IBC Basic is on its course page. The two Advanced courses are priced per batch and the academy confirms the figure before you pay. Message us on WhatsApp for either.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
+  { category: "fees", q: "What does the course cost?", a: "The IBC Basic is ₹26,700 + GST, down from ₹35,600 + GST for the 55th batch. The GST rate is being confirmed, so no tax-inclusive total is printed anywhere on this site yet. No fee is published for either Advanced course; ask and the academy will quote for the batch.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
   { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000. That advance confirms your seat, and the balance is paid at the academy before the first day. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
   { category: "schedule", q: "When is the next batch?", a: "Batch dates are on each course page and on the calendar. A batch drops off the calendar once it has started.", link: { label: "See the batch calendar", href: "/calendar" } },
   { category: "campus", q: "Where is the academy?", a: "Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },

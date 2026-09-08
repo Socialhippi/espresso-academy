@@ -169,14 +169,67 @@ export const course = defineType({
       description: 'The hours each day runs, for example "10 am to 5 pm". Empty renders a TBC state.',
     }),
     defineField({ name: "durationHours", title: "Duration (hours)", type: "number", group: "commercial", validation: (rule) => rule.positive() }),
+    /*
+     * The fee is stored before GST, and the rate is a field of its own.
+     *
+     * It used to be `feeInclGst`, which asked an editor to do arithmetic with a rate the academy
+     * has not confirmed. The client quotes ex-GST; storing anything else means either storing a
+     * guess or asking someone to recompute three numbers every time the rate changes.
+     */
     defineField({
-      name: "feeInclGst",
-      title: "Fee incl. GST (₹)",
+      name: "feeExGst",
+      title: "Fee before GST (₹)",
       type: "number",
       group: "commercial",
       description:
-        "Whole rupees, not paise. The server multiplies by 100 when it creates a Razorpay order, and never reads an amount from the browser.",
+        "Whole rupees, not paise, before GST. The server multiplies by 100 when it creates a Razorpay order, and never reads an amount from the browser.",
       validation: (rule) => rule.integer().positive(),
+    }),
+    defineField({
+      name: "listPriceExGst",
+      title: "List price before GST (₹)",
+      type: "number",
+      group: "commercial",
+      description:
+        "What the course costs without the offer. Shown struck through beside the fee. Leave empty when there is no offer.",
+      validation: (rule) =>
+        rule.integer().positive().custom((value, context) => {
+          const fee = (context.document as { feeExGst?: number } | undefined)?.feeExGst;
+          if (typeof value !== "number" || typeof fee !== "number") return true;
+          return value > fee
+            ? true
+            : "A list price at or below the fee is not an offer. Clear it, or raise it above the fee.";
+        }),
+    }),
+    defineField({
+      name: "offerLabel",
+      title: "Why the fee is discounted",
+      type: "string",
+      group: "commercial",
+      description:
+        'Shown beside the struck-through list price, for example "25% off, 55th batch offer". Required when a list price is set.',
+      validation: (rule) =>
+        rule.custom((value, context) => {
+          const list = (context.document as { listPriceExGst?: number } | undefined)?.listPriceExGst;
+          if (typeof list !== "number") return true;
+          return value
+            ? true
+            : "A struck-through price with no reason beside it reads as a sales trick. Say what the offer is.";
+        }),
+    }),
+    /*
+     * Null until the academy confirms it, and null means the site prints no tax-inclusive figure
+     * anywhere. content/facts.md notes that 18% is the usual rate on commercial training, but it
+     * notes it as an assumption; a number a student is asked to pay cannot rest on one.
+     */
+    defineField({
+      name: "gstRate",
+      title: "GST rate (%)",
+      type: "number",
+      group: "commercial",
+      description:
+        "Leave empty until the academy confirms it. While it is empty every fee reads \"+ GST\" and no tax-inclusive total is shown.",
+      validation: (rule) => rule.min(0).max(100),
     }),
     defineField({ name: "emiAvailable", title: "EMI available", type: "boolean", group: "commercial" }),
     defineField({

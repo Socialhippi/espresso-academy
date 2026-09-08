@@ -9,8 +9,8 @@ import { batchAction, feeForInstance, rupeesToPaise, seatsLeft, type BatchState 
  * broken Book button.
  */
 
-const FREE_COURSE = { feeInclGst: null };
-const PAID_COURSE = { feeInclGst: 25300 };
+const FREE_COURSE = { feeExGst: null, gstRate: null };
+const PAID_COURSE = { feeExGst: 25300, gstRate: null };
 
 function batch(overrides: Partial<BatchState> = {}): BatchState {
   return {
@@ -18,7 +18,7 @@ function batch(overrides: Partial<BatchState> = {}): BatchState {
     seatsMax: 10,
     seatsBooked: 0,
     seatsAvailable: 10,
-    priceOverride: null,
+    priceOverrideExGst: null,
     ...overrides,
   };
 }
@@ -29,11 +29,11 @@ test.describe("the fee the server will charge", () => {
   });
 
   test("is the batch override when there is one, even when the course also has a fee", () => {
-    expect(feeForInstance(PAID_COURSE, batch({ priceOverride: 18500 }))).toBe(18500);
+    expect(feeForInstance(PAID_COURSE, batch({ priceOverrideExGst: 18500 }))).toBe(18500);
   });
 
   test("is the batch override when the course has no fee at all", () => {
-    expect(feeForInstance(FREE_COURSE, batch({ priceOverride: 1 }))).toBe(1);
+    expect(feeForInstance(FREE_COURSE, batch({ priceOverrideExGst: 1 }))).toBe(1);
   });
 
   test("is null when neither has one, which is every course today", () => {

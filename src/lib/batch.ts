@@ -16,11 +16,15 @@ export interface BatchSeats {
 }
 
 export interface BatchPricing {
-  priceOverride: number | null;
+  /** Whole rupees, before GST. */
+  priceOverrideExGst: number | null;
 }
 
 export interface CoursePricing {
-  feeInclGst: number | null;
+  /** Whole rupees, before GST. */
+  feeExGst: number | null;
+  /** Per cent. Null means no tax-inclusive total may be shown or charged. */
+  gstRate: number | null;
 }
 
 export interface BatchState extends BatchSeats, BatchPricing {
@@ -39,12 +43,12 @@ export function seatsLeft(instance: BatchState): number | null {
 }
 
 /**
- * The fee this batch charges, in whole rupees: its override, else the course fee, else null.
- * Null is the ordinary state today, and it is what makes the site offer an enquiry rather than a
- * checkout.
+ * The fee this batch charges before GST, in whole rupees: its override, else the course fee, else
+ * null. Null is what makes the site offer an enquiry rather than a checkout, and it is still the
+ * state of both Advanced courses.
  */
 export function feeForInstance(course: CoursePricing, instance: BatchPricing): number | null {
-  return instance.priceOverride ?? course.feeInclGst ?? null;
+  return instance.priceOverrideExGst ?? course.feeExGst ?? null;
 }
 
 /**

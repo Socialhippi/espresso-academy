@@ -33,7 +33,7 @@ const INSTANCE_FIELDS = /* groq */ `
   seatsMax,
   "seatsBooked": coalesce(seatsBooked, 0),
   "seatsAvailable": select(defined(seatsMax) => seatsMax - coalesce(seatsBooked, 0), null),
-  priceOverride,
+  priceOverrideExGst,
   "venue": venue->${VENUE}
 `;
 
@@ -51,7 +51,10 @@ const COURSE_FIELDS = /* groq */ `
   durationDays,
   durationHours,
   schedule,
-  feeInclGst,
+  feeExGst,
+  listPriceExGst,
+  offerLabel,
+  gstRate,
   emiAvailable,
   seatsMax,
   outcome,
@@ -242,7 +245,7 @@ export const landingPageBySlugQuery = /* groq */ `
     "slug": slug.current,
     title,
     campaign,
-    "course": course->{ "slug": slug.current, title, feeInclGst },
+    "course": course->{ "slug": slug.current, title, feeExGst, gstRate },
     sections[]{
       ...,
       _type == "heroSection" => { "image": image${IMAGE} }

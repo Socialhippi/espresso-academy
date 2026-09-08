@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { LevelBadge } from "@/components/site/LevelBadge";
-import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
+import { formatDate, formatDuration, formatFeeAmount, feeSuffix } from "@/lib/format";
 import { formatLabel, getCertification, getNextInstanceForCourse, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
@@ -69,15 +69,21 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
    * not, and it disappears entirely once the academy has filled them all in. No code change is
    * needed when that happens.
    */
+  /*
+   * Only the facts this strip is responsible for.
+   *
+   * It used to count the trainer, the prerequisites and the syllabus too, and each of those has
+   * its own place further down the page that says the same thing in more useful words. On the IBC
+   * Basic, where the client has now confirmed the duration, the hours, the format, the fee and
+   * three batch dates, that left a "Still to confirm" cell under a strip in which every single
+   * cell was confirmed, pointing at an unassigned trainer the reader cannot see from here.
+   */
   const unknown = {
     duration: !hasDuration,
     schedule: course.schedule === null,
     format: course.format === null,
-    fee: course.feeInclGst === null,
+    fee: course.feeExGst === null,
     dates: !nextInstance?.startDate,
-    prerequisites: course.prerequisites === null,
-    trainer: course.trainers.length === 0,
-    syllabus: course.days === null || course.days.length === 0,
   };
   const anyUnknown = Object.values(unknown).some(Boolean);
   const unknownSpecs = Object.values(unknown).every(Boolean);
@@ -126,10 +132,10 @@ export async function SpecStrip({ course, className }: SpecStripProps) {
 
       <Spec label={certificate.label}>{certificate.value}</Spec>
 
-      {course.feeInclGst !== null && (
+      {course.feeExGst !== null && (
         <Spec label="Fee">
-          <span className="type-numeral text-h3-lg">{formatFeeAmount(course.feeInclGst)}</span>{" "}
-          <span className="type-small text-grey">incl. GST</span>
+          <span className="type-numeral text-h3-lg">{formatFeeAmount(course.feeExGst)}</span>{" "}
+          <span className="type-small text-grey">{feeSuffix(course.gstRate)}</span>
         </Spec>
       )}
 

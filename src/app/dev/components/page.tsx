@@ -156,8 +156,12 @@ export default async function ComponentGalleryPage() {
             <TbcValue value="A confirmed value" />
           </div>
           <p className="mt-4 type-small text-grey">
-            formatFee(null) renders <span className="text-black">{formatFee(null)}</span>;
-            formatFee(25300) renders <span className="text-black">{formatFee(25300)}</span>;
+            formatFee with no fee renders{" "}
+            <span className="text-black">{formatFee({ exGst: null, gstRate: null })}</span>; with a
+            fee and no confirmed GST rate,{" "}
+            <span className="text-black">{formatFee({ exGst: 26700, gstRate: null })}</span>; once
+            the rate is confirmed,{" "}
+            <span className="text-black">{formatFee({ exGst: 26700, gstRate: 18 })}</span>;
             formatDuration(null, null) renders{" "}
             <span className="text-black">{formatDuration(null, null)}</span>.
           </p>
@@ -235,7 +239,7 @@ export default async function ComponentGalleryPage() {
               <CourseCard
                 course={{
                   ...first,
-                  feeInclGst: 25300,
+                  feeExGst: 25300,
                   durationDays: 3,
                   format: "in-person",
                   instances: [
@@ -246,7 +250,7 @@ export default async function ComponentGalleryPage() {
                       schedule: "10am to 5pm",
                       seatsMax: 8,
                       seatsBooked: 0,
-                      priceOverride: null,
+                      priceOverrideExGst: null,
                       venue: null,
                       seatsAvailable: 6,
                       status: "open",
@@ -257,7 +261,7 @@ export default async function ComponentGalleryPage() {
             )}
             {courses[1] && (
               <CourseCard
-                course={{ ...courses[1], feeInclGst: 18500, durationHours: 12, format: "hybrid" }}
+                course={{ ...courses[1], feeExGst: 18500, durationHours: 12, format: "hybrid" }}
               />
             )}
           </div>
@@ -273,13 +277,33 @@ export default async function ComponentGalleryPage() {
               <FeeBlock course={first} />
             </Specimen>
 
-            <Specimen title="Fee block, fee confirmed">
+            <Specimen title="Fee block, fee confirmed, GST rate not">
               <FeeBlock
                 course={{
                   ...first,
-                  feeInclGst: 25300,
+                  feeExGst: 26700,
+                  listPriceExGst: 35600,
+                  offerLabel: "25% off, 55th batch offer",
+                  gstRate: null,
                   emiAvailable: true,
-                  includes: ["Machine time", "Coffee", "Certificate"],
+                  includes: ["Certification"],
+                }}
+              />
+            </Specimen>
+
+            <Specimen
+              title="Fee block, GST rate confirmed"
+              note="What the block becomes the day the academy answers open question 1 in content/facts.md. No code changes; the total appears because the rate exists."
+            >
+              <FeeBlock
+                course={{
+                  ...first,
+                  feeExGst: 26700,
+                  listPriceExGst: 35600,
+                  offerLabel: "25% off, 55th batch offer",
+                  gstRate: 18,
+                  emiAvailable: true,
+                  includes: ["Certification"],
                 }}
               />
             </Specimen>
@@ -303,7 +327,7 @@ export default async function ComponentGalleryPage() {
                       schedule: "10am to 5pm",
                       seatsMax: 8,
                       seatsBooked: 0,
-                      priceOverride: null,
+                      priceOverrideExGst: null,
                       venue: null,
                       seatsAvailable: 6,
                       status: "open",
@@ -315,7 +339,7 @@ export default async function ComponentGalleryPage() {
                       schedule: null,
                       seatsMax: 8,
                       seatsBooked: 0,
-                      priceOverride: null,
+                      priceOverrideExGst: null,
                       venue: null,
                       seatsAvailable: null,
                       status: "waitlist",

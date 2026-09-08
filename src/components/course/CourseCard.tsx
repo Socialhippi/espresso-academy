@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { SanityPhoto } from "@/components/site/SanityPhoto";
-import { formatDate, formatDuration, formatFeeAmount } from "@/lib/format";
+import { formatDate, formatDuration, formatFeeAmount, feeSuffix } from "@/lib/format";
 import { courseCta, formatLabel, getNextInstanceForCourse, type Course } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
@@ -25,7 +25,7 @@ interface CourseCardProps {
  */
 export function CourseCard({ course, className, priority = false }: CourseCardProps) {
   const nextInstance = getNextInstanceForCourse(course);
-  const hasFee = course.feeInclGst !== null;
+  const hasFee = course.feeExGst !== null;
   const cta = courseCta(course, course.instances);
   const hasDuration = course.durationDays !== null || course.durationHours !== null;
   /* Same rule as the course page's spec strip: a cell appears when it has something to say, and
@@ -121,8 +121,11 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
                 <p>
                   <span className="block type-label text-grey">Fee</span>
                   <span className="type-numeral text-h2 text-black">
-                    {formatFeeAmount(course.feeInclGst)}
+                    {formatFeeAmount(course.feeExGst)}
                   </span>
+                  {/* The strike-through belongs on the course page, where there is room to say
+                      what the offer is. A crossed-out number on a card with no reason beside it
+                      is the thing design.md calls a sales trick. */}
                 </p>
               )}
               {nextInstance?.startDate && (
@@ -143,7 +146,9 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
             />
           </div>
 
-          {hasFee && <p className="mt-2 type-small text-grey">incl. GST</p>}
+          {hasFee && (
+            <p className="mt-2 type-small text-grey">{feeSuffix(course.gstRate)}</p>
+          )}
         </div>
       </Link>
 
