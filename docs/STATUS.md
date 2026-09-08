@@ -395,8 +395,12 @@ taken, confirmation page rendered. Screenshots in `docs/screens/razorpay-*.png` 
   still marked paid, flagged `overbooked` and emailed to the academy, with its own list in the
   Studio. Taking money and having no record of it is the worse failure.
 - The gateway is behind `src/lib/payments/provider.ts`. See the rate-card note below.
-- `/refund-policy` renders `siteSettings.refundPolicy` when the academy writes it, and falls back to
-  the marked placeholder until then. The checkout links to it before anyone pays.
+- `/refund-policy` renders `siteSettings.refundPolicy` when the academy writes it, and otherwise
+  states the academy's own policy from content/facts.md revision 2: the ₹5,000 advance, the balance
+  at the campus, the 3-month reschedule window and the no-refund rule. One clause is still marked
+  TBC, and only one: what happens when the academy moves or cancels a batch, which facts.md says
+  the client has not stated. The checkout links to it before anyone pays and repeats the four terms
+  beside the form.
 
 **Two defects found by testing the checkout by hand, both invisible until tapped:**
 
@@ -1635,7 +1639,7 @@ for content the academy has not sent; each one has a visible TBC state on the pa
 | `/thank-you` | **no** | no | Post-submit. noindex. |
 | `/privacy` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
 | `/terms` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
-| `/refund-policy` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
+| `/refund-policy` | yes | yes | Real policy from content/facts.md. One TBC clause: academy cancellation. |
 | `/dev/components` | **no** | no | Internal component gallery, every state of every component. |
 
 Non-page routes: `/api/enquiry` (POST only), `/sitemap.xml`, `/robots.txt`, `/llms.txt`,
@@ -1670,7 +1674,7 @@ appears; no code change is needed.
 | 14 | Trainer roles and philosophy quotes | Trainer cards and profiles | `trainers[].role` / `philosophy` are `null` |
 | 15 | Photos for every slot in `docs/images-manifest.md` | Hero, course cards, trainer profiles, about gallery, contact | no files in `public/images/` |
 | 16 | Testimonials with written permission | Student stories section | `stories` is empty and stays empty until then |
-| 17 | Legal copy: privacy, terms, refund policy | `/privacy`, `/terms`, `/refund-policy` | placeholder text marked `data-placeholder="true"` |
+| 17 | Legal copy: privacy and terms | `/privacy`, `/terms` | placeholder text marked `data-placeholder="true"`. `/refund-policy` is now the academy's own policy from facts.md revision 2, apart from the academy-cancellation clause, which needs sign-off (open question 5). |
 | 18 | Logo as SVG, and ideally a **horizontal lockup** | Header, footer, OG images | only raster renders in `public/logo/`, and the only lockup is stacked |
 | 18a | **Sign-off on the header composition.** The supplied stacked lockup's wordmark renders about 5.6px tall at header size, so the header pairs the supplied standalone mark with the academy name set in Montserrat 500. The artwork is untouched, but composing a lockup is a brand decision. A horizontal lockup makes this moot. | Header, every page | design.md assumes a horizontal lockup that was not supplied |
 | 19 | Gotham web licence | Site-wide type | Montserrat is the interim substitute |
