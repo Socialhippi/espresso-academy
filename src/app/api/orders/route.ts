@@ -7,6 +7,7 @@ import {
   getInstanceForCheckout,
   seatsRemaining,
 } from "@/lib/bookings";
+import { chargeFor, isFullPaymentEnabled } from "@/lib/booking-terms";
 import { MIN_TIME_ON_FORM_MS } from "@/lib/enquiry";
 import { getPaymentProvider, rupeesToPaise } from "@/lib/payments/provider";
 import { check, clientKey } from "@/lib/rate-limit";
@@ -156,6 +157,19 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
     );
   }
 
+  /*
+   * What to charge, decided on the server from the fee the server read.
+   *
+   * The academy's policy is that ₹5,000 confirms a seat and the balance is paid at the campus, so
+   * that is what the gateway is asked for. The request body still has no amount field in it and
+   * still would not be read if it did.
+   */
+  const charge = chargeFor({
+    feeExGst: fee,
+    gstRate: instance.course.gstRate,
+    fullPaymentEnabled: isFullPaymentEnabled(),
+  });
+
   // The course states a prerequisite, so the confirmation is required. Checked against the course
   // the server read, not against whatever the browser decided to send.
   if (instance.course.prerequisites && !input.prerequisiteAccepted) {
@@ -165,7 +179,7 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
     );
   }
 
-  const amountInPaise = rupeesToPaise(fee);
+  const amountInPaise = rupeesToPaise(charge.amountExGst);
 
   try {
     const order = await provider.createOrder({
@@ -175,6 +189,8 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
       notes: {
         instanceId: instance.id,
         courseSlug: instance.course.slug,
+        paymentType: charge.kind,
+        balanceDueExGst: String(charge.balanceExGst),
         name: input.name,
         phone: input.phone,
         email: input.email,
@@ -187,7 +203,11 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
       name: input.name,
       phone: `+91${input.phone}`,
       email: input.email,
-      amountInRupees: fee,
+      amountInRupees: charge.amountExGst,
+      paymentType: charge.kind,
+      courseFeeExGst: fee,
+      balanceDueExGst: charge.balanceExGst,
+      gstRate: instance.course.gstRate,
       razorpayOrderId: order.orderId,
       prerequisiteAccepted: Boolean(input.prerequisiteAccepted),
       source: {
@@ -207,6 +227,8 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
       instanceId: instance.id,
       courseSlug: instance.course.slug,
       amountInPaise,
+      paymentType: charge.kind,
+      balanceDueExGst: charge.balanceExGst,
       seatsRemaining: seats,
     });
 
@@ -219,7 +241,13 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
         currency: order.currency,
         keyId: provider.publicKeyId,
         name: instance.course.title,
-        description: `${instance.course.levelLabel} · Espresso Academy India`,
+        /* The gateway window is the last thing a student reads before their bank app opens, so it
+           says what this payment is rather than repeating the level. Someone who thinks they are
+           paying in full and is asked for a balance in September has been misled by this line. */
+        description:
+          charge.kind === "advance"
+            ? `Seat advance · ${instance.course.levelLabel} · Espresso Academy India`
+            : `Full fee · ${instance.course.levelLabel} · Espresso Academy India`,
         prefill: { name: input.name, email: input.email, contact: `+91${input.phone}` },
       },
     });

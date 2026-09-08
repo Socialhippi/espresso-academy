@@ -8,8 +8,9 @@ import { ButtonLink } from "@/components/site/Button";
 import { TbcPill } from "@/components/site/TbcPill";
 import { BookingStatusPoll } from "@/components/booking/BookingStatusPoll";
 import { getBooking } from "@/lib/bookings";
+import { BOOKING_TERMS } from "@/lib/booking-terms";
 import { getSiteSettings } from "@/lib/content";
-import { formatDateRange, formatPhone, telHref } from "@/lib/format";
+import { feeSuffix, formatDateRange, formatFeeAmount, formatPhone, telHref } from "@/lib/format";
 
 /**
  * The confirmation page.
@@ -36,6 +37,8 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
     ? formatDateRange(booking.instance.startDate, booking.instance.endDate)
     : null;
   const venue = booking.instance?.venue;
+  const balance = booking.balanceDueExGst ?? 0;
+  const owesBalance = booking.paymentType === "advance" && balance > 0;
 
   return (
     <Container className="py-10 md:py-16">
@@ -47,9 +50,10 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                 <Check className="size-4" aria-hidden="true" />
                 Booked
               </p>
-              <h1 className="mt-3 type-h1 text-black">Your seat is booked</h1>
+              <h1 className="mt-3 type-h1 text-black">Your seat is confirmed</h1>
               <p className="mt-5 measure type-body text-grey">
-                We have taken ₹{(booking.amount ?? 0).toLocaleString("en-IN")} incl. GST for{" "}
+                We have taken {formatFeeAmount(booking.amount)}
+                {owesBalance ? " as the advance that confirms your seat on " : " for "}
                 {booking.course?.title ?? "your course"}. A confirmation is on its way to{" "}
                 {booking.email ?? "your email address"}.
               </p>
@@ -86,20 +90,64 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
             </div>
           )}
 
+          {paid && owesBalance && (
+            /*
+             * Not a warning box and not red on a dark ground: nothing has gone wrong, and this is
+             * the single most important fact on the page. A student who leaves here believing the
+             * course is paid for finds out at the counter on day one, which is the academy's
+             * problem to handle and this page's fault for causing.
+             */
+            <section className="mt-8 border border-white-2 bg-white-3 p-6 md:p-8">
+              <h2 className="type-h3 text-black">What is left to pay</h2>
+              <p className="mt-3">
+                <span className="type-numeral text-display text-black">
+                  {formatFeeAmount(balance)}
+                </span>{" "}
+                <span className="type-body text-grey">{feeSuffix(booking.gstRate)}</span>
+              </p>
+              <p className="mt-3 measure type-body text-grey">
+                Paid to the academy before the first day.
+                {booking.courseFeeExGst !== null
+                  ? ` The course fee is ${formatFeeAmount(booking.courseFeeExGst)} ${feeSuffix(booking.gstRate)}, and ${formatFeeAmount(booking.amount)} of it has been paid.`
+                  : ""}
+              </p>
+              <ul className="mt-5 flex flex-col gap-2 type-small text-grey">
+                {BOOKING_TERMS.map((term) => (
+                  <li key={term} className="flex gap-3">
+                    <span className="mt-2.5 h-px w-3 shrink-0 bg-red" aria-hidden="true" />
+                    {term}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 type-small text-grey">
+                In full, on the{" "}
+                <Link
+                  href="/refund-policy"
+                  className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                >
+                  refund and reschedule policy
+                </Link>
+                .
+              </p>
+            </section>
+          )}
+
           {paid && (
             <section className="mt-10 hairline pt-8">
               <h2 className="type-h2 text-black">What happens next</h2>
               <ol className="mt-6 flex flex-col gap-5">
                 <NextStep number="01" title="A confirmation email">
-                  It has your batch dates, the campus address and the receipt. Check your spam
-                  folder if it has not arrived in ten minutes.
+                  It has your batch dates, the campus address, the receipt
+                  {owesBalance ? " and the balance still to pay" : ""}. Check your spam folder if
+                  it has not arrived in ten minutes.
                 </NextStep>
                 <NextStep number="02" title="A message from the academy">
                   The academy messages you on WhatsApp before the batch starts with the timings
                   and what to bring.
                 </NextStep>
                 <NextStep number="03" title="Turn up">
-                  Come to the campus on the first morning. There is nothing to print.
+                  Come to the campus on the first morning. There is nothing to print
+                  {owesBalance ? ", and the balance is settled when you arrive" : ""}.
                 </NextStep>
               </ol>
             </section>

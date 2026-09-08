@@ -19,8 +19,15 @@ export interface CheckoutFormProps {
   instanceId: string;
   courseSlug: string;
   courseTitle: string;
-  /** For display only. The server reads the fee from Sanity when it creates the order. */
-  feeInclGst: number;
+  /**
+   * For display only, all of it. The server recomputes the charge from the fee it reads out of
+   * Sanity and ignores anything the browser says about money (CLAUDE.md rule 11). These are here
+   * so the button can name the figure the student is about to be charged.
+   */
+  amountExGst: number;
+  balanceExGst: number;
+  paymentType: "advance" | "full";
+  gstRate: number | null;
   /** Present when the course states one; the confirmation checkbox is then required. */
   prerequisite: string | null;
   turnstileSiteKey: string | undefined;
@@ -81,7 +88,10 @@ export function CheckoutForm({
   instanceId,
   courseSlug,
   courseTitle,
-  feeInclGst,
+  amountExGst,
+  balanceExGst,
+  paymentType,
+  gstRate,
   prerequisite,
   turnstileSiteKey,
   className,
@@ -128,10 +138,10 @@ export function CheckoutForm({
     track("begin_checkout", {
       instance_id: instanceId,
       course_id: courseSlug,
-      value: feeInclGst,
+      value: amountExGst,
       currency: "INR",
     });
-  }, [instanceId, courseSlug, feeInclGst]);
+  }, [instanceId, courseSlug, amountExGst]);
 
   const onToken = useCallback((token: string | null) => setTurnstileToken(token), []);
 
@@ -203,7 +213,7 @@ export function CheckoutForm({
     }
 
     setStatus("creating");
-    track("add_payment_info", { instance_id: instanceId, course_id: courseSlug, value: feeInclGst });
+    track("add_payment_info", { instance_id: instanceId, course_id: courseSlug, value: amountExGst });
 
     let body: OrderResponseBody;
     try {
@@ -503,11 +513,24 @@ export function CheckoutForm({
         </p>
         <Button type="submit" variant="primary" size="block" disabled={busy} data-event="pay_click">
           {busy && <Loader2 className="size-5 animate-spin" aria-hidden="true" />}
-          {status === "idle" && `Pay ₹${feeInclGst.toLocaleString("en-IN")} and book the seat`}
+          {status === "idle" &&
+            (paymentType === "advance"
+              ? `Pay ₹${amountExGst.toLocaleString("en-IN")} and confirm the seat`
+              : `Pay ₹${amountExGst.toLocaleString("en-IN")} and book the seat`)}
           {status === "creating" && "Opening the payment window"}
           {status === "paying" && "Waiting for the payment"}
           {status === "verifying" && "Confirming your booking"}
         </Button>
+        {paymentType === "advance" && balanceExGst > 0 && (
+          /* Directly under the button, not up beside the fee. This is the sentence that stops a
+             student believing the course is paid for, and it has to be the last thing read before
+             the payment window opens. */
+          <p className="type-small text-grey">
+            The balance of ₹{balanceExGst.toLocaleString("en-IN")}
+            {gstRate === null ? " + GST" : " incl. GST"} is paid to the academy before the first
+            day. This payment confirms your seat, it does not pay for the course in full.
+          </p>
+        )}
         <p aria-live="polite" className="sr-only">
           {status === "verifying" ? "Payment received. Confirming your booking." : ""}
         </p>

@@ -10,8 +10,9 @@ import { TbcPill } from "@/components/site/TbcPill";
 import { CheckoutForm } from "@/components/booking/CheckoutForm";
 import { WaitlistInline } from "@/components/course/WaitlistInline";
 import { feeInRupees, getInstanceForCheckout, seatsRemaining } from "@/lib/bookings";
+import { BOOKING_TERMS, chargeFor, isFullPaymentEnabled } from "@/lib/booking-terms";
 import { getSiteSettings } from "@/lib/content";
-import { formatDateRange } from "@/lib/format";
+import { feeSuffix, formatDateRange, formatFeeAmount } from "@/lib/format";
 import { isPaymentConfigured } from "@/lib/payments/provider";
 
 /**
@@ -54,6 +55,17 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
   const full = seats !== null && seats <= 0;
   const canPay = Boolean(fee) && paymentsOn && !closed && !full;
 
+  /* What this page is actually about to charge. The same function the order route uses, so the
+     number on the button and the number at the gateway cannot disagree. */
+  const charge =
+    fee === null
+      ? null
+      : chargeFor({
+          feeExGst: fee,
+          gstRate: course.gstRate,
+          fullPaymentEnabled: isFullPaymentEnabled(),
+        });
+
   return (
     <Container className="py-10 md:py-16">
       <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
@@ -88,40 +100,89 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
           </dl>
 
           <div className="mt-6 hairline pt-6">
-            <p className="type-label text-grey">Fee</p>
-            {fee === null ? (
-              <p className="mt-2 flex items-center gap-3 type-body text-black">
-                <TbcPill /> The academy confirms the fee for this batch.
-              </p>
+            {fee === null || charge === null ? (
+              <>
+                <p className="type-label text-grey">Fee</p>
+                <p className="mt-2 flex items-center gap-3 type-body text-black">
+                  <TbcPill /> The academy confirms the fee for this batch.
+                </p>
+              </>
             ) : (
               <>
-                <p className="mt-2 type-numeral text-display-lg text-black">
-                  ₹{fee.toLocaleString("en-IN")}
+                {/*
+                  The number in the display face is the number about to leave the student's
+                  account, not the course fee. It read the fee and charged something else, which
+                  on the academy's advance model would have been the page quoting ₹26,700 above a
+                  button taking ₹5,000.
+                */}
+                <p className="type-label text-grey">
+                  {charge.kind === "advance" ? "To pay now" : "Fee"}
                 </p>
-                <p className="mt-1 type-small text-grey">incl. GST</p>
+                <p className="mt-2 type-numeral text-display-lg text-black">
+                  {formatFeeAmount(charge.amountExGst)}
+                </p>
+                <p className="mt-1 type-small text-grey">
+                  {charge.kind === "advance"
+                    ? "advance, which confirms your seat"
+                    : feeSuffix(course.gstRate)}
+                </p>
+
+                <dl className="mt-6 flex flex-col gap-3 type-small">
+                  <div className="flex flex-wrap justify-between gap-x-4">
+                    <dt className="text-grey">Course fee</dt>
+                    <dd className="text-black">
+                      {formatFeeAmount(fee)} {feeSuffix(course.gstRate)}
+                    </dd>
+                  </div>
+                  {charge.balanceExGst > 0 && (
+                    <div className="flex flex-wrap justify-between gap-x-4">
+                      <dt className="text-grey">Balance, at the academy</dt>
+                      <dd className="text-black">
+                        {formatFeeAmount(charge.balanceExGst)} {feeSuffix(course.gstRate)}
+                      </dd>
+                    </div>
+                  )}
+                </dl>
               </>
             )}
           </div>
 
-          <p className="mt-6 type-small text-grey">
-            Before you pay, read the{" "}
-            <Link
-              href="/refund-policy"
-              className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-            >
-              refund and reschedule policy
-            </Link>
-            .
-          </p>
+          {/* The terms sit beside the form rather than under it. They are four sentences and one
+              of them is "if you do not attend, the fee is not refunded", which is not something to
+              meet after paying. */}
+          <div className="mt-6 hairline pt-6">
+            <p className="type-label text-grey">Before you pay</p>
+            <ul className="mt-3 flex flex-col gap-2 type-small text-grey">
+              {BOOKING_TERMS.map((term) => (
+                <li key={term} className="flex gap-3">
+                  <span className="mt-2.5 h-px w-3 shrink-0 bg-red" aria-hidden="true" />
+                  {term}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-4 type-small text-grey">
+              In full, on the{" "}
+              <Link
+                href="/refund-policy"
+                className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+              >
+                refund and reschedule policy
+              </Link>
+              .
+            </p>
+          </div>
         </div>
 
         <div className="lg:col-span-7">
-          {canPay && fee !== null ? (
+          {canPay && fee !== null && charge !== null ? (
             <CheckoutForm
               instanceId={instance.id}
               courseSlug={course.slug}
               courseTitle={course.title}
-              feeInclGst={fee}
+              amountExGst={charge.amountExGst}
+              balanceExGst={charge.balanceExGst}
+              paymentType={charge.kind}
+              gstRate={course.gstRate}
               prerequisite={course.prerequisites}
               turnstileSiteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY}
             />

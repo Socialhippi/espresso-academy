@@ -69,7 +69,11 @@ test.describe("/api/orders", () => {
 
     const order = body.order as CreatedOrder;
     expect(order.orderId).toMatch(/^order_/);
-    // ₹1 on the seeded batch. The browser sent no amount; the server read this from Sanity.
+    /*
+     * ₹1 on the seeded batch. The browser sent no amount; the server read this from Sanity.
+     * The advance is capped at the fee (src/lib/booking-terms.ts), so a ₹1 batch charges ₹1
+     * rather than the ₹5,000 that a real batch would.
+     */
     expect(order.amountInPaise).toBe(100);
     expect(order.bookingId).toBeTruthy();
   });
@@ -77,7 +81,7 @@ test.describe("/api/orders", () => {
   test("ignores an amount in the request body: the server reads the fee from Sanity", async ({
     request,
   }) => {
-    const { body } = await createOrder(request, { amount: 1, amountInPaise: 1, feeInclGst: 1 });
+    const { body } = await createOrder(request, { amount: 1, amountInPaise: 1, feeExGst: 5000 });
     const order = body.order as CreatedOrder;
     expect(order.amountInPaise).toBe(100);
   });

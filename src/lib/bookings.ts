@@ -33,12 +33,22 @@ export interface BookableInstance extends CourseInstance {
   course: Course;
 }
 
+export type PaymentType = "advance" | "full";
+
 export interface BookingRecord {
   id: string;
   name: string | null;
   phone: string | null;
   email: string | null;
+  /** What was taken at the gateway, ex-GST. The advance, on the ordinary path. */
   amount: number | null;
+  paymentType: PaymentType;
+  /** The whole fee as it stood when the booking was taken, ex-GST. */
+  courseFeeExGst: number | null;
+  /** Fee minus amount. Paid at the academy before the first day. */
+  balanceDueExGst: number | null;
+  /** The rate as it stood when the booking was taken. Null means it was unconfirmed. */
+  gstRate: number | null;
   currency: string | null;
   status: BookingStatus;
   razorpayOrderId: string | null;
@@ -71,6 +81,10 @@ export interface BookingByOrder {
   id: string;
   status: BookingStatus;
   amount: number | null;
+  paymentType: PaymentType;
+  courseFeeExGst: number | null;
+  balanceDueExGst: number | null;
+  gstRate: number | null;
   name: string | null;
   email: string | null;
   phone: string | null;
@@ -106,7 +120,13 @@ export interface CreateBookingInput {
   name: string;
   phone: string;
   email: string;
+  /** What the gateway is being asked for, ex-GST. */
   amountInRupees: number;
+  paymentType: PaymentType;
+  /** The whole fee at the moment of booking, ex-GST. */
+  courseFeeExGst: number;
+  balanceDueExGst: number;
+  gstRate: number | null;
   razorpayOrderId: string;
   prerequisiteAccepted: boolean;
   source: BookingSource;
@@ -124,6 +144,14 @@ export async function createBooking(input: CreateBookingInput): Promise<string> 
     phone: input.phone,
     email: input.email,
     amount: input.amountInRupees,
+    paymentType: input.paymentType,
+    /* The fee and the rate are copied onto the booking rather than read back through the course
+       reference. A fee can change and an offer can end; the balance a student was quoted when
+       they paid the advance is the balance the academy is owed, not whatever the course says in
+       November. */
+    courseFeeExGst: input.courseFeeExGst,
+    balanceDueExGst: input.balanceDueExGst,
+    gstRate: input.gstRate,
     currency: "INR",
     razorpayOrderId: input.razorpayOrderId,
     status: "created" satisfies BookingStatus,

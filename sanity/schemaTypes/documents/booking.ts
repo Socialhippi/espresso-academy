@@ -20,10 +20,51 @@ export const booking = defineType({
     defineField({ name: "email", type: "string", readOnly: true }),
     defineField({
       name: "amount",
-      title: "Amount (₹)",
+      title: "Amount taken (₹)",
       type: "number",
       readOnly: true,
-      description: "Whole rupees, as computed by the server from the batch or course fee.",
+      description:
+        "Whole rupees, before GST, as computed by the server from the batch or course fee. On the ordinary path this is the ₹5,000 advance, not the whole fee.",
+    }),
+    /*
+     * The three fields below exist because "amount" alone stopped being the whole story when the
+     * checkout moved to the academy's advance model. A booking has to record what the fee was on
+     * the day it was taken, not just what was charged: the fee can change, the offer can end, and
+     * a student who paid an advance in September is owed the balance that was quoted then.
+     */
+    defineField({
+      name: "paymentType",
+      title: "What was paid",
+      type: "string",
+      readOnly: true,
+      initialValue: "advance",
+      options: {
+        list: [
+          { title: "Advance, balance due at the academy", value: "advance" },
+          { title: "Full fee, paid online", value: "full" },
+        ],
+        layout: "radio",
+      },
+    }),
+    defineField({
+      name: "courseFeeExGst",
+      title: "Course fee at the time of booking (₹, before GST)",
+      type: "number",
+      readOnly: true,
+    }),
+    defineField({
+      name: "balanceDueExGst",
+      title: "Balance due at the academy (₹, before GST)",
+      type: "number",
+      readOnly: true,
+      description: "Course fee minus the amount taken. Stated on the confirmation page and email.",
+    }),
+    defineField({
+      name: "gstRate",
+      title: "GST rate at the time of booking (%)",
+      type: "number",
+      readOnly: true,
+      description: "Empty means the rate was not confirmed when this booking was taken.",
     }),
     defineField({ name: "currency", type: "string", readOnly: true, initialValue: "INR" }),
     defineField({ name: "razorpayOrderId", title: "Razorpay order id", type: "string", readOnly: true }),
@@ -64,10 +105,21 @@ export const booking = defineType({
     defineField({ name: "notes", type: "text", rows: 3, description: "The only free field. Anything the academy needs to remember about this booking." }),
   ],
   preview: {
-    select: { name: "name", status: "status", amount: "amount", course: "course.title", overbooked: "overbooked" },
-    prepare: ({ name, status, amount, course, overbooked }) => ({
+    select: {
+      name: "name",
+      status: "status",
+      amount: "amount",
+      balance: "balanceDueExGst",
+      course: "course.title",
+      overbooked: "overbooked",
+    },
+    prepare: ({ name, status, amount, balance, course, overbooked }) => ({
       title: `${name ?? "Booking"}${overbooked ? " ⚠ overbooked" : ""}`,
-      subtitle: `${status ?? ""} · ₹${amount ?? "?"} · ${course ?? ""}`,
+      /* The balance is in the subtitle because the roster is where the academy checks who still
+         owes money on the morning of a batch. */
+      subtitle: `${status ?? ""} · ₹${amount ?? "?"} paid${
+        typeof balance === "number" && balance > 0 ? `, ₹${balance} + GST due` : ""
+      } · ${course ?? ""}`,
     }),
   },
   orderings: [{ name: "newest", title: "Newest first", by: [{ field: "createdAt", direction: "desc" }] }],
