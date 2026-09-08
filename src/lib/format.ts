@@ -163,7 +163,7 @@ export function whatsappNumber(fromSettings?: string | null): string {
   return whatsappNumberOverride ?? fromSettings ?? "";
 }
 
-/** "+91 94481 06100" from "+919448106100", for display only. */
+/** "+91 79757 09407" from "+917975709407", for display only. */
 export function formatPhone(e164: string): string {
   const match = /^\+(\d{1,3})(\d{5})(\d{5})$/.exec(e164);
   if (!match) return e164;

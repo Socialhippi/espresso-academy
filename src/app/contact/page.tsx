@@ -18,7 +18,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, schemaIds, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Espresso Academy India is at Microexcel Plaza, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094. Phone numbers, WhatsApp and directions.";
+  "Espresso Academy India is at Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094. Phone, WhatsApp and directions.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact and Campus, Bengaluru",
@@ -51,8 +51,9 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         title="Come and find us in RMV 2nd Stage"
         intro={
           <p>
-            The campus is on 80 Feet Road, near Ramaiah Hospital. The fastest reply is WhatsApp;
-            the phone is answered during academy hours.
+            The campus is on 80 Feet Road, near Ramaiah Hospital. One number takes both the call
+            and the WhatsApp message, and the fastest reply is WhatsApp. The academy is open 10 am
+            to 7 pm.
           </p>
         }
         actions={
@@ -90,14 +91,16 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                       {settings.address.city} {settings.address.postalCode},{" "}
                       {settings.address.region}
                     </address>
-                    {/* TODO(client): plot number unconfirmed, and the current map pin points at
-                        a different building. Both are in docs/STATUS.md. */}
+                    {/* Both numbers in the first line are correct: 9 is the plot and 72 is the
+                        building number on 80 Feet Road (content/facts.md line 15). */}
                   </dd>
                 </div>
 
                 <div className="border-t border-white-2 py-5">
-                  <dt className="type-label text-grey">Phone</dt>
+                  <dt className="type-label text-grey">Phone and WhatsApp</dt>
                   <dd className="mt-2 flex flex-col">
+                    {/* One number now. The two older ones are no longer the academy's published
+                        contact (content/facts.md line 16) and are gone from the site. */}
                     <a
                       href={telHref(settings.phonePrimary)}
                       data-event="call_click_contact"
@@ -118,10 +121,9 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 </div>
 
                 <div className="border-t border-white-2 py-5">
-                  <dt className="type-label text-grey">WhatsApp</dt>
+                  <dt className="type-label text-grey">Message us</dt>
                   <dd className="mt-2">
-                    {/* TODO(client): settings.whatsappConfirmed is false. Until the academy
-                        confirms which number is on WhatsApp, both call and chat use the primary. */}
+                    {/* Same number as above, confirmed by the client as the one on WhatsApp. */}
                     <WhatsAppButton size="sm" event="whatsapp_click_contact_details">
                       Message the academy
                     </WhatsAppButton>
@@ -131,11 +133,14 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 <div className="border-t border-white-2 py-5">
                   <dt className="type-label text-grey">Email</dt>
                   <dd className="mt-2 flex items-center gap-3">
-                    {/* TODO(client): settings.email is null. No address is published. */}
+                    {/* TODO(client): open question 6 in content/facts.md. The address is printed
+                        exactly as the client wrote it. It looks like a typo, missing the "a" in
+                        "academy", and they have been asked; printing a corrected address that
+                        might bounce would be worse than printing the one they gave us. */}
                     {settings.email ? (
                       <a
                         href={`mailto:${settings.email}`}
-                        className="type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+                        className="type-body break-all text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                       >
                         {settings.email}
                       </a>
@@ -152,10 +157,23 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
 
                 <div className="border-t border-b border-white-2 py-5">
                   <dt className="type-label text-grey">Hours</dt>
-                  <dd className="mt-2 flex items-center gap-3">
-                    {/* TODO(client): settings.hours is null. */}
+                  <dd className="mt-2 flex flex-wrap items-center gap-3">
                     {settings.hours ? (
-                      <span className="type-body text-black">{settings.hours}</span>
+                      <>
+                        <span className="type-body text-black">{settings.hours}</span>
+                        {!settings.openingDaysConfirmed && (
+                          /* TODO(client): open question 7 in content/facts.md. The hours are
+                             confirmed, the days are not, and "Mon to Sat" is a guess about when
+                             somebody can turn up at a building. */
+                          <>
+                            <TbcPill label="Days TBC" />
+                            <span className="type-small text-grey">
+                              Which days the academy opens is being confirmed. Ask before you make
+                              the trip.
+                            </span>
+                          </>
+                        )}
+                      </>
                     ) : (
                       <>
                         <TbcPill />

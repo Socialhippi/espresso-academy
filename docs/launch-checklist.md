@@ -17,16 +17,24 @@ empty, because they are what a student came to find out.
       "Fee: TBC".
 - [ ] **Batch dates.** Until then the calendar shows "dates being finalised".
 - [ ] **Duration** for each course.
-- [ ] **Which trainer teaches which course.** Seven of eight courses have none assigned, and the
+- [ ] **Which trainer teaches which course.** None of the three courses has one assigned, and the
       Studio will not let an editor publish a course without one.
 - [ ] A **fourth question** on each course. Same publish gate.
-- [ ] **WhatsApp number confirmed** — the site currently uses +91 94481 06100 for both call and
-      WhatsApp on the strength of the current website, which is not the same as confirmation.
-- [ ] **Public email address** and **opening hours**.
+- [x] **WhatsApp number confirmed** — +91 79757 09407, from the client's own document, on both the
+      call and the WhatsApp link. The two older numbers are removed from the site.
+- [x] **Public email address** — `espressocademyindia@gmail.com`, exactly as the client wrote it.
+- [ ] **Email spelling** — it looks like a typo, missing the "a" in "academy". Open question 6.
+- [x] **Opening hours** — 10 am to 7 pm.
+- [ ] **Opening days** — open question 7. Until they land, no `openingHoursSpecification` is
+      emitted in the JSON-LD, because that markup has no way to say "these hours, days unknown".
 - [ ] **Reply promise** wording, or leave it empty and the site promises no interval.
 - [ ] **Legal entity name** for the footer.
-- [ ] **Refund and reschedule policy.** The checkout links to it before anyone pays, so this is the
-      one piece of legal copy that should not launch as a placeholder.
+- [x] **Refund and reschedule policy.** Written from the client's own document: the ₹5,000 advance,
+      the balance at the campus, the 3-month reschedule window, the no-refund rule.
+- [ ] **Sign-off on the academy-cancellation clause**, the one clause on that page the client has
+      not stated. Open question 5.
+- [ ] **GST rate** — open question 1. Until it lands the site prints no tax-inclusive total
+      anywhere, and the full-payment path stays switched off.
 - [ ] **Photographs** for the slots in `docs/images-manifest.md`. Also the single biggest
       performance lever left: every page's largest element is text today.
 - [ ] **Testimonials with written permission**, if any. The stories page stays empty until then, by

@@ -200,6 +200,7 @@ export const siteSettingsQuery = /* groq */ `
     whatsappText,
     email,
     hours,
+    "openingDaysConfirmed": coalesce(openingDaysConfirmed, false),
     replyPromise,
     instagram,
     florencePartnerPage,

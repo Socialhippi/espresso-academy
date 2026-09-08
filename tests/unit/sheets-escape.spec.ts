@@ -28,13 +28,13 @@ test.describe("formula-leading characters are neutralised", () => {
 
   test("an ordinary name is untouched", () => {
     expect(escapeForSheet("Akanksha Gupta")).toBe("Akanksha Gupta");
-    expect(escapeForSheet("+91 94481 06100".replace("+", ""))).toBe("91 94481 06100");
+    expect(escapeForSheet("+91 79757 09407".replace("+", ""))).toBe("91 79757 09407");
   });
 
   test("a phone number written with its plus is quoted, because it starts with one", () => {
-    // Not a false positive to fix: Sheets really would treat "+919448106100" as an expression.
+    // Not a false positive to fix: Sheets really would treat "+917975709407" as an expression.
     // The apostrophe is invisible in the cell, so the academy sees the number they expect.
-    expect(escapeForSheet("+919448106100")).toBe("'+919448106100");
+    expect(escapeForSheet("+917975709407")).toBe("'+917975709407");
   });
 });
 

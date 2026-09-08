@@ -226,7 +226,10 @@ export interface SiteSettings {
   whatsappConfirmed: boolean;
   whatsappText: string | null;
   email: string | null;
+  /** The daily hours, e.g. "10 am to 7 pm". Null renders TBC. */
   hours: string | null;
+  /** False while the academy has given its hours but not its days. */
+  openingDaysConfirmed: boolean;
   replyPromise: string | null;
   instagram: string | null;
   florencePartnerPage: string | null;

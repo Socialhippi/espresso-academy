@@ -120,21 +120,33 @@ export const siteSettings = {
   foundedFlorence: 2007,
   launchedBengaluru: 2023,
   address: {
-    line1: "Microexcel Plaza, Plot No. 72, 80 Feet Road",
-    line2: "RMV 2nd Stage, near Ramaiah Hospital",
+    /* facts.md line 15: both numbers are correct. 9 is the plot, 72 is the building number on
+       80 Feet Road, which is why the old single-number line looked like a typo and was wrong. */
+    line1: "Plot No. 9, Microexcel Plaza, 72, 80 Feet Road",
+    line2: "RMV 2nd Stage, Ashwath Nagar, near Ramaiah Hospital",
     city: "Bengaluru",
     postalCode: "560094",
     region: "Karnataka",
     country: "IN",
-    plotNumberConfirmed: false,
-    mapsUrl: "https://www.google.com/maps/search/?api=1&query=Microexcel+Plaza+80+Feet+Road+RMV+2nd+Stage+Bengaluru+560094",
+    plotNumberConfirmed: true,
+    // The client's own pin. Replaces the search URL, which resolved to Siddarth Plaza.
+    mapsUrl: "https://maps.app.goo.gl/d6HgcwxSFUvCEjys9",
   },
-  phonePrimary: "+919448106100",
-  phoneSecondary: "+919886646411",
-  whatsappNumber: "919448106100",                        // TBC: client to confirm which number is on WhatsApp
-  whatsappConfirmed: false,
-  email: null as string | null,
-  hours: null as string | null,
+  /* facts.md line 16: one number now, on both the phone and WhatsApp. 94481 06100 and
+     98866 46411 are no longer the published contact and are removed from the site. */
+  phonePrimary: "+917975709407",
+  phoneSecondary: null as string | null,
+  whatsappNumber: "917975709407",
+  whatsappConfirmed: true,
+  /* facts.md line 17: exactly as the client wrote it. It looks like a typo, missing the "a" in
+     "academy", and the client has been asked. Until they answer, the site prints what they gave
+     us rather than a corrected address that might bounce.
+     TODO(client): confirm espressocademyindia@ or espressoacademyindia@. */
+  email: "espressocademyindia@gmail.com" as string | null,
+  /* facts.md line 18: the hours are confirmed, the days are not.
+     TODO(client): which days of the week the academy is open. */
+  hours: "10 am to 7 pm" as string | null,
+  openingDaysConfirmed: false,
   instagram: "https://www.instagram.com/espressoacademyindia/",
   florencePartnerPage: "https://espressoacademy.it/en/find-out-the-espresso-academy-branch-in-your-country/",
   siteUrl: process.env.NEXT_PUBLIC_SITE_URL ?? "https://espressoacademy.in",

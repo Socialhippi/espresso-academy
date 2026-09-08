@@ -150,7 +150,8 @@ export default async function AboutPage() {
                 <br />
                 {settings.address.city} {settings.address.postalCode}
               </address>
-              {/* TODO(client): the plot number is not confirmed and the current map pin is wrong. */}
+              {/* Both numbers belong in the first line: 9 is the plot, 72 is the building number
+                  on 80 Feet Road (content/facts.md line 15). The map pin is the client's own. */}
               <p className="mt-4 type-small text-grey">
                 The campus is on 80 Feet Road in RMV 2nd Stage, near Ramaiah Hospital.
               </p>

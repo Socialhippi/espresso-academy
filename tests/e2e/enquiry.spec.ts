@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { acceptConsent, waitForHydratedForm } from "./helpers";
 
-const WHATSAPP_URL = "https://wa.me/919448106100?text=Hi";
+const WHATSAPP_URL = "https://wa.me/917975709407?text=Hi";
 
 test.beforeEach(async ({ context, baseURL }) => {
   await acceptConsent(context, baseURL as string);

@@ -56,6 +56,7 @@ export async function organisationGraph(): Promise<JsonLdNode[]> {
     foundingDate: String(settings.foundedFlorence),
     address: postalAddress(settings),
     telephone: settings.phonePrimary,
+    email: settings.email ?? undefined,
     sameAs: sameAs(settings),
     logo: {
       "@type": "ImageObject",
@@ -76,8 +77,13 @@ export async function organisationGraph(): Promise<JsonLdNode[]> {
     },
   };
 
-  // TODO(client): settings.email and settings.hours are null, so no email or
-  // openingHoursSpecification is emitted. Adding a guess here would be a fabricated fact.
+  /*
+   * TODO(client): open question 7 in content/facts.md. The academy gave its hours and not its
+   * days, and `openingHoursSpecification` has no shape that means "these hours, days unknown":
+   * `dayOfWeek` is what carries the meaning. So it is emitted only once the days are confirmed.
+   * A guess here would put "Monday to Saturday" into a Google knowledge panel, where a reader
+   * never sees the caveat the contact page shows beside it.
+   */
   const campus: JsonLdNode = {
     "@type": "LocalBusiness",
     "@id": PLACE_ID,
@@ -86,8 +92,12 @@ export async function organisationGraph(): Promise<JsonLdNode[]> {
     parentOrganization: { "@id": ORGANISATION_ID },
     address: postalAddress(settings),
     telephone: settings.phonePrimary,
+    email: settings.email ?? undefined,
     sameAs: sameAs(settings),
     hasMap: settings.address.mapsUrl,
+    ...(settings.openingDaysConfirmed && settings.hours
+      ? { openingHours: settings.hours }
+      : {}),
     image: absoluteUrl("/logo/lockup-on-white.png"),
     contactPoint: [
       {

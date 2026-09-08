@@ -159,7 +159,7 @@ async function main(): Promise<void> {
       mapsUrl: siteSettings.address.mapsUrl,
     },
     notes:
-      "The brochure prints a different plot number and the current map pin points at Siddarth Plaza. Confirm both with the academy before launch.",
+      "Address and map pin confirmed by the client, 8 Sept 2026 (content/facts.md revision 2). Plot No. 9 is the plot; 72 is the building number on 80 Feet Road. Both belong in the address.",
   });
 
   docs.push({
@@ -189,6 +189,7 @@ async function main(): Promise<void> {
     whatsappText: undefined,
     email: siteSettings.email ?? undefined,
     hours: siteSettings.hours ?? undefined,
+    openingDaysConfirmed: siteSettings.openingDaysConfirmed,
     replyPromise: siteSettings.replyPromise ?? undefined,
     instagram: siteSettings.instagram,
     florencePartnerPage: siteSettings.florencePartnerPage,

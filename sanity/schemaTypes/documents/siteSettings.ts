@@ -29,7 +29,7 @@ export const siteSettings = defineType({
       name: "phonePrimary",
       type: "string",
       group: "contact",
-      description: "E.164, for example +919448106100.",
+      description: "E.164, for example +917975709407.",
       validation: (rule) => rule.required().regex(/^\+\d{10,15}$/, { name: "E.164" }),
     }),
     defineField({
@@ -42,7 +42,7 @@ export const siteSettings = defineType({
       name: "whatsappNumber",
       type: "string",
       group: "contact",
-      description: "Digits with the country code and no plus, for example 919448106100.",
+      description: "Digits with the country code and no plus, for example 917975709407.",
       validation: (rule) => rule.required().regex(/^\d{10,15}$/, { name: "digits" }),
     }),
     defineField({
@@ -62,7 +62,27 @@ export const siteSettings = defineType({
         "Pre-filled when someone taps a WhatsApp button. {course} and {batch} are replaced when they are known.",
     }),
     defineField({ name: "email", type: "string", group: "contact", description: "Empty renders TBC." }),
-    defineField({ name: "hours", type: "string", group: "contact", description: "Empty renders TBC." }),
+    defineField({
+      name: "hours",
+      type: "string",
+      group: "contact",
+      description: 'The daily hours, for example "10 am to 7 pm". Empty renders TBC.',
+    }),
+    /*
+     * The academy gave its hours and not its days. Two fields rather than one string, because
+     * "10 am to 7 pm" with no days is a true and useful thing to publish, and "10 am to 7 pm,
+     * Monday to Saturday" is a guess. Ticking this box is what turns the hours into an
+     * openingHoursSpecification in the JSON-LD.
+     */
+    defineField({
+      name: "openingDaysConfirmed",
+      title: "Opening days confirmed",
+      type: "boolean",
+      group: "contact",
+      initialValue: false,
+      description:
+        "Leave unticked until the academy says which days it opens. Until then the site prints the hours and says the days are being confirmed.",
+    }),
     defineField({
       name: "replyPromise",
       type: "string",
