@@ -5,32 +5,52 @@ Production serves the code `main` carries; the commits since touch CI and this d
 
 ## Waiting on the client
 
-Nothing here blocks a build or a deploy. Every one of them has a visible TBC state on the site
-today, and the site fills itself in the moment the value lands — no code change. They are ordered
-by what they cost while they are missing.
+Revision 2 of `content/facts.md` (8 September 2026) answered most of the list that used to be
+here. What follows is what is left. Nothing on it blocks a build or a deploy, every one of them has
+a visible TBC state on the site today, and the site fills itself in the moment the value lands with
+no code change. They are ordered by what they cost while they are missing.
 
 1. **A verified sending domain in Resend, and `RESEND_FROM_EMAIL`.** The only item on this list
    that is costing something right now: **a student who pays gets no confirmation email.** Mail
    goes from `onboarding@resend.dev`, which Resend delivers only to the Resend account owner, so
    the academy's copy of a booking arrives and the student's does not. Nothing in this repository
    can fix it. See "Accounts and keys" in `docs/launch-checklist.md`.
-2. **Fees incl. GST, for all 8 courses.** Until then the course pages say the fee is confirmed on
-   WhatsApp before payment, and no course can be booked online.
-3. **Batch dates and seat counts.** Same consequence: no dates means nothing to book, and the
-   calendar shows its being-finalised state.
-4. **Duration, format, syllabus, what the fee includes, EMI, prerequisites** for each course.
-5. **Which trainer teaches which course**, and each trainer's role and philosophy quote.
-6. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
-   frame is a branded placeholder naming its slot.
-7. **WhatsApp number, public email address, opening hours, reply-promise wording.**
-8. **Legal copy**: privacy, terms, refund and reschedule policy. All three are placeholder text.
-9. **Testimonials with written permission.** The stories section stays empty until then, and the
-   query enforces it.
-10. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
-11. **Written permission for the "Official Partner" wording**, the correct "Forest Green" hex, the
-    correct plot number and map pin, and confirmation of the SCA campus status.
-12. **Whether the brochure's "17 branches", "Berry Co" and "Coorg planters" claims are current.**
-    None is used anywhere until it is confirmed.
+2. **The GST rate on the course fee**, and the GST number for the invoice footer. Until it lands
+   the site prints no tax-inclusive figure anywhere: every fee reads "₹26,700 + GST", and the
+   full-payment path stays switched off, because a full payment that omits the tax leaves the
+   student short at the counter on day one. One field, `course.gstRate`, turns all of it on.
+3. **Fees for IBC Advanced Barista and IBC Advanced Roasting**, and the prerequisites for both.
+   Both courses currently offer "Ask about this batch" instead of a checkout, because there is
+   nothing to charge.
+4. **Whether the 25% "55th batch" offer applies to all three listed IBC Basic batches, and when it
+   ends.** The struck-through ₹35,600 and the offer label are on the IBC Basic page now.
+5. **Sign-off on the academy-cancellation clause** of the refund policy. It is the one clause on
+   that page the client has not stated, it is marked TBC on the page, and the draft wording is in
+   the student's favour.
+6. **The email spelling.** `espressocademyindia@gmail.com` is published exactly as the client wrote
+   it and looks like it is missing the "a" in "academy".
+7. **Opening days.** The hours (10 am to 7 pm) are confirmed and published. Until the days land,
+   no `openingHoursSpecification` is emitted in the JSON-LD, because that markup has no shape
+   meaning "these hours, days unknown".
+8. **Which trainer teaches which course**, and each trainer's role. Four trainers are on the site
+   and none is assigned to a course; the Studio will not let an editor publish a course without
+   one.
+9. **Balance payment mechanics**: due on or before day 1, and cash, UPI or card at the academy.
+10. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
+    frame is a branded placeholder naming its slot. A Drive folder was supplied; student releases
+    for the people pictured are still outstanding.
+11. **Legal copy**: privacy and terms. Both are still placeholder text. `/refund-policy` is no
+    longer, apart from the clause in item 5.
+12. **Testimonials with written permission.** The stories section stays empty until then, and the
+    query enforces it.
+13. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
+14. **The correct "Forest Green" hex**, and the meaning of the client's "authorised IBM trainer"
+    line on Nageswara Rao K, which is almost certainly IBC.
+
+Answered by revision 2, and now live on the site: the three-course catalogue, the day-by-day
+syllabus, the IBC Basic fee, the ₹5,000 advance and the reschedule and no-refund terms, four batch
+dates, the WhatsApp number, the email address, the opening hours, the plot number, the map pin,
+"over 30 branches", the Bullet roaster, the faculty and team lines, and a fourth trainer.
 
 The detailed table, with the exact field behind each row, is under "Needs client" further down.
 `node scripts/stale-content.mjs` prints the same list live from Sanity, so it cannot go stale.
@@ -1530,6 +1550,57 @@ before anything that matters**: a deploy, a release, a change to the payment or 
 
 ---
 
+## Revision 2: the catalogue rebuild
+
+`content/facts.md` revision 2, 8 September 2026, is the client's own course documents. It replaced
+the eight-course catalogue the site had been built on, and most of this section is the consequence.
+
+**Three courses, not eight.** Italian Barista Course (IBC) Basic, four days at 8 seats; IBC
+Advanced Barista and IBC Advanced Roasting, two days each at 4 seats. Latte Art, Brewing and
+Roasting and Cupping are days inside the IBC Basic, not courses. The three Barista Skills courses
+are not offered at all: the client's document describes the SCA as a standards body and lists no
+SCA course, fee or date. `Level` collapsed from six values to two, `basic` and `advanced`, and
+"IBC Junior" is gone: the wording on the diploma is "Italian Barista Certificate, Basic Barista".
+
+**`Course.modules` became `Course.days`.** The client gives the syllabus one module per day and
+the academy sells it that way, and a day has to be addressable because the retired URLs land on
+one. Each day renders with `id="day-N"`, and the number is stored rather than derived from the
+array index so that reordering in the Studio cannot break a published link.
+
+**Eight redirects, all 301.** `/courses/roasting-and-cupping` to `#day-1`, `/courses/brewing` to
+`#day-2`, the three Barista Skills URLs to `#day-3`, `/courses/latte-art` to `#day-4`, and the two
+old IBC slugs to their new pages. Day 3 takes all three Barista Skills URLs because day 3 is the
+only barista training the academy runs. `redirect.statusCode` was added to the schema so a rule can
+ask for 301 rather than Next's 308 default.
+
+**The fee is stored before GST.** `feeInclGst` asked an editor to do arithmetic with a rate nobody
+has given us, so it is now `feeExGst` (26700), `listPriceExGst` (35600), `offerLabel` and
+`gstRate` (null). While `gstRate` is null the site prints no tax-inclusive total anywhere, the
+JSON-LD Offer carries `valueAddedTaxIncluded: false`, and every fee reads "+ GST". The Studio
+refuses to publish a struck-through price with no reason beside it, or one at or below the fee.
+
+**The checkout takes ₹5,000, not the fee.** That is the academy's policy. `src/lib/booking-terms.ts`
+holds the rule and the four terms, and the checkout, the confirmation page and the confirmation
+email all render the same array. The advance is capped at the fee, so the ₹1 end-to-end batch
+charges ₹1. Full payment is behind `BOOKING_FULL_PAYMENT`, off, and refuses to run without a
+confirmed GST rate. A booking records the fee and the rate as they stood when it was taken, because
+the balance a student was quoted in September is the balance the academy is owed in November.
+
+**Batches drop off on their start date.** `startDate >= $today`, where `$today` is the date in
+Asia/Kolkata rather than the server's, because Vercel runs in UTC and a naive filter pulls a batch
+starting on the 10th at half past six on the evening of the 9th, local time. The filter is on the
+course projection too, so the course page cannot offer a batch the calendar has dropped, and both
+`/book` and `/api/orders` refuse a batch that has begun.
+
+**Production data.** The two ₹1 Playwright batches and the ten ₹1 test bookings against them are
+deleted. The end-to-end batch now hangs off IBC Advanced Barista, which has no fee of its own.
+
+**One defect this exposed.** `LevelBadge` indexed `levelBadge[level]` unguarded. `level` is typed
+but comes from a Sanity string field, and a dataset still holding a retired value took the whole
+page down. It has a fallback now, and so does the ladder.
+
+---
+
 ## Where this stands, and what to do next
 
 **All ten phases are complete.** The design gate is met: the design-reviewer scores
@@ -1615,24 +1686,20 @@ for content the academy has not sent; each one has a visible TBC state on the pa
 | Route | Indexed | Sticky bar | Notes |
 |---|---|---|---|
 | `/` | yes | yes | Home. The only place the red gradient is used on text. |
-| `/courses` | yes | yes | Server-rendered `?level=` and `?area=` filters; canonical always `/courses`. |
-| `/courses/italian-barista-certificate-junior` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/italian-barista-certificate-advanced` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/sca-barista-skills-foundation` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/sca-barista-skills-intermediate` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/sca-barista-skills-professional` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/latte-art` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/brewing` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/courses/roasting-and-cupping` | yes | yes | Course page: spec strip, fit, syllabus, batches, fee, ladder, FAQ, related. Own OG card. |
-| `/calendar` | yes | yes | Currently the dates-being-finalised state with a per-course batch alert. |
-| `/certifications` | yes | yes | IBC and SCA compared, plus the honesty clause. |
+| `/courses` | yes | yes | Three courses. `?level=` and `?area=` still narrow it server-side and the narrowed view offers the way back; the chip bar went with the eight-course catalogue. Canonical always `/courses`. |
+| `/courses/italian-barista-course-basic` | yes | yes | Course page: spec strip, fit, the four days at `#day-1` to `#day-4`, batches, fee with the offer, ladder, FAQ, related. Own OG card. |
+| `/courses/ibc-advanced-barista` | yes | yes | Course page. Two days, no fee published, so the page asks rather than sells. Own OG card. |
+| `/courses/ibc-advanced-roasting` | yes | yes | Course page. Two days, one dated batch, no fee published. Own OG card. |
+| `/calendar` | yes | yes | Four scheduled batches. A batch drops off on its start date, in Asia/Kolkata. |
+| `/certifications` | yes | yes | IBC and SCA compared, and the SCA column says plainly that no course here leads to it. |
 | `/certifications/italian-barista-certificate` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
 | `/certifications/sca-coffee-skills-program` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
-| `/trainers` | yes | yes | Three profiles. |
+| `/trainers` | yes | yes | Four profiles. |
+| `/trainers/nageswara-rao-k` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
 | `/trainers/akanksha-gupta` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
 | `/trainers/sowmya-r` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
 | `/trainers/nirupam-ranjan` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
-| `/about` | yes | yes | Florence 2007, Bengaluru 2023, method, campus, gallery, team, honesty. |
+| `/about` | yes | yes | Florence 2007 and 19 years, over 30 branches, Bengaluru 2023, method, campus and the Bullet roaster, gallery, team, honesty. |
 | `/faq` | yes | yes | Every question grouped by category, FAQPage JSON-LD. |
 | `/contact` | yes | yes | Switches the form to the cafe variant on `?topic=cafe`. |
 | `/enquire` | yes | no | The conversion page. No section navigation, no sticky bar. |
@@ -1645,7 +1712,9 @@ for content the academy has not sent; each one has a visible TBC state on the pa
 Non-page routes: `/api/enquiry` (POST only), `/sitemap.xml`, `/robots.txt`, `/llms.txt`,
 `/opengraph-image`, `/courses/[slug]/opengraph-image`, `/icon.png`, `/apple-icon.png`.
 
-**26 indexable routes**, plus the non-indexed gallery.
+**22 indexable routes**, plus the non-indexed gallery. Eight retired course URLs 301 to the day of
+the IBC Basic that replaced them; the redirect documents live in Sanity and `next.config.ts` reads
+them at build time.
 
 ---
 
@@ -1658,18 +1727,21 @@ appears; no code change is needed.
 
 | # | Item | Where it shows | Source of the gap |
 |---|---|---|---|
-| 1 | Fee incl. GST for all 8 courses | Course cards, spec strips, fee blocks, fee table on `/courses` | `courses[].feeInclGst` is `null` |
-| 2 | Duration (days and/or hours) for all 8 courses | Spec strips, course cards | `courses[].durationDays` / `durationHours` |
-| 3 | Delivery format for all 8 courses | Spec strips | `courses[].format` |
-| 4 | Batch dates | `/calendar`, batch tables, "next batch" strips | every `instances[]` entry is a `tbc` instance |
-| 5 | Seat counts per batch | Batch tables | `instances[].seatsAvailable` |
-| 6 | Syllabus / module list per course | "What you will learn" | `courses[].modules` is `null` |
-| 7 | What the fee includes | "What you get" | `courses[].includes` is `null` |
-| 8 | EMI availability | Fee block | `courses[].emiAvailable` |
-| 9 | Which trainer teaches which course | Course pages, trainer profiles | `courses[].trainers` is empty for 7 of 8 |
-| 10 | WhatsApp number | Every WhatsApp button, sticky bar | `siteSettings.whatsappConfirmed: false`; currently using +91 94481 06100 |
-| 11 | Public email address | Footer, `/contact` | `siteSettings.email` is `null` |
-| 12 | Opening hours | Footer, `/contact` | `siteSettings.hours` is `null` |
+| 1 | **GST rate on the course fee**, and the GST number for the invoice footer | Every fee, the checkout, the confirmation email, the JSON-LD Offer | `courses[].gstRate` is `null`, so no tax-inclusive figure is printed anywhere and `BOOKING_FULL_PAYMENT` refuses to run |
+| 1a | **Fees for the two Advanced courses** | Their course pages, the fee table, the calendar rows | `feeExGst` is `null`, so both offer "Ask about this batch" rather than a checkout |
+| 1b | Whether the 25% "55th batch" offer covers all three IBC Basic batches, and when it ends | The struck-through ₹35,600 on the IBC Basic page | `offerLabel` is a flat string with no end date |
+| 2 | Daily hours for the two Advanced courses | Spec strips | `courses[].schedule` is `null` for both. IBC Basic has "10 am to 5 pm" |
+| 3 | ~~Delivery format~~ | — | Answered: all three are in person |
+| 4 | ~~Batch dates~~ | — | Answered: four batches are live. IBC Advanced Barista still has none, and shows the alert state |
+| 5 | ~~Seat counts~~ | — | Answered: 8 on IBC Basic, 4 on each Advanced course |
+| 6 | ~~Syllabus~~ | — | Answered: `courses[].days` carries the day-by-day outline for all three |
+| 7 | What the fee includes, beyond the certificate | "What you get" | `courses[].includes` is `["Certification"]` and nothing else is stated |
+| 8 | EMI availability | Fee block | `courses[].emiAvailable` is `null` |
+| 8a | Balance payment mechanics: due on or before day 1, and cash, UPI or card | Checkout, confirmation page, confirmation email | the site says "before the first day" and does not say how |
+| 9 | Which trainer teaches which course | Course pages, trainer profiles | `courses[].trainers` is empty for all three |
+| 10 | ~~WhatsApp number~~ | — | Answered: +91 79757 09407, on both the call and the chat |
+| 11 | **Email spelling** | Footer, `/contact`, JSON-LD | published as `espressocademyindia@gmail.com`, exactly as the client wrote it; it looks like it is missing an "a" |
+| 12 | **Opening days.** Hours are answered | Footer, `/contact`, JSON-LD | `siteSettings.openingDaysConfirmed` is `false`, so no `openingHoursSpecification` is emitted |
 | 13 | Reply promise wording | `/enquire` trust line | `siteSettings.replyPromise` is `null` |
 | 14 | Trainer roles and philosophy quotes | Trainer cards and profiles | `trainers[].role` / `philosophy` are `null` |
 | 15 | Photos for every slot in `docs/images-manifest.md` | Hero, course cards, trainer profiles, about gallery, contact | no files in `public/images/` |
@@ -1679,11 +1751,14 @@ appears; no code change is needed.
 | 18a | **Sign-off on the header composition.** The supplied stacked lockup's wordmark renders about 5.6px tall at header size, so the header pairs the supplied standalone mark with the academy name set in Montserrat 500. The artwork is untouched, but composing a lockup is a brand decision. A horizontal lockup makes this moot. | Header, every page | design.md assumes a horizontal lockup that was not supplied |
 | 19 | Gotham web licence | Site-wide type | Montserrat is the interim substitute |
 | 20 | Correct "Forest Green" hex | Seat-availability state | brochure prints `#89392B`, which is a brown |
-| 21 | Correct plot number and map pin | `/contact`, footer, JSON-LD | site says Plot No. 72, brochure says 9; map pin points at "Siddarth Plaza" |
-| 22 | SCA campus status and trainer AST status | Certification pages, course copy | until confirmed the site says "training aligned to the SCA Coffee Skills Program" |
+| 21 | ~~Plot number and map pin~~ | — | Answered: both numbers are right, 9 is the plot and 72 the building on 80 Feet Road. The pin is the client's own link |
+| 22 | What the client's "authorised IBM trainer" line means on Nageswara Rao K | His trainer profile | almost certainly IBC; carried as an unattributed "authorised trainer" credential until confirmed |
+| 22a | Sign-off on the academy-cancellation clause of the refund policy | `/refund-policy` | the one clause on that page the client has not stated; marked TBC on the page |
 | 23 | Written permission for the "Official Partner" wording | Header, footer, about, home | `facts.md` allows the wording provisionally |
-| 24 | Which brochure claims are current | About, home | "17 branches", "Berry Co", "Coorg planters" are all unverified and unused |
-| 25 | Legal entity name and tagline | Footer legal row | `siteSettings.legalName` / `tagline` are `null` |
+| 24 | ~~Which brochure claims are current~~ | — | Answered: "over 30 branches" supersedes 17 and is used; the Coorg planters line is confirmed and used. "Berry Co" is still unverified and unused |
+| 24a | Student photo releases for the supplied Drive images | Every photo slot | a Drive folder arrived; permission for the people in it did not |
+| 25 | Legal entity name | Footer legal row | `siteSettings.legalName` is `null` |
+| 25a | Whether to use the tagline | nowhere yet | facts.md confirms "Happy Coffee People" is current and usable. `siteSettings.tagline` is still `null` and the site has no slot for it; placing one is a design decision nobody has taken |
 
 `node scripts/stale-content.mjs` prints this list live from Sanity, so it cannot go stale. As of
 the build-2 deploy it reports: 8 courses with no fee, 8 with no duration, 7 with no trainer, 8 with
