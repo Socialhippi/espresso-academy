@@ -101,7 +101,13 @@ export function isFullPaymentEnabled(): boolean {
  */
 export const BOOKING_TERMS = [
   "The ₹5,000 advance confirms your seat, and it comes off the fee rather than being charged on top of it. Seats are capped per batch, so it is the advance that holds one.",
-  "The balance is paid to the academy before the first day.",
+  /*
+   * "Not by card" is the half of this that earns its place. facts.md answers open question 4 with
+   * cash, UPI or bank transfer, and a student who turns up on the first morning expecting to tap a
+   * card and cannot is the exact failure a booking flow exists to prevent. Omitting it would leave
+   * the sentence true and the person stranded.
+   */
+  "The balance is paid on the first day, at the academy, by cash, UPI or bank transfer. Cards are not accepted for it.",
   "You can move to another batch within 3 months of your original date, with prior notice and if that batch has a seat.",
   "If you do not attend, the fee is not refunded.",
 ] as const;

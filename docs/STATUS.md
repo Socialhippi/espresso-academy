@@ -88,7 +88,7 @@ preview link, or use the dashboard's "Share" button on a deployment for a 23-hou
   `next/font/local` (`src/lib/fonts.ts`). No `next/font/google`, no runtime request to Google.
 - Content layer: `src/lib/content.ts` (typed accessors), `src/lib/format.ts` (fee, duration,
   date in Asia/Kolkata, WhatsApp URL builder), `src/lib/env.ts` (zod, every variable optional).
-- `tests/routes.json` lists all 26 indexable routes plus the non-indexed component gallery.
+- `tests/routes.json` lists all 24 indexable routes plus the non-indexed component gallery.
 - ESLint with the full `jsx-a11y` recommended set raised to error; Prettier with the Tailwind
   class sorter.
 
@@ -1315,12 +1315,17 @@ happened. `author` and `reviewedBy` leave the Article schema with them, because 
 claiming an attribution the page does not show is worth distrusting. The markup is intact for the
 day one is signed off.
 
-#### 2. The academy has an SCA Authorised Trainer, and the site was not allowed to say so
+#### 2. ~~The academy has an SCA Authorised Trainer, and the site was not allowed to say so~~
 
-`content/facts.md` now records the source: the SCA public trainer directory lists **Akanksha Gupta
-as an SCA Trainer (AST), Karnataka**, for Introduction to Coffee, Barista Skills, Brewing, Sensory
-Skills, Roasting, CVA for Cuppers and Q Grader, checked 5 September 2026. Currency of the listing
-and which batches are assessed remain the academy's to confirm.
+**Reversed, 8 September 2026.** The source was a directory listing for a trainer the client has
+since confirmed is not part of the academy's team. Directory listings and the Florence authorised
+trainer list say who holds a credential, not who works here, and the site read the first as the
+second for weeks. Every SCA Authorised Trainer and assessed-module claim is removed, and the
+wording is back to "training aligned to the SCA Coffee Skills Program" with no claim about
+assessment.
+
+The lesson is the general one, not the SCA one: a public directory is evidence about a person, and
+a roster is a fact only the academy can give us.
 
 The forbidden-claims list is **narrowed, not dropped**: "SCA-certified courses" and "SCA Premier
 Training Campus" stay forbidden, and AST stays forbidden for every trainer without a source. Her
@@ -1550,6 +1555,32 @@ before anything that matters**: a deploy, a release, a change to the payment or 
 
 ---
 
+## Payments: Razorpay for launch, reviewed after
+
+The academy confirmed on 8 September 2026 that Razorpay stays for launch, and asked for a cheaper
+gateway to be reviewed once the site is live.
+
+That review is a swap, not a rewrite, and it was built that way on purpose. `src/lib/payments/
+provider.ts` is the adapter: `createOrder` and the signature verification are the whole surface a
+gateway has to satisfy, `/api/orders` never names Razorpay, and the amount is read from Sanity
+rather than passed through the gateway's shape. What a second gateway costs is:
+
+- an implementation of the provider interface,
+- a webhook route that verifies that gateway's signature and calls the same `markBookingPaid`,
+- `NEXT_PUBLIC_*_KEY_ID` for the browser bundle, which is inlined at build time and so needs a
+  redeploy rather than an env change alone.
+
+What it does not cost is the booking model, the seat transaction, the confirmation page, the
+emails or the tests, all of which sit behind `markBookingPaid` and know nothing about who took the
+money.
+
+Worth saying plainly for the review: the cheapest rate is not the whole comparison. Razorpay's
+settlement time, its UPI success rate on Indian handsets and its dashboard for refunds are what the
+academy actually uses day to day, and a gateway that is 0.3% cheaper and settles a week later is
+more expensive. Whoever runs the review should price those three alongside the percentage.
+
+---
+
 ## Revision 2: the catalogue rebuild
 
 `content/facts.md` revision 2, 8 September 2026, is the client's own course documents. It replaced
@@ -1707,17 +1738,15 @@ for content the academy has not sent; each one has a visible TBC state on the pa
 | `/certifications` | yes | yes | IBC and SCA compared, and the SCA column says plainly that no course here leads to it. |
 | `/certifications/italian-barista-certificate` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
 | `/certifications/sca-coffee-skills-program` | yes | yes | Question-shaped headings, answer-first. Article JSON-LD. |
-| `/trainers` | yes | yes | Four profiles. |
+| `/trainers` | yes | yes | One profile, rendered as a profile rather than a grid of one. |
 | `/trainers/nageswara-rao-k` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
-| `/trainers/akanksha-gupta` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
-| `/trainers/sowmya-r` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
-| `/trainers/nirupam-ranjan` | yes | yes | Person + hasCredential JSON-LD. Role and philosophy are TBC. |
 | `/about` | yes | yes | Florence 2007 and 19 years, over 30 branches, Bengaluru 2023, method, campus and the Bullet roaster, gallery, team, honesty. |
 | `/faq` | yes | yes | Every question grouped by category, FAQPage JSON-LD. |
 | `/contact` | yes | yes | Switches the form to the cafe variant on `?topic=cafe`. |
 | `/enquire` | yes | no | The conversion page. No section navigation, no sticky bar. |
 | `/thank-you` | **no** | no | Post-submit. noindex. |
 | `/privacy` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
+| `/trainers/[slug]` | yes | yes | The "in their own words" block is `data-placeholder="true"` until `trainers[].philosophy` lands. |
 | `/terms` | yes | yes | Placeholder copy, `data-placeholder="true"`. |
 | `/refund-policy` | yes | yes | Real policy from content/facts.md. One TBC clause: academy cancellation. |
 | `/dev/components` | **no** | no | Internal component gallery, every state of every component. |
@@ -1725,9 +1754,9 @@ for content the academy has not sent; each one has a visible TBC state on the pa
 Non-page routes: `/api/enquiry` (POST only), `/sitemap.xml`, `/robots.txt`, `/llms.txt`,
 `/opengraph-image`, `/courses/[slug]/opengraph-image`, `/icon.png`, `/apple-icon.png`.
 
-**22 indexable routes**, plus the non-indexed gallery. Eight retired course URLs 301 to the day of
-the IBC Basic that replaced them; the redirect documents live in Sanity and `next.config.ts` reads
-them at build time.
+**24 indexable routes**, and the sitemap carries the same 24. Plus the non-indexed gallery. Eleven retired URLs 301: eight course URLs
+to the day of the IBC Basic that replaced them, and three trainer profiles to `/trainers`. The
+redirect documents live in Sanity and `next.config.ts` reads them at build time.
 
 ---
 
@@ -1751,7 +1780,7 @@ appears; no code change is needed.
 | 7 | What the fee includes, beyond the certificate | "What you get" | `courses[].includes` is `["Certification"]` and nothing else is stated |
 | 8 | EMI availability | Fee block | `courses[].emiAvailable` is `null` |
 | 8a | Balance payment mechanics: due on or before day 1, and cash, UPI or card | Checkout, confirmation page, confirmation email | the site says "before the first day" and does not say how |
-| 9 | Which trainer teaches which course | Course pages, trainer profiles | `courses[].trainers` is empty for all three |
+| 9 | Which trainer teaches which course | Course pages, trainer profile | `courses[].trainers` is empty for all three courses. There is one trainer, so this is a formality, but the Studio still will not publish a course without the assignment |
 | 10 | ~~WhatsApp number~~ | — | Answered: +91 79757 09407, on both the call and the chat |
 | 11 | **Email spelling** | Footer, `/contact`, JSON-LD | published as `espressocademyindia@gmail.com`, exactly as the client wrote it; it looks like it is missing an "a" |
 | 12 | **Opening days.** Hours are answered | Footer, `/contact`, JSON-LD | `siteSettings.openingDaysConfirmed` is `false`, so no `openingHoursSpecification` is emitted |

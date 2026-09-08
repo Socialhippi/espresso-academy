@@ -4,7 +4,6 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/site/Container";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ButtonLink } from "@/components/site/Button";
-import { TbcPill } from "@/components/site/TbcPill";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
@@ -50,19 +49,19 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
       question: "Who issues it?",
       body: isIbc ? (
         <p>
-          Espresso Academy in Florence issues it. The diploma is issued in Italy and sent to the
-          authorised partner school that taught you, which in Bengaluru is Espresso Academy India,
-          an Official Partner of Espresso Academy, Florence. The certificate names the academy as
+          Espresso Academy in Florence issues it, and the diploma is issued in Italy. The school
+          that taught you in Bengaluru is Espresso Academy India, an Official Partner of Espresso
+          Academy, Florence. The certificate names the academy as
           &ldquo;Espresso Academy India, under the supervision of Espresso Academy Florence&rdquo;.
           The teaching happens here; the certificate comes from there.
         </p>
       ) : (
         <p>
           The Specialty Coffee Association issues it, not the school, and only on an assessed
-          module taught by an authorised trainer. One of the trainers listed here is an SCA
-          Authorised Trainer, and assessed modules run on batches the academy confirms. The academy
-          does not currently sell an SCA course, so if SCA certification is what you are after, ask
-          first.
+          module. The academy does not run an SCA course and does not assess for SCA certification.
+          What it teaches is training aligned to the SCA Coffee Skills Program, which describes the
+          standard rather than the certificate. If SCA certification is what you are after, ask and
+          you will be told where to take it.
         </p>
       ),
     },
@@ -73,7 +72,7 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
         <p>
           {certification.levels.join(" and ")}
           {isIbc
-            ? ". IBC Basic is four days and assumes no machine experience. Above it sit two Advanced courses of two days each, Advanced Barista for the bar and Advanced Roasting for the roaster, and neither requires the other."
+            ? ". IBC Basic is four days and assumes no machine experience. Above it sit two Advanced courses of two days each, Advanced Barista for the bar and Advanced Roasting for the roaster."
             : ". Each of the five SCA areas is examined at all three levels. The academy runs no SCA course of its own, so no level of it is offered here."}
         </p>
       ),
@@ -82,17 +81,14 @@ function answersFor(certification: Certification, courseCount: number): Answer[]
       id: "cost",
       question: "What does it cost?",
       body: (
-        <>
-          <p className="flex flex-wrap items-center gap-3">
-            {/* TODO(client): no certification or course fee is published anywhere. */}
-            <TbcPill label="Fee TBC" />
-          </p>
-          <p className="mt-4">
-            {isIbc
-              ? "The certificate is part of the course fee, so there is nothing separate to pay for it. The fee for each course is on that course's page; ₹5,000 holds a seat and the balance is paid at the academy."
-              : "Nothing, here. The academy does not sell an SCA course, so there is no fee to publish. What the SCA itself charges for an assessment is between you and the SCA."}
-          </p>
-        </>
+        /* The "Fee TBC" pill was written before the client confirmed the GST rate and both
+           Advanced fees, and it had been sitting directly above "Nothing, here" on the SCA page.
+           Every fee is on the course pages now, quoted with and without GST. */
+        <p>
+          {isIbc
+            ? "The certificate is part of the course fee, so there is nothing separate to pay for it. The fee for each course, quoted with and without GST, is on that course's page. ₹5,000 holds a seat, and the balance is paid on day 1 at the academy, by cash, UPI or bank transfer, not by card."
+            : "Nothing, here. The academy does not sell an SCA course, so there is no fee to publish. What the SCA itself charges for an assessment is between you and the SCA."}
+        </p>
       ),
     },
     {
@@ -290,7 +286,8 @@ export default async function CertificationPage({ params }: PageProps<"/certific
         body={
           <p>
             Send your background in one message and ask whether this certificate helps you, and
-            which course to start on if it does. The fee is not published yet.
+            which course to start on if it does. Every fee is on the course pages, quoted with and
+            without GST.
           </p>
         }
       />

@@ -98,7 +98,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
                 {/*
                   TODO(client): no author and no reviewer until content/facts.md records a signed
                   article. The seeded guides carry both fields and every paragraph in them is
-                  marked PLACEHOLDER, so "Written by Akanksha Gupta" attributed a brief to a real
+                  marked PLACEHOLDER, so the byline attributed a brief to a real
                   person, and "Checked by" claimed an internal review that has not happened. The
                   markup and the Article schema below are ready for the day one is signed off.
                 */}

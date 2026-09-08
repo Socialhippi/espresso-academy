@@ -127,8 +127,8 @@ export function FeeBlock({ course, className }: FeeBlockProps) {
           <li>
             {formatFeeAmount(ADVANCE_RUPEES)} confirms your seat and comes off the fee. The
             balance, {formatFeeAmount(balance)}
-            {total !== null ? " including GST" : ` ${EX_GST}`}, is paid at the
-            academy before the first day.
+            {total !== null ? " including GST" : ` ${EX_GST}`}, is paid on the first day at the
+            academy, by cash, UPI or bank transfer.
           </li>
         )}
         <li>

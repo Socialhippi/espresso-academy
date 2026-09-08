@@ -107,27 +107,6 @@
       "breadcrumbs": true
     },
     {
-      "path": "/trainers/akanksha-gupta",
-      "name": "Trainer: Akanksha Gupta",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/trainers/sowmya-r",
-      "name": "Trainer: Sowmya R",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
-      "path": "/trainers/nirupam-ranjan",
-      "name": "Trainer: Nirupam Ranjan",
-      "index": true,
-      "stickyBar": true,
-      "breadcrumbs": true
-    },
-    {
       "path": "/about",
       "name": "About",
       "index": true,

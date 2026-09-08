@@ -36,7 +36,9 @@ const doors: Door[] = [
   {
     number: "01",
     title: "I want to work as a barista",
-    body: "Take the IBC Basic. Four days on a machine, one module a day, ending in an assessed exam and a certificate issued in Italy. It assumes you have never pulled a shot.",
+    /* facts.md, IBC Basic: days 1 and 2 are roasting and manual brewing, not machine time, and
+       the Basic Barista Exam is on day 3. Day 4 is latte art, so the course does not end on it. */
+    body: "Take the IBC Basic. Four days, one module a day, with the Basic Barista Exam on day 3 and a certificate issued in Italy. It assumes you have never pulled a shot.",
     href: IBC_BASIC,
     cta: "See the four days",
   },

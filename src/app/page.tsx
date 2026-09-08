@@ -46,7 +46,7 @@ export default async function HomePage() {
           */
           <p>
             Four days at the RMV 2nd Stage campus: roasting and cupping, brewing, barista training
-            and latte art, one a day. You leave with the{" "}
+            and latte art, one a day. The four days lead to the{" "}
             <Link
               href="/certifications/italian-barista-certificate"
               className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
@@ -86,7 +86,7 @@ export default async function HomePage() {
                 eyebrow="Levels"
                 title="Where you start, where you go next"
                 id="ladder-heading"
-                description="Three courses on one ladder. The IBC Basic is four days and assumes nothing. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster. Which one you start on is set with you, not by a rule."
+                description="Three courses on one ladder. The IBC Basic is four days and assumes nothing. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster. The prerequisites for both Advanced courses are being confirmed."
               />
               <p className="mt-6">
                 <ButtonLink href="/certifications" variant="tertiary" size="inline">
@@ -111,10 +111,19 @@ export default async function HomePage() {
             description="Certified Q graders and processors, authorised trainers, and experienced hands-on professionals. International instructors visit the academy regularly."
             action={
               <ButtonLink href="/trainers" variant="tertiary" size="inline">
-                Read the trainer profiles
+                Who teaches at the campus
               </ButtonLink>
             }
           />
+          {/* The grid sizes itself to the count. One trainer is one capped card, not one card
+              floating in three columns. */}
+          {/* The faculty line above is the client's own and describes the teaching, not a
+              headcount. Over a single card it can be read as a roster, so the count says itself. */}
+          {trainers.length === 1 && trainers[0] ? (
+            <p className="mt-6 measure type-body text-grey">
+              {trainers[0].name} takes the courses at the Bengaluru campus.
+            </p>
+          ) : null}
           <TrainerGrid trainers={trainers} className="mt-10 md:mt-14" />
         </Container>
       </section>
@@ -150,8 +159,8 @@ export default async function HomePage() {
         body={
           <p>
             Send one message with your background and what you want to be able to do. ₹5,000
-            confirms a seat and the balance is paid at the academy, so ask anything you need to
-            before you pay a rupee.
+            confirms a seat. The balance is paid on day 1 at the academy, by cash, UPI or bank
+            transfer, not by card. Ask anything you need to before you pay a rupee.
           </p>
         }
       />

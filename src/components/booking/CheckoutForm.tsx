@@ -531,8 +531,9 @@ export function CheckoutForm({
              the payment window opens. */
           <p className="type-small text-grey">
             The balance of ₹{balance.toLocaleString("en-IN")}
-            {gstIncluded ? " incl. GST" : " + GST"} is paid to the academy before the first day.
-            This payment confirms your seat, it does not pay for the course in full.
+            {gstIncluded ? " incl. GST" : " + GST"} is paid on the first day, at the academy, by
+            cash, UPI or bank transfer. Cards are not accepted for it. This payment confirms your
+            seat, it does not pay for the course in full.
           </p>
         )}
         <p aria-live="polite" className="sr-only">

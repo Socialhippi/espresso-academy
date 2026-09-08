@@ -290,7 +290,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                     href="/trainers"
                     className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
                   >
-                    Read the trainer profiles
+                    Who teaches at the campus
                   </Link>
                   .
                 </p>
@@ -457,9 +457,10 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
              anything with anyone. */
           cta.kind === "book" || cta.kind === "choose" ? (
             <p>
-              ₹5,000 confirms the seat and comes off the fee. The balance is paid at the academy
-              before the first day. Read the refund and reschedule policy before you pay, and
-              message on WhatsApp first if you are not sure this is the right starting point.
+              ₹5,000 confirms the seat and comes off the fee. The balance is paid on day 1 at the
+              academy, by cash, UPI or bank transfer, not by card. Read the refund and reschedule
+              policy before you pay, and message on WhatsApp first if you are not sure this is the
+              right starting point.
             </p>
           ) : (
             <p>

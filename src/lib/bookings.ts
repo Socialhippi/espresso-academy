@@ -48,7 +48,7 @@ export interface BookingRecord {
   courseFeeExGst: number | null;
   /** The whole payable when the booking was taken, incl. GST if the rate was known then. */
   payable: number | null;
-  /** Payable minus amount. Paid at the academy before the first day. */
+  /** Payable minus amount. Paid on the first day at the academy, by cash, UPI or bank transfer. */
   balanceDue: number | null;
   /** The rate as it stood when the booking was taken. Null means it was unconfirmed. */
   gstRate: number | null;

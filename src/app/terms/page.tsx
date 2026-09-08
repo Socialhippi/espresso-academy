@@ -41,8 +41,8 @@ export default function TermsPage() {
         </p>
         <p>
           An advance of ₹5,000 confirms a seat. It comes off the total including GST rather than
-          being charged on top of it. The balance is paid to the academy before the first day. The
-          reschedule and refund terms are on the{" "}
+          being charged on top of it. The balance is paid on the first day, at the academy, by
+          cash, UPI or bank transfer, and not by card. The reschedule and refund terms are on the{" "}
           <Link
             href="/refund-policy"
             className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"

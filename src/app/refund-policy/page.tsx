@@ -74,8 +74,9 @@ export default async function RefundPolicyPage() {
               than the enquiry.
             </p>
             <p>
-              The advance is part of the fee, not on top of it. The balance is paid to the academy
-              before the first day.
+              The advance is part of the fee, not on top of it. The balance is paid on the first
+              day, at the academy, by cash, UPI or bank transfer. Cards are not accepted for the
+              balance, so bring one of those three.
             </p>
           </Clause>
 

@@ -214,7 +214,7 @@ export default async function ComponentGalleryPage() {
         >
           <div className="grid gap-6 md:grid-cols-3">
             <Placeholder slot="hero" aspect="photo" />
-            <Placeholder slot="trainer-akanksha-gupta" aspect="portrait" />
+            <Placeholder slot="trainer-nageswara-rao-k" aspect="portrait" />
             <Placeholder slot="about-campus-1" aspect="wide" tone="dark" />
           </div>
         </Specimen>

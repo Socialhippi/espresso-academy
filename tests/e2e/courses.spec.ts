@@ -191,7 +191,7 @@ test.describe("course page", () => {
   });
 });
 
-test.describe("retired course URLs", () => {
+test.describe("retired URLs", () => {
   /*
    * Latte Art, Brewing, Roasting and Cupping and the three Barista Skills courses stopped being
    * courses in revision 2. Someone who searched for one of them, or who has an old link, must land
@@ -206,6 +206,15 @@ test.describe("retired course URLs", () => {
     ["/courses/latte-art", `${IBC_BASIC}#day-4`],
     ["/courses/italian-barista-certificate-junior", IBC_BASIC],
     ["/courses/italian-barista-certificate-advanced", "/courses/ibc-advanced-barista"],
+    /*
+     * Three trainer profiles, retired on 8 September 2026 when the client confirmed none of the
+     * three is part of the academy's team. Both the old website and the Florence authorised
+     * trainer list carried these people, and both were indexed, so somebody has the URLs. They go
+     * to the trainers page: the question they arrived with still has an answer.
+     */
+    ["/trainers/akanksha-gupta", "/trainers"],
+    ["/trainers/sowmya-r", "/trainers"],
+    ["/trainers/nirupam-ranjan", "/trainers"],
   ];
 
   for (const [from, to] of retired) {
@@ -287,11 +296,26 @@ test.describe("no invented facts", () => {
       expect(body, "no trained-N claim").not.toMatch(
         /\b(over|more than|trained|taught|placed)\s+\d[\d,]*\s+(students|graduates|baristas|people)\b/i,
       );
-      // facts.md sources one named Authorised Trainer, so the site may say the academy has an AST
-      // on faculty. A *course* being "SCA certified" is a different claim, it is not sourced, and
-      // facts.md still forbids it.
       expect(body, 'no "SCA certified course" phrasing').not.toMatch(
         /SCA[- ]certified\s+(course|courses|programme?|training|batch)/i,
+      );
+      /*
+       * The AST claim is gone with the trainer it rested on. It was sourced to one named trainer
+       * in the SCA's public directory, and on 8 September 2026 the client confirmed she is not
+       * part of the academy's team. With no Authorised Trainer on faculty there is nobody who
+       * could assess an SCA module here, so neither claim may appear.
+       */
+      /*
+       * Narrow on purpose. "authorised trainers" appears in the client's own faculty description
+       * and "Authorised trainer" is Nageswara Rao K's own credential, both sanctioned by facts.md
+       * and both meaning authorised by Espresso Academy Florence. What may not appear is the SCA
+       * reading of it, which is the claim that rested on a trainer who is not on the team.
+       */
+      expect(body, "no SCA Authorised Trainer claim").not.toMatch(
+        /SCA[- ]Authorised Trainer|Authorised Trainer \(AST\)|AST on faculty/i,
+      );
+      expect(body, "no claim that SCA modules are assessed here").not.toMatch(
+        /assessed\s+(SCA\s+)?modules?\s+(run|are available)/i,
       );
       expect(body, "no India-first superlative").not.toMatch(
         /India'?s (first|only|best|leading)/i,

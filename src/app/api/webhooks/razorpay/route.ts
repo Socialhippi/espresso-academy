@@ -290,7 +290,9 @@ function studentEmail({
     `Paid:    ${formatFeeAmount(booking.amount)}${owesBalance ? " advance, part of the fee" : ""}`,
     ...(owesBalance
       ? [
-          `Balance: ${formatFeeAmount(booking.balanceDue)}${grossSuffix}, paid at the academy before the first day`,
+          `Balance: ${formatFeeAmount(booking.balanceDue)}${grossSuffix}`,
+          "         Paid on the first day at the academy, by cash, UPI or bank transfer.",
+          "         Cards are not accepted for the balance.",
         ]
       : []),
     "",

@@ -109,7 +109,8 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                 <span className="type-body text-grey">{bookingSuffix}</span>
               </p>
               <p className="mt-3 measure type-body text-grey">
-                Paid to the academy before the first day.
+                Paid on the first day, at the academy, by cash, UPI or bank transfer. Cards are
+                not accepted for the balance.
                 {booking.payable !== null
                   ? ` The course fee is ${formatFeeAmount(booking.payable)} ${bookingSuffix}, and ${formatFeeAmount(booking.amount)} of it has been paid.`
                   : ""}
@@ -150,7 +151,10 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
                 </NextStep>
                 <NextStep number="03" title="Turn up">
                   Come to the campus on the first morning. There is nothing to print
-                  {owesBalance ? ", with the balance settled before the first day" : ""}.
+                  {owesBalance
+                    ? ", and the balance is settled on the day by cash, UPI or bank transfer"
+                    : ""}
+                  .
                 </NextStep>
               </ol>
             </section>

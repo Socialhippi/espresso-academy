@@ -73,7 +73,9 @@ const howToChoose = [
   },
   {
     title: "If you already work on a bar",
-    body: "IBC Advanced Barista is two days on varietals, extraction, recipes and a speed test. IBC Advanced Roasting is two days on curves, defects and cupping. Take either, or both: neither requires the other, and both are capped at 4 seats.",
+    /* TODO(client): prerequisites for both Advanced courses are open in content/facts.md.
+       "Neither requires the other" asserts the absence of a rule, which is still asserting one. */
+    body: "IBC Advanced Barista is two days on varietals, extraction, recipes and a speed test. IBC Advanced Roasting is two days on curves, defects and cupping. Both are capped at 4 seats, and the academy is confirming what each one assumes you can already do.",
     href: "/courses?level=advanced",
     cta: "See both Advanced courses",
   },

@@ -69,7 +69,15 @@ function guide({
    */
   seoTitle?: string;
   authorId: string;
-  reviewerId: string;
+  /**
+   * Optional, and left unset on the seeded guides.
+   *
+   * Both guides used to name one trainer as author and another as reviewer. The client confirmed
+   * on 8 September 2026 that neither is part of the academy's team, and the only trainer left
+   * cannot review his own writing: a byline and a review line carrying the same name is a review
+   * that did not happen. Better no reviewer than a fictional one.
+   */
+  reviewerId?: string;
   primaryCourseId?: string;
   primaryCertificationId?: string;
   questions: string[];
@@ -127,7 +135,7 @@ function guide({
     ...(seoTitle ? { seo: { title: seoTitle } } : {}),
     body,
     author: { _type: "reference", _ref: authorId },
-    reviewedBy: { _type: "reference", _ref: reviewerId },
+    ...(reviewerId ? { reviewedBy: { _type: "reference", _ref: reviewerId } } : {}),
     publishedAt: now,
     updatedAt: now,
     ...(primaryCourseId ? { primaryCourse: { _type: "reference", _ref: primaryCourseId } } : {}),
@@ -149,8 +157,7 @@ async function main(): Promise<void> {
       slug: "which-course-to-start-with",
       excerpt:
         "PLACEHOLDER. One or two sentences that answer the question in the title outright, before anyone scrolls. This is what a search result and an assistant will quote.",
-      authorId: "trainer-akanksha-gupta",
-      reviewerId: "trainer-nirupam-ranjan",
+      authorId: "trainer-nageswara-rao-k",
       primaryCourseId: "course-italian-barista-course-basic",
       questions: [
         "Do you need any experience to start?",
@@ -190,8 +197,7 @@ async function main(): Promise<void> {
       slug: "what-a-barista-course-covers",
       excerpt:
         "PLACEHOLDER. Answer the title in one or two sentences. Somebody deciding whether to spend a weekend on this wants to know what they will be able to do afterwards.",
-      authorId: "trainer-sowmya-r",
-      reviewerId: "trainer-akanksha-gupta",
+      authorId: "trainer-nageswara-rao-k",
       primaryCertificationId: "certification-sca-coffee-skills-program",
       questions: [
         "How much of it is hands-on?",

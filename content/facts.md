@@ -51,7 +51,7 @@ The academy sells three courses. Latte Art, Brewing, and Roasting and Cupping ar
 
 ### SCA (CLIENT Google Doc)
 - The doc describes the SCA as a standards body with certification exams in five areas (Introduction, Green Coffee, Sensory, Roasting, Barista and Brewing) at Foundation, Intermediate and Professional. It does not list SCA courses, fees or dates offered by the academy. Keep the Certifications page explainer; no SCA course cards until the client supplies courses, fees and dates.
-- Akanksha Gupta is listed in the SCA trainer directory as an SCA Trainer (AST) for Karnataka (checked 2026-09-05). Wording stays "training aligned to the SCA Coffee Skills Program"; assessed modules "on batches the academy confirms".
+- ~~Akanksha Gupta is listed in the SCA trainer directory as an SCA Trainer (AST) for Karnataka.~~ **Struck 8 September 2026 (client answers 3):** she is not part of the academy's team, so the academy has no Authorised Trainer on faculty and no assessed SCA module. Every AST and assessed-module claim on the site is removed. The wording that survives is "training aligned to the SCA Coffee Skills Program", with no claim about assessment, certification or who could run one.
 
 ## Booking, payment and refund policy (CLIENT .docx, 2026-09-08)
 - An advance of ₹5,000 confirms the seat. Balance is paid to the academy (when: TBC, assume before the first day).
@@ -63,7 +63,7 @@ The academy sells three courses. Latte Art, Brewing, and Roasting and Cupping ar
 
 ## Trainers
 - Nageswara Rao K ("Nagesh"): postgraduate in Agriculture; Post Graduate Diploma in Coffee Quality Management, Coffee Board of India; certified Q Grader; SCA certified Sensory Professional; experienced roaster; "authorised IBM trainer" (CLIENT wording, probably IBC; confirm); member of the judging panel for national-level coffee competitions (CLIENT Google Doc). Not on the current site; add.
-- Akanksha Gupta, Sowmya R, Nirupam Ranjan: as before (old site and Florence list). Whether all three still teach: TBC. Role titles: TBC.
+- ~~Akanksha Gupta, Sowmya R, Nirupam Ranjan: as before (old site and Florence list).~~ **Struck 8 September 2026 (client answers 3): none of the three is part of the academy's team.** They were carried from the old website and the Florence authorised-trainer list, neither of which is the academy telling us who works there, and revision 2 flagged the question rather than answering it. Their cards, profiles and every mention are removed and their profile URLs redirect to /trainers. Nageswara Rao K is the only trainer.
 - Faculty description (CLIENT): "certified Q graders and processors, authorised trainers, experienced hands-on professionals; international instructors visit the academy regularly". Usable.
 - Team origin (CLIENT): "seasoned FnB and hospitality professionals and Coorg's next-gen coffee planters". Now confirmed by the client; may be used.
 
@@ -117,3 +117,25 @@ answer wins and the earlier line is superseded.
 Still open after these answers: 4 (when the balance falls due, and how it is paid), 5 (cancellation
 and academy-cancelled batches), 7 (opening days), 8 (trainer roles and the "IBM trainer" line),
 9 (photo releases), 10 (registrar and live Razorpay keys), and the GST number.
+
+## Client answers, 8 September 2026, second set
+These answer open questions 4 and 9, replace the trainer roster, and settle the gateway.
+
+- **Balance: paid on day 1, at the academy, by cash, UPI or bank transfer. Not by card** (CLIENT).
+  Answers open question 4 and supersedes the "(when: TBC, assume before the first day)" note on the
+  booking policy line. "Not by card" is a fact worth stating rather than omitting: a student who
+  turns up expecting to tap a card and cannot is the failure this line prevents. State it on the
+  checkout, the confirmation page and the confirmation email.
+- **Students photographed in the shoot may appear on the site, and the academy takes an image down
+  on request** (CLIENT). Answers open question 9. Photographs may be published when they arrive;
+  the takedown promise is the academy's and belongs beside the images when they land.
+- **Akanksha Gupta, Sowmya R and Nirupam Ranjan are not part of the academy's team** (CLIENT).
+  See the struck lines under Trainers. **Nageswara Rao K is the only trainer.** The faculty
+  description stays usable as a description of the teaching, not of a roster.
+- **Payment gateway: Razorpay for launch** (CLIENT). The academy wants a cheaper gateway reviewed
+  after launch. `src/lib/payments/provider.ts` is the adapter that makes that a swap rather than a
+  rewrite; recorded in docs/STATUS.md.
+
+Still open after these: 5 (cancellation, and academy-cancelled batches), 7 (opening days), the
+"IBM trainer" wording on Nageswara Rao K, 10 (registrar and live Razorpay keys), and the GST number
+for the invoice footer.

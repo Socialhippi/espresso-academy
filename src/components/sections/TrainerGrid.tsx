@@ -33,7 +33,8 @@ export function TrainerCard({ trainer, className, priority = false }: TrainerCar
           {trainer.name}
         </h3>
 
-        {/* TODO(client): trainer.role. Job titles are not published anywhere yet. */}
+        {/* TODO(client): trainer.role. No job title is published for the one trainer on the
+            roster, and facts.md still carries it as an open question. */}
         <p className="mt-2 flex items-center gap-2 type-small text-grey">
           {trainer.role ?? <TbcPill label="Role TBC" />}
         </p>
@@ -64,8 +65,21 @@ interface TrainerGridProps {
 }
 
 export function TrainerGrid({ trainers, className }: TrainerGridProps) {
+  /*
+   * The columns follow the count. It was a fixed `md:grid-cols-3`, which was right while there
+   * were three trainers and became two empty thirds beside a lonely card the day the client
+   * confirmed there is one. A single card capped at `max-w-md` reads as a profile; the same card
+   * stretched across a third of a 1280 viewport reads as a page that has lost its data.
+   */
+  const columns =
+    trainers.length === 1
+      ? "max-w-md"
+      : trainers.length === 2
+        ? "md:grid-cols-2"
+        : "md:grid-cols-3";
+
   return (
-    <ul className={cn("grid gap-10 md:grid-cols-3 md:gap-6 lg:gap-8", className)}>
+    <ul className={cn("grid gap-10 md:gap-6 lg:gap-8", columns, className)}>
       {trainers.map((trainer, index) => (
         <li key={trainer.slug}>
           <TrainerCard trainer={trainer} priority={index === 0} />

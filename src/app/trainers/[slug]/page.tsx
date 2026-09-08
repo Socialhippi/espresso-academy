@@ -104,20 +104,12 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
                 ))}
               </ul>
 
-              {trainer.sameAs.length > 0 && (
-                <p className="mt-6 type-small text-grey">
-                  Listed on the{" "}
-                  <a
-                    href={trainer.sameAs[0]}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-                  >
-                    Espresso Academy authorised trainer list
-                  </a>
-                  .
-                </p>
-              )}
+              {/*
+                No link to the Florence authorised-trainer list. It records who holds a credential,
+                not who works here, and reading the first as the second is how three people who are
+                not part of the academy's team ended up on this site for weeks. The site does not
+                cite it as evidence of faculty. (content/facts.md, Trainers, struck 8 Sept 2026.)
+              */}
             </div>
           </div>
         </Container>
@@ -140,14 +132,19 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
                   <p>{trainer.philosophy}</p>
                 </blockquote>
               ) : (
-                /* TODO(client): trainers[].philosophy. Needs a ten-minute interview with each trainer. */
-                <div className="border border-white-2 bg-white p-6 md:p-8">
-                  <TbcPill label="Coming soon" />
-                  <p className="mt-4 type-h3 text-black">In their own words, coming soon</p>
+                /* TODO(client): trainers[].philosophy. Marked as a placeholder per
+                   .claude/rules/content.md and listed in docs/STATUS.md. It used to promise an
+                   interview that is not scheduled and that content/facts.md does not record. */
+                <div
+                  data-placeholder="true"
+                  className="border border-white-2 bg-white p-6 md:p-8"
+                >
+                  <TbcPill />
+                  <p className="mt-4 type-h3 text-black">In their own words</p>
                   <p className="mt-3 measure type-body text-grey">
-                    We would rather leave this blank than put words in a trainer&rsquo;s mouth.{" "}
-                    {trainer.name.split(" ")[0]} is being interviewed and this space will carry
-                    what they actually said about how they teach.
+                    We would rather leave this blank than put words in a trainer&rsquo;s mouth. The
+                    academy has not published anything {trainer.name.split(" ")[0]} has said about
+                    how the teaching works, so nothing sits here yet.
                   </p>
                 </div>
               )}
@@ -178,12 +175,12 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
               ))}
             </ul>
           ) : (
-            /* TODO(client): courses[].trainers is empty for all three courses. facts.md does not say
-               which trainer teaches which, and the academy sets it per batch. */
+            /* TODO(client): courses[].trainers is empty for all three courses. content/facts.md
+               does not say which trainer takes which, and it says nothing about per-batch
+               assignment either, so neither does this. */
             <p className="mt-8 measure type-body text-grey">
-              Assigned per batch. The academy sets which trainer takes which intake nearer the
-              date. If you want to learn from {trainer.name.split(" ")[0]} in particular, say so
-              when you enquire and you will be told which batches they are on.{" "}
+              The academy has not published which courses {trainer.name.split(" ")[0]} takes. Ask
+              when you enquire and you will be told.{" "}
               <Link
                 href="/courses"
                 className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
@@ -221,8 +218,8 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
         title={`Learn from ${trainer.name.split(" ")[0]}`}
         body={
           <p>
-            Say which trainer you want when you enquire. The academy will tell you which batches
-            they are teaching and whether a seat is open.
+            Send your background in one message and ask which batch to book. The dates, and the
+            seats capped on each, are on the course pages.
           </p>
         }
       />

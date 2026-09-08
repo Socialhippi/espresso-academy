@@ -37,8 +37,11 @@ function buildItems(foundedFlorence: number, launchedBengaluru: number): ProofIt
       numeral: true,
       label: "Branches worldwide, and this one is an Official Partner of Espresso Academy, Florence",
     },
-    { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to partner schools" },
-    { figure: "Q Grader", label: "Faculty hold Q Grader and CQI Q Processing credentials" },
+    { figure: "Italy", label: "IBC diplomas are issued in Italy by Espresso Academy, Florence" },
+    /* facts.md, Trainers: one named trainer, one Q Grader certification. This read "Faculty hold
+       Q Grader and CQI Q Processing credentials", which was plural about a roster of one and named
+       a CQI credential belonging to a trainer who is not part of the academy's team. */
+    { figure: "Q Grader", label: "The trainer at the Bengaluru campus is a certified Q Grader" },
   ];
 }
 

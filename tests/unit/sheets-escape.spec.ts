@@ -27,7 +27,7 @@ test.describe("formula-leading characters are neutralised", () => {
   });
 
   test("an ordinary name is untouched", () => {
-    expect(escapeForSheet("Akanksha Gupta")).toBe("Akanksha Gupta");
+    expect(escapeForSheet("Nageswara Rao K")).toBe("Nageswara Rao K");
     expect(escapeForSheet("+91 79757 09407".replace("+", ""))).toBe("91 79757 09407");
   });
 

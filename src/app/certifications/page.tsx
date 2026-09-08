@@ -15,7 +15,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "The Italian Barista Certificate and the SCA Coffee Skills Program compared: who issues each, which levels exist, and which Bengaluru courses lead to them.";
+  "The Italian Barista Certificate and the SCA Coffee Skills Program compared: who issues each, which levels exist, and which Bengaluru courses lead to the IBC.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Coffee Certifications Explained",
@@ -27,11 +27,13 @@ export const metadata: Metadata = pageMetadata({
 const comparison = [
   {
     label: "Who issues it",
-    ibc: "Espresso Academy, Florence. Diplomas are issued in Italy and sent to authorised partner schools.",
-    /* facts.md, Trainers: Akanksha Gupta is listed in the SCA public trainer directory as an
-       Authorised Trainer, checked 5 Sept 2026. That supports "an AST on faculty" and nothing
-       further: which batches are assessed is still the academy's to confirm. */
-    sca: "The Specialty Coffee Association, not the school, and only on an assessed module taught by an authorised trainer. One of the trainers listed here is an SCA Authorised Trainer, and assessed modules run on batches the academy confirms.",
+    /* facts.md says the diplomas are issued in Italy by Espresso Academy. How they travel from
+       Florence to a partner school is not in the file, so the sentence stops where the file does. */
+    ibc: "Espresso Academy, Florence. Diplomas are issued in Italy.",
+    /* The AST line was sourced to a trainer the client has since confirmed is not part of the
+       team, so the academy has no Authorised Trainer on faculty and nothing to say about who
+       could assess a module. What is left is what the SCA does, which is true of the SCA. */
+    sca: "The Specialty Coffee Association, not the school, and only on an assessed module. The academy does not run one and does not assess for one.",
   },
   {
     label: "Levels",
@@ -48,7 +50,7 @@ const comparison = [
   {
     label: "Who it suits",
     ibc: "People who want one certificate, issued by Espresso Academy, Florence, start to finish.",
-    sca: "People who want a modular programme they can add to, area by area, over years.",
+    sca: "People who want a modular programme they can add to, area by area.",
   },
   {
     label: "What it costs",
@@ -80,10 +82,10 @@ export default async function CertificationsPage() {
         title="Which coffee certificate is worth your time"
         intro={
           <p>
-            Two certificates come up when people look for barista training in India. The academy
-            teaches one of them, the Italian Barista Certificate. The other, the SCA Coffee Skills
-            Program, is explained here because you deserve to know what you are not getting. This
-            page sets them side by side so you can choose on the facts rather than on the acronym.
+            The academy teaches one certificate, the Italian Barista Certificate. The other, the
+            SCA Coffee Skills Program, is explained here because you deserve to know what you are
+            not getting. This page sets them side by side so you can choose on the facts rather
+            than on the acronym.
           </p>
         }
       />
@@ -223,7 +225,10 @@ export default async function CertificationsPage() {
                 eyebrow="Levels"
                 title="The IBC ladder"
                 id="ladder-heading"
-                description="The IBC runs at Basic, then at two Advanced courses. Neither Advanced course requires the other."
+                /* TODO(client): prerequisites for both Advanced courses are open in
+                   content/facts.md, so the site does not assert that neither requires the other.
+                   Asserting the absence of a rule is still asserting a rule. */
+                description="The IBC runs at Basic, then at two Advanced courses. The prerequisites for both Advanced courses are being confirmed by the academy."
               />
             </div>
             <div className="lg:col-span-8">

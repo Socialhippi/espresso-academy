@@ -126,8 +126,8 @@ export function LevelLadder({ current, className, onDark = false, id }: LevelLad
       <p id={describedBy} className="sr-only">
         The Italian Barista Certificate runs at two levels. IBC Basic is four days and assumes no
         machine experience. Above it sit two Advanced courses, Advanced Barista and Advanced
-        Roasting, of two days each. The two Advanced courses are separate: you can take either, or
-        both, and neither requires the other.
+        Roasting, of two days each. The two Advanced courses are separate, and the academy is
+        confirming what each one assumes you can already do.
         {/* Guarded for the same reason LevelBadge is: `current` comes from a ?level= parameter
             and from a Sanity string field, and the set of levels shrank in revision 2. */}
         {current ? ` You are looking at the ${levelBadge[current]?.label ?? current} level.` : ""}

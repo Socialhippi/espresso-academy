@@ -29,19 +29,24 @@ const method = [
   {
     number: "01",
     title: "Taught at the Bengaluru campus",
-    body: "Every course runs at the RMV 2nd Stage campus, near Ramaiah Hospital. The session format for each course, including the hours on a machine, is confirmed with you before you book.",
+    /* TODO(client): `schedule` is null for both Advanced courses. The old line promised a
+       pre-booking format confirmation, and an "hours on a machine" figure, that content/facts.md
+       does not record. */
+    body: "Every course runs at the RMV 2nd Stage campus, near Ramaiah Hospital. The IBC Basic runs 10 am to 5 pm across four consecutive days. Timings for the two Advanced courses are being confirmed.",
   },
   {
     number: "02",
     title: "The Florence link",
-    body: "Espresso Academy has taught coffee in Florence since 2007. Espresso Academy India is an Official Partner of Espresso Academy, Florence, and the Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy and sent to its authorised partner schools.",
+    body: "Espresso Academy has taught coffee in Florence since 2007. Espresso Academy India is an Official Partner of Espresso Academy, Florence, and the Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy.",
   },
   {
     number: "03",
     title: "One certificate, three courses",
     /* facts.md, Courses: the eight-course catalogue is gone. Roasting, brewing, barista training
        and latte art are the four days of the IBC Basic, not four courses. */
-    body: "The Italian Barista Certificate is the only certificate the academy issues, and all three courses lead to it. The IBC Basic is four days: roasting and cupping, brewing, barista training, latte art, one a day. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster.",
+    /* "the only certificate the academy issues" was wrong twice over: Florence issues it, and
+       Bengaluru teaches towards it. */
+    body: "The Italian Barista Certificate is the only certificate on offer here, and all three courses lead to it. It is issued in Italy by Espresso Academy, Florence. The IBC Basic is four days: roasting and cupping, brewing, barista training, latte art, one a day. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster.",
   },
 ];
 
@@ -236,19 +241,23 @@ export default async function AboutPage() {
             eyebrow="The team"
             title="Who teaches here"
             id="team-heading"
-            /* Both lines are the client's own, confirmed in facts.md revision 2. The faculty line
-               is a description of credentials the trainer profiles then evidence one by one, which
-               is the right order: the claim first, the proof under it. */
+            /* Both lines are the client's own. The faculty line describes the teaching rather
+               than a roster, which is why it survived the roster changing on 8 September: the
+               three trainers listed here until then are not part of the academy's team. */
             description="Certified Q graders and processors, authorised trainers, and experienced hands-on professionals. International instructors visit the academy regularly."
             action={
               <ButtonLink href="/trainers" variant="tertiary" size="inline">
-                Read the trainer profiles
+                Who teaches at the campus
               </ButtonLink>
             }
           />
           <p className="mt-6 measure type-body text-grey">
             Behind the teaching are seasoned food, beverage and hospitality professionals, and
             Coorg&rsquo;s next generation of coffee planters.
+            {/* The faculty line above is the client's own and describes the teaching, not a
+                headcount. Directly over a single card it can be read as a roster, so the count
+                says itself rather than leaving the reader to infer one. */}
+            {trainers.length === 1 ? ` ${trainers[0]?.name} takes the courses at the campus.` : null}
           </p>
           <TrainerGrid trainers={trainers} className="mt-10 md:mt-14" />
         </Container>
@@ -274,14 +283,15 @@ export default async function AboutPage() {
                 {/* facts.md line 11: the reach belongs to the issuer and is attributed to it.
                     "Globally accepted" is on the list of claims the site may not make. */}
                 The Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy,
-                Florence, which has over 30 branches worldwide, and sent to its authorised partner
-                schools. What that is worth to a particular employer in your city is a question
-                worth asking that employer, and us.
+                Florence, which has over 30 branches worldwide. What that is worth to a particular
+                employer in your city is a question worth asking that employer, and us.
               </p>
               <p className="mt-4 measure type-body text-grey">
-                The academy does not run an SCA course. One of the trainers listed here is an SCA
-                Authorised Trainer and assessed SCA modules run on batches the academy confirms,
-                but if the SCA pathway is specifically what you want, say so before you book.
+                The academy does not run an SCA course and does not assess for SCA certification.
+                What it teaches is training aligned to the SCA Coffee Skills Program, which
+                describes the standard rather than the certificate. If the SCA pathway is
+                specifically what you want, say so before you book and you will be told where to
+                take it.
               </p>
               <p className="mt-4 measure type-body text-grey">
                 The academy does not claim to be the first, the only or the best coffee school in

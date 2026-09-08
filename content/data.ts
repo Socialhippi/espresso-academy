@@ -171,7 +171,9 @@ export const certifications: Certification[] = [
        claim is attributed to the issuer rather than made on our own behalf. */
     summary: "The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence. Espresso Academy India teaches under the supervision of Espresso Academy Florence, which has over 30 branches worldwide. The certificate is awarded at Basic Barista, Advanced Barista and Advanced Roasting.",
     levels: ["Basic Barista", "Advanced Barista", "Advanced Roasting"],
-    recognitionNote: "A certificate helps you get an interview; your skills get you the job. Ask us which employers recognise the IBC in your city and we will answer plainly.",
+    /* The honesty clause is supplied by the pages that render this field, so carrying it here
+       too printed the same sentence twice in a row on /certifications/italian-barista-certificate. */
+    recognitionNote: "Ask us which employers recognise the IBC in your city and we will answer plainly.",
     status: "confirmed",
   },
   {
@@ -183,7 +185,10 @@ export const certifications: Certification[] = [
        no SCA course, fee or date the academy offers, so neither does this. */
     summary: "The Specialty Coffee Association sets standards for the coffee trade and examines them in five areas: Introduction to Coffee, Green Coffee, Sensory Skills, Roasting, and Barista Skills and Brewing. Each runs at Foundation, Intermediate and Professional level. The academy does not currently run an SCA course of its own, and this page is here so you can tell the two certificates apart before you choose.",
     levels: ["Foundation", "Intermediate", "Professional"],
-    recognitionNote: "SCA certification is issued by the SCA, not by a school, and only on an assessed module taught by an authorised trainer. One of the trainers listed here is an SCA Authorised Trainer in the SCA's public directory, and assessed modules run on batches the academy confirms. No SCA course, fee or date is published here, and what the SCA charges for an assessment is not ours to state.",
+    /* Every AST and assessed-module claim came from a trainer who is not on the team. What is
+       left is what the academy can say about itself: it teaches to a standard, and the SCA is
+       somebody else's certification. */
+    recognitionNote: "SCA certification is issued by the SCA, not by a school, and only on an assessed module. The academy does not run one and does not assess for one. What it teaches is training aligned to the SCA Coffee Skills Program, which is a description of the standard, not a certificate. If the SCA route is what you want, ask and you will be told where to take it.",
     status: "wording-pending",
   },
 ];
@@ -195,63 +200,25 @@ export const trainers: Trainer[] = [
     role: null,
     credentials: [
       { name: "Post Graduate Diploma in Coffee Quality Management", issuer: "Coffee Board of India" },
-      { name: "Q Grader", issuer: "Coffee Quality Institute" },
+      /* facts.md, Trainers, says "certified Q Grader" and names no issuer. The Coffee Quality
+         Institute is the body that licenses Q Graders, but that is a fact about the credential
+         rather than one the academy gave us, and this file does not fill gaps from knowledge.
+         TODO(client): who issued the Q Grader certification. */
+      { name: "Q Grader", issuer: null },
       { name: "SCA certified Sensory Professional", issuer: "Specialty Coffee Association" },
       /* facts.md, Trainers: the client wrote "authorised IBM trainer", almost certainly IBC.
+         Deliberately unattributed: with no Authorised Trainer on faculty any more, an issuer here
+         would be read as the SCA, which is the one thing it must not say.
          TODO(client): confirm before this line is published as anything more specific. */
       { name: "Authorised trainer", issuer: null },
     ],
-    bio: "Nagesh is a postgraduate in agriculture with a Post Graduate Diploma in Coffee Quality Management from the Coffee Board of India. He is a certified Q Grader and an SCA certified Sensory Professional, an experienced roaster, and sits on the judging panel for national coffee competitions. He teaches at the Bengaluru campus.",
+    /* Written without a pronoun rather than with a guessed one. content/facts.md gives a name and
+       a list of credentials and says nothing about how this person refers to themselves, and a
+       name is not evidence. The sentences are short enough that the name and the role carry it. */
+    bio: "Nagesh is a postgraduate in agriculture with a Post Graduate Diploma in Coffee Quality Management from the Coffee Board of India, a certified Q Grader and an SCA certified Sensory Professional. An experienced roaster, and a member of the judging panel for national coffee competitions. Teaches at the Bengaluru campus.",
     philosophy: null,
     image: null,
     sameAs: [],
-  },
-  {
-    slug: "akanksha-gupta",
-    name: "Akanksha Gupta",
-    role: null,
-    credentials: [
-      { name: "Diploma, Coffee Board of India", issuer: "Coffee Board of India" },
-      /* facts.md, Trainers: the SCA public trainer directory lists her as an SCA Trainer (AST),
-         Karnataka, checked 5 Sept 2026. The modules are the directory's own list. */
-      { name: "SCA Authorised Trainer (AST)", issuer: "Specialty Coffee Association" },
-      { name: "SCA certified: Sensory Skills, Barista Skills, Roasting", issuer: "Specialty Coffee Association" },
-      { name: "Coffee competition judge", issuer: null },
-    ],
-    /* TODO(client): open question 8 in content/facts.md. Whether Akanksha, Sowmya and Nirupam
-       still teach here is not confirmed, so their bios state the credential and not a posting. */
-    bio: "Akanksha is a biotechnology graduate with a Coffee Board of India diploma and SCA certifications in sensory, barista and roasting modules. She is listed in the SCA trainer directory as an Authorised Trainer for Introduction to Coffee, Barista Skills, Brewing, Sensory Skills, Roasting, CVA for Cuppers and Q Grader. She judges coffee competitions. Which batches she takes is confirmed by the academy.",
-    philosophy: null,
-    image: null,
-    sameAs: ["https://espressoacademy.it/en/our-authorized-trainers/"],
-  },
-  {
-    slug: "sowmya-r",
-    name: "Sowmya R",
-    role: null,
-    credentials: [
-      { name: "Diploma, Coffee Board of India", issuer: "Coffee Board of India" },
-      { name: "Q Processing Professional", issuer: "Coffee Quality Institute" },
-      { name: "Food Safety Supervisor", issuer: "FSSAI" },
-    ],
-    bio: "Sowmya is a biotechnology graduate with a Coffee Board of India diploma, a CQI Q Processing professional credential and FSSAI Food Safety Supervisor certification. Which batches she takes is confirmed by the academy.",
-    philosophy: null,
-    image: null,
-    sameAs: ["https://espressoacademy.it/en/our-authorized-trainers/"],
-  },
-  {
-    slug: "nirupam-ranjan",
-    name: "Nirupam Ranjan",
-    role: null,
-    credentials: [
-      { name: "Diploma, Coffee Board of India", issuer: "Coffee Board of India" },
-      { name: "Q Grader, Arabica and Robusta", issuer: "Coffee Quality Institute" },
-      { name: "Former operations head, gourmet roaster", issuer: null },
-    ],
-    bio: "Nirupam is a life sciences graduate with a Coffee Board of India diploma and Q Grader status for both Arabica and Robusta. He previously led operations at a gourmet roaster. Which batches he takes is confirmed by the academy.",
-    philosophy: null,
-    image: null,
-    sameAs: ["https://espressoacademy.it/en/our-authorized-trainers/"],
   },
 ];
 
@@ -274,7 +241,7 @@ const batch = (
 const courseFaqCommon = (name: string): { q: string; a: string; link?: { label: string; href: string } }[] => [
   { q: `Do I need experience before ${name}?`, a: "Prerequisites are listed above. If the field says TBC, message us on WhatsApp with your background and we will tell you plainly whether this is the right starting point.", link: { label: "See every course and level", href: "/courses" } },
   { q: "Is the certificate included in the fee?", a: "Yes. The certificate is part of the course, and there is no separate certification fee to pay. GST at 18% is included in the total shown on this page.", link: { label: "What the certificate is", href: "/certifications/italian-barista-certificate" } },
-  { q: "How do I hold a seat?", a: "An advance of ₹5,000 confirms your seat. The balance is paid at the academy before the first day. Seats are capped per batch, so the advance is what reserves one.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
+  { q: "How do I hold a seat?", a: "An advance of ₹5,000 confirms your seat and comes off the fee. The balance is paid on the first day, at the academy, by cash, UPI or bank transfer. Cards are not accepted for the balance. Seats are capped per batch, so the advance is what reserves one.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
   { q: "Where are classes held?", a: "At the Bengaluru campus, Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital.", link: { label: "Directions to the campus", href: "/contact" } },
 ];
 
@@ -501,18 +468,28 @@ export const redirects: Redirect[] = [
   { from: "/courses/latte-art", to: `${IBC_BASIC}#day-4`, statusCode: 301 },
   { from: "/courses/italian-barista-certificate-junior", to: IBC_BASIC, statusCode: 301 },
   { from: "/courses/italian-barista-certificate-advanced", to: "/courses/ibc-advanced-barista", statusCode: 301 },
+  /*
+   * Three trainer profiles retired on 8 September 2026: the client confirmed none of the three is
+   * part of the academy's team. They were carried from the old website and the Florence authorised
+   * trainer list, and both were indexed, so the URLs are real and somebody has them. They go to the
+   * trainers page rather than 404ing, because the question a visitor arrived with ("who teaches
+   * here") still has an answer.
+   */
+  { from: "/trainers/akanksha-gupta", to: "/trainers", statusCode: 301 },
+  { from: "/trainers/sowmya-r", to: "/trainers", statusCode: 301 },
+  { from: "/trainers/nirupam-ranjan", to: "/trainers", statusCode: 301 },
 ];
 
 export const faqs: FaqItem[] = [
   { category: "courses", q: "Which course should I start with?", a: "If you have never worked a machine, start with the IBC Basic. It runs four days and covers roasting, brewing, espresso and latte art, one a day. If you already pull shots daily, look at IBC Advanced Barista; if you already roast, look at IBC Advanced Roasting.", link: { label: "See all three courses", href: "/courses" } },
   { category: "courses", q: "Do you teach latte art or brewing on their own?", a: "Not as separate courses. Latte art is day 4 of the IBC Basic and brewing is day 2, and you take the whole four days rather than one of them.", link: { label: "See the four days", href: "/courses/italian-barista-course-basic" } },
-  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence. Espresso Academy India teaches under the supervision of Espresso Academy Florence and awards it at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
-  { category: "certification", q: "Are your courses SCA certified?", a: "No. The academy runs the Italian Barista Course, not an SCA course. One of the trainers listed here is an SCA Authorised Trainer, and assessed SCA modules run on batches the academy confirms, but no SCA course, fee or date is published here. Ask if you want the SCA route specifically.", link: { label: "How the two compare", href: "/certifications" } },
+  { category: "certification", q: "What is the Italian Barista Certificate?", a: "The IBC is issued in Italy by Espresso Academy, Florence. Espresso Academy India teaches under the supervision of Espresso Academy Florence, and the certificate is awarded at Basic Barista, Advanced Barista and Advanced Roasting.", link: { label: "About the IBC", href: "/certifications/italian-barista-certificate" } },
+  { category: "certification", q: "Are your courses SCA certified?", a: "No. The academy runs the Italian Barista Course, not an SCA course, and it does not assess for SCA certification. What it teaches is training aligned to the SCA Coffee Skills Program, which describes the standard rather than the certificate. If the SCA route is specifically what you want, ask and you will be told where to take it.", link: { label: "How the two compare", href: "/certifications" } },
   { category: "fees", q: "What does the course cost?", a: "The IBC Basic is ₹26,700 + GST, which is ₹31,506 including GST, down from ₹35,600 + GST. Each Advanced course is ₹30,000 + GST, which is ₹35,400 including GST. Those are the totals: there is nothing to add for the certificate.", link: { label: "See the fee", href: "/courses/italian-barista-course-basic" } },
-  { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000, whichever course you take. That advance confirms your seat and comes off the fee; the balance is paid at the academy before the first day. On the IBC Basic at the offer price that leaves ₹26,506 incl. GST, and on either Advanced course ₹30,400 incl. GST. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
+  { category: "fees", q: "How much do I pay to hold a seat?", a: "₹5,000, whichever course you take. That advance confirms your seat and comes off the fee. The balance is paid on the first day, at the academy, by cash, UPI or bank transfer; cards are not accepted for it. On the IBC Basic at the offer price that leaves ₹26,506 incl. GST, and on either Advanced course ₹30,400 incl. GST. Batches are capped at 8 seats for the IBC Basic and 4 for the Advanced courses.", link: { label: "Refund and reschedule policy", href: "/refund-policy" } },
   { category: "schedule", q: "When is the next batch?", a: "Batch dates are on each course page and on the calendar. A batch drops off the calendar once it has started.", link: { label: "See the batch calendar", href: "/calendar" } },
   { category: "campus", q: "Where is the academy?", a: "Plot No. 9, Microexcel Plaza, 72, 80 Feet Road, RMV 2nd Stage, near Ramaiah Hospital, Bengaluru 560094.", link: { label: "Directions", href: "/contact" } },
-  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. The IBC Basic is four days of machine time and ends in an assessed exam for that reason.", link: { label: "What the certificate is worth", href: "/certifications" } },
+  { category: "careers", q: "Will a certificate get me a job?", a: "A certificate helps you get an interview; your skills get you the job. The IBC Basic is four days of hands-on work, and day 3 ends in the Basic Barista Exam.", link: { label: "What the certificate is worth", href: "/certifications" } },
   { category: "courses", q: "Do you train cafe teams?", a: "Ask us. Message the academy on WhatsApp with your cafe, team size and goal and we will reply with options.", link: { label: "Ask about team training", href: "/contact?topic=cafe" } },
 ];
 

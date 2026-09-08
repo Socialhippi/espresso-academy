@@ -4,7 +4,7 @@ import { LogoMark } from "@/components/site/Logo";
 export type PlaceholderAspect = "photo" | "portrait" | "wide" | "square";
 
 interface PlaceholderProps {
-  /** The slot name from docs/images-manifest.md, e.g. "hero" or "trainer-akanksha-gupta". */
+  /** The slot name from docs/images-manifest.md, e.g. "hero" or "trainer-nageswara-rao-k". */
   slot: string;
   aspect?: PlaceholderAspect;
   /** Dark placeholders sit inside the one black section; light ones everywhere else. */
