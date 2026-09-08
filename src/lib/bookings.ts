@@ -13,6 +13,7 @@ import "server-only";
  *     or whether the browser's verify call got there first.
  */
 import { feeForInstance } from "@/lib/batch";
+import { todayInIndia } from "@/lib/format";
 import { writeClient } from "@/lib/sanity/client";
 import { bookingByIdQuery, bookingByOrderIdQuery, instanceByIdQuery } from "@/lib/sanity/queries";
 import type { Course, CourseInstance } from "@/lib/content";
@@ -67,8 +68,27 @@ export interface BookingRecord {
  */
 export async function getInstanceForCheckout(id: string): Promise<BookableInstance | null> {
   if (!writeClient) return null;
-  const instance = await writeClient.fetch<BookableInstance | null>(instanceByIdQuery, { id });
+  /* `today` is for the nested course projection, which lists that course's other batches and
+     hides the ones that have started. The batch this page is about is selected by id and is
+     returned whether it has started or not, so /book/<id> for a batch that ran last week renders
+     the "not open for booking" state rather than a 404. */
+  const instance = await writeClient.fetch<BookableInstance | null>(instanceByIdQuery, {
+    id,
+    today: todayInIndia(),
+  });
   return instance?.course ? instance : null;
+}
+
+/**
+ * True once the batch's first day has arrived, in the academy's own timezone.
+ *
+ * A batch drops off the calendar and the course page on its start date, which leaves the checkout
+ * URL as the only way to reach one, and it is a real URL: it is in a confirmation email and in the
+ * browser history of everyone who looked at it. Selling a seat on a course that started this
+ * morning is the failure that guard exists to stop.
+ */
+export function hasStarted(instance: Pick<CourseInstance, "startDate">): boolean {
+  return instance.startDate !== null && instance.startDate < todayInIndia();
 }
 
 /** The read path for the confirmation page. Carries personal data; server-side only. */

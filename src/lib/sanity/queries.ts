@@ -37,6 +37,21 @@ const INSTANCE_FIELDS = /* groq */ `
   "venue": venue->${VENUE}
 `;
 
+/**
+ * A batch that has not started yet, or has no date at all.
+ *
+ * A batch drops off the site on its own start date rather than waiting for an editor to mark it
+ * completed. The academy asked for that on the calendar, and it has to hold everywhere or the
+ * course page would offer "Book this batch" for a cohort that is on day three: the same document
+ * feeds the calendar, the batch table and the hero's call to action.
+ *
+ * `$today` is the date in Asia/Kolkata, not the server's. See `todayInIndia`.
+ *
+ * Undated batches survive the filter deliberately. A `tbc` batch is the academy saying "this runs,
+ * we have not set the dates", and the site renders it as the batch-alert state.
+ */
+const NOT_STARTED = /* groq */ `(!defined(startDate) || startDate >= $today)`;
+
 const COURSE_FIELDS = /* groq */ `
   "id": _id,
   "slug": slug.current,
@@ -69,7 +84,7 @@ const COURSE_FIELDS = /* groq */ `
   "heroImage": heroImage${IMAGE},
   heroAlt,
   priority,
-  "instances": *[_type == "courseInstance" && references(^._id)]
+  "instances": *[_type == "courseInstance" && references(^._id) && ${NOT_STARTED}]
     | order(coalesce(startDate, "9999-12-31") asc) { ${INSTANCE_FIELDS} }
 `;
 
@@ -95,7 +110,7 @@ export const instanceByIdQuery = /* groq */ `
 
 /** Every dated batch, soonest first, for the calendar and the "next batches" strip. */
 export const datedInstancesQuery = /* groq */ `
-  *[_type == "courseInstance" && defined(startDate) && status != "completed"]
+  *[_type == "courseInstance" && defined(startDate) && status != "completed" && startDate >= $today]
     | order(startDate asc) {
       ${INSTANCE_FIELDS},
       "course": course->{ ${COURSE_FIELDS} }

@@ -5,6 +5,7 @@ import {
   createBooking,
   feeInRupees,
   getInstanceForCheckout,
+  hasStarted,
   seatsRemaining,
 } from "@/lib/bookings";
 import { chargeFor, isFullPaymentEnabled } from "@/lib/booking-terms";
@@ -136,6 +137,18 @@ export async function POST(request: Request): Promise<NextResponse<OrderResponse
   if (instance.status === "completed" || instance.status === "tbc") {
     return NextResponse.json(
       { ok: false, errors: { form: "That batch is not open for booking." } },
+      { status: 409 },
+    );
+  }
+
+  /* A batch leaves the calendar on its start date, so this URL is the only way to reach one that
+     has begun, and it is a URL people have: it is in the confirmation email and in the history of
+     everyone who looked at the page. Taking money for a course that started this morning is worse
+     than turning the request away. */
+  if (hasStarted(instance)) {
+    log("rejected", { reason: "already-started", instanceId: instance.id });
+    return NextResponse.json(
+      { ok: false, errors: { form: "That batch has already started. Ask us about the next one." } },
       { status: 409 },
     );
   }

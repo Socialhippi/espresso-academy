@@ -9,7 +9,7 @@ import { ButtonLink } from "@/components/site/Button";
 import { TbcPill } from "@/components/site/TbcPill";
 import { CheckoutForm } from "@/components/booking/CheckoutForm";
 import { WaitlistInline } from "@/components/course/WaitlistInline";
-import { feeInRupees, getInstanceForCheckout, seatsRemaining } from "@/lib/bookings";
+import { feeInRupees, getInstanceForCheckout, hasStarted, seatsRemaining } from "@/lib/bookings";
 import { BOOKING_TERMS, chargeFor, isFullPaymentEnabled } from "@/lib/booking-terms";
 import { getSiteSettings } from "@/lib/content";
 import { feeSuffix, formatDateRange, formatFeeAmount } from "@/lib/format";
@@ -51,7 +51,10 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
   const paymentsOn = await isPaymentConfigured();
   const dates = formatDateRange(instance.startDate, instance.endDate);
 
-  const closed = instance.status === "completed" || instance.status === "tbc";
+  /* `hasStarted` matches the guard in /api/orders. Without it this page would show a payment
+     form that the server then refuses, which is a worse way to learn the batch has begun. */
+  const closed =
+    instance.status === "completed" || instance.status === "tbc" || hasStarted(instance);
   const full = seats !== null && seats <= 0;
   const canPay = Boolean(fee) && paymentsOn && !closed && !full;
 
@@ -258,7 +261,7 @@ function UnavailableState({
     },
     closed: {
       heading: "This batch is not open for booking",
-      body: "Either it has already run or its dates are still being finalised. Join the alert and you will hear when the next one is set.",
+      body: "Either it has started, it has already run, or its dates are still being finalised. Join the alert and you will hear when the next one is set.",
     },
   }[reason];
 

@@ -21,6 +21,7 @@ import "server-only";
 import { cache } from "react";
 import { readClient } from "@/lib/sanity/client";
 import { containsPlaceholder, stripPlaceholder } from "@/lib/placeholder";
+import { todayInIndia } from "@/lib/format";
 import type { SanityImage } from "@/lib/sanity/image";
 import {
   certificationsQuery,
@@ -353,12 +354,18 @@ function normaliseCourse(raw: Course): Course {
  * related courses, then the ladder, makes one request rather than three.
  */
 export const getCourses = cache(async (): Promise<Course[]> => {
-  const courses = await query<Course[]>(coursesQuery, {}, ["course", "courseInstance"]);
+  const courses = await query<Course[]>(coursesQuery, { today: todayInIndia() }, [
+    "course",
+    "courseInstance",
+  ]);
   return courses.map(normaliseCourse);
 });
 
 export const getCourse = cache(async (slug: string): Promise<Course | undefined> => {
-  const course = await query<Course | null>(courseBySlugQuery, { slug }, ["course", "courseInstance"]);
+  const course = await query<Course | null>(courseBySlugQuery, { slug, today: todayInIndia() }, [
+    "course",
+    "courseInstance",
+  ]);
   return course ? normaliseCourse(course) : undefined;
 });
 
@@ -471,10 +478,11 @@ export const getStories = cache(async (): Promise<Story[]> => {
  * finalised" state instead.
  */
 export const getNextInstances = cache(async (n?: number): Promise<DatedInstance[]> => {
-  const rows = await query<(CourseInstance & { course: Course })[]>(datedInstancesQuery, {}, [
-    "courseInstance",
-    "course",
-  ]);
+  const rows = await query<(CourseInstance & { course: Course })[]>(
+    datedInstancesQuery,
+    { today: todayInIndia() },
+    ["courseInstance", "course"],
+  );
   const dated: DatedInstance[] = [];
   for (const row of rows) {
     const { course, ...instance } = row;

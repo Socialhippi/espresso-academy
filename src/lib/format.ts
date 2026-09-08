@@ -124,6 +124,19 @@ export function formatMonthYear(iso: string): string {
   return date ? monthYear.format(date) : "TBC";
 }
 
+/**
+ * Today's date in Asia/Kolkata, as "2026-09-08".
+ *
+ * The academy is in Bengaluru and its batch dates are stored as plain dates, so "has this batch
+ * started" has to be answered in the academy's own day, not the server's. On Vercel the server
+ * runs in UTC, which is five and a half hours behind: a batch starting on the 10th would have
+ * disappeared from the calendar at 6.30pm on the 9th, local time.
+ */
+export function todayInIndia(now: Date = new Date()): string {
+  // en-CA gives ISO order, which is what makes the string comparable to a stored date.
+  return new Intl.DateTimeFormat("en-CA", { timeZone: TIME_ZONE }).format(now);
+}
+
 /** Sortable "2026-10" key for grouping instances by month. */
 export function monthKey(iso: string): string {
   return iso.slice(0, 7);
