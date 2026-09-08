@@ -40,6 +40,13 @@ async function createOrder(
       phone: "9876543210",
       email: "playwright@example.com",
       consent: true,
+      /*
+       * Every course in the catalogue states a prerequisite now, even the IBC Basic, whose
+       * prerequisite is "none". `/api/orders` checks the course it read from Sanity rather than
+       * anything the browser claims, so the confirmation is part of every real checkout and
+       * belongs in the default body rather than in an override.
+       */
+      prerequisiteAccepted: true,
       company: "",
       elapsedMs: 5000,
       turnstileToken: TURNSTILE_TOKEN,
@@ -216,7 +223,9 @@ test.describe("the confirmation page", () => {
 
     const response = await page.goto(`/booking/${order.bookingId}`);
     expect(response?.status()).toBe(200);
-    await expect(page.getByRole("heading", { name: /Your seat is booked/ })).toBeVisible();
+    /* "confirmed", not "booked": the checkout takes a ₹5,000 advance now, and on a real course a
+       seat that is confirmed is not a course that is paid for. */
+    await expect(page.getByRole("heading", { name: /Your seat is confirmed/ })).toBeVisible();
     await expect(page.getByText("What happens next")).toBeVisible();
 
     const robots = await page.locator('meta[name="robots"]').getAttribute("content");

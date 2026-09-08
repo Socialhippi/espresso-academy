@@ -19,7 +19,9 @@ test.describe("the checkout page", () => {
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
     await expect(page.getByText("Seats left")).toBeVisible();
-    await expect(page.getByText("incl. GST")).toBeVisible();
+    /* "+ GST" while `gstRate` is null, "incl. GST" once the academy confirms the rate. Either is
+       correct; a bare figure with no tax qualifier beside it is not. */
+    await expect(page.getByText(/\+ GST|incl\. GST/).first()).toBeVisible();
     await expect(page.getByLabel(/Your name/)).toBeVisible();
     await expect(page.getByLabel(/Mobile number/)).toBeVisible();
     await expect(page.getByLabel(/Email/)).toBeVisible();

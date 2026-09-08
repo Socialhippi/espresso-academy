@@ -57,6 +57,9 @@ test("the browser reaches Razorpay checkout, widget and all", async ({ page }) =
   await page.getByLabel(/Your name/).fill("Playwright Student");
   await page.getByLabel(/Mobile number/).fill("9876543210");
   await page.getByLabel(/Email/).fill("playwright@example.com");
+  /* Every course states a prerequisite now, even the IBC Basic, whose prerequisite is "none", so
+     the checkout always asks for this confirmation and a real booking always ticks it. */
+  await page.getByRole("checkbox", { name: /I confirm I meet the prerequisite/i }).check();
   await page.getByRole("checkbox", { name: /may contact me about this booking/i }).check();
 
   await page.waitForTimeout(TIME_FLOOR_MS);
@@ -139,6 +142,9 @@ test("the course hero button reaches Razorpay checkout", async ({ page }) => {
   await page.getByLabel(/Your name/).fill("Hero CTA");
   await page.getByLabel(/Mobile number/).fill("9876543210");
   await page.getByLabel(/Email/).fill("business@socialhippi.com");
+  /* Every course states a prerequisite now, even the IBC Basic, whose prerequisite is "none", so
+     the checkout always asks for this confirmation and a real booking always ticks it. */
+  await page.getByRole("checkbox", { name: /I confirm I meet the prerequisite/i }).check();
   await page.getByRole("checkbox", { name: /may contact me about this booking/i }).check();
   await page.waitForTimeout(TIME_FLOOR_MS);
   await page.getByRole("button", { name: /Pay/ }).click();

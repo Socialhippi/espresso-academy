@@ -17,7 +17,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "The academy runs no short workshop at present. Latte art, brewing and roasting are days inside the four-day Italian Barista Course in Bengaluru. Ask, or join the alert.";
+  "No short workshop is running at present. Latte art, brewing and roasting are days inside the four-day Italian Barista Course in Bengaluru. Ask, or join the alert.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Coffee Workshops in Bengaluru",

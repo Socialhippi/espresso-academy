@@ -137,11 +137,19 @@ export async function Footer() {
                   Instagram
                 </a>
               ) : null}
-              {/* TODO(client): public email address and opening hours are not published yet. */}
-              <span className="flex items-center gap-2">
-                Email: <TbcValue value={settings.email} className="text-white" />
+              {/*
+                `flex-wrap` and `break-all`, because the address is one 29-character token with no
+                break opportunity in it. While `settings.email` was null this row held a 40px TBC
+                pill and fitted anywhere; the moment revision 2 supplied the real address it pushed
+                every route 127px sideways at 1024, which is the width the footer's four columns
+                are tightest at.
+                TODO(client): open question 6 in content/facts.md, the spelling of the address.
+              */}
+              <span className="flex flex-wrap items-center gap-x-2">
+                Email:{" "}
+                <TbcValue value={settings.email} className="break-all text-white" />
               </span>
-              <span className="flex items-center gap-2">
+              <span className="flex flex-wrap items-center gap-x-2">
                 Hours: <TbcValue value={settings.hours} className="text-white" />
               </span>
             </address>

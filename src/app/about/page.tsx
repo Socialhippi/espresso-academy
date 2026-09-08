@@ -16,7 +16,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Espresso Academy was founded in Florence 19 years ago and has over 30 branches worldwide. The Bengaluru campus opened in 2023. Inside the academy and who teaches here.";
+  "Espresso Academy was founded in Florence 19 years ago and has over 30 branches worldwide. The Bengaluru campus opened in 2023. Inside the academy.";
 
 export const metadata: Metadata = pageMetadata({
   title: "About the Bengaluru Coffee Academy",

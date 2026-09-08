@@ -10,7 +10,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Ask about a course at the Bengaluru campus. Send your name and number and the academy replies with the fee, the next batch date and whether it is the right starting point.";
+  "Ask about a course at the Bengaluru campus. Send your name and number, and the academy replies with the fee, the next batch date and where to start.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Enquire About a Barista Course",

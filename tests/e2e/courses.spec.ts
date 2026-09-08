@@ -109,7 +109,7 @@ test.describe("course page", () => {
   test("an unpriced course says the fee is unconfirmed and invents no figure", async ({ page }) => {
     await page.goto("/courses/ibc-advanced-roasting");
 
-    await expect(page.getByText("The academy confirms the fee for this batch.")).toBeVisible();
+    await expect(page.getByText("The academy confirms the fee for each batch.")).toBeVisible();
 
     const body = await page.locator("body").innerText();
     expect(

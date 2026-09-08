@@ -158,7 +158,12 @@ test.describe("the enquiry API", () => {
 
 test.describe("waitlist", () => {
   test("the inline form validates the phone before sending", async ({ page }) => {
-    await page.goto("/courses/brewing");
+    /*
+     * /workshops, not a course page. Every course has a dated batch now, so none of them renders
+     * the batch-alert form; /workshops is the page whose empty state owns it, and the academy runs
+     * no workshop, which is exactly the state this form exists for.
+     */
+    await page.goto("/workshops");
     await waitForHydratedForm(page);
     const form = page.locator("form").filter({ hasText: "Tell me when dates are set" }).first();
     await form.getByLabel("Your name (required)").fill("Test Person");

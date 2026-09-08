@@ -207,6 +207,9 @@ test.describe("journey 2: checkout to confirmation", () => {
     await page.getByLabel(/Your name/).fill("Test Person");
     await page.getByLabel(/Mobile number/).fill("9876543210");
     await page.getByLabel(/Email/).fill("test@example.com");
+    /* Every course states a prerequisite now, so the form will not submit without this and
+       add_payment_info would never fire. */
+    await page.getByLabel(/I confirm I meet the prerequisite/).check();
     await page.getByLabel(/The academy may contact me/).check();
     await page.getByRole("button", { name: /Pay/ }).click();
 
