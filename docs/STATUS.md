@@ -1595,9 +1595,22 @@ course projection too, so the course page cannot offer a batch the calendar has 
 **Production data.** The two ₹1 Playwright batches and the ten ₹1 test bookings against them are
 deleted. The end-to-end batch now hangs off IBC Advanced Barista, which has no fee of its own.
 
-**One defect this exposed.** `LevelBadge` indexed `levelBadge[level]` unguarded. `level` is typed
-but comes from a Sanity string field, and a dataset still holding a retired value took the whole
-page down. It has a fallback now, and so does the ladder.
+**Four defects this exposed**, none of which a unit test would have found:
+
+- `LevelBadge` indexed `levelBadge[level]` unguarded. `level` is typed but comes from a Sanity
+  string field, and a dataset still holding a retired value took the whole page down. It has a
+  fallback now, and so does the ladder.
+- The mobile sticky bar and the hub's course cards both lost their route to a checkout the moment
+  the IBC Basic got a *second* bookable batch: `courseCta` sets `instanceId` only when exactly one
+  batch is bookable, and both surfaces were reading that rather than the decision. The catalogue
+  getting more bookable silently made the site less so.
+- `espressocademyindia@gmail.com` is one 29-character token with no break opportunity. While the
+  email was null the footer held a 40px TBC pill; the real address pushed every route 127px
+  sideways at 1024px, and made `/contact`'s email link a 26px touch target. 360, 390, 768 and 1280
+  were all clean, which is why `scripts/check-overflow.mjs` walks five widths and not three.
+- The `ci` dataset had to be migrated the same way production was. It is not a copy of production
+  and nothing keeps the two in step; `pnpm sanity:seed:ci` creates and replaces but never deletes,
+  so the eight retired courses survived there and the hub rendered eleven.
 
 ---
 
