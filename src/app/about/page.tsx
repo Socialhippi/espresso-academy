@@ -16,7 +16,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Espresso Academy has taught coffee in Florence since 2007 and in Bengaluru since 2023, as an Official Partner of Espresso Academy, Florence. Inside the academy.";
+  "Espresso Academy was founded in Florence 19 years ago and has over 30 branches worldwide. The Bengaluru campus opened in 2023. Inside the academy and who teaches here.";
 
 export const metadata: Metadata = pageMetadata({
   title: "About the Bengaluru Coffee Academy",
@@ -38,8 +38,10 @@ const method = [
   },
   {
     number: "03",
-    title: "Two ladders, not one",
-    body: "The IBC runs at Junior and Advanced level. The other courses are training aligned to the SCA Coffee Skills Program at Foundation, Intermediate and Professional level. Neither ladder depends on the other.",
+    title: "One certificate, three courses",
+    /* facts.md, Courses: the eight-course catalogue is gone. Roasting, brewing, barista training
+       and latte art are the four days of the IBC Basic, not four courses. */
+    body: "The Italian Barista Certificate is the only certificate the academy issues, and all three courses lead to it. The IBC Basic is four days: roasting and cupping, brewing, barista training, latte art, one a day. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster.",
   },
 ];
 
@@ -63,10 +65,11 @@ export default async function AboutPage() {
         title="Florence since 2007. Bengaluru since 2023."
         intro={
           <p>
-            Espresso Academy was founded in Florence and has focused on coffee education since{" "}
-            {settings.foundedFlorence}. Espresso Academy India launched in Bengaluru in{" "}
-            {settings.launchedBengaluru} and is an {settings.partnerLine}. Espresso
-            Academy also lists a partner in New Delhi, so the claim here is Bengaluru, not India.
+            Espresso Academy was founded in Florence 19 years ago, in{" "}
+            {settings.foundedFlorence}, and has over 30 branches worldwide. Espresso Academy India
+            launched in Bengaluru in {settings.launchedBengaluru} and is an {settings.partnerLine};
+            it teaches under the supervision of Espresso Academy Florence. Espresso Academy also
+            lists a partner in New Delhi, so the claim here is Bengaluru, not India.
           </p>
         }
         actions={
@@ -83,8 +86,10 @@ export default async function AboutPage() {
           <dl className="grid grid-cols-2 gap-x-8 gap-y-6">
             {[
               { term: "Founded, Florence", value: String(settings.foundedFlorence), word: false },
+              /* facts.md line 79: "17 branches worldwide" is superseded. "Over 30" is the
+                 client's own figure and the numeral carries the "over". */
+              { term: "Branches worldwide", value: "30+", word: false },
               { term: "Launched, Bengaluru", value: String(settings.launchedBengaluru), word: false },
-              { term: "Certificates", value: "2", word: false },
               { term: "Campus", value: "RMV 2nd Stage", word: true },
             ].map((fact) => (
               <div key={fact.term} className="border-t border-white-2 pt-4">
@@ -168,11 +173,17 @@ export default async function AboutPage() {
                 </ButtonLink>
               </div>
 
-              <p className="mt-10 type-label text-grey">Equipment</p>
-              {/* TODO(client): no machine, grinder or roaster models are published anywhere. */}
-              <p className="mt-3 flex flex-wrap items-center gap-3 type-body text-black">
-                <TbcPill />
-                <span>The academy is confirming the machine and grinder list.</span>
+              <p className="mt-10 type-label text-grey">The rooms and the kit</p>
+              <p className="mt-3 type-body text-grey">
+                Comfortable learning spaces and fully equipped professional labs. Day 1 of the IBC
+                Basic roasts on a Bullet roaster, which you use yourself rather than watch.
+              </p>
+              {/* TODO(client): facts.md, Facility. The Bullet is the one piece of equipment the
+                  client has named. The espresso machine and grinder are still unstated, and a
+                  brand is exactly the kind of detail a reader will hold us to. */}
+              <p className="mt-4 flex flex-wrap items-center gap-3 type-small text-grey">
+                <TbcPill label="Machines TBC" />
+                <span>The espresso machine and grinder list is being confirmed.</span>
               </p>
             </div>
 
@@ -225,12 +236,20 @@ export default async function AboutPage() {
             eyebrow="The team"
             title="Who teaches here"
             id="team-heading"
+            /* Both lines are the client's own, confirmed in facts.md revision 2. The faculty line
+               is a description of credentials the trainer profiles then evidence one by one, which
+               is the right order: the claim first, the proof under it. */
+            description="Certified Q graders and processors, authorised trainers, and experienced hands-on professionals. International instructors visit the academy regularly."
             action={
               <ButtonLink href="/trainers" variant="tertiary" size="inline">
                 Read the trainer profiles
               </ButtonLink>
             }
           />
+          <p className="mt-6 measure type-body text-grey">
+            Behind the teaching are seasoned food, beverage and hospitality professionals, and
+            Coorg&rsquo;s next generation of coffee planters.
+          </p>
           <TrainerGrid trainers={trainers} className="mt-10 md:mt-14" />
         </Container>
       </section>
@@ -252,11 +271,17 @@ export default async function AboutPage() {
                 A certificate helps you get an interview. Your skills get you the job.
               </p>
               <p className="mt-5 measure type-body text-grey">
+                {/* facts.md line 11: the reach belongs to the issuer and is attributed to it.
+                    "Globally accepted" is on the list of claims the site may not make. */}
                 The Italian Barista Certificate (IBC) is issued in Italy by Espresso Academy,
-                Florence, and sent to its authorised partner schools. The other courses are
-                training aligned to the SCA Coffee Skills Program; whether a given batch is
-                assessed for SCA certification, and what the SCA charges for that, is confirmed at
-                enrolment.
+                Florence, which has over 30 branches worldwide, and sent to its authorised partner
+                schools. What that is worth to a particular employer in your city is a question
+                worth asking that employer, and us.
+              </p>
+              <p className="mt-4 measure type-body text-grey">
+                The academy does not run an SCA course. There is an SCA Authorised Trainer on
+                faculty and assessed SCA modules run on batches the academy confirms, but if the
+                SCA pathway is specifically what you want, say so before you book.
               </p>
               <p className="mt-4 measure type-body text-grey">
                 The academy does not claim to be the first, the only or the best coffee school in

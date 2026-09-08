@@ -26,7 +26,7 @@ export async function generateMetadata({
   const trainer = await getTrainer(slug);
   if (!trainer) return { title: "Trainer not found" };
 
-  /* seo.md's pattern is "{Name}, {Role}", but trainers[].role is null for all three, so the title
+  /* seo.md's pattern is "{Name}, {Role}", but trainers[].role is null for every trainer, so the title
      uses the one role fact that is supported: they are trainers at the academy. Names vary in
      length, so take the longest variant that still fits the 50 to 60 character band. */
   const SUFFIX_LENGTH = " | Espresso Academy India".length;

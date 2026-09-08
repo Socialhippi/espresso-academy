@@ -31,12 +31,21 @@ export default async function TrainersPage() {
         eyebrow="Faculty"
         title="Who teaches at the Bengaluru campus"
         intro={
-          <p>
-            Three trainers, all on the Espresso Academy authorised trainer list. Between them they
-            hold Coffee Board of India diplomas, Q Grader and Q Processing credentials from the
-            Coffee Quality Institute, SCA module certifications and FSSAI food safety
-            certification. Which trainer takes a given batch is set by the academy nearer the date.
-          </p>
+          <>
+            {/* Counted rather than written in. It said "three" for as long as there were three,
+                and content/facts.md revision 2 added a fourth. */}
+            <p>
+              {trainers.length} trainers: certified Q graders and processors, authorised trainers,
+              and experienced hands-on professionals. Between them they hold Coffee Board of India
+              diplomas, Q Grader and Q Processing credentials from the Coffee Quality Institute,
+              SCA module certifications and FSSAI food safety certification, and a seat on the
+              judging panel for national coffee competitions.
+            </p>
+            <p className="mt-4">
+              International instructors visit the academy regularly. Which trainer takes a given
+              batch is set by the academy nearer the date.
+            </p>
+          </>
         }
         actions={
           <ButtonLink href="/courses" variant="secondary">
