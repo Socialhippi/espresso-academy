@@ -249,7 +249,7 @@ function UnavailableState({
   const copy = {
     "no-fee": {
       heading: "The fee for this batch is not confirmed yet",
-      body: "The academy sets the fee for each batch and states it incl. GST before anyone pays. Ask on WhatsApp and you will get the current figure and the seat position for this date.",
+      body: "The academy sets the fee for each batch and confirms it before anyone pays. Ask on WhatsApp and you will get the current figure and the seat position for this date.",
     },
     "no-gateway": {
       heading: "Online payment is not switched on yet",

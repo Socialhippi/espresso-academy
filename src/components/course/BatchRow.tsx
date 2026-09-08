@@ -3,7 +3,7 @@ import { ButtonLink } from "@/components/site/Button";
 import { LevelBadge } from "@/components/site/LevelBadge";
 import { TbcPill } from "@/components/site/TbcPill";
 import { batchAction, feeForInstance, seatsLeft, type Course, type CourseInstance } from "@/lib/content";
-import { formatDate, formatDateRange, formatFeeAmount } from "@/lib/format";
+import { feeSuffix, formatDate, formatDateRange, formatFeeAmount } from "@/lib/format";
 
 interface BatchRowProps {
   course: Course;
@@ -52,7 +52,11 @@ export function BatchRow({ course, instance, variant = "calendar" }: BatchRowPro
       ) : (
         <td className="py-4 pr-4 type-body text-black">
           {/* TODO(client): every fee is null today, so this is a TBC pill on every row. */}
-          {fee === null ? <TbcPill label="Fee TBC" /> : `${formatFeeAmount(fee)} incl. GST`}
+          {fee === null ? (
+            <TbcPill label="Fee TBC" />
+          ) : (
+            `${formatFeeAmount(fee)} ${feeSuffix(course.gstRate)}`
+          )}
         </td>
       )}
 

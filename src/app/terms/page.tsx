@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { LegalPlaceholder, LegalSection } from "@/components/site/LegalPlaceholder";
 import { pageMetadata } from "@/lib/seo/metadata";
 
@@ -34,14 +35,26 @@ export default function TermsPage() {
 
       <LegalSection title="Fees and certificates">
         <p>
-          Fees are stated incl. GST before you pay. Where a certification body charges its own fee
-          on top of the course fee, the academy tells you before you pay, not after.
+          Fees are quoted before GST, which is charged on top, and you are told the total before
+          you pay. The certificate is part of the course fee: no certification body charges a
+          separate assessment or certificate fee on top of it.
         </p>
         <p>
-          The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence.
-          Certification under the SCA Coffee Skills Program is issued by the Specialty Coffee
-          Association, not by the academy, and whether a given batch is assessed for it is
-          confirmed at enrolment.
+          An advance of ₹5,000 confirms a seat. The balance is paid to the academy before the
+          first day. The reschedule and refund terms are on the{" "}
+          <Link
+            href="/refund-policy"
+            className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+          >
+            refund and reschedule policy
+          </Link>
+          .
+        </p>
+        <p>
+          The Italian Barista Certificate is issued in Italy by Espresso Academy, Florence. The
+          academy does not run an SCA course; SCA certification is issued by the Specialty Coffee
+          Association, not by a school, and whether a given batch is assessed for it is confirmed
+          before you book.
         </p>
       </LegalSection>
 

@@ -30,7 +30,13 @@ function buildItems(foundedFlorence: number, launchedBengaluru: number): ProofIt
       numeral: true,
       label: `Teaching in Bengaluru since ${launchedBengaluru}`,
     },
-    { figure: "Partner", label: "Official Partner of Espresso Academy, Florence" },
+    /* facts.md line 79: "17 branches worldwide" is superseded by the client's "over 30". The
+       numeral carries the "over", which is how the brand sets figures elsewhere. */
+    {
+      figure: "30+",
+      numeral: true,
+      label: "Branches worldwide, and this one is an Official Partner of Espresso Academy, Florence",
+    },
     { figure: "Italy", label: "IBC diplomas are issued in Italy and sent to partner schools" },
     { figure: "Q Grader", label: "Faculty hold Q Grader and CQI Q Processing credentials" },
   ];

@@ -22,7 +22,7 @@ const steps = [
   {
     number: "02",
     title: "You get a reply on WhatsApp",
-    body: "With the fee incl. GST, the next batch date and an honest answer on whether this course is the right one for you.",
+    body: "With the fee, the next batch date and an honest answer on whether this course is the right one for you.",
   },
   {
     number: "03",

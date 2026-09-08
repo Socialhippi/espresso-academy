@@ -453,15 +453,15 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
              anything with anyone. */
           cta.kind === "book" || cta.kind === "choose" ? (
             <p>
-              The fee at checkout is stated incl. GST. Read the refund and reschedule policy before
-              you pay, and message on WhatsApp first if you are not sure this is the right starting
-              point.
+              ₹5,000 confirms the seat and the balance is paid at the academy before the first day.
+              Read the refund and reschedule policy before you pay, and message on WhatsApp first
+              if you are not sure this is the right starting point.
             </p>
           ) : (
             <p>
               Send your name and number with a line about your experience, and ask whether{" "}
-              {course.title} is the right starting point. The fee incl. GST and the batch dates are
-              confirmed with you before you pay.
+              {course.title} is the right starting point. The fee and the batch dates are confirmed
+              with you before you pay anything.
             </p>
           )
         }

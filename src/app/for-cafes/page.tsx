@@ -148,7 +148,7 @@ function FallbackSections({
               <ul className="mt-8 flex flex-col gap-4">
                 {[
                   "Tell the academy your team size, your machine and what you want fixed.",
-                  "They come back with a scope, a length and a fee incl. GST, in writing.",
+                  "They come back with a scope, a length and a fee, in writing.",
                   "The session runs, and everyone who attends knows what to practise next.",
                 ].map((step, index) => (
                   <li key={step} className="flex gap-4">
@@ -249,7 +249,7 @@ function FallbackSections({
         body={
           <p>
             What machine you run, how many people are behind it, and what keeps going wrong. That
-            is enough to come back with a scope and a fee incl. GST.
+            is enough to come back with a scope and a fee.
           </p>
         }
       />

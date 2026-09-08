@@ -19,7 +19,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
 const DESCRIPTION =
-  "Barista, latte art, brewing and roasting courses in Bengaluru. Take the Italian Barista Certificate, or training aligned to the SCA Coffee Skills Program.";
+  "The four-day Italian Barista Course in Bengaluru: roasting, brewing, espresso and latte art, one a day, ending in a certificate issued in Italy. ₹26,700 + GST.";
 
 export const metadata: Metadata = pageMetadata({
   title: "Barista Training in Bengaluru",
@@ -38,28 +38,32 @@ export default async function HomePage() {
         titleLead="Professional coffee training in Bengaluru,"
         titleAccent="certified from Florence"
         subline={
+          /*
+            The subline used to offer two pathways, one of which the academy does not sell.
+            Revision 2 of content/facts.md says the SCA is a standards body the client's document
+            describes, not a course on offer, so the hero says what the academy actually teaches:
+            four days, one module a day, ending in one certificate.
+          */
           <p>
-            Learn at the RMV 2nd Stage campus. Take the{" "}
+            Four days at the RMV 2nd Stage campus: roasting and cupping, brewing, barista training
+            and latte art, one a day. You leave with the{" "}
             <Link
               href="/certifications/italian-barista-certificate"
               className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
             >
               Italian Barista Certificate
             </Link>
-            , issued in Italy by Espresso Academy, Florence, or train on a program{" "}
-            <Link
-              href="/certifications/sca-coffee-skills-program"
-              className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
-            >
-              aligned to the SCA Coffee Skills Program
-            </Link>
-            .
+            , issued in Italy by Espresso Academy, Florence.
           </p>
         }
         actions={
           <>
-            <ButtonLink href="/courses" variant="primary" data-event="courses_click_hero">
-              See courses and dates
+            <ButtonLink
+              href="/courses/italian-barista-course-basic"
+              variant="primary"
+              data-event="courses_click_hero"
+            >
+              See the four days
             </ButtonLink>
             <WhatsAppButton event="whatsapp_click_hero" />
           </>
@@ -80,13 +84,13 @@ export default async function HomePage() {
               <SectionHeading
                 number="03"
                 eyebrow="Levels"
-                title="Where you start, where you finish"
+                title="Where you start, where you go next"
                 id="ladder-heading"
-                description="Two ladders run side by side. The Italian Barista Certificate runs at Junior and Advanced. The SCA-aligned training runs at Foundation, Intermediate and Professional. Which rung you start on is set with you, not by a rule."
+                description="Three courses on one ladder. The IBC Basic is four days and assumes nothing. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster. Which one you start on is set with you, not by a rule."
               />
               <p className="mt-6">
                 <ButtonLink href="/certifications" variant="tertiary" size="inline">
-                  Compare the two certificates
+                  What the certificate is worth
                 </ButtonLink>
               </p>
             </div>
@@ -104,7 +108,7 @@ export default async function HomePage() {
             eyebrow="Faculty"
             title="Who teaches you"
             id="trainers-heading"
-            description="Trainers on the Espresso Academy authorised list, with credentials from the Coffee Board of India, the Coffee Quality Institute and the SCA."
+            description="Certified Q graders and processors, authorised trainers, and experienced hands-on professionals. International instructors visit the academy regularly."
             action={
               <ButtonLink href="/trainers" variant="tertiary" size="inline">
                 Read the trainer profiles
@@ -145,8 +149,9 @@ export default async function HomePage() {
         title="Tell us where you are starting from"
         body={
           <p>
-            Send one message with your background and what you want to be able to do, and ask for
-            the fee incl. GST and the next batch date before you commit to anything.
+            Send one message with your background and what you want to be able to do. ₹5,000
+            confirms a seat and the balance is paid at the academy, so ask anything you need to
+            before you pay a rupee.
           </p>
         }
       />
