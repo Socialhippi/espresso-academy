@@ -218,7 +218,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                     id={`day-${day.number}`}
                     /* `day-card` stays: globals.css marks the day arrived at by anchor with an
                        inset red rule, and /courses/latte-art still redirects to #day-4. */
-                    className="day-card flex gap-5 md:gap-8"
+                    className="day-card flex gap-4 md:gap-8"
                   >
                     <div className="flex flex-col items-center" aria-hidden="true">
                       <span className="day-node grid size-12 shrink-0 place-items-center border border-white-2 bg-white type-numeral text-h3-lg text-black">

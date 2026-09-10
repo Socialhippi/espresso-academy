@@ -69,20 +69,36 @@ export async function ProofStrip({ className }: ProofStripProps) {
           One grey hairline over the whole band, and a short red tick over each figure: the same
           mark the photo placeholders carry, so the two read as one family. The fifth item spans
           both columns on mobile so it does not orphan in a half row.
+
+          `grid-rows-subgrid` puts the tick, the figure and the label of every item on the row's own
+          three tracks, so the five labels start at one height. Without it the grid sized each cell
+          independently and the label under "30+" began 8px below the label under "Italy": five
+          facts presented as a set, on five different baselines.
         */}
         <ul className="hairline grid grid-cols-2 gap-x-6 gap-y-10 pt-8 lg:grid-cols-5 lg:gap-8">
           {items.map((item, index) => (
             <li
               key={item.label}
               className={cn(
+                /* gap-y-0 overrides the row gap this subgrid would otherwise inherit from the
+                   list. The 40px that separates one fact from the next is not the spacing that
+                   belongs between a tick, its figure and its label; without the override it was
+                   applied three times inside every item. The children carry their own. */
+                "grid grid-rows-subgrid row-span-3 gap-y-0",
                 index === items.length - 1 && items.length % 2 === 1 && "col-span-2 lg:col-span-1",
               )}
             >
-              <span aria-hidden="true" className="block h-px w-6 bg-red" />
+              <span aria-hidden="true" className="block h-px w-6 self-start bg-red" />
+              {/*
+                One optical size for all five, because all five are the same kind of claim.
+                design.md reserves Bebas for numerals, so "Italy" and "Q Grader" stay Montserrat —
+                but they were also two steps smaller than the years beside them, which turned the
+                row into three statistics and two footnotes.
+              */}
               <p
                 className={cn(
-                  "mt-4 text-black",
-                  item.numeral ? "type-numeral text-h2 md:text-h2-lg" : "type-h3",
+                  "mt-4 self-end text-h2 text-black md:text-h2-lg",
+                  item.numeral ? "type-numeral" : "font-sans font-medium",
                 )}
               >
                 {item.figure}

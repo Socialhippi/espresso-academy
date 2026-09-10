@@ -469,56 +469,63 @@
    Motion, build 3. Every animation below is CSS only.
 
    The note that closed this file said the fade-up reveal was not implemented because it needed an
-   IntersectionObserver, and first-load JS was already 22KB over budget. That was the right call
-   against the tools of the time. It is no longer the only way: `animation-timeline: view()` is a
-   scroll-driven animation the compositor runs with no script at all, so the reveal design.md asks
-   for ("fade-up 16px once on scroll") costs zero bytes of JavaScript.
+   IntersectionObserver, on a site already over its JS budget. That was the right call against the
+   tools of the time. It is no longer the only way: `animation-timeline: view()` is a scroll-driven
+   animation the compositor runs with no script at all, so the reveal design.md asks for ("fade-up
+   16px once on scroll") costs zero bytes of JavaScript. Measured before and after on the same
+   machine, first-load JS on / is 251.4KB gz either way — identical, and still over the 150KB
+   budget for the reasons docs/STATUS.md records.
 
    Three guards, and all three are load-bearing:
 
    1. `@supports (animation-timeline: view())`. Without it, a browser that does not understand the
-      timeline would still understand `opacity: 0` and would paint nothing at all: a headline that
-      never arrives, on every section of every page. The hidden state is only ever declared inside
-      the query that can also un-hide it.
+      timeline would still understand `clip-path: inset(0 0 100% 0)` and would paint nothing at
+      all: a headline that never arrives, on every section of every page. The hidden state is only
+      ever declared inside the query that can also un-hide it. Verified in WebKit, which supports
+      the timeline, and by construction for Firefox, which does not.
    2. `prefers-reduced-motion: no-preference`, per rule 5 and .claude/rules/a11y.md.
-   3. Nothing above the fold animates its opacity. The homepage H1 is the LCP element on a phone
-      and LCP is the one budget this site does not clear locally; an entry animation on it would
-      defer the paint Lighthouse is timing. The hero's motion is on the picture, not the words.
+   3. Nothing animates its opacity at all — see the contrast note on `reveal-cut` — and nothing
+      above the fold animates in a way that defers a paint. Measured in a throttled mobile browser,
+      the LCP element on /, /courses and the IBC page is the hero sub-line paragraph, painting at
+      about 740ms. LCP is the one budget this site does not clear locally, and an entry animation
+      on that paragraph would defer the very thing being timed, so the hero's motion runs on the
+      picture and the words are left alone.
    --------------------------------------------------------------------------- */
 
+/*
+ * A cut, not a fade — and the difference is an accessibility failure, not a taste.
+ *
+ * design.md describes this reveal as "fade-up 16px once on scroll", and the first version animated
+ * opacity to match. axe failed it: caught mid-reveal, the 12px red eyebrow composites #b20003 over
+ * #fefcff to #cc5659, which measures 4.08:1 against a 4.5:1 floor. Red on white is 7.11:1 at full
+ * strength, so the animation itself was the only thing putting the page under WCAG 1.4.3, on every
+ * numbered section of every route. tests/e2e/a11y.spec.ts caught it on /about.
+ *
+ * Opacity is gone. Clipped text is either painted at full strength or not painted at all, so there
+ * is no intermediate state with a contrast ratio to fail. .claude/rules/a11y.md outranks the word
+ * "fade" in design.md, and the wipe is closer to the brand's register anyway.
+ */
 @keyframes reveal-cut {
   from {
-    opacity: 0;
     transform: translateY(0.4em);
     /* Bottom inset 100% is a closed shutter; the end state opens past the box on all four sides so
        a focus ring or an overshooting Bebas glyph is never clipped by the reveal's own clip. */
     clip-path: inset(0 -5% 100% -5%);
   }
   to {
-    opacity: 1;
     transform: none;
     clip-path: inset(-25% -5% -25% -5%);
-  }
-}
-
-@keyframes reveal-rise {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
   }
 }
 
 /*
  * The section-heading reveal: one animated moment per section, not three.
  *
- * design.md caps a page at 8 animated moments. The homepage has seven numbered sections plus the
- * hero, which is the whole allowance, so the eyebrow, the heading and the standfirst reveal
- * together as one block rather than as a stagger of three. The "See all" action beside the heading
- * is deliberately outside it: it is a control, and controls do not arrive late.
+ * design.md caps a page at 8 animated moments. The homepage carries six of these blocks plus the
+ * hero picture, so the eyebrow, the heading and the standfirst reveal together as one block rather
+ * than as a stagger of three; staggering them would have spent 18 moments on one page. The "See
+ * all" action beside the heading is deliberately outside the revealed block: it is a control, and
+ * controls do not arrive late.
  */
 @utility reveal-heading {
   @media (prefers-reduced-motion: no-preference) {
@@ -529,17 +536,6 @@
          under the 400ms cap: the reveal is finished by the time the block is a third of the way up
          the screen, and it cannot be caught half-drawn by a fast scroll. */
       animation-range: entry 15% entry 55%;
-    }
-  }
-}
-
-/* The same reveal, without the clip, for a block of content under a heading. */
-@utility reveal-block {
-  @media (prefers-reduced-motion: no-preference) {
-    @supports (animation-timeline: view()) {
-      animation: reveal-rise linear both;
-      animation-timeline: view();
-      animation-range: entry 10% entry 50%;
     }
   }
 }
@@ -584,18 +580,26 @@
    .claude/rules/a11y.md: "No hover-only content." So nothing on the card is hidden and then
    revealed — every word is present at every moment, on a phone that cannot hover and in a screen
    reader that does not. What the hover reveals is the card's own affordance: a red rule that draws
-   out from under the arrow across the foot of the card, which is design.md's "underline draws",
-   and the picture lifting out of its resting state.
+   out from under the arrow across the foot of the card, which is design.md's "underline draws".
 
-   `:focus-visible` on the card link drives it too, so a keyboard reaches the same card state a
-   pointer does.
+   A resting `filter: saturate(0.9)` on the photo was here too, and is gone. It was applied to the
+   branded placeholder, which is near-neutral, so half the announced effect was invisible on every
+   card on the hub; and the day the academy's photography lands it would have dulled every course
+   photo at rest, on a site design.md calls "white-dominant, disciplined, photographic".
+
+   `:focus-visible` on the card link drives the rule, and the card's border, title underline and
+   arrow shift now answer to it as well, so a keyboard reaches the same card state a pointer does.
    --------------------------------------------------------------------------- */
 @layer components {
   /* The components layer, not @utility: these need a descendant selector with real specificity so
      the hovered state beats the resting one, and a utility would sort after it and win. */
   .card-rail {
     display: block;
-    height: 2px;
+    /* 1px, like every other rule on this site: the hairlines are 1px, the placeholder's red mark
+       is 1px and the proof strip's ticks are 1px. At 2px it was the only 2px rule anywhere, and it
+       stacked with the band's top border and the card's hover outline into three rules at the
+       card foot. */
+    height: 1px;
     background-color: var(--color-red);
     transform: scaleX(0);
     /* Right origin, so the rule draws out from under the arrow and back across the card rather
@@ -604,20 +608,9 @@
     transition: transform var(--duration-base) var(--ease-out-brand);
   }
 
-  .card-photo {
-    /* Not a scale transform: design.md forbids those on this card. The picture stays exactly where
-       it is and only its saturation moves, so nothing reflows and no neighbour is overlapped. */
-    filter: saturate(0.9);
-    transition: filter var(--duration-base) var(--ease-out-brand);
-  }
-
   .card-link:hover .card-rail,
   .card-link:focus-visible .card-rail {
     transform: scaleX(1);
   }
 
-  .card-link:hover .card-photo,
-  .card-link:focus-visible .card-photo {
-    filter: none;
-  }
 }
