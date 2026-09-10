@@ -140,8 +140,11 @@ const KEY_PAIRS: Array<{ name: string; server: () => boolean; browser: () => boo
  * With an API key and no `RESEND_FROM_EMAIL`, mail goes out from `onboarding@resend.dev`, and
  * Resend will only deliver *that* sender to the account owner's own address. Everyone else gets a
  * 403. So the academy's own copy of a booking arrives, the student's confirmation does not, and
- * nothing about the configuration looks wrong. A verified domain is what fixes it; saying so at
- * boot is what stops it being discovered by a customer.
+ * nothing about the configuration looks wrong.
+ *
+ * Both halves are configured now — `mail.espressoacademy.in` is verified and `RESEND_FROM_EMAIL`
+ * is set on Production and Preview — so this is silent in those environments. It stays because the
+ * state it catches is one this project shipped for four days, and a new environment starts in it.
  */
 function resendWarning(): string | null {
   if (!env.RESEND_API_KEY) return null;
@@ -150,7 +153,8 @@ function resendWarning(): string | null {
     "resend: STUDENT CONFIRMATION EMAILS ARE NOT BEING DELIVERED. RESEND_FROM_EMAIL is unset, so " +
     "mail goes from onboarding@resend.dev, which Resend delivers only to the Resend account " +
     "owner's own address; every other recipient is refused with a 403 and leaves no delivery " +
-    "record. Verify a domain at resend.com/domains and set RESEND_FROM_EMAIL to an address on it."
+    "record. mail.espressoacademy.in is already verified in Resend, so this needs no DNS work: " +
+    "set RESEND_FROM_EMAIL to an address on it and redeploy."
   );
 }
 

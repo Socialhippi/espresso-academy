@@ -26,9 +26,15 @@ function trimmed(value: string | undefined): string | undefined {
 }
 
 /**
- * The From: address. Resend's shared sandbox sender until the academy's domain is verified, which
- * is a launch-checklist step: mail from `onboarding@resend.dev` reaches an inbox, but it does not
- * say Espresso Academy in the sender line.
+ * The From: address.
+ *
+ * `RESEND_FROM_EMAIL` is set on Production and Preview to an address on `mail.espressoacademy.in`,
+ * which is verified in Resend. The fallback below is not a working default and must not be read as
+ * one: `onboarding@resend.dev` is Resend's shared sandbox sender, and Resend delivers it *only* to
+ * the account owner's own address — every other recipient is refused with a 403 that leaves no
+ * delivery record. Reaching it means the variable is missing, which `halfConfigured()` reports at
+ * boot and on `/api/health`. It is kept so a missing variable degrades to a logged fallback rather
+ * than throwing, in line with every other integration here.
  */
 export function fromAddress(): string {
   return trimmed(process.env.RESEND_FROM_EMAIL) ?? "Espresso Academy India <onboarding@resend.dev>";

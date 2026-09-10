@@ -10,41 +10,36 @@ here. What follows is what is left. Nothing on it blocks a build or a deploy, ev
 a visible TBC state on the site today, and the site fills itself in the moment the value lands with
 no code change. They are ordered by what they cost while they are missing.
 
-1. **A verified sending domain in Resend, and `RESEND_FROM_EMAIL`.** The only item on this list
-   that is costing something right now: **a student who pays gets no confirmation email.** Mail
-   goes from `onboarding@resend.dev`, which Resend delivers only to the Resend account owner, so
-   the academy's copy of a booking arrives and the student's does not. Nothing in this repository
-   can fix it. See "Accounts and keys" in `docs/launch-checklist.md`.
-2. **The GST rate on the course fee**, and the GST number for the invoice footer. Until it lands
+1. **The GST rate on the course fee**, and the GST number for the invoice footer. Until it lands
    the site prints no tax-inclusive figure anywhere: every fee reads "₹26,700 + GST", and the
    full-payment path stays switched off, because a full payment that omits the tax leaves the
    student short at the counter on day one. One field, `course.gstRate`, turns all of it on.
-3. **Fees for IBC Advanced Barista and IBC Advanced Roasting**, and the prerequisites for both.
+2. **Fees for IBC Advanced Barista and IBC Advanced Roasting**, and the prerequisites for both.
    Both courses currently offer "Ask about this batch" instead of a checkout, because there is
    nothing to charge.
-4. **Whether the 25% "55th batch" offer applies to all three listed IBC Basic batches, and when it
+3. **Whether the 25% "55th batch" offer applies to all three listed IBC Basic batches, and when it
    ends.** The struck-through ₹35,600 and the offer label are on the IBC Basic page now.
-5. **Sign-off on the academy-cancellation clause** of the refund policy. It is the one clause on
+4. **Sign-off on the academy-cancellation clause** of the refund policy. It is the one clause on
    that page the client has not stated, it is marked TBC on the page, and the draft wording is in
    the student's favour.
-6. **The email spelling.** `espressocademyindia@gmail.com` is published exactly as the client wrote
+5. **The email spelling.** `espressocademyindia@gmail.com` is published exactly as the client wrote
    it and looks like it is missing the "a" in "academy".
-7. **Opening days.** The hours (10 am to 7 pm) are confirmed and published. Until the days land,
+6. **Opening days.** The hours (10 am to 7 pm) are confirmed and published. Until the days land,
    no `openingHoursSpecification` is emitted in the JSON-LD, because that markup has no shape
    meaning "these hours, days unknown".
-8. **Which trainer teaches which course**, and each trainer's role. Four trainers are on the site
+7. **Which trainer teaches which course**, and each trainer's role. Four trainers are on the site
    and none is assigned to a course; the Studio will not let an editor publish a course without
    one.
-9. **Balance payment mechanics**: due on or before day 1, and cash, UPI or card at the academy.
-10. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
-    frame is a branded placeholder naming its slot. A Drive folder was supplied; student releases
-    for the people pictured are still outstanding.
-11. **Legal copy**: privacy and terms. Both are still placeholder text. `/refund-policy` is no
-    longer, apart from the clause in item 5.
-12. **Testimonials with written permission.** The stories section stays empty until then, and the
+8. **Balance payment mechanics**: due on or before day 1, and cash, UPI or card at the academy.
+9. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
+   frame is a branded placeholder naming its slot. A Drive folder was supplied; student releases
+   for the people pictured are still outstanding.
+10. **Legal copy**: privacy and terms. Both are still placeholder text. `/refund-policy` is no
+    longer, apart from the clause in item 4.
+11. **Testimonials with written permission.** The stories section stays empty until then, and the
     query enforces it.
-13. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
-14. **The correct "Forest Green" hex**, and the meaning of the client's "authorised IBM trainer"
+12. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
+13. **The correct "Forest Green" hex**, and the meaning of the client's "authorised IBM trainer"
     line on Nageswara Rao K, which is almost certainly IBC.
 
 Answered by revision 2, and now live on the site: the three-course catalogue, the day-by-day
@@ -57,10 +52,10 @@ The detailed table, with the exact field behind each row, is under "Needs client
 
 ## What a developer still has to do
 
-Nothing is half-finished. What is left needs an account or a decision from the academy first:
-the Resend domain above, a Google Sheets service account for the lead mirror (optional), the Meta
-Pixel and Conversions API keys (both wired, both dormant), Cal.com if cafe enquiries should book a
-call, and the remaining six SEO guides, two of which are seeded as working templates.
+Nothing is half-finished. What is left needs an account or a decision from the academy first: a
+Google Sheets service account for the lead mirror (optional), the Meta Pixel and Conversions API
+keys (both wired, both dormant), Cal.com if cafe enquiries should book a call, and the remaining
+six SEO guides, two of which are seeded as working templates.
 
 ---
 
@@ -819,7 +814,7 @@ npx vercel env ls production | grep -E "Config|Secret" | awk '{print $1}' | sort
 grep -E "^[A-Z_]+=" .env.example | cut -d= -f1 | sort -u        # what the code reads
 ```
 
-#### The 19 variables that exist on Production
+#### The 20 variables that exist on Production
 
 Names only — no values, and the Secret ones cannot be read back out of Vercel anyway.
 
@@ -836,23 +831,23 @@ Names only — no values, and the Secret ones cannot be read back out of Vercel 
 | 9 | `RAZORPAY_WEBHOOK_SECRET` | Secret |
 | 10 | `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Config |
 | 11 | `RESEND_API_KEY` | Secret |
-| 12 | `LEAD_TO_EMAIL` | Secret |
-| 13 | `BOOKING_TO_EMAIL` | Secret |
-| 14 | `TURNSTILE_SECRET_KEY` | Secret |
-| 15 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Config — **added 7 Sep; its absence refused every booking** |
-| 16 | `NEXT_PUBLIC_GTM_ID` | Config |
-| 17 | `NEXT_PUBLIC_GA4_ID` | Config |
-| 18 | `NEXT_PUBLIC_SITE_URL` | Config — Production only, by design; Preview canonicalises to itself |
-| 19 | `NEXT_PUBLIC_INDEXABLE` | Config — `false` until launch |
+| 12 | `RESEND_FROM_EMAIL` | Secret — **added 10 Sep; its absence delivered no student a confirmation** |
+| 13 | `LEAD_TO_EMAIL` | Secret |
+| 14 | `BOOKING_TO_EMAIL` | Secret |
+| 15 | `TURNSTILE_SECRET_KEY` | Secret |
+| 16 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Config — **added 7 Sep; its absence refused every booking** |
+| 17 | `NEXT_PUBLIC_GTM_ID` | Config |
+| 18 | `NEXT_PUBLIC_GA4_ID` | Config |
+| 19 | `NEXT_PUBLIC_SITE_URL` | Config — Production only, by design; Preview canonicalises to itself |
+| 20 | `NEXT_PUBLIC_INDEXABLE` | Config — `false` until launch |
 
-#### The 10 the code reads and Production does not have
+#### The 9 the code reads and Production does not have
 
 Every one of these degrades rather than throwing, which is the point of the design and also the
 reason a missing one is invisible. This is the list to read when something "works locally".
 
 | Name | What its absence does |
 |---|---|
-| `RESEND_FROM_EMAIL` | **mail sends from `onboarding@resend.dev`, which Resend delivers only to the account owner — every student confirmation is refused with a 403.** The one on this list that is currently costing something |
 | `CAFE_TO_EMAIL` | cafe enquiries fall back to `LEAD_TO_EMAIL` |
 | `NEXT_PUBLIC_WHATSAPP_NUMBER` | the number comes from Sanity settings, which is the intended source |
 | `GOOGLE_SHEETS_ID` | no lead mirror; the lead still reaches Sanity and the inbox |
@@ -1182,11 +1177,32 @@ Razorpay's own card UI was not automated to get there — `payments.spec.ts` dec
 third-party iframe and two attempts confirmed why — but the browser reaching Razorpay's modal on
 production is asserted separately by `tests/booking/checkout-opens.spec.ts`.
 
-**What is still needed, and only the academy can do it:** verify a domain at resend.com/domains
-(DNS records on whichever domain the academy wants mail to come from) and set `RESEND_FROM_EMAIL`
-to an address on it. Until then every student confirmation will be refused. This was already item
-one in the launch checklist's "Accounts and keys", described as cosmetic — "reaches an inbox but
-does not say Espresso Academy in the sender line". That sentence was wrong and it is corrected.
+**Resolved, 10 September 2026.** `mail.espressoacademy.in` is verified in Resend — `GET /domains`
+now returns it `verified` where it once returned an empty list — and `RESEND_FROM_EMAIL` is set on
+Production *and* Preview to `Espresso Academy India <bookings@mail.espressoacademy.in>`.
+
+Proved the only way this particular defect can be proved: a booking paid through Razorpay's own
+checkout on the deployed URL, to an address that is **not** the Resend account owner's. Razorpay's
+documented `4111 1111 1111 1111` test card is refused by this account as an international card, so
+the payment went through test-mode netbanking and Razorpay's mock bank instead. Booking
+`SaZeReAgF5H3OfXp93mlsc` read `paid`, and Resend logged both sides:
+
+```
+2026-09-10 09:55:04 | yashwanth@socialhippi.com | delivered | Your seat is confirmed: IBC Advanced Barista
+2026-09-10 09:55:04 | business@socialhippi.com  | delivered | Booking: Resend Sender Test, IBC Advanced Barista
+```
+
+Both from `Espresso Academy India <bookings@mail.espressoacademy.in>`. The first line is the thing
+this section said had never happened: **a student confirmation delivered to a student.** `/api/health`
+now reports `emailToAnyone: true` and emits no `warnings` key at all.
+
+The ₹1 batch this used was seeded for the test and deleted straight after
+(`pnpm sanity:seed:test-batch`, then `-- --delete`), so the dataset is back to its five real
+batches and the booking is gone with it.
+
+The guard stays in place: `halfConfigured()` still warns if `RESEND_FROM_EMAIL` is ever missing
+while `RESEND_API_KEY` is set, because the state it catches is one this project has actually
+shipped. It is silent now because the condition is false, not because it was removed.
 
 #### 2. The hosted Studio crashed at boot
 
@@ -1813,9 +1829,6 @@ Everything on the build-1 list is now built: the Sanity migration, Resend, the G
 GTM / GA4 behind consent, Turnstile, Razorpay checkout per batch, and the guides. What is left needs
 an account or a decision from the academy first, not development:
 
-- **Resend sending domain.** Verify the academy's domain, then set `RESEND_FROM_EMAIL`. Until then
-  mail sends from `onboarding@resend.dev`, which reaches an inbox but does not say Espresso Academy
-  in the sender line.
 - **Google Sheets mirror.** Needs a service account and a shared sheet. Optional: without it a lead
   still reaches Sanity and the inbox.
 - **Meta Pixel and Conversions API.** Both are wired and share an `event_id`; both are dormant until
@@ -1869,16 +1882,6 @@ an account or a decision from the academy first, not development:
   arrives, so the figure tracks the machine more than the site. Performance is ≥95 on every route
   on every reading, so the score target is met on all of them. The lever that would end the
   argument is the client's photography: an image LCP can be preloaded and served as AVIF.
-- **Student confirmation emails are not delivered while `RESEND_FROM_EMAIL` is unset.** This is
-  the only known limitation that costs a paying customer something today. With no verified domain
-  the sender is `onboarding@resend.dev`, and Resend refuses that sender for every recipient except
-  the account owner, with a 403 and no delivery record. The booking still completes: the seat is
-  taken, the payment is captured, the confirmation page renders with the calendar file, and the
-  academy is emailed — so the only party left uninformed is the person who paid. Since 7 September
-  every server boot logs
-  `{"at":"boot","event":"half-configured-integration","pairs":["resend: STUDENT CONFIRMATION EMAILS ARE NOT BEING DELIVERED..."]}`
-  and every refused send logs `{"event":"notify-failed","task":"booking-confirmation",...}` with
-  Resend's own message. Both are `console.error`, so they show as errors in the Vercel log.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships. `pnpm audit --audit-level high` is clean, which is what CI gates on.
 - **HSTS is written but commented out** in `src/middleware.ts`. It must not be enabled until the

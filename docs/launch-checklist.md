@@ -79,13 +79,15 @@ empty, because they are what a student came to find out.
 
 ## 3. Accounts and keys
 
-- [ ] **Resend sending domain. This one is not cosmetic and it is not optional.** Verify the
-      academy's domain at resend.com/domains and set `RESEND_FROM_EMAIL` to an address on it.
-      Until then mail goes from `onboarding@resend.dev`, and **Resend delivers that sender only to
-      the Resend account owner's own address**. Every other recipient is rejected with a 403. In
-      practice that means the academy's copy of a booking arrives and **the student's confirmation
-      never does** — which is exactly what happened to the first real test booking. An earlier
-      version of this line said it "reaches an inbox", and that sentence is why nobody checked.
+- [x] **Resend sending domain. This one is not cosmetic and it is not optional.** *Done, 10 Sep
+      2026:* `mail.espressoacademy.in` is verified at resend.com/domains and `RESEND_FROM_EMAIL` is
+      set on Production and Preview to `Espresso Academy India <bookings@mail.espressoacademy.in>`.
+      Before that, mail went from `onboarding@resend.dev`, and **Resend delivers that sender only
+      to the Resend account owner's own address**; every other recipient was rejected with a 403.
+      In practice that meant the academy's copy of a booking arrived and **the student's
+      confirmation never did** — which is exactly what happened to the first real test booking. An
+      earlier version of this line said it "reaches an inbox", and that sentence is why nobody
+      checked. Kept rather than deleted, because that is the part worth remembering.
 - [ ] **Google Sheets lead mirror.** Create a service account, share the sheet with it, set
       `GOOGLE_SHEETS_ID`, `GOOGLE_SHEETS_CLIENT_EMAIL` and `GOOGLE_SHEETS_PRIVATE_KEY`. Optional:
       without it a lead still reaches Sanity and the inbox.
@@ -114,10 +116,15 @@ deployment, not against localhost.**
 - [ ] **The boot log is clean.** `vercel logs <deployment-url> --since 1h | grep half-configured`
       returns nothing. `src/instrumentation.ts` prints the feature flags on every server boot and
       names any integration configured on one side only.
-- [ ] **A real email leaves the building.** Make a test booking on the deployed URL with a student
-      email that is **not** the Resend account owner's, and confirm the confirmation arrives.
-      Check `https://api.resend.com/emails` if it does not: a rejected send has no delivery record
-      at all, and until this repository's `notify-failed` log existed it left no trace anywhere.
+- [x] **A real email leaves the building.** *Done, 10 Sep 2026:* ₹1 booking
+      `SaZeReAgF5H3OfXp93mlsc` paid through Razorpay checkout on the deployed URL, student address
+      `yashwanth@socialhippi.com` — **not** the Resend account owner's. Both the student
+      confirmation and the academy notification read `delivered` in `https://api.resend.com/emails`,
+      from `Espresso Academy India <bookings@mail.espressoacademy.in>`. Re-run this after any change
+      to the sender: a rejected send has no delivery record at all, and until this repository's
+      `notify-failed` log existed it left no trace anywhere. Note for whoever repeats it — this
+      account refuses Razorpay's documented `4111 1111 1111 1111` test card as international; use
+      test-mode netbanking, which ends at Razorpay's mock bank with a Success button.
 - [ ] **Both Studios open.** `https://espresso-academy-india.sanity.studio` and `/studio` on the
       site. The hosted Studio is a **separate build** from the site: `sanity deploy` builds it with
       Vite, which exposes only `SANITY_STUDIO_`-prefixed variables, so it cannot see any
