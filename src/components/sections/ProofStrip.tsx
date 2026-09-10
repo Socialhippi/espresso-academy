@@ -59,24 +59,35 @@ export async function ProofStrip({ className }: ProofStripProps) {
         <h2 id="proof-heading" className="sr-only">
           What the academy is
         </h2>
-        {/* The fifth item spans both columns on mobile so it does not orphan in a half row. */}
-        <ul className="grid grid-cols-2 gap-x-6 gap-y-8 lg:grid-cols-5 lg:gap-8">
+        {/*
+          A stat row, not a marquee. design.md caps motion at 400ms and lists "over-animated
+          portfolio" among the registers this site must never occupy, and a marquee is unbounded
+          motion that also takes five facts a reader wants to compare and slides them past each
+          other. Five figures on one rail can be read at a glance and are still there a second
+          later.
+
+          One grey hairline over the whole band, and a short red tick over each figure: the same
+          mark the photo placeholders carry, so the two read as one family. The fifth item spans
+          both columns on mobile so it does not orphan in a half row.
+        */}
+        <ul className="hairline grid grid-cols-2 gap-x-6 gap-y-10 pt-8 lg:grid-cols-5 lg:gap-8">
           {items.map((item, index) => (
             <li
               key={item.label}
               className={cn(
-                "border-t border-white-2 pt-4",
                 index === items.length - 1 && items.length % 2 === 1 && "col-span-2 lg:col-span-1",
               )}
             >
+              <span aria-hidden="true" className="block h-px w-6 bg-red" />
               <p
-                className={
-                  item.numeral ? "type-numeral text-h2 text-black" : "type-h3 text-black"
-                }
+                className={cn(
+                  "mt-4 text-black",
+                  item.numeral ? "type-numeral text-h2 md:text-h2-lg" : "type-h3",
+                )}
               >
                 {item.figure}
               </p>
-              <p className="mt-2 type-small text-grey">{item.label}</p>
+              <p className="mt-2 type-small text-balance text-grey">{item.label}</p>
             </li>
           ))}
         </ul>

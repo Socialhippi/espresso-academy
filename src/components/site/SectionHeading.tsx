@@ -24,6 +24,15 @@ interface SectionHeadingProps {
 /**
  * The section opener from design.md: a hairline, a numbered red eyebrow, then the heading.
  * Left-aligned by design; nothing on this site is centred by default.
+ *
+ * The eyebrow, the heading and the standfirst reveal together as one block on scroll — a clip wipe
+ * upward, scrubbed against the viewport, driven entirely by `animation-timeline: view()` in
+ * globals.css and costing no JavaScript. design.md allows a page eight animated moments, and the
+ * homepage has seven numbered sections; one moment per section is the whole allowance, so these
+ * three elements arrive as one and not as a stagger of three.
+ *
+ * `action` is deliberately outside the revealed block. It is a control, and a control that fades
+ * in late is a control someone reaches for and misses.
  */
 export function SectionHeading({
   number,
@@ -47,7 +56,7 @@ export function SectionHeading({
       {/* items-baseline, not items-end: with items-end the action floated to the middle of a
           section that had a description and sat under the heading on one that did not. */}
       <div className="flex flex-col gap-4 md:flex-row md:items-baseline md:justify-between md:gap-8">
-        <div className="min-w-0">
+        <div className="reveal-heading min-w-0">
           {(eyebrow || number) && (
             <p className={cn("eyebrow", onDark && "eyebrow-on-dark")}>
               {number && (

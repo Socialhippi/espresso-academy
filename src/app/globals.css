@@ -208,12 +208,16 @@
    * A day card that was arrived at by anchor says so.
    *
    * Someone who followed /courses/latte-art gets a 301 to #day-4 and lands mid-page, scrolled to
-   * a card that looks like the three around it, with no sign that this is the thing they searched
-   * for. An inset rule on the leading edge marks it without an outline blob, and it is scoped to
-   * the day list so it cannot fire on the section headings that also carry ids.
+   * a day that looks like the three around it, with no sign that this is the thing they searched
+   * for. The day's numeral on the timeline rail turns red, which marks it without an outline blob,
+   * and it is scoped to the day list so it cannot fire on the section headings that also carry ids.
+   *
+   * Red on white-3 at 24px Bebas measures 6.7:1 and the numeral is decoration with a "Day 4" label
+   * beside it, so this clears both the contrast floor and design.md's 16px floor under red text.
    */
-  .day-card:target {
-    box-shadow: inset 3px 0 0 var(--color-red);
+  .day-card:target .day-node {
+    border-color: var(--color-red);
+    color: var(--color-red);
   }
 
   /* The mobile sticky bar is fixed to the bottom of the viewport, so a control the browser has
@@ -460,3 +464,160 @@
    in exchange for decoration. The motion that does ship is CSS only, all of it tied to an
    interaction the reader started: the arrow shift on a card, the underline on a link, the sheet,
    the accordion and the sticky bar. All of it is disabled under prefers-reduced-motion. */
+
+/* ---------------------------------------------------------------------------
+   Motion, build 3. Every animation below is CSS only.
+
+   The note that closed this file said the fade-up reveal was not implemented because it needed an
+   IntersectionObserver, and first-load JS was already 22KB over budget. That was the right call
+   against the tools of the time. It is no longer the only way: `animation-timeline: view()` is a
+   scroll-driven animation the compositor runs with no script at all, so the reveal design.md asks
+   for ("fade-up 16px once on scroll") costs zero bytes of JavaScript.
+
+   Three guards, and all three are load-bearing:
+
+   1. `@supports (animation-timeline: view())`. Without it, a browser that does not understand the
+      timeline would still understand `opacity: 0` and would paint nothing at all: a headline that
+      never arrives, on every section of every page. The hidden state is only ever declared inside
+      the query that can also un-hide it.
+   2. `prefers-reduced-motion: no-preference`, per rule 5 and .claude/rules/a11y.md.
+   3. Nothing above the fold animates its opacity. The homepage H1 is the LCP element on a phone
+      and LCP is the one budget this site does not clear locally; an entry animation on it would
+      defer the paint Lighthouse is timing. The hero's motion is on the picture, not the words.
+   --------------------------------------------------------------------------- */
+
+@keyframes reveal-cut {
+  from {
+    opacity: 0;
+    transform: translateY(0.4em);
+    /* Bottom inset 100% is a closed shutter; the end state opens past the box on all four sides so
+       a focus ring or an overshooting Bebas glyph is never clipped by the reveal's own clip. */
+    clip-path: inset(0 -5% 100% -5%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    clip-path: inset(-25% -5% -25% -5%);
+  }
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/*
+ * The section-heading reveal: one animated moment per section, not three.
+ *
+ * design.md caps a page at 8 animated moments. The homepage has seven numbered sections plus the
+ * hero, which is the whole allowance, so the eyebrow, the heading and the standfirst reveal
+ * together as one block rather than as a stagger of three. The "See all" action beside the heading
+ * is deliberately outside it: it is a control, and controls do not arrive late.
+ */
+@utility reveal-heading {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: reveal-cut linear both;
+      animation-timeline: view();
+      /* Scrubbed against the viewport rather than run on a timer, so there is no duration to hold
+         under the 400ms cap: the reveal is finished by the time the block is a third of the way up
+         the screen, and it cannot be caught half-drawn by a fast scroll. */
+      animation-range: entry 15% entry 55%;
+    }
+  }
+}
+
+/* The same reveal, without the clip, for a block of content under a heading. */
+@utility reveal-block {
+  @media (prefers-reduced-motion: no-preference) {
+    @supports (animation-timeline: view()) {
+      animation: reveal-rise linear both;
+      animation-timeline: view();
+      animation-range: entry 10% entry 50%;
+    }
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The hero picture.
+
+   A 400ms shutter on the frame, once, on load: the cue that this slot is a moving image waiting
+   for its footage. It runs on the picture and never on the H1, for the LCP reason above.
+   --------------------------------------------------------------------------- */
+@utility hero-media-in {
+  @media (prefers-reduced-motion: no-preference) {
+    animation: reveal-cut var(--duration-slow) var(--ease-out-brand) both;
+  }
+}
+
+/*
+ * Poster-first, desktop-only, muted, per docs/images-manifest.md and .claude/rules/a11y.md.
+ *
+ * The still is the default and the loop is the exception, which is the right way round: a phone on
+ * an Indian mobile connection is 64% of this audience and gets the poster, and so does anyone who
+ * has asked their system for less motion. Both are CSS decisions, so the same server-rendered
+ * markup covers every case and no script decides anything.
+ */
+@utility hero-loop {
+  display: none;
+  @media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
+    display: block;
+  }
+}
+
+@utility hero-still {
+  display: block;
+  @media (width >= 48rem) and (prefers-reduced-motion: no-preference) {
+    display: none;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   The course card's hover reveal.
+
+   .claude/rules/a11y.md: "No hover-only content." So nothing on the card is hidden and then
+   revealed — every word is present at every moment, on a phone that cannot hover and in a screen
+   reader that does not. What the hover reveals is the card's own affordance: a red rule that draws
+   out from under the arrow across the foot of the card, which is design.md's "underline draws",
+   and the picture lifting out of its resting state.
+
+   `:focus-visible` on the card link drives it too, so a keyboard reaches the same card state a
+   pointer does.
+   --------------------------------------------------------------------------- */
+@layer components {
+  /* The components layer, not @utility: these need a descendant selector with real specificity so
+     the hovered state beats the resting one, and a utility would sort after it and win. */
+  .card-rail {
+    display: block;
+    height: 2px;
+    background-color: var(--color-red);
+    transform: scaleX(0);
+    /* Right origin, so the rule draws out from under the arrow and back across the card rather
+       than growing from the left towards it. */
+    transform-origin: right center;
+    transition: transform var(--duration-base) var(--ease-out-brand);
+  }
+
+  .card-photo {
+    /* Not a scale transform: design.md forbids those on this card. The picture stays exactly where
+       it is and only its saturation moves, so nothing reflows and no neighbour is overlapped. */
+    filter: saturate(0.9);
+    transition: filter var(--duration-base) var(--ease-out-brand);
+  }
+
+  .card-link:hover .card-rail,
+  .card-link:focus-visible .card-rail {
+    transform: scaleX(1);
+  }
+
+  .card-link:hover .card-photo,
+  .card-link:focus-visible .card-photo {
+    filter: none;
+  }
+}

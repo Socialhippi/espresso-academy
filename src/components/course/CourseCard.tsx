@@ -24,6 +24,13 @@ interface CourseCardProps {
  * arrow 4px; nothing scales. The level badge sits under the photo rather than over it, because
  * text never sits on top of an image.
  *
+ * The hover reveal is the card's own affordance and never its content. .claude/rules/a11y.md says
+ * "No hover-only content", so every word on this card is present at every moment: on a phone that
+ * cannot hover, and to a screen reader that does not. What arrives on hover is a red rule drawing
+ * out from under the arrow across the foot of the card — design.md's "underline draws" — and the
+ * picture coming up to full saturation from a resting 90%. `:focus-visible` on the link drives
+ * both, so a keyboard sees exactly what a pointer sees.
+ *
  * A course with a bookable batch also gets a second link below the card body, outside the card
  * link because a link cannot contain a link. It is the only card state that shows one: everything
  * else has nothing to charge for, and the card link already leads to the page that asks. Without
@@ -67,7 +74,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         // `group/card`, not `group`: on the bare name the book band below counted as part of the
         // group, so hovering it underlined the title and shifted the arrow — the card signalling
         // "open the course page" while the pointer was on a link to a checkout.
-        className="group/card flex flex-1 flex-col"
+        className="card-link group/card flex flex-1 flex-col"
       >
         <div className="relative">
           <SanityPhoto
@@ -77,7 +84,8 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
             aspect="photo"
             priority={priority}
             sizes="(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw"
-            placeholderClassName="rounded-none border-0 border-b"
+            className="card-photo"
+            placeholderClassName="card-photo rounded-none border-0 border-b"
           />
         </div>
 
@@ -167,6 +175,11 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
               {formatFeeAmount(total)} {INCL_GST}
             </p>
           )}
+
+          {/* Last in the body, so the rule closes the card under whichever line the card ended on.
+              Decoration, and announced as nothing: it says "this card is a link", which the card
+              already said in the accessibility tree. */}
+          <span aria-hidden="true" className="card-rail mt-4" />
         </div>
       </Link>
 
