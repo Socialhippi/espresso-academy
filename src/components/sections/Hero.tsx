@@ -11,7 +11,10 @@ interface HomeHeroProps {
   titleAccent: string;
   subline: ReactNode;
   actions: ReactNode;
-  /** Real photo path when the client has sent one; otherwise the reel, otherwise the placeholder. */
+  /**
+   * Real photo path when the client has sent one. The reel outranks it on desktop when
+   * public/video/hero.mp4 exists; see HeroMedia for why, and for where the still still shows.
+   */
   image?: string | null;
   imageAlt?: string;
 }
