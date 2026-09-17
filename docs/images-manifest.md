@@ -105,17 +105,25 @@ commit as the new file.
 Adding a file to an empty slot is what the top of this page describes and it works: drop it in,
 redeploy, done.
 
-**Replacing a file at a path that already had one does not, on its own, change what a browser
-gets.** Next's image optimiser caches by source URL, width and quality, and `Vary: Accept` gives
-AVIF and JPEG separate keys. Swap the bytes on disk and the warm AVIF key keeps answering with the
-old picture — at every width the pages actually request, because those are the widths that were
-warmed. This was found the hard way on 17 September: the mosaicked certificate photograph had been
-deleted from the repository and the server went on serving it to every AVIF-capable browser, which
-is every modern one. Only `w=1200`, a width nothing requests, was clean.
+**Replacing a file at a path that already had one does not, on its own, change what a local server
+serves.** Next's image optimiser caches by source URL, width and quality, and `Vary: Accept` gives
+AVIF and JPEG separate keys. Swap the bytes on disk and the warm AVIF key in `.next/cache/images`
+keeps answering with the old picture — at every width the pages actually request, because those
+are the widths that were warmed. Found the hard way on 17 September: the mosaicked certificate
+photograph had been deleted from the repository and `pnpm start` went on serving it to every
+AVIF-capable browser, which is every modern one. Only `w=1200`, a width nothing requests, was
+clean. A design review ran against that server and reviewed the withdrawn photograph.
 
-It is worse than a stale cache usually is, because the responses carry
-`Cache-Control: public, max-age=14400, must-revalidate`. A reader who fetched the old image keeps
-it for four more hours after the server is right.
+**A deployment is not affected, and this was checked rather than assumed.** Vercel keys its image
+cache per deployment, so a redeploy starts clean: probed at 384, 640, 828, 1080, 1200 and 1920
+immediately after the swap shipped, production returned the new photograph at every width, and
+`w=1920` came back 1800px wide — the new source's width, where the withdrawn 1400px file would
+have capped at 1400. So this is a local trap, not a production one.
+
+The part that does reach readers is narrower and cannot be undone: responses carry
+`Cache-Control: public, max-age=14400, must-revalidate`, so anyone who loaded the old image from
+the previous deployment keeps it for up to four hours. Nothing short of changing the URL fixes
+that, which is the argument for serials below.
 
 So, when replacing rather than adding:
 
@@ -130,6 +138,8 @@ So, when replacing rather than adding:
    `X-Nextjs-Cache: MISS` and the new picture, at 384, 640, 828 and 1080. A `HIT` at any of those
    means you are looking at the old one.
 3. After deploying, run the same probe against the deployment before believing the swap is live.
+   Expect `x-vercel-cache` rather than `X-Nextjs-Cache`; a `HIT` there is fine, because the cache
+   is per deployment. Check the bytes, not the header.
 
 A versioned query string is not a way round it: the optimiser answers
 `400 "url" parameter is not allowed`. If in-place replacement ever becomes routine rather than a
