@@ -28,6 +28,17 @@ interface CourseCardProps {
    * The related-course list is two-up rather than three, so it passes its own.
    */
   sizes?: string;
+  /**
+   * Whether the card carries its photograph. On by default; off where the card is a signpost
+   * rather than an offer.
+   *
+   * The related-courses list at the foot of a course page was the only place on the site running
+   * two 584px photographs, which made the section that sends a reader *away* the most
+   * photographically loud thing on the page — louder than the four-day syllabus, which is the
+   * whole substance of the course and carries no image at all. Without the photographs these read
+   * as what they are: two onward links.
+   */
+  photo?: boolean;
 }
 
 /** The three-up grid on /courses and /workshops, which is what most callers are. */
@@ -59,6 +70,7 @@ export function CourseCard({
   className,
   priority = false,
   sizes = HUB_SIZES,
+  photo = true,
 }: CourseCardProps) {
   const nextInstance = getNextInstanceForCourse(course);
   /* After any offer. `course.feeExGst` is the standard fee now, and a card quoting it would be
@@ -99,17 +111,19 @@ export function CourseCard({
         // "open the course page" while the pointer was on a link to a checkout.
         className="card-link group/card flex flex-1 flex-col"
       >
-        <div className="relative">
-          <SanityPhoto
-            image={course.heroImage}
-            slot={`course-${course.slug}`}
-            fallbackAlt={course.heroAlt}
-            aspect="photo"
-            priority={priority}
-            sizes={sizes}
-            placeholderClassName="rounded-none border-0 border-b"
-          />
-        </div>
+        {photo && (
+          <div className="relative">
+            <SanityPhoto
+              image={course.heroImage}
+              slot={`course-${course.slug}`}
+              fallbackAlt={course.heroAlt}
+              aspect="photo"
+              priority={priority}
+              sizes={sizes}
+              placeholderClassName="rounded-none border-0 border-b"
+            />
+          </div>
+        )}
 
         <div className="flex flex-1 flex-col p-6">
           <LevelBadge level={course.level} className="self-start" />

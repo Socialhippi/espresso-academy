@@ -235,8 +235,18 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                        inset red rule, and /courses/latte-art still redirects to #day-4. */
                     className="day-card flex gap-4 md:gap-8"
                   >
+                    {/*
+                      The day numeral at display scale, not label scale.
+
+                      This section is what the course actually is — four days, one module a day —
+                      and it was set quieter than the two related-course cards at the foot of the
+                      page. design.md reserves Bebas for exactly this kind of figure ("H1, section
+                      numerals, fee figures, batch dates"), so the promotion is the brand's own
+                      device rather than a new one: the rail keeps its 1px hairline and the node
+                      keeps its square, they are simply sized like the substance they carry.
+                    */}
                     <div className="flex flex-col items-center" aria-hidden="true">
-                      <span className="day-node grid size-12 shrink-0 place-items-center border border-white-2 bg-white type-numeral text-h3-lg text-black">
+                      <span className="day-node grid size-14 shrink-0 place-items-center border border-white-2 bg-white type-numeral text-h2 text-black md:size-16 md:text-h2-lg">
                         {day.number}
                       </span>
                       {!isLast && <span className="w-px flex-1 bg-white-2" />}
@@ -410,41 +420,47 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      <section className="section-y-sm" aria-labelledby="ladder-heading">
+      {/* The one black section on this route, mid-page and below the fold. Same move and same
+          reasoning as src/app/page.tsx: FinalCta cannot be it, because it sits on the black
+          Footer and the two together read as a long dark tail rather than as a section. */}
+      <section className="section-y dark-wash" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
+          <div className="hairline-on-dark pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number={next()}
                 eyebrow="Ladder"
                 title="Where this sits"
                 id="ladder-heading"
+                onDark
               />
               {nextCourse ? (
                 <Link
                   href={`/courses/${nextCourse.slug}`}
-                  className="group mt-8 flex items-center justify-between gap-4 border border-white-2 p-5 transition-[color,background-color,border-color] duration-200 hover:border-black"
+                  className="group mt-8 flex items-center justify-between gap-4 border border-black-2 p-5 transition-[color,background-color,border-color] duration-200 hover:border-white"
                 >
                   <span>
-                    <span className="block type-label text-grey">Next in the ladder</span>
-                    <span className="mt-2 block type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                    <span className="block type-label text-grey-2">Next in the ladder</span>
+                    <span className="mt-2 block type-h3 text-white group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                       {nextCourse.title}
                     </span>
                   </span>
+                  {/* White, not red: design.md forbids red on black at 2.47:1, and that applies to
+                      a 24px glyph carrying the card's direction as much as to text. */}
                   <ArrowRight
-                    className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
+                    className="size-6 shrink-0 text-white transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
                     aria-hidden="true"
                   />
                 </Link>
               ) : (
-                <p className="mt-8 type-body text-grey">
+                <p className="mt-8 type-body text-grey-2">
                   This is the top rung of its ladder. After it, the useful next step is a different
                   skill area rather than a higher level.
                 </p>
               )}
             </div>
             <div className="lg:col-span-8">
-              <LevelLadder current={course.level} />
+              <LevelLadder current={course.level} onDark />
             </div>
           </div>
         </Container>
@@ -485,15 +501,18 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               and a third column at 1280 was always empty. While both cards were placeholders that
               read as white space; with photographs in them it reads as a third card that failed to
               load. Restore `lg:grid-cols-3` when the catalogue is bigger than three. */}
-          <ul className="mt-10 grid-site">
+            {/*
+              No photographs on these two. They were 584px wide at 1280 — the two largest images on
+              the route by some margin — which handed the loudest photography on a course page to
+              the section whose whole job is to send the reader somewhere else, while the four-day
+              syllabus above carried none. These are onward links and now look like onward links.
+
+              The size hint goes with them: without a photo there is nothing for `sizes` to describe.
+            */}
+            <ul className="mt-10 grid-site">
               {related.map((item) => (
                 <li className="col-span-12 md:col-span-6" key={item.slug}>
-                  {/* Two-up here, not the hub's three-up: each card is 584px at 1280, so the
-                      hub's 380px made the browser fetch w=384 and upscale it 1.52x. */}
-                  <CourseCard
-                    course={item}
-                    sizes="(min-width: 1024px) 45vw, (min-width: 768px) 45vw, 92vw"
-                  />
+                  <CourseCard course={item} photo={false} />
                 </li>
               ))}
             </ul>
