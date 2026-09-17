@@ -4,6 +4,23 @@ How to operate this site. Every command runs from the repo root.
 
 ---
 
+## Setting up a clone
+
+```
+pnpm install
+git config core.hooksPath .githooks     # do not skip this one
+cp .env.example .env.local              # then fill it in; see "Sanity" below
+```
+
+**The gate does not exist on a machine that has not run `git config core.hooksPath .githooks`.**
+It is a local hook, not a GitHub rule, so an unconfigured clone pushes straight to production with
+nothing checked — and a push to `main` is the deploy. Run it once per clone, on every machine, and
+check it took with `git config core.hooksPath`, which should print `.githooks`.
+
+See "Deploying" for what the hook actually runs and when it stands aside.
+
+---
+
 ## Razorpay: the webhook
 
 **Already created**, from the API rather than the dashboard: a Razorpay account still in onboarding
@@ -284,8 +301,11 @@ refuses the push if any of them fail. Three things to know about it:
 
 - **It is advisory.** A local hook only runs for someone who has run
   `git config core.hooksPath .githooks`, and `git push --no-verify` walks past it. It is a
-  seatbelt, not a lock. Upgrade the account or make the repository public and this becomes a real
-  required check in about a minute; the hook says so in its own header.
+  seatbelt, not a lock. That is a decision rather than a gap: buying Pro would buy less than it
+  looks like, because branch protection exempts administrators by default and this is a
+  single-operator repository, so the rule would be bypassed by default by the only account it was
+  meant to constrain. **Revisit when a second person gets push access.** The reasoning is in
+  docs/STATUS.md under "Decisions taken".
 - **It skips a push that changes nothing built.** A docs or screenshot commit does not pay four
   minutes. The paths that trigger it are `src/`, `content/`, `sanity/`, `public/`, `tests/` and the
   build config.

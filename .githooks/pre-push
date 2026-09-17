@@ -16,10 +16,15 @@
 # GitHub would be the better place for it — a required status check on main, so the rule holds for
 # every clone and cannot be skipped. That needs GitHub Pro or a public repository, and this one is
 # private on a free account: both `branches/main/protection` and `rulesets` answer 403 "Upgrade to
-# GitHub Pro or make this repository public". So this is a local hook, and a local hook is advisory:
-# it only runs for someone who has enabled it, and `--no-verify` walks past it. It is a seatbelt,
-# not a lock. If the repository ever goes public, or the account upgrades, make "Smoke" a required
-# check on main and delete the second half of this file.
+# GitHub Pro or make this repository public".
+#
+# Not buying it is a decision, not an oversight. Branch protection exempts administrators by
+# default, and this is a single-operator repository: the rule would be bypassed by default by the
+# only account it was meant to constrain. So this is a local hook, and a local hook is advisory —
+# it only runs for someone who has enabled it, and `--no-verify` walks past it. A seatbelt, not a
+# lock, and better than a green tick nobody is held to. Revisit when a second person gets push
+# access: make "Smoke" required on main and delete the second half of this file. The reasoning is
+# in docs/STATUS.md under "Decisions taken".
 #
 # Enable once per clone:  git config core.hooksPath .githooks
 # Skip deliberately:      SKIP_GATE=1 git push   (or git push --no-verify)

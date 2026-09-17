@@ -67,6 +67,22 @@ dates, the WhatsApp number, the email address, the opening hours, the plot numbe
 The detailed table, with the exact field behind each row, is under "Needs client" further down.
 `node scripts/stale-content.mjs` prints the same list live from Sanity, so it cannot go stale.
 
+## On every machine that has this repository
+
+One command, once per clone, and it is the one thing on this list that has teeth:
+
+```
+git config core.hooksPath .githooks
+```
+
+**The gate does not exist on a machine that has not run it.** `.githooks/pre-push` is what stops a
+broken commit reaching production now that a push to `main` is the deploy, and a local hook only
+runs for a clone that has been pointed at it. An unconfigured laptop pushes straight to the live
+site with nothing checked, and gives no sign that anything is missing. `git config core.hooksPath`
+should print `.githooks`; if it prints nothing, the gate is off on that machine.
+
+`docs/RUNBOOK.md`, "Setting up a clone", has it beside `pnpm install` where it belongs.
+
 ## What a developer still has to do
 
 Nothing is half-finished. What is left needs an account or a decision from the academy first: a
@@ -1860,6 +1876,7 @@ an account or a decision from the academy first, not development:
 
 | Decision | Why |
 |---|---|
+| **GitHub Pro is deliberately not being bought, so `Smoke` is not a required status check on `main`.** The gate lives in `.githooks/pre-push` instead. | Branch protection and rulesets both need Pro on a private repository, and both answer `403 Upgrade to GitHub Pro or make this repository public` here. Paying would buy less than it looks like: **branch protection exempts administrators by default** (`enforce_admins` is off unless you turn it on), and this is a single-operator repository where the only person pushing is the administrator. The rule would be bypassed by default by the one account it was meant to constrain, which is a subscription for a green tick. The local hook is honest about being advisory and actually runs. **Revisit when a second person gets push access** — at that point the exemption stops being the whole population, `enforce_admins` becomes meaningful, and a server-side check is worth the money. |
 | Scaffolded into a scratch directory and copied the generated files in | `create-next-app` refuses a non-empty directory and the kit files had to survive untouched. |
 | shadcn primitives are used for behaviour only; every brand button, card and form control is a separate component | The generated `Button` is 32px tall by default, well under the 44/48px target rule, and its variants speak shadcn's semantic palette rather than the brand's. |
 | The `dark` variant is bound to an explicit `.dark` class that the site never sets | shadcn primitives ship `dark:` classes; left on the OS preference they would fire on a viewer's dark-mode setting and break the white-dominant brand. |
