@@ -21,8 +21,16 @@ interface FinalCtaProps {
 }
 
 /**
- * The one black section on a page, below the fold, with the red-deep radial wash from
- * design/tokens.css. Red never appears as text here: it is the button ground only.
+ * The closing conversion block, on white.
+ *
+ * This used to be the one black section design.md allows per page. It was also the last section on
+ * every route, sitting directly on the black Footer, and two black blocks touching do not read as a
+ * dark section — they read as the footer starting early. The page got no dark interruption at all,
+ * and a design review reported all three routes as an unbroken run of white bands.
+ *
+ * The black section moved to the level ladder, which is mid-page and below the fold on every route
+ * that has one. This block stays white, which gives the closing call to action a hard edge against
+ * the footer instead of dissolving into it.
  */
 export function FinalCta({
   title,
@@ -36,38 +44,34 @@ export function FinalCta({
   eyebrow = "Next step",
 }: FinalCtaProps) {
   return (
-    <section className={cn("dark-wash pt-16 pb-10 md:pt-32 md:pb-16", className)} aria-labelledby="final-cta-heading">
+    <section className={cn("bg-white pt-16 pb-10 md:pt-32 md:pb-16", className)} aria-labelledby="final-cta-heading">
       <Container>
-        <div className="grid gap-10 hairline-on-dark pt-6 lg:grid-cols-12">
+        <div className="grid gap-10 hairline pt-6 lg:grid-cols-12">
           {/* `reveal-heading` by hand rather than through SectionHeading: this block is an H1-scale
-              heading on the one dark section, which SectionHeading does not render. Without it,
-              section 07 was the only numbered section on any route whose heading did not arrive
-              with the others, and it is the closing conversion block. */}
+              heading, which SectionHeading does not render. Without it, section 07 was the only
+              numbered section on any route whose heading did not arrive with the others, and it is
+              the closing conversion block. */}
           <div className="reveal-heading lg:col-span-7">
-            <p className="eyebrow eyebrow-on-dark">
+            <p className="eyebrow">
               <span className="type-numeral text-h3-lg leading-none" aria-hidden="true">
                 {number}
               </span>
               {eyebrow}
             </p>
-            <h2 id="final-cta-heading" className="mt-4 type-h1 text-white">
+            <h2 id="final-cta-heading" className="mt-4 type-h1 text-black">
               {title}
             </h2>
           </div>
           <div className="lg:col-span-5">
-            <div className="measure type-body text-grey-2">{body}</div>
+            <div className="measure type-body text-grey">{body}</div>
             <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-center">
               <ButtonLink href={href} variant="primary" data-event={event}>
                 {ctaLabel}
               </ButtonLink>
-              {/* design.md gives the WhatsApp button a black ground so red stays singular on a
-                  white page. On the one black section per page that would be invisible, so it
-                  inverts to a white outline. Red is still the only filled accent here. */}
-              <WhatsAppButton
-                course={course}
-                event="whatsapp_click_final"
-                className="border-outline border-white bg-transparent hover:bg-white hover:text-black"
-              />
+              {/* Back to design.md's default: a black ground with the glyph, so red stays
+                  singular beside the primary pill. The white-outline override this carried was for
+                  the dark ground it no longer sits on. */}
+              <WhatsAppButton course={course} event="whatsapp_click_final" />
             </div>
           </div>
         </div>

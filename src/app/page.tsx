@@ -76,26 +76,41 @@ export default async function HomePage() {
 
       <NextBatches number="02" compact />
 
+      {/*
+        The one black section, per design.md, below the fold and in the middle of the page.
+
+        It was FinalCta, which is the last section on the route and sits on the black Footer; two
+        black blocks touching read as one long dark tail rather than as a section, so the page
+        delivered no interruption at all. The ladder is the right one to carry it: it is the section
+        that explains the whole catalogue in one glance, it is short enough not to become a wall of
+        text on a dark ground, and the level badges are at their strongest on black.
+
+        LevelLadder, SectionHeading and the button variants all already carried `onDark` support
+        written for a mid-page black section that had never existed on these routes.
+      */}
       {/* Asymmetric: the explanation holds the left, the ladder the right. */}
-      <section className="section-y" aria-labelledby="ladder-heading">
+      <section className="section-y dark-wash" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
+          <div className="hairline-on-dark pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="03"
                 eyebrow="Levels"
                 title="Where you start, where you go next"
                 id="ladder-heading"
+                onDark
                 description="Three courses on one ladder. The IBC Basic is four days and assumes nothing. Above it sit two Advanced courses of two days each, one for the bar and one for the roaster. The prerequisites for both Advanced courses are being confirmed."
               />
               <p className="mt-6">
-                <ButtonLink href="/certifications" variant="tertiary" size="inline">
+                {/* Red text is forbidden on black (design.md, 2.47:1), so the tertiary link
+                    inverts to white rather than losing its underline. */}
+                <ButtonLink href="/certifications" variant="tertiary-on-dark" size="inline">
                   What the certificate is worth
                 </ButtonLink>
               </p>
             </div>
             <div className="lg:col-span-8">
-              <LevelLadder />
+              <LevelLadder onDark />
             </div>
           </div>
         </Container>
