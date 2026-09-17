@@ -1,12 +1,28 @@
 #!/bin/sh
-# Refuse a push from a detached HEAD, or from any branch but main.
+# Refuse a push from a detached HEAD, or from any branch but main, and run the gate before a push
+# to main that changes what gets built.
 #
-# Written after five commits went to a detached HEAD left behind by a bisect. `git push -q origin
-# main` reported success each time and printed nothing, because local main genuinely was up to
-# date — it had not moved either. The repo sat an hour behind the deployed site, and CI ran on a
-# stale commit whose failures were read as current.
+# The first half was written after five commits went to a detached HEAD left behind by a bisect.
+# `git push -q origin main` reported success each time and printed nothing, because local main
+# genuinely was up to date — it had not moved either. The repo sat an hour behind the deployed
+# site, and CI ran on a stale commit whose failures were read as current.
+#
+# The second half was written on 15 September 2026, when the Vercel project was connected to the
+# repository and a push to main became the deploy. Until then the gate in docs/RUNBOOK.md was
+# enforced by accident: nobody could ship without typing `vercel deploy --prod`, and that command
+# sat directly underneath `pnpm test:e2e` in the runbook. Now a commit reaches production whether
+# or not anyone ran anything, so the check has to live where the push is.
+#
+# GitHub would be the better place for it — a required status check on main, so the rule holds for
+# every clone and cannot be skipped. That needs GitHub Pro or a public repository, and this one is
+# private on a free account: both `branches/main/protection` and `rulesets` answer 403 "Upgrade to
+# GitHub Pro or make this repository public". So this is a local hook, and a local hook is advisory:
+# it only runs for someone who has enabled it, and `--no-verify` walks past it. It is a seatbelt,
+# not a lock. If the repository ever goes public, or the account upgrades, make "Smoke" a required
+# check on main and delete the second half of this file.
 #
 # Enable once per clone:  git config core.hooksPath .githooks
+# Skip deliberately:      SKIP_GATE=1 git push   (or git push --no-verify)
 
 branch=$(git symbolic-ref --short -q HEAD)
 
@@ -23,4 +39,83 @@ if [ "$branch" != "main" ]; then
   exit 1
 fi
 
+if [ -n "$SKIP_GATE" ]; then
+  echo "pre-push: SKIP_GATE set, not running the gate. A push to main deploys to production." >&2
+  exit 0
+fi
+
+# What is actually being pushed. git feeds the hook one line per ref on stdin:
+#   <local ref> <local sha> <remote ref> <remote sha>
+# A remote sha of all zeros means the remote has no such branch yet, in which case there is no
+# range to diff and everything in the push is new.
+range=""
+while read -r _local_ref local_sha _remote_ref remote_sha; do
+  [ -z "$local_sha" ] && continue
+  case "$local_sha" in *[!0]*) ;; *) continue ;; esac  # deleting a ref: nothing to test
+  case "$remote_sha" in
+    *[!0]*) range="$remote_sha..$local_sha" ;;
+    *) range="" ;;
+  esac
+done
+
+if [ -n "$range" ]; then
+  changed=$(git diff --name-only "$range" 2>/dev/null)
+else
+  changed=$(git diff --name-only HEAD~1 2>/dev/null || echo "src/")
+fi
+
+# Only the paths that change what a reader is served. A docs or screenshot commit does not get to
+# cost four minutes; CLAUDE.md draws the same line when it says a build must pass before every
+# commit that touches src/.
+if ! printf '%s\n' "$changed" | grep -qE '^(src/|content/|sanity/|public/|tests/|package\.json|pnpm-lock\.yaml|next\.config\.ts|tsconfig\.json|postcss\.config\.mjs|eslint\.config\.mjs)'; then
+  echo "pre-push: nothing built changed, skipping the gate."
+  exit 0
+fi
+
+echo "pre-push: a push to main deploys to production. Running the gate."
+echo "pre-push: skip with  SKIP_GATE=1 git push  if you know why."
+
+# A server already on :3000 is a trap, not a convenience. playwright.config.ts sets
+# `reuseExistingServer: !process.env.CI`, so the suite will attach to whatever is already there —
+# a `pnpm dev`, or a `pnpm start` left over from an earlier build — instead of building the commit
+# being pushed. The result then describes that other server. This cost a run during the hook's own
+# development: a stale production-dataset server made the checkout smoke test fail against a commit
+# that was fine.
+if command -v lsof >/dev/null 2>&1 && [ -n "$(lsof -ti:3000 2>/dev/null)" ]; then
+  echo "pre-push: something is already listening on :3000." >&2
+  echo "pre-push: the suite would attach to it and test that, not this commit." >&2
+  echo "pre-push: stop it first, or push with SKIP_GATE=1 and run the gate yourself." >&2
+  exit 1
+fi
+
+# The same shape as the `smoke` job in .github/workflows/ci.yml, and for the reason written there:
+# the full matrix is about half an hour, and half an hour before every push is how a gate stops
+# being a gate. The nightly still runs everything.
+if ! pnpm typecheck; then
+  echo "pre-push: typecheck failed. Not pushing, because this push would deploy it." >&2
+  exit 1
+fi
+
+if ! pnpm lint; then
+  echo "pre-push: lint failed. Not pushing, because this push would deploy it." >&2
+  exit 1
+fi
+
+if ! pnpm build; then
+  echo "pre-push: build failed. Not pushing, because this push would deploy it." >&2
+  exit 1
+fi
+
+# `pnpm test:e2e`, not a bare `playwright test`: the script sets NEXT_PUBLIC_SANITY_DATASET=ci,
+# which is where the seeded test batch lives. Without it the checkout smoke test asks the
+# production dataset for `instance-e2e-test-batch`, gets a 404 and fails every time — a gate that
+# always fails is one people learn to skip, which is worse than no gate. This is the same command
+# the `smoke` job in .github/workflows/ci.yml runs.
+if ! pnpm test:e2e --project=unit --project=smoke; then
+  echo "pre-push: the smoke suite failed. Not pushing, because this push would deploy it." >&2
+  echo "pre-push: the report is in playwright-report/." >&2
+  exit 1
+fi
+
+echo "pre-push: gate passed."
 exit 0

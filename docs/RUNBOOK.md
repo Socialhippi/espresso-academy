@@ -272,10 +272,29 @@ Run them against the deployment, not only against localhost.
 `npx vercel deploy --prod --yes` still works and is still the way to ship something that is not a
 push: a rebuild after an environment variable changes, or a redeploy after Sanity content lands.
 
-To take the safety back, make the `smoke` job a required status check on `main` in the repository's
-branch protection: GitHub then refuses the push until CI is green, and Vercel never sees the
-commit. That is a repository setting, not a change in this repository, so it is written here rather
-than done quietly.
+GitHub would be the better place to enforce this — `Smoke` as a required status check on `main`,
+so the rule holds for every clone and nobody can walk past it. **It is not available on this
+repository.** It is private on a free personal account, and both `branches/main/protection` and
+`rulesets` answer `403 Upgrade to GitHub Pro or make this repository public`. Making the repository
+public is not an option and the account has not been upgraded, so the gate lives in
+`.githooks/pre-push` instead.
+
+That hook runs typecheck, lint, build and the unit and smoke projects before a push to `main`, and
+refuses the push if any of them fail. Three things to know about it:
+
+- **It is advisory.** A local hook only runs for someone who has run
+  `git config core.hooksPath .githooks`, and `git push --no-verify` walks past it. It is a
+  seatbelt, not a lock. Upgrade the account or make the repository public and this becomes a real
+  required check in about a minute; the hook says so in its own header.
+- **It skips a push that changes nothing built.** A docs or screenshot commit does not pay four
+  minutes. The paths that trigger it are `src/`, `content/`, `sanity/`, `public/`, `tests/` and the
+  build config.
+- **It refuses to run while something is listening on :3000.** `playwright.config.ts` sets
+  `reuseExistingServer`, so a stray `pnpm dev` would be tested instead of the commit being pushed.
+  This is not hypothetical: it made the checkout smoke test fail against a commit that was fine
+  while the hook was being written.
+
+Skip it deliberately with `SKIP_GATE=1 git push`, and then run the gate yourself.
 
 ### When a field stops being null
 
