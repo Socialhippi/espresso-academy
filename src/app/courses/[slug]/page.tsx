@@ -8,8 +8,8 @@ import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { TbcPill } from "@/components/site/TbcPill";
 import { LevelBadge } from "@/components/site/LevelBadge";
+import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { Placeholder } from "@/components/site/Placeholder";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FinalCta } from "@/components/sections/FinalCta";
@@ -135,7 +135,22 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             </div>
 
             <div className="nav:col-span-5">
-              <Placeholder slot={`course-${course.slug}`} aspect="photo" />
+              {/*
+                The same component as the hub card, so a course's photograph arrives here by being
+                uploaded or committed once, not twice. `priority`: at 1280 this is the picture
+                beside the H1, above the fold, and it is the only image on the route that can be.
+              */}
+              <SanityPhoto
+                image={course.heroImage}
+                slot={`course-${course.slug}`}
+                fallbackAlt={course.heroAlt}
+                aspect="photo"
+                priority
+                sizes="(min-width: 1080px) 480px, 92vw"
+                /* Same role as the homepage hero picture, so the same 8px radius. Card photos stay
+                   square on purpose: they sit flush inside a bordered card. */
+                className="rounded-sm"
+              />
             </div>
           </div>
 
@@ -466,7 +481,11 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 </ButtonLink>
               }
             />
-            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Two columns, not three. The catalogue is three courses, so `related` is always exactly 2,
+              and a third column at 1280 was always empty. While both cards were placeholders that
+              read as white space; with photographs in them it reads as a third card that failed to
+              load. Restore `lg:grid-cols-3` when the catalogue is bigger than three. */}
+          <ul className="mt-10 grid gap-8 md:grid-cols-2">
               {related.map((item) => (
                 <li key={item.slug}>
                   <CourseCard course={item} />

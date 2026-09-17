@@ -6,7 +6,7 @@ import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FinalCta } from "@/components/sections/FinalCta";
-import { Placeholder } from "@/components/site/Placeholder";
+import { SlotPhoto } from "@/components/site/SlotPhoto";
 import { PageHero } from "@/components/sections/Hero";
 import { PageSections, faqEntriesFromSections } from "@/components/sections/PageSections";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
@@ -141,6 +141,26 @@ function FallbackSections({
                 title="Built around your bar"
                 id="how-heading"
               />
+
+              {/*
+                The route had no image slot at all — the only one — so it read as a text document
+                and the client had nothing to fill. `for-cafes-team` is in
+                docs/images-manifest.md, and its file has landed; without one this is still the
+                branded placeholder.
+
+                It sits in the heading column, not under the three steps. At 1280 this column held
+                an eyebrow, an H2 and then roughly 620px of nothing while the other column carried
+                the copy, the steps and the photograph, so the photograph was deepening the void it
+                should have filled. Below lg the columns stack and it reads heading, picture, then
+                the explanation, which is the order an editorial page uses anyway.
+              */}
+              <SlotPhoto
+                slot="for-cafes-team"
+                aspect="photo"
+                sizes="(min-width: 1280px) 472px, (min-width: 1024px) 38vw, 92vw"
+                className="mt-8"
+                placeholderClassName="mt-8"
+              />
             </div>
             <div className="lg:col-span-7">
               <p className="measure type-body text-grey">
@@ -166,10 +186,6 @@ function FallbackSections({
                 ))}
               </ul>
 
-              {/* The route had no image slot at all — the only one — so it read as a text document
-                  and the client had nothing to fill. `for-cafes-team` is in
-                  docs/images-manifest.md; until a file lands this is the branded placeholder. */}
-              <Placeholder slot="for-cafes-team" aspect="photo" className="mt-10" />
             </div>
           </div>
         </Container>

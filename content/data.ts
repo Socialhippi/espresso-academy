@@ -108,6 +108,12 @@ export interface Course {
   faq: { q: string; a: string; link?: { label: string; href: string } }[];
   instances: CourseInstance[];
   heroImage: string | null;  // public/images/courses/<slug>.jpg
+  /**
+   * Describes the photograph that is in the repository at public/images/courses/<slug>.jpg, not
+   * the photograph the course would like to have. Kept in step with the ALT map in
+   * src/lib/photos.ts, which is what a reader's screen reader actually gets: `src/` stopped
+   * importing this file in build 2, so this is the seed of record and that map is the runtime.
+   */
   heroAlt: string;
   priority: number;          // ordering on hub
 }
@@ -335,7 +341,7 @@ export const courses: Course[] = [
       batch("italian-barista-course-basic", "2026-10-08", "2026-10-11", 8),
     ],
     heroImage: null,
-    heroAlt: "Student learning espresso extraction at Espresso Academy India, Bengaluru", priority: 1,
+    heroAlt: "A student being handed a framed Italian Barista Certificate by a member of the academy staff.", priority: 1,
   },
   {
     slug: "ibc-advanced-barista",
@@ -392,7 +398,7 @@ export const courses: Course[] = [
     faq: courseFaqCommon("the IBC Advanced Barista"),
     instances: [],
     heroImage: null,
-    heroAlt: "Advanced barista training on a professional espresso machine, Bengaluru", priority: 2,
+    heroAlt: "A barista at a professional espresso machine, steaming milk in a jug at the steam wand.", priority: 2,
   },
   {
     slug: "ibc-advanced-roasting",
@@ -442,7 +448,7 @@ export const courses: Course[] = [
     faq: courseFaqCommon("the IBC Advanced Roasting"),
     instances: [batch("ibc-advanced-roasting", "2026-09-15", "2026-09-16", 4)],
     heroImage: null,
-    heroAlt: "Cupping session with roasted coffee samples", priority: 3,
+    heroAlt: "A student at the academy looking down at the bench, the fleur-de-lis mark on the glass partition behind.", priority: 3,
   },
 ];
 

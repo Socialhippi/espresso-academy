@@ -1,7 +1,6 @@
-import { existsSync } from "node:fs";
-import { join } from "node:path";
 import Image from "next/image";
 import { Placeholder } from "@/components/site/Placeholder";
+import { publicFileExists, publicPhoto, publicPhotoAlt } from "@/lib/photos";
 import { cn } from "@/lib/utils";
 
 /*
@@ -11,27 +10,26 @@ import { cn } from "@/lib/utils";
 const VIDEO_PATH = "/video/hero.mp4";
 const POSTER_PATH = "/video/hero-poster.jpg";
 
-/**
- * Does the file exist in public/ at the moment this page is rendered?
- *
- * The homepage is prerendered, so this runs at build time and the answer is baked into the HTML.
- * That is the point: dropping `public/video/hero.mp4` into the repo and redeploying switches the
- * hero from a still to a loop with no code change and no flag to remember, which is what
- * docs/images-manifest.md has been promising since the draft ("when the reel arrives, a muted,
- * poster-first, 12-second loop can replace the hero photo on desktop only").
- *
- * It is a server module. `node:fs` never reaches the browser, and nothing here costs a byte of
- * client JavaScript — which matters, because first-load JS is already over the budget in CLAUDE.md
- * and this pass is not allowed to make that worse.
+/*
+ * `publicFileExists` and `publicPhoto` both answer "is it in public/ yet?" at build time, because
+ * the homepage is prerendered and the answer is baked into the HTML. That is the point: dropping
+ * `public/video/hero.mp4` or `public/images/hero.jpg` into the repository and redeploying changes
+ * the hero with no code change and no flag to remember, which is what docs/images-manifest.md has
+ * been promising since the draft. Both live in a server module, so `node:fs` never reaches the
+ * browser and none of this costs a byte of client JavaScript — which matters, because first-load
+ * JS is already over the budget in CLAUDE.md and this pass is not allowed to make that worse.
  */
-function publicFileExists(publicPath: string): boolean {
-  return existsSync(join(process.cwd(), "public", publicPath.replace(/^\//, "")));
-}
 
 interface HeroMediaProps {
-  /** The still the academy has already supplied, if any. Unrelated to the reel. */
+  /**
+   * An explicit still, overriding the one resolved from `slot`. Unrelated to the reel.
+   *
+   * Nothing passes it today: the homepage lets the slot resolve, so the academy's `hero.jpg`
+   * appears by landing in public/images/ and nothing else. It stays for a caller that has a path
+   * the manifest does not name.
+   */
   image?: string | null;
-  /** Alt for `image`. It describes that photograph and is never reused for the reel's poster. */
+  /** Alt for an explicit `image`. It describes that photograph and is never reused for the reel's poster. */
   alt?: string;
   /**
    * Alt for the reel's poster frame, which is a different picture from `image`.
@@ -51,11 +49,14 @@ interface HeroMediaProps {
  * The hero's picture: a loop when there is footage, a still when there is a photograph, and the
  * branded placeholder when there is neither.
  *
- * All three states share one frame — 4:5 on a phone, 3:2 from md — so the composition beside the
- * words does not move when the client's files land, and none of the three can shift layout as it
- * loads. The 400ms shutter (`hero-media-in`) runs on the frame and never on the words: the
- * measured LCP element on this route is the hero sub-line, and an entry animation on it would
- * defer the very paint the budget is written against.
+ * All three states share one 3:2 frame, so the composition beside the words does not move when the
+ * client's files land, and none of the three can shift layout as it loads. The 400ms shutter (`hero-media-in`) runs on the frame and never on the words. While the
+ * frame was empty the measured LCP element was the hero sub-line, and an entry animation on it
+ * would have deferred the very paint the budget is written against. With `hero.jpg` in place the
+ * LCP element is this picture instead, and the shutter now runs on the thing being timed — a
+ * clip-path reveal, not a fade, so the first painted pixels arrive a frame in rather than 400ms
+ * later. Measured either way, Lighthouse mobile gives the same 3.13s (docs/audits/perf-photos.md),
+ * so the reveal was left where the design put it.
  *
  * Precedence is reel, then photograph, then placeholder. The reel outranks the still deliberately,
  * because that is what docs/images-manifest.md describes ("a muted, poster-first, 12-second loop
@@ -73,10 +74,21 @@ export function HeroMedia({
   slot,
   className,
 }: HeroMediaProps) {
-  const frame = cn(
-    "aspect-portrait w-full rounded-sm object-cover md:aspect-photo",
-    className,
-  );
+  /*
+   * One frame, 3:2, at every width.
+   *
+   * It was 4:5 on a phone and 3:2 from md, which was the right guess while the frame was empty and
+   * the wrong one the moment `hero.jpg` arrived. The academy's hero is a 3:2 master with a subject
+   * at each edge, and a 4:5 box keeps only 53% of its width: centre-cropped on a phone it cut the
+   * second subject vertically through the eye line, leaving a faceless torso beside the woman. No
+   * object-position saves it — any 4:5 crop of this photograph loses one of the two people.
+   *
+   * Matching the desktop ratio also ends a 1.59x upscale on what is now the LCP element: the
+   * browser was fetching a 3:2 image sized for a 100vw box and then cropping it to a taller one,
+   * so the pixels that survived were stretched. `sizes` below is correct against a 3:2 frame and
+   * costs no extra bytes. docs/images-manifest.md is updated to ask for 3:2 only.
+   */
+  const frame = cn("aspect-photo w-full rounded-sm object-cover", className);
 
   if (publicFileExists(VIDEO_PATH) && publicFileExists(POSTER_PATH)) {
     return (
@@ -131,11 +143,19 @@ export function HeroMedia({
     );
   }
 
-  if (image) {
+  /*
+   * An explicit path keeps the alt it was passed; a path resolved from the slot takes the alt that
+   * was written against the file in this repository. The two must not be crossed: alt that
+   * accurately describes a different photograph is worse for a screen reader than none.
+   */
+  const still = image ?? publicPhoto(slot);
+  const stillAlt = image ? alt : publicPhotoAlt(slot, alt);
+
+  if (still) {
     return (
       <Image
-        src={image}
-        alt={alt}
+        src={still}
+        alt={stillAlt}
         width={1200}
         height={800}
         priority
@@ -148,9 +168,9 @@ export function HeroMedia({
   return (
     <Placeholder
       slot={slot}
-      aspect="portrait"
+      aspect="photo"
       priority
-      className={cn("hero-media-in md:aspect-photo", className)}
+      className={cn("hero-media-in", className)}
     />
   );
 }

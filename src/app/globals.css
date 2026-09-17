@@ -486,10 +486,16 @@
    2. `prefers-reduced-motion: no-preference`, per rule 5 and .claude/rules/a11y.md.
    3. Nothing animates its opacity at all — see the contrast note on `reveal-cut` — and nothing
       above the fold animates in a way that defers a paint. Measured in a throttled mobile browser,
-      the LCP element on /, /courses and the IBC page is the hero sub-line paragraph, painting at
+      the LCP element on /, /courses and the IBC page was the hero sub-line paragraph, painting at
       about 740ms. LCP is the one budget this site does not clear locally, and an entry animation
       on that paragraph would defer the very thing being timed, so the hero's motion runs on the
       picture and the words are left alone.
+
+      Since the client's photographs landed (15 September 2026) the LCP element on / and on all
+      three course pages is the photograph, not the paragraph. The rule above is unchanged and is
+      the reason it cost nothing: the reveal on that picture is a clip-path, so the first pixels
+      paint a frame into the animation rather than 400ms after it. Lighthouse mobile measures the
+      same LCP before and after on every route (docs/audits/perf-photos.md).
    --------------------------------------------------------------------------- */
 
 /*
