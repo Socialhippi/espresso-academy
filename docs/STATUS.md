@@ -1967,6 +1967,16 @@ an account or a decision from the academy first, not development:
     Cloudflare Turnstile. It is why the route never reaches `networkidle`. It is **not** the LCP
     cause: Turnstile's first request starts at 4334ms, long after the 1602ms LCP in the same trace.
 
+  **Do not re-open this as a regression.** The swing moves between routes from run to run and is
+  not a property of any of them. Measured across the deploy of 17 September: `/for-cafes` went from
+  a 4653ms median to 1489ms while `/contact` went from 1379ms to 4627ms in the same sessions — and
+  `/contact` was not touched by any commit in that deploy except shared CSS that does not apply at
+  390. An unchanged route swinging 3.2s is the artefact showing its hand. Whichever form route a
+  Lighthouse set happens to catch in its slow mode reads about 4.6s; the real-browser number for
+  both is under 1s. If a future pass sees 4.6s on `/for-cafes`, `/contact` or `/enquire`, it is
+  this, it has been diagnosed, and chasing it is wasted work. Re-measure with a real
+  `PerformanceObserver` before believing any Lighthouse LCP on a form route.
+
   **No fix shipped, deliberately.** There is no defect in the page to correct, and changing code to
   move a number produced by a simulator would be the speculative fix this was explicitly not to
   be. The one real inefficiency found — `getCourses` over-fetching for a dropdown — is recorded
