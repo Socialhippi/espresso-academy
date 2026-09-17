@@ -1917,11 +1917,61 @@ an account or a decision from the academy first, not development:
   `SlotPhoto`, `Placeholder` and their call sites, and migrating it is a mechanical rename that
   deserves its own commit rather than riding along with a visual change, where a regression in
   either would be hard to attribute. Worth doing before launch.
-- **`/for-cafes` is slow on the deployment and nothing here explains it.** Measured warm on
-  15 September, before the photographs were pushed: performance 80, LCP 4.75s, FCP 1.9s, against
-  100 and 1.0s for its neighbours. Time to first byte was 30ms, so it is not the origin and not a
-  cold function; the LCP breakdown puts 1390ms into element render delay against 99ms on /about.
-  Recorded in `docs/audits/perf-photos.md`. Needs its own investigation.
+- **`/for-cafes`'s 4.6s LCP is a measurement artefact, not a slow page.** Diagnosed 17 September
+  after being carried as "pre-existing" through three reports. The short version: measured in a
+  real browser under identical throttling, `/for-cafes` is *faster* than the `/courses` control,
+  and the Lighthouse number is its simulator, not the route.
+
+  What the trace says. The LCP element is the hero intro paragraph
+  (`div.gap-10 > div > div.mt-5 > p`, 372x102 at y=243), never an image — the route has no
+  photograph at all. Observed breakdown: time to first byte 82-194ms, element render delay
+  644-1389ms. Lighthouse's *simulated* LCP came back bimodal across five production runs — 1528,
+  1377, 4635, 4598, 4624ms — and the discriminator was FCP itself, which was either ~955ms or
+  ~1945ms with nothing in between.
+
+  Nothing about the page differs between the fast and slow runs: identical total byte weight
+  (538 KiB), identical JavaScript bootup (0.3s), identical main-thread work (0.5s), zero tasks over
+  50ms, no render-blocking resources, and in the *slow* runs the resources actually arrived
+  **earlier** than in the fast ones. A page cannot be the cause of a difference it does not vary
+  across.
+
+  So it was measured without the simulator. Real browser, 150ms RTT, 1.6Mbps, 4x CPU throttle,
+  `PerformanceObserver` reading `largest-contentful-paint` directly, five runs each against
+  production:
+
+  | Route | Real LCP, five runs | Median |
+  |---|---|---|
+  | `/for-cafes` | 916 / 948 / 948 / 948 / 1168 ms | **948ms** |
+  | `/courses` (control) | 920 / 964 / 992 / 1000 / 1016 ms | 992ms |
+
+  LCP equals FCP in every run on both routes: the paragraph paints at first paint and never
+  re-registers.
+
+  The four specific suspects, each checked and each cleared:
+
+  - **Dynamically rendered when it could be static?** It is `force-dynamic`, deliberately — the
+    route takes a name, a phone number and an email, and `src/middleware.ts` gives input-taking
+    routes a strict CSP whose per-request nonce a statically generated page cannot carry. But it is
+    not the discriminator: over twelve requests each, `/for-cafes` and `/courses` were **both** a
+    CDN `MISS` every single time, at 380ms median TTFB each, against a static `/about` that `HIT`
+    every time at 140ms. Dynamic costs about 240ms and both dynamic routes pay it equally.
+  - **A Sanity query it does not need?** No. All three are used and they run in one `Promise.all`:
+    `getPage` is the page, `getSiteSettings` is memoised per request, and `getCourses` builds the
+    enquiry form's course and batch dropdown. `getCourses` over-fetches — full course documents
+    with instances, to populate a `<select>` — but identical TTFB to `/courses` puts a ceiling on
+    what that can be costing.
+  - **A font or the placeholder blocking first paint?** No. Both faces are `display: "swap"` with
+    `preload: true` and are shared with every other route, and `render-blocking-resources` is empty
+    on every run. The placeholder was never the LCP element and no longer exists on the route.
+  - **A client component absent from the other routes?** Yes, one: `EnquiryForm`, which pulls
+    Cloudflare Turnstile. It is why the route never reaches `networkidle`. It is **not** the LCP
+    cause: Turnstile's first request starts at 4334ms, long after the 1602ms LCP in the same trace.
+
+  **No fix shipped, deliberately.** There is no defect in the page to correct, and changing code to
+  move a number produced by a simulator would be the speculative fix this was explicitly not to
+  be. The one real inefficiency found — `getCourses` over-fetching for a dropdown — is recorded
+  here rather than acted on, because the measurement says it is not costing anything a reader can
+  perceive.
 - **LCP on the deployment is not one number.** The warm nightly of 7 September has every route
   between 1.8s and 2.4s, inside the ≤2.5s budget; this workstation measured the same commit the
   same morning at 2.4s to 3.0s; the cold nightlies before the warm-up fix reached 3.2s. Every one
