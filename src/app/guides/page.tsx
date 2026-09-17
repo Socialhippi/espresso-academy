@@ -117,7 +117,7 @@ export default async function GuidesPage() {
                           {formatDate(guide.publishedAt)}
                         </p>
                       )}
-                      <p className="mt-3 flex items-center gap-2 type-label text-red">
+                      <p className="mt-3 flex items-center gap-2 type-body text-red">
                         Read it
                         <ArrowRight
                           className="size-4 transition-transform duration-200 group-hover:translate-x-1"

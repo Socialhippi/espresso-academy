@@ -92,7 +92,9 @@ export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) 
                   {door.title}
                 </h3>
                 <p className="mt-3 type-body text-grey">{door.body}</p>
-                <span className="mt-auto flex items-center gap-2 pt-8 type-label text-red">
+                {/* type-body, not type-label: design.md puts a 16px floor under red text, and this is
+                    the card's call to action. Same resolution as src/app/courses/page.tsx. */}
+                <span className="mt-auto flex items-center gap-2 pt-8 type-body text-red">
                   {door.cta}
                   <ArrowRight
                     className="size-4 transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
@@ -105,7 +107,7 @@ export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) 
                   href={door.secondary.href}
                   /* 14px sentence case, not a 12px uppercase label: design.md puts a 16px floor
                      under red text, and this band sits on white-3 where the same rule applies. */
-                  className="flex min-h-12 items-center justify-center border-t border-white-2 bg-white-3 px-6 py-3 type-small font-medium text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
+                  className="flex min-h-12 items-center justify-center border-t border-white-2 bg-white-3 px-6 py-3 type-body font-medium text-red hover:bg-red hover:text-white focus-visible:bg-red focus-visible:text-white"
                 >
                   {door.secondary.cta}
                 </Link>

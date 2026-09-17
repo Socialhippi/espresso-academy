@@ -47,7 +47,8 @@ export function TrainerCard({ trainer, className, priority = false }: TrainerCar
           ))}
         </ul>
 
-        <span className="mt-auto flex items-center gap-2 pt-5 type-label text-red">
+        {/* type-body: design.md's 16px floor under red text. */}
+        <span className="mt-auto flex items-center gap-2 pt-5 type-body text-red">
           Read the profile
           <ArrowRight
             className="size-4 transition-transform duration-200 ease-out-brand group-hover:translate-x-1"

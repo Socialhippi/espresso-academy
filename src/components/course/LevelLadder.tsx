@@ -48,8 +48,15 @@ async function Rung({ level, current, onDark }: RungProps) {
     >
       <span className="flex flex-wrap items-center gap-x-3 gap-y-1">
         <LevelBadge level={level} />
+        {/* type-body on the light ground: design.md's 16px floor under red text. On the dark rung
+            it stays a label, because there the colour is white and the floor is about red. */}
         {current && (
-          <span className={cn("type-label whitespace-nowrap", onDark ? "text-white" : "text-red")}>
+          <span
+            className={cn(
+              "whitespace-nowrap",
+              onDark ? "type-label text-white" : "type-body text-red",
+            )}
+          >
             You are here
           </span>
         )}

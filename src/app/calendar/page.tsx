@@ -152,7 +152,7 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
                           <span className="type-h3 text-black">{course.title}</span>
                           <LevelBadge level={course.level} />
                         </span>
-                        <span className="flex shrink-0 items-center gap-2 type-label text-red">
+                        <span className="flex shrink-0 items-center gap-2 type-body text-red">
                           Get the alert
                           <ChevronDown
                             className="size-4 transition-transform duration-200 group-open:rotate-180"
