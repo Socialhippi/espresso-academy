@@ -3,9 +3,9 @@
  *
  * docs/images-manifest.md is a promise: "drop the file in, redeploy, done; no code changes". That
  * promise needs one place that knows the naming scheme, because the scheme is not uniform — the
- * hero is `hero.jpg`, a course is `courses/<slug>.jpg`, and the for-cafes slot is called
- * `for-cafes-team` but its file is `for-cafes.jpg`. Spreading that across six call sites is six
- * chances for a file to land in the repository and never appear on the site.
+ * hero is `hero.jpg`, a course is `courses/<slug>.jpg`, a campus frame is `about/campus-N.jpg`.
+ * Spreading that across six call sites is six chances for a file to land in the repository and
+ * never appear on the site.
  *
  * `existsSync` runs at build time, because every route that renders a photo is prerendered, so the
  * answer is baked into the HTML and costs a reader nothing. Same technique, and the same reason,
@@ -36,7 +36,13 @@ const EXTENSIONS = [".jpg", ".webp"] as const;
 function slotToStem(slot: string): string | null {
   if (slot === "hero") return "/images/hero";
   if (slot === "contact-campus") return "/images/contact";
-  if (slot === "for-cafes-team") return "/images/for-cafes";
+  /*
+   * No `for-cafes-team` branch. /for-cafes renders no image frame at all — see the comment in
+   * src/app/for-cafes/page.tsx — so a path here would resolve a file that nothing draws. Removing
+   * it, the ALT entry and the manifest row together is the point: a photograph dropped into
+   * public/images/ cannot appear on that route without someone deciding where it goes and writing
+   * its alt, which is the decision that was missing when the slot last held a picture.
+   */
 
   const campus = /^about-campus-([1-9]\d*)$/.exec(slot);
   if (campus) return `/images/about/campus-${campus[1]}`;

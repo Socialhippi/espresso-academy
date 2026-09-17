@@ -9,7 +9,6 @@ Photos from the client's shoot drop into `public/images/` with these exact names
 | course-<slug> | public/images/courses/<slug>.jpg | 3:2 | Course card + course hero |
 | trainer-<slug> | public/images/trainers/<slug>.jpg | 4:5 | Trainer card + profile |
 | contact-campus | public/images/contact.jpg | 3:2 | Contact page |
-| for-cafes-team | public/images/for-cafes.jpg | 3:2 | For cafes and teams, section 01 |
 | courses-hub | public/images/courses-hub.jpg | 3:2 | Courses hub hero. The hero runs full width until this file lands, rather than holding an empty frame open |
 | og-default | generated | 1200x630 | Open Graph |
 
@@ -47,7 +46,7 @@ baked in:
 | course-ibc-advanced-barista | `courses/ibc-advanced-barista.jpg` | Hub card and course hero |
 | course-ibc-advanced-roasting | `courses/ibc-advanced-roasting.jpg` | Hub card and course hero |
 | about-campus-1 | `about/campus-1.jpg` | The lead frame of the About gallery |
-| for-cafes-team | `for-cafes.jpg` | For cafes and teams, section 01. **Empty since 17 September** — its photograph moved to the IBC Basic course, so the slot renders its branded placeholder until the academy sends a team photograph |
+| ~~for-cafes-team~~ | ~~`for-cafes.jpg`~~ | **Slot retired 17 September.** Its photograph moved to the IBC Basic course and /for-cafes now renders no image frame at all — see below |
 
 The client sent the last one as `for-cafes-team.jpg`, the slot name rather than the filename in the
 table above; it was renamed on the way in.
@@ -90,15 +89,23 @@ The hero was re-framed rather than re-shot: its 4:5 mobile crop kept only 53% of
 the second subject through the eye line, so the component now uses 3:2 at every width. Supply 3:2;
 nothing crops it any further.
 
-Still outstanding: `about/campus-2.jpg` to `campus-6.jpg`, `contact.jpg`, `courses-hub.jpg`,
-`for-cafes.jpg` and `trainers/nageswara-rao-k.jpg`. Each keeps its branded placeholder, which
-prints its own slot name, so the page itself says which file is missing.
+Still outstanding: `about/campus-2.jpg` to `campus-6.jpg`, `contact.jpg`, `courses-hub.jpg` and
+`trainers/nageswara-rao-k.jpg`. Each keeps its branded placeholder, which prints its own slot name,
+so the page itself says which file is missing.
 
-**A note for whoever fills `for-cafes.jpg`.** Its alt line was removed from the `ALT` map in
-`src/lib/photos.ts` when its photograph moved. That is deliberate: had it stayed, a real team
-photograph dropped at the same path would silently inherit a description of two people cupping,
-which is the one way alt text fails that a reader cannot detect. Write the new alt in the same
-commit as the new file.
+**/for-cafes is the exception, and it is deliberate.** That route has no image frame — not a
+placeholder, not a guarded slot, nothing. A lone placeholder there was 70% of its column at 1280
+and sat between the H2 and the first sentence at 390, on the one route aimed at a paying cafe
+owner, so the copy takes the full column instead and the section reads as finished rather than as
+waiting.
+
+Three things were removed together and they have to come back together: the slot row in the table
+above, the `for-cafes-team` branch in `slotToStem`, and the `ALT` entry, all in
+`src/lib/photos.ts`. So a team photograph dropped into `public/images/` **cannot** appear on that
+page by itself. That is the intent: the last time this slot held a picture it was a photograph of
+something else, and the failure it would have caused — a new file silently inheriting the old
+file's alt — is the one a reader cannot detect. Putting a picture back on /for-cafes is a
+deliberate edit that decides where it sits and writes what it shows.
 
 ## Replacing a photograph is not the same as adding one
 

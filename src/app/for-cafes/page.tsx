@@ -6,7 +6,6 @@ import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FinalCta } from "@/components/sections/FinalCta";
-import { SlotPhoto } from "@/components/site/SlotPhoto";
 import { PageHero } from "@/components/sections/Hero";
 import { PageSections, faqEntriesFromSections } from "@/components/sections/PageSections";
 import { EnquiryForm } from "@/components/forms/EnquiryForm";
@@ -135,6 +134,27 @@ function FallbackSections({
         <Container>
           <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
+              {/*
+                No image frame here, and not a guarded one either.
+
+                This slot held the cupping photograph until it moved to the IBC Basic course, and
+                for a few hours after that it held the branded placeholder. Measured at that point:
+                the placeholder was 70% of this column's height at 1280, and at 390 it landed
+                between the H2 and the section's first sentence, so a cafe owner on the route the
+                academy sells team training from scrolled past an empty box captioned with a
+                developer slot name before reading a word of the pitch.
+
+                A guard (`publicPhoto(...) ? … : null`, as /courses uses for `courses-hub`) would
+                have hidden it, but it would also have left the column expecting a picture that
+                nobody has promised. The honest shape for a route with no photograph is a route
+                with no frame, so the copy takes the full column and the section reads as finished
+                rather than as waiting.
+
+                Restoring it is a deliberate edit, not a dropped file: there is no `for-cafes-team`
+                row in the ALT map in src/lib/photos.ts and no filled slot in
+                docs/images-manifest.md, so a file appearing at that path cannot quietly reappear
+                on the page with no alt and no layout decision behind it.
+              */}
               <SectionHeading
                 number="01"
                 eyebrow="How it works"
@@ -142,33 +162,19 @@ function FallbackSections({
                 id="how-heading"
               />
 
-              {/*
-                The route had no image slot at all — the only one — so it read as a text document
-                and the client had nothing to fill. `for-cafes-team` is in
-                docs/images-manifest.md, and its file has landed; without one this is still the
-                branded placeholder.
-
-                It sits in the heading column, not under the three steps. At 1280 this column held
-                an eyebrow, an H2 and then roughly 620px of nothing while the other column carried
-                the copy, the steps and the photograph, so the photograph was deepening the void it
-                should have filled. Below lg the columns stack and it reads heading, picture, then
-                the explanation, which is the order an editorial page uses anyway.
-              */}
-              <SlotPhoto
-                slot="for-cafes-team"
-                aspect="photo"
-                sizes="(min-width: 1280px) 472px, (min-width: 1024px) 38vw, 92vw"
-                className="mt-8"
-                placeholderClassName="mt-8"
-              />
-            </div>
-            <div className="lg:col-span-7">
-              <p className="measure type-body text-grey">
+              {/* The intro moves up here, which is what "the copy occupies the column" means on a
+                  page whose other two sections already do it: 02 and 03 both carry a paragraph
+                  under their heading and keep the list or the form on the right. Section 01 was
+                  the only one with a heading-only column, which is why it looked empty the moment
+                  the picture came out of it. */}
+              <p className="mt-5 measure type-body text-grey">
                 No team package, length or venue is published yet. Tell the academy what machine
                 you run, what is on your menu and what keeps going wrong, and ask what it can do.
                 You will get options rather than a package.
               </p>
-              <ul className="mt-8 flex flex-col gap-4">
+            </div>
+            <div className="lg:col-span-7">
+              <ul className="flex flex-col gap-4">
                 {[
                   "Tell the academy your team size, your machine and what you want fixed.",
                   "They come back with what they can offer, in writing.",
