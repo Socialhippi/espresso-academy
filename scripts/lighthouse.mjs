@@ -20,10 +20,24 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 
 const BASE = process.argv[2] ?? "http://localhost:3000";
+/*
+ * `/courses/latte-art` was measured here from build 2 until the photography landed, by which time
+ * it had been a 301 for a month: the catalogue rebuild retired it, so every nightly was timing a
+ * redirect rather than a course page. The three real courses are listed instead, which is also
+ * what the photography touches — each carries a hero photograph now, and a course page's LCP
+ * element is that photograph.
+ *
+ * /about and /for-cafes join them for the same reason. They were the two routes carrying a photo
+ * slot that nothing measured.
+ */
 const ROUTES = [
   ["/", "home"],
   ["/courses", "courses"],
-  ["/courses/latte-art", "course"],
+  ["/courses/italian-barista-course-basic", "course-ibc-basic"],
+  ["/courses/ibc-advanced-barista", "course-ibc-advanced-barista"],
+  ["/courses/ibc-advanced-roasting", "course-ibc-advanced-roasting"],
+  ["/about", "about"],
+  ["/for-cafes", "for-cafes"],
   ["/calendar", "calendar"],
   ["/enquire", "enquire"],
   ["/book/instance-e2e-test-batch", "book"],
@@ -54,9 +68,38 @@ function measure(path, out) {
 measure(ROUTES[0][0], join(tmpdir(), "lh-warmup.report.json"));
 
 const rows = [];
+const skipped = [];
 for (const [path, name] of ROUTES) {
+  /*
+   * Warm the route before timing it. Against a deployment, four of these are server-rendered on
+   * demand, and the first request after an idle period pays for a cold function: measured against
+   * the deployment on 15 September, /for-cafes came back at performance 80 and FCP 1.9s cold
+   * against 100 and 1.0s for its neighbours. That is Vercel's scheduler, not the page.
+   */
+  for (let i = 0; i < 2; i++) {
+    try {
+      await fetch(BASE + path, { cache: "no-store" });
+    } catch {
+      // A failed warm-up is not a failed measurement; Lighthouse will report the real state.
+    }
+  }
   const out = `docs/audits/lh2-${name}.report.json`;
-  const d = measure(path, out);
+
+  /*
+   * A route this dataset does not carry is skipped, not fatal. `/book/instance-e2e-test-batch`
+   * needs the batch that `pnpm sanity:seed:test-batch` writes into the ci dataset, so against a
+   * production-dataset build it 404s and Lighthouse exits non-zero — which used to take the whole
+   * run down on its last row, after nine routes had already been measured and printed. What was
+   * skipped is named at the end rather than quietly dropped.
+   */
+  let d;
+  try {
+    d = measure(path, out);
+  } catch {
+    skipped.push(path);
+    console.log(`${path.padEnd(32)} skipped: Lighthouse could not load it (404 in this dataset?)`);
+    continue;
+  }
   const score = (k) => {
     const v = d.categories[k]?.score;
     return v === null || v === undefined ? "-" : Math.round(v * 100);
@@ -71,6 +114,10 @@ for (const [path, name] of ROUTES) {
     lcp: a["largest-contentful-paint"].displayValue,
     cls: a["cumulative-layout-shift"].displayValue,
     tbt: a["total-blocking-time"].displayValue,
+    /* Which element was measured. Since the photography landed this is the interesting half of
+       the LCP row: a photograph and a paragraph are improved by different things. */
+    lcpEl:
+      a["lcp-breakdown-insight"]?.details?.items?.find((i) => i.type === "node")?.nodeLabel ?? "?",
     bench: Math.round(d.environment?.benchmarkIndex ?? 0),
   });
   const r = rows.at(-1);
@@ -78,7 +125,7 @@ for (const [path, name] of ROUTES) {
     `${r.route.padEnd(32)} perf ${String(r.perf).padStart(3)}  a11y ${String(r.a11y).padStart(3)}` +
       `  bp ${String(r.bp).padStart(3)}  seo ${String(r.seo).padStart(3)}` +
       `  LCP ${r.lcp.padStart(7)}  CLS ${r.cls.padStart(5)}  TBT ${r.tbt.padStart(8)}` +
-      `  cpu ${String(r.bench).padStart(5)}`,
+      `  cpu ${String(r.bench).padStart(5)}  <- ${r.lcpEl.slice(0, 44)}`,
   );
 }
 
@@ -93,8 +140,14 @@ if (benches.length > 1 && Math.min(...benches) < Math.max(...benches) * 0.85) {
   );
 }
 
-console.log("\n| Route | Perf | A11y | Best practices | SEO | LCP | CLS | TBT |");
-console.log("|---|---|---|---|---|---|---|---|");
+if (skipped.length > 0) {
+  console.log(`\n${skipped.length} route(s) skipped: ${skipped.join(", ")}.`);
+}
+
+console.log("\n| Route | Perf | A11y | Best practices | SEO | LCP | CLS | TBT | LCP element |");
+console.log("|---|---|---|---|---|---|---|---|---|");
 for (const r of rows) {
-  console.log(`| \`${r.route}\` | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${r.lcp} | ${r.cls} | ${r.tbt} |`);
+  console.log(
+    `| \`${r.route}\` | ${r.perf} | ${r.a11y} | ${r.bp} | ${r.seo} | ${r.lcp} | ${r.cls} | ${r.tbt} | ${r.lcpEl.slice(0, 44)} |`,
+  );
 }
