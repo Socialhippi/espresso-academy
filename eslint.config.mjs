@@ -59,6 +59,10 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",
+    // The StyleSeed skill payload: vendored third-party tooling, installed per clone and
+    // gitignored (see CLAUDE.md, Plugins). Six unused-variable warnings from somebody else's
+    // engine are six warnings between us and the ones that are ours.
+    ".claude/skills/**",
   ]),
 ]);
 
