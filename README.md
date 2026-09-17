@@ -9,8 +9,13 @@ Next.js 16 (App Router), TypeScript strict, Tailwind v4, shadcn/ui on the Base U
 
 ```
 pnpm install
+git config core.hooksPath .githooks     # once per clone
 pnpm dev            # http://localhost:3000
 ```
+
+The push gate does not exist on a machine that has not run that second line: it is a local hook,
+so an unconfigured clone pushes straight to production with nothing checked. The rest of the
+setup, and what the hook runs, is in [docs/RUNBOOK.md](docs/RUNBOOK.md) under "Setting up a clone".
 
 ```
 pnpm typecheck      # next typegen && tsc --noEmit
