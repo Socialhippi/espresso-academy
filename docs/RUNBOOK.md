@@ -236,6 +236,53 @@ or lead paths. `gh workflow run nightly.yml` and watch, or `pnpm test:e2e` local
 Anything the smoke set starts catching that the nightly does not is a sign the nightly is missing
 coverage, not that the smoke file should grow.
 
+## Screenshots: always in capture mode
+
+**Never screenshot this site with a plain `page.screenshot({ fullPage: true })`.** You will get a
+picture with no section headings in it, and it will not look wrong.
+
+`reveal-heading` (src/app/globals.css) is a scroll-driven clip wipe. Its rest state is
+`clip-path: inset(0 -5% 100% -5%)` — a closed shutter. A full-page screenshot never scrolls, so
+every heading below the first viewport paints as nothing. The bounding box is still full size,
+`opacity` is still 1 and `visibility` is still `visible`, so nothing a normal visibility check
+looks at reports a problem. What you get is a page with quiet, roomy bands where the headings were,
+which is indistinguishable from a page that is simply calm. The whole of `docs/screens/pass4/` was
+captured this way, and no review run against those files ever mentioned a missing heading.
+
+Every capture path goes through one helper:
+
+```js
+import { enableCaptureMode, countVisibleHeadings } from "./capture-mode.mjs";
+
+const context = await browser.newContext({ viewport });
+await enableCaptureMode(context);   // sets data-capture on <html> before any page script runs
+```
+
+`data-capture` is an attribute nothing in `src/` sets, so it cannot leak into a render a reader
+sees. globals.css keys the reveal off it.
+
+The standing guard is:
+
+```
+node scripts/check-capture.mjs [base-url]
+```
+
+It walks every indexed route in `tests/routes.json` at 390x844, 768x1024 and 1280x620, takes the
+same full-page screenshot a reviewer would take, and fails if a route has h2 elements but none of
+them are visible. `scripts/preview-screens.mjs` runs the same check inline and refuses to write a
+file for a route that comes back blind.
+
+`countVisibleHeadings` deliberately ignores headings under 4px in either dimension, so ProofStrip's
+`sr-only` "What the academy is" cannot satisfy the check on a page whose visible headings have all
+collapsed.
+
+**If you are running a design review**, the `design-reviewer` subagent is already instructed to use
+capture mode. If you take screenshots by hand instead, set the attribute yourself before shooting:
+
+```js
+await page.evaluate(() => document.documentElement.setAttribute("data-capture", "static"));
+```
+
 ## Ending the 55th-batch offer
 
 The IBC Basic is sold at ₹26,700 + GST instead of ₹35,600 + GST, and the academy has said the
@@ -275,13 +322,14 @@ pnpm typecheck && pnpm lint && pnpm build && pnpm test:e2e     # the gate. Befor
 git push origin main && git rev-parse --short origin/main      # this is the deploy
 ```
 
-Then, once the deployment is live, the four standing scripts against it:
+Then, once the deployment is live, the five standing scripts against it:
 
 ```
 node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app
 node scripts/check-brand-contrast.mjs https://espresso-academy-india.vercel.app
 node scripts/check-target-size.mjs https://espresso-academy-india.vercel.app
 node scripts/check-figures.mjs https://espresso-academy-india.vercel.app
+node scripts/check-capture.mjs https://espresso-academy-india.vercel.app
 ```
 
 Run them against the deployment, not only against localhost.

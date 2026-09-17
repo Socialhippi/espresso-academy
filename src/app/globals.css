@@ -578,12 +578,47 @@
     @supports (animation-timeline: view()) {
       animation: reveal-cut linear both;
       animation-timeline: view();
-      /* Scrubbed against the viewport rather than run on a timer, so there is no duration to hold
-         under the 400ms cap: the reveal is finished by the time the block is a third of the way up
-         the screen, and it cannot be caught half-drawn by a fast scroll. */
-      animation-range: entry 15% entry 55%;
+      /*
+       * Scrubbed against the viewport rather than run on a timer, so there is no duration to hold
+       * under the 400ms cap, and it cannot be caught half-drawn by a fast scroll.
+       *
+       * The range used to be `entry 15% entry 55%`, and an `entry` range is bounded by the
+       * element's own height: a 150px heading block finished its wipe 110px after its first pixel
+       * cleared the bottom edge, so at 390x844 the whole animation played out in the bottom 18% of
+       * the screen. It was real motion staged where nobody looks, which is the same as no motion
+       * at all — and it is why a design review reported this site as having none.
+       *
+       * Ending on `cover` instead scales the finish to the viewport, not to the element. The wipe
+       * now opens as the block clears the bottom edge and completes with the block just above
+       * centre: 466px from the top at 390x844, 327px on a 620px-tall laptop. The end is also the
+       * guarantee that matters — anything that has travelled a third of the way up the screen is
+       * painted at full strength, so an anchor jump, a restored scroll position or a heading that
+       * is already being read is never caught mid-wipe.
+       */
+      animation-range: entry 20% cover 35%;
     }
   }
+}
+
+/*
+ * Capture mode: the off switch for every scroll-driven reveal on the site.
+ *
+ * `reveal-cut`'s rest state is a closed shutter, and a full-page screenshot never scrolls, so
+ * every heading below the first viewport captures invisible. The `docs/screens/` set and every
+ * design review taken through them were reading pages with no section headings on them and
+ * treating the empty bands as spacing.
+ *
+ * `data-capture` on the root element is the switch. It is set by `enableCaptureMode` in
+ * `scripts/capture-mode.mjs`, which every screenshot path goes through, and
+ * `scripts/check-capture.mjs` fails if a captured page comes back with no visible h2.
+ * It is deliberately an attribute no page sets for itself: nothing in `src/` can turn it on,
+ * so it cannot leak into a render a reader sees.
+ */
+[data-capture] .reveal-heading,
+[data-capture] .hero-media-in {
+  animation: none !important;
+  clip-path: none !important;
+  transform: none !important;
 }
 
 /* ---------------------------------------------------------------------------

@@ -9,6 +9,16 @@ You are a senior product designer at a top-tier agency reviewing a premium coffe
 Given a route (e.g. /courses/sca-barista-skills-foundation):
 1. Ensure the dev server is running (pnpm dev on port 3000; start it in the background if not).
 2. With the Playwright MCP, open the route at 390x844, 768x1024 and 1280x800; take full-page screenshots into docs/screens/<route-slug>-<width>.png.
+
+   **Turn capture mode on before every screenshot, and verify it took.** Immediately after each navigation, run:
+
+   ```js
+   document.documentElement.setAttribute("data-capture", "static");
+   ```
+
+   Then count visible headings before you trust the picture: `document.querySelectorAll("h2").length` against the number whose nearest `.reveal-heading` ancestor does **not** have a `clip-path` containing a `100%` inset. If a route has h2 elements and none are visible, the capture is blind — stop and fix the capture, do not review the image.
+
+   This is not optional. `reveal-heading` is a scroll-driven clip wipe whose rest state is a closed shutter, a full-page screenshot never scrolls, and a captured page with every heading clipped shut looks exactly like a page with generous spacing. Reviews were run for weeks against screenshots with no section headings in them and the absence was never noticed. See "Screenshots: always in capture mode" in docs/RUNBOOK.md.
 3. Check, in this order: hierarchy (one clear H1, eyebrow, section rhythm), token compliance (no off-token colours, no red text on dark, no mustard text), typography (Bebas only for display >= 24px, Montserrat elsewhere, body >= 16px), spacing rhythm (8px grid, section padding), CTA prominence (primary red pill visible in first viewport on mobile; sticky bar present), cards (level badge, TBC pills where null, full-card link), imagery (placeholders labelled, no text over images), states (empty/loading/error where data-driven), motion (<= 8 moments, reduced-motion honoured), contrast, tap targets, horizontal overflow at 390 (none allowed), and the "must never look like" list.
 4. Return: a table (severity: critical/high/medium/low, location, rule violated, exact fix), a score out of 10, and the three changes that would most improve the page. Be specific: name the component and the class to change.
 Do not edit files.
