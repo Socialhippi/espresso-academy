@@ -57,6 +57,13 @@ The frontend-design plugin is installed: follow its craft guidance (hierarchy, t
 no generic AI aesthetics) but design/tokens.css and .claude/rules/design.md override any palette, font or
 radius it suggests. The brand is the client's, not the plugin's.
 
+StyleSeed (`ss-*` skills) is a separate, per-clone install, gitignored at `/.claude/skills/`:
+`npx skills add bitjaru/styleseed`. Pinned to engine 4.2.0 (`sha256:2ac39abb2241`) on the `edge`
+channel, so re-installs can drift — re-read its rules after an update. Same override order as above:
+design/tokens.css and .claude/rules/design.md win. **Never run `/ss-setup` on this project** — it
+picks colour, typography and density, and those came from the client's guidelines. Report any
+StyleSeed rule that conflicts with design.md instead of applying it.
+
 ## Pushing
 - `git config core.hooksPath .githooks` once per clone. `.githooks/pre-push` refuses a push from a
   detached HEAD or from a branch other than main.
