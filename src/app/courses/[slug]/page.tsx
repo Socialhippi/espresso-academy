@@ -488,7 +488,12 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           <ul className="mt-10 grid gap-8 md:grid-cols-2">
               {related.map((item) => (
                 <li key={item.slug}>
-                  <CourseCard course={item} />
+                  {/* Two-up here, not the hub's three-up: each card is 584px at 1280, so the
+                      hub's 380px made the browser fetch w=384 and upscale it 1.52x. */}
+                  <CourseCard
+                    course={item}
+                    sizes="(min-width: 1024px) 590px, (min-width: 768px) 45vw, 90vw"
+                  />
                 </li>
               ))}
             </ul>

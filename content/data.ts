@@ -341,7 +341,7 @@ export const courses: Course[] = [
       batch("italian-barista-course-basic", "2026-10-08", "2026-10-11", 8),
     ],
     heroImage: null,
-    heroAlt: "A student being handed a framed Italian Barista Certificate by a member of the academy staff.", priority: 1,
+    heroAlt: "One person tastes coffee from a cupping spoon while another watches, at a bench of brewing kit.", priority: 1,
   },
   {
     slug: "ibc-advanced-barista",

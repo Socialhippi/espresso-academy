@@ -32,19 +32,21 @@ no code change. They are ordered by what they cost while they are missing.
    one.
 8. **Balance payment mechanics**: due on or before day 1, and cash, UPI or card at the academy.
 9. **Photographs** for the slots still empty in `docs/images-manifest.md`. Six landed on
-   15 September 2026 and are live: the home hero, all three course photos, the lead frame of the
-   About gallery, and the for-cafes section. Still missing: `about/campus-2.jpg` to `campus-6.jpg`,
-   `contact.jpg`, `courses-hub.jpg` and `trainers/nageswara-rao-k.jpg`, each of which keeps a
-   branded placeholder printing its own slot name.
+   15 September 2026; **five are live** after the certificate photograph was deleted on
+   17 September — the home hero, three course photos and the lead frame of the About gallery.
+   Still missing: `about/campus-2.jpg` to `campus-6.jpg`, `contact.jpg`, `courses-hub.jpg`,
+   `for-cafes.jpg` and `trainers/nageswara-rao-k.jpg`, each of which keeps a branded placeholder
+   printing its own slot name.
 
    Two of the six do not show what their slot is named for, and rather than re-describe them to
    suit the page, both are questions for the academy:
-   - The **IBC Basic** photo is a certificate being handed over, not a class in progress, **and the
-     certificate in it is mosaicked out** — a hard block roughly 350x420px dead centre of a
-     1400x933 frame, with a visible edge. It is the card image for the course the academy sells
-     most, on the page whose entire promise is that certificate. A reader who notices asks what is
-     being hidden. This is the single highest-priority photography question: an unredacted frame,
-     or another photograph from the same handover. A day of teaching would be stronger still.
+   - ~~The **IBC Basic** photo is a certificate with the certificate mosaicked out.~~ **Resolved
+     17 September by deleting the file**, which is gone from the repository, not merely
+     unreferenced. A redaction cannot sit on the one course whose entire promise is that
+     certificate. The cupping-pair photograph moved across from the for-cafes slot in its place,
+     which suits Day 1 of the IBC Basic — *Roasting and Cupping* — better than a swap of
+     convenience implies. Still owed: a photograph of a class in progress, and now a cafe team
+     photograph too, because that slot is empty again.
    - The **IBC Advanced Roasting** photo has no roaster, no curve and no cupping table in it. It is
      a student at the bench. On a two-day roasting course it is the weakest of the six, and the
      Day 1 Bullet roast is the obvious picture nobody has sent.

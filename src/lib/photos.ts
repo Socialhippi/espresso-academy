@@ -79,12 +79,19 @@ export function publicPhoto(slot: string): string | null {
  */
 const ALT: Record<string, string> = {
   hero: "Two students at the academy bar: one holds an orange pour-over dripper, the other folds a paper filter into a cone set on a glass carafe.",
-  "for-cafes-team":
-    "One person tastes coffee from a cupping spoon while another watches, at a bench of brewing kit.",
+  /*
+   * No `for-cafes-team` entry, deliberately.
+   *
+   * There was one, describing the cupping pair, and that photograph now serves the IBC Basic
+   * course instead. Leaving the line here would be a trap: the day the academy sends a real team
+   * photograph it would land at the same slot and silently inherit a description of a different
+   * picture, which is the one failure mode alt text has. The slot renders its branded placeholder
+   * until a file arrives, and whoever adds that file writes its alt here in the same commit.
+   */
   "about-campus-1":
     "Five people standing under the Espresso Academy fleur-de-lis painted on the campus wall, holding green beans, roasted beans and a bag of coffee, with the drum roaster in front of them.",
   "course-italian-barista-course-basic":
-    "A student being handed a framed Italian Barista Certificate by a member of the academy staff.",
+    "One person tastes coffee from a cupping spoon while another watches, at a bench of brewing kit.",
   "course-ibc-advanced-barista":
     "A barista at a professional espresso machine, steaming milk in a jug at the steam wand.",
   "course-ibc-advanced-roasting":

@@ -240,10 +240,16 @@ export default async function CertificationPage({ params }: PageProps<"/certific
                 </ButtonLink>
               }
             />
+            {/* No `priority` on the first card: this grid sits under a section heading, never at
+                the top of the page, so its first photograph is not the LCP element and preloading
+                it only competes with the font that is. Measured at 390 on
+                /certifications/italian-barista-certificate: the first card's photograph starts
+                3307px down, 2463px below the fold. Same reasoning as the hub grid in
+                src/app/courses/page.tsx, which this repeats. */}
             <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {courses.map((course, index) => (
+              {courses.map((course) => (
                 <li key={course.slug}>
-                  <CourseCard course={course} priority={index === 0} />
+                  <CourseCard course={course} />
                 </li>
               ))}
             </ul>

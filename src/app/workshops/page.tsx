@@ -142,10 +142,16 @@ export default async function WorkshopsPage() {
               title="What each one covers"
               id="workshops-heading"
             />
+            {/* No `priority` on the first card: this grid sits under a section heading, never at
+                the top of the page, so its first photograph is not the LCP element and preloading
+                it only competes with the font that is. Measured at 390 on
+                /certifications/italian-barista-certificate: the first card's photograph starts
+                3307px down, 2463px below the fold. Same reasoning as the hub grid in
+                src/app/courses/page.tsx, which this repeats. */}
             <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {workshops.map((workshop, index) => (
+              {workshops.map((workshop) => (
                 <li key={workshop.slug}>
-                  <CourseCard course={workshop} priority={index === 0} />
+                  <CourseCard course={workshop} />
                 </li>
               ))}
             </ul>

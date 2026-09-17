@@ -17,7 +17,19 @@ interface CourseCardProps {
   className?: string;
   /** Set on the first card in a grid so its photo is not lazy-loaded. */
   priority?: boolean;
+  /**
+   * What the card measures in the grid it is in. The default describes the three-up hub.
+   *
+   * The related-course list on a course page is two-up, so each card is 584px at 1280 rather than
+   * 380px; against the hub's value the browser picked `w=384` for that box and upscaled it 1.52x,
+   * which was the only visibly soft image on the site. Widening the shared default instead would
+   * have over-served the hub by the same factor, so the grid that is different passes its own.
+   */
+  sizes?: string;
 }
+
+/** The three-up grid on /courses and /workshops, which is what most callers are. */
+const HUB_SIZES = "(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw";
 
 /**
  * The whole card is one link, per .claude/rules/a11y.md. Hover underlines the title and shifts the
@@ -40,7 +52,12 @@ interface CourseCardProps {
  * else has nothing to charge for, and the card link already leads to the page that asks. Without
  * it the hub was eight cards deep with no route to a checkout on any of them.
  */
-export function CourseCard({ course, className, priority = false }: CourseCardProps) {
+export function CourseCard({
+  course,
+  className,
+  priority = false,
+  sizes = HUB_SIZES,
+}: CourseCardProps) {
   const nextInstance = getNextInstanceForCourse(course);
   /* After any offer. `course.feeExGst` is the standard fee now, and a card quoting it would be
      quoting a price the checkout does not charge. */
@@ -87,7 +104,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
             fallbackAlt={course.heroAlt}
             aspect="photo"
             priority={priority}
-            sizes="(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw"
+            sizes={sizes}
             placeholderClassName="rounded-none border-0 border-b"
           />
         </div>

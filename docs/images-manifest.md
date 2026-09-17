@@ -43,11 +43,11 @@ baked in:
 | Slot | File | Where it shows |
 |---|---|---|
 | hero | `hero.jpg` | Home hero, and the measured LCP element on that route |
-| course-italian-barista-course-basic | `courses/italian-barista-course-basic.jpg` | Hub card and course hero |
+| course-italian-barista-course-basic | `courses/italian-barista-course-basic.jpg` | Hub card and course hero. **This is the cupping-pair photograph**, moved here from the for-cafes slot on 17 September; see below |
 | course-ibc-advanced-barista | `courses/ibc-advanced-barista.jpg` | Hub card and course hero |
 | course-ibc-advanced-roasting | `courses/ibc-advanced-roasting.jpg` | Hub card and course hero |
 | about-campus-1 | `about/campus-1.jpg` | The lead frame of the About gallery |
-| for-cafes-team | `for-cafes.jpg` | For cafes and teams, section 01 |
+| for-cafes-team | `for-cafes.jpg` | For cafes and teams, section 01. **Empty since 17 September** — its photograph moved to the IBC Basic course, so the slot renders its branded placeholder until the academy sends a team photograph |
 
 The client sent the last one as `for-cafes-team.jpg`, the slot name rather than the filename in the
 table above; it was renamed on the way in.
@@ -55,13 +55,16 @@ table above; it was renamed on the way in.
 **Two of the six do not show what their slot is named for**, and neither has been re-described to
 flatter the page:
 
-- `courses/italian-barista-course-basic.jpg` is a certificate being handed over, not a class in
-  progress. It reads as an outcome, which is defensible on a course card, but it is not teaching.
-  **And the certificate in it is redacted**: a hard mosaic block about 350x420px in a 1400x933
-  frame, dead centre, with a visible edge. On the page whose whole promise is the Italian Barista
-  Certificate, the certificate is pixelated out, and a reader who notices asks what is being
-  hidden. Nothing in CSS fixes this. It needs an unredacted frame, or a different photograph from
-  the same handover, before launch. **This is the highest-priority photography question.**
+- ~~`courses/italian-barista-course-basic.jpg` is a certificate being handed over, with the
+  certificate itself mosaicked out.~~ **Resolved 17 September 2026 by deleting that file.** A
+  redaction cannot sit on the one course whose entire promise is that certificate: a reader who
+  notices asks what is being hidden, and nothing in CSS fixes a mosaic baked into a JPEG. The file
+  is gone from the repository rather than merely unreferenced.
+
+  The cupping-pair photograph took its place, moved across from the for-cafes slot. It is a better
+  fit than a swap of convenience suggests: Day 1 of the IBC Basic is *Roasting and Cupping*, and
+  the photograph is two people cupping. The academy is still owed a photograph of a class in
+  progress, and now also one of a cafe team.
 - `courses/ibc-advanced-roasting.jpg` shows a student at the bench with the fleur-de-lis behind
   them. There is no roaster, no curve, no cupping table in it. On the Advanced Roasting course it
   is the weakest of the six.
@@ -70,22 +73,69 @@ Both are questions for the academy, recorded in docs/STATUS.md, not something to
 
 Two more for the photographer, neither of them a code change:
 
-- **The six are not graded as one set.** Measured mean luminance runs 73 to 104 and warmth (R-B)
-  +14 to +47 across the three course photos alone, so the card row reads as three shoots rather
-  than one. Against a #FEFCFF ground they sit as heavy warm blocks. One grade pass over all six,
-  lifting shadows and pulling warmth toward a common point, is what makes them belong to a
-  white-dominant page.
-- **Both Advanced photographs crop the subject's head at the top edge of the file**, and in both
-  the subject is looking down, so no card on /courses shows a face to camera except the certificate
-  one. Frames with headroom would fix both at once.
+- **They are not graded as one set.** Re-measured after the 17 September swap, across the three
+  course photographs: mean luminance 52 (IBC Basic, the cupping frame), 74 (Advanced Barista), 76
+  (Advanced Roasting); warmth (R-B) +36, +47, +15. The grade is consistent enough — same lens,
+  same room, same warm cast — but the exposure is not, and the swap put the darkest of the three
+  in first position, so the hub row now runs dark, mid, mid against a #FEFCFF ground. One pass
+  lifting the cupping frame's shadows by roughly 15 levels, and its highlights toward the p90 of
+  about 130 the other two sit at, is what makes the row read as one body of work.
+- **All three course photographs crop a head at the top edge of the file**, and in all three the
+  subject is looking down. That last clause used to end "except the certificate one"; the
+  certificate photograph is gone, so **no card on /courses shows a face to camera at all**, which
+  is the live state of the page rather than a prediction about it. One frame with headroom and one
+  subject looking up would fix the lead card, and the lead card is the one that matters.
 
 The hero was re-framed rather than re-shot: its 4:5 mobile crop kept only 53% of the width and cut
 the second subject through the eye line, so the component now uses 3:2 at every width. Supply 3:2;
 nothing crops it any further.
 
-Still outstanding: `about/campus-2.jpg` to `campus-6.jpg`, `contact.jpg`, `courses-hub.jpg`, and
-`trainers/nageswara-rao-k.jpg`. Each keeps its branded placeholder, which prints its own slot name,
-so the page itself says which file is missing.
+Still outstanding: `about/campus-2.jpg` to `campus-6.jpg`, `contact.jpg`, `courses-hub.jpg`,
+`for-cafes.jpg` and `trainers/nageswara-rao-k.jpg`. Each keeps its branded placeholder, which
+prints its own slot name, so the page itself says which file is missing.
+
+**A note for whoever fills `for-cafes.jpg`.** Its alt line was removed from the `ALT` map in
+`src/lib/photos.ts` when its photograph moved. That is deliberate: had it stayed, a real team
+photograph dropped at the same path would silently inherit a description of two people cupping,
+which is the one way alt text fails that a reader cannot detect. Write the new alt in the same
+commit as the new file.
+
+## Replacing a photograph is not the same as adding one
+
+Adding a file to an empty slot is what the top of this page describes and it works: drop it in,
+redeploy, done.
+
+**Replacing a file at a path that already had one does not, on its own, change what a browser
+gets.** Next's image optimiser caches by source URL, width and quality, and `Vary: Accept` gives
+AVIF and JPEG separate keys. Swap the bytes on disk and the warm AVIF key keeps answering with the
+old picture — at every width the pages actually request, because those are the widths that were
+warmed. This was found the hard way on 17 September: the mosaicked certificate photograph had been
+deleted from the repository and the server went on serving it to every AVIF-capable browser, which
+is every modern one. Only `w=1200`, a width nothing requests, was clean.
+
+It is worse than a stale cache usually is, because the responses carry
+`Cache-Control: public, max-age=14400, must-revalidate`. A reader who fetched the old image keeps
+it for four more hours after the server is right.
+
+So, when replacing rather than adding:
+
+1. `rm -rf .next/cache/images` and restart, locally.
+2. Verify as a browser does, not as `curl` does by default — the `Accept` header decides which
+   cache key answers:
+
+   ```
+   curl -sD- -o /tmp/probe.avif -H 'Accept: image/avif,image/webp,*/*'      "http://localhost:3000/_next/image?url=%2Fimages%2Fcourses%2F<slug>.jpg&w=384&q=75"
+   ```
+
+   `X-Nextjs-Cache: MISS` and the new picture, at 384, 640, 828 and 1080. A `HIT` at any of those
+   means you are looking at the old one.
+3. After deploying, run the same probe against the deployment before believing the swap is live.
+
+A versioned query string is not a way round it: the optimiser answers
+`400 "url" parameter is not allowed`. If in-place replacement ever becomes routine rather than a
+one-off, give the files a serial (`courses/<slug>-2.jpg`) and teach `slotToStem` in
+`src/lib/photos.ts` to pick the highest one, so a replacement is always a new URL and no cache
+anywhere has to be trusted.
 
 ## Permission to publish, answered 8 September 2026
 
