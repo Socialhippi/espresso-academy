@@ -243,16 +243,39 @@ a strike-through against itself.
 
 ## Deploying
 
+**A push to `main` now deploys to production by itself.** The project was connected to
+`Socialhippi/espresso-academy` on 15 September 2026; before that every deploy was a manual
+`vercel deploy --prod`, and two of them were, which is why the photography sat on `main` for an
+hour looking deployed and was not.
+
+The consequence is the thing to hold on to: **the gate below is no longer enforced by the act of
+deploying.** It used to be, accidentally — you could not ship without typing the deploy command,
+and the command sat under the gate in this file. Now a commit reaches production whether or not
+anybody ran the suite. Run it before you push, not after:
+
 ```
-pnpm typecheck && pnpm lint && pnpm build && pnpm test:e2e     # the gate
-npx vercel deploy --prod --yes                                 # the public alias
+pnpm typecheck && pnpm lint && pnpm build && pnpm test:e2e     # the gate. Before `git push`.
+git push origin main && git rev-parse --short origin/main      # this is the deploy
+```
+
+Then, once the deployment is live, the four standing scripts against it:
+
+```
 node scripts/check-overflow.mjs https://espresso-academy-india.vercel.app
 node scripts/check-brand-contrast.mjs https://espresso-academy-india.vercel.app
 node scripts/check-target-size.mjs https://espresso-academy-india.vercel.app
 node scripts/check-figures.mjs https://espresso-academy-india.vercel.app
 ```
 
-Run the four standing scripts against the deployment, not only against localhost.
+Run them against the deployment, not only against localhost.
+
+`npx vercel deploy --prod --yes` still works and is still the way to ship something that is not a
+push: a rebuild after an environment variable changes, or a redeploy after Sanity content lands.
+
+To take the safety back, make the `smoke` job a required status check on `main` in the repository's
+branch protection: GitHub then refuses the push until CI is green, and Vercel never sees the
+commit. That is a repository setting, not a change in this repository, so it is written here rather
+than done quietly.
 
 ### When a field stops being null
 
