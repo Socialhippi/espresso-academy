@@ -77,7 +77,54 @@ Worth a separate look; recorded here so it is not mistaken for something the pho
 
 ## The deployment, after
 
-See the table appended below once the deploy that carries this change has been measured.
+`https://espresso-academy-india.vercel.app`, deployment `djfdlyd50`, every route warmed twice
+first. `/calendar` and `/enquire` are in the table as controls: neither carries a photograph and
+neither was touched by this work.
+
+| Route | Perf | LCP | CLS | LCP element |
+|---|---|---|---|---|
+| `/` | 96 | 2.8 s | 0 | **the hero photograph** |
+| `/courses` | 100 | 1.2 s | 0 | intro paragraph |
+| `/courses/italian-barista-course-basic` | 100 | 1.2 s | 0 | **the course photograph** |
+| `/courses/ibc-advanced-barista` | 100 | 1.7 s | 0 | **the course photograph** |
+| `/courses/ibc-advanced-roasting` | 100 | 1.5 s | 0 | **the course photograph** |
+| `/about` | 100 | 1.5 s | 0 | intro paragraph |
+| `/for-cafes` | **80** | **4.8 s** | 0 | intro paragraph |
+| `/calendar` (control) | 95 | 2.9 s | 0 | intro paragraph |
+| `/enquire` (control) | 100 | 1.2 s | 0 | intro paragraph |
+
+Every route clears performance 90 and LCP 2.5s except `/for-cafes`, which was failing both before
+any photograph existed and is unchanged by them.
+
+### One real regression, found and fixed
+
+The first reading after the deploy had `/courses` at 95 and 2.8s against a 1.24s pre-deploy
+baseline. Three consecutive re-runs gave 2881ms, 3254ms and 2824ms, while `/about` measured in the
+same sessions gave 1384ms, 2288ms and 1387ms. Three readings in the same direction is a change;
+`/about`'s spread is the noise this measurement always carries.
+
+The cause was a preload. The first card on `/courses` carried `priority`, which cost nothing while
+the card held a placeholder — the "image" it preloaded was the logo mark the header had already
+fetched — and which, with a photograph in it, became a real request for a picture about 560px below
+the fold on a phone, issued ahead of the font the LCP paragraph was waiting on. Removing it put the
+route back to 100 and 1.2s.
+
+Worth keeping because it generalises: **a `priority` on a slot that was empty is not free once the
+slot is full.** Every remaining `priority` in the codebase should be re-checked on the day its slot
+stops being a placeholder. The two that are correct today are the homepage hero and the course
+hero, and they are correct because Lighthouse names both as the LCP element on their route.
+
+### On reading these numbers at all
+
+`/courses` also shows why a single reading proves nothing. Its pre-deploy baseline of 1.24s was a
+favourable outlier: `docs/audits/perf-build2.md` records the same route at **95 and 2.8s** on the
+deployment in build 2, which is where it sat for most of the readings above before the preload was
+removed. The honest statement is that `/courses` is at or better than its build 2 value, not that
+it fell from 1.24s and was restored.
+
+The same caution applies route by route. `/calendar` — untouched, photograph-free — read 2.9s in
+the same run where four photograph routes read 1.2 to 1.7s. Take the routes as a set and compare
+against the controls in the same run; do not compare one number against one number.
 
 ## What was changed for performance, and what was not
 
