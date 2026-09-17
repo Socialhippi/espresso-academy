@@ -33,7 +33,10 @@ export function FaqAccordion({ items, className, defaultOpenFirst = false }: Faq
     <Accordion
       hiddenUntilFound
       defaultValue={defaultOpenFirst ? [0] : []}
-      className={cn("border-t border-white-2", className)}
+      /* No `border-t`. The section hairline above this list spans the container now, and the
+         accordion's own top rule sat 25px under it at a different width — one rule that looked
+         like it had broken. Every AccordionItem carries `border-b`, so the list still closes. */
+      className={cn(className)}
     >
       {items.map((faq) => (
         <AccordionItem key={faq.q} className="border-b border-white-2">

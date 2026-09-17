@@ -250,6 +250,18 @@
    --------------------------------------------------------------------------- */
 
 /*
+ * The width a hero with no aside stops at.
+ *
+ * 1216px is the content width `container-site` gives at lg. A hero made only of words does not
+ * benefit from the 2xl step — its intro is capped at 68ch by `.measure` and every extra pixel of
+ * container became empty row — so the aside-less variant holds this instead. A utility rather than
+ * an arbitrary value in a component, per CLAUDE.md non-negotiable 3.
+ */
+@utility hero-column {
+  max-width: 1216px;
+}
+
+/*
  * 1200px container, 20px gutters on mobile and 32px from the md breakpoint, widening twice above
  * that.
  *

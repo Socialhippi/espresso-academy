@@ -84,7 +84,7 @@ export async function NextBatches({ count = 4, className, number = "02", compact
                   <Link
                     href={`/book/${instance.id}`}
                     data-event="book_click_home"
-                    className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-center type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep md:self-center"
+                    className="inline-flex min-h-11 min-w-11 shrink-0 items-center justify-start self-start type-body text-red underline decoration-1 underline-offset-4 hover:text-red-deep md:justify-center md:self-center"
                   >
                     Book
                     <span className="sr-only">

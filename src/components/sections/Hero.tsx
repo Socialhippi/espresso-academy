@@ -102,8 +102,8 @@ export function PageHero({
           void filling 44% of the row, against 434px before. A headline marooned in a half-empty
           row is the "AI template" register design.md rules out.
 
-          1216px is the content width the container gives at lg, so this reproduces the lg
-          composition and nothing else changes: below 1536 the grid is already 1216 and the cap is
+          `hero-column` is 1216px, the content width the container gives at lg, so this reproduces
+          the lg composition and nothing else changes: below 1536 the grid is already 1216 and the cap is
           inert. The `<section>` keeps the full-width Container, so its border and any background
           still span the page — only the text column stops.
 
@@ -113,7 +113,7 @@ export function PageHero({
         <div
           className={cn(
             "gap-10 nav:gap-12",
-            aside ? "grid nav:grid-cols-12" : "2xl:max-w-[1216px]",
+            aside ? "grid nav:grid-cols-12" : "2xl:hero-column",
             above ? "mt-6 md:mt-8" : undefined,
           )}
         >

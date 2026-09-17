@@ -94,7 +94,7 @@ export function AudienceDoors({ className, number = "01" }: AudienceDoorsProps) 
                 <p className="mt-3 type-body text-grey">{door.body}</p>
                 {/* type-body, not type-label: design.md puts a 16px floor under red text, and this is
                     the card's call to action. Same resolution as src/app/courses/page.tsx. */}
-                <span className="mt-auto flex items-center gap-2 pt-8 type-body text-red">
+                <span className="mt-auto flex items-center gap-2 pt-8 type-body font-medium text-red">
                   {door.cta}
                   <ArrowRight
                     className="size-4 transition-transform duration-200 ease-out-brand group-hover:translate-x-1"

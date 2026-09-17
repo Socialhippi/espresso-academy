@@ -315,7 +315,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               />
             </div>
             <div className="lg:col-span-8">
-              <ol className="divide-y divide-white-2 border-y border-white-2">
+              <ol className="divide-y divide-white-2 border-b border-white-2">
                 {howToChoose.map((route, index) => (
                   <li key={route.href} className="flex gap-6 py-6 md:gap-8">
                     <span className="type-numeral text-h3-lg text-grey" aria-hidden="true">

@@ -54,7 +54,7 @@ async function Rung({ level, current, onDark }: RungProps) {
           <span
             className={cn(
               "whitespace-nowrap",
-              onDark ? "type-label text-white" : "type-body text-red",
+              onDark ? "type-label text-white" : "type-body font-medium text-red",
             )}
           >
             You are here

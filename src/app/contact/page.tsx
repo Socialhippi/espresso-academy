@@ -71,7 +71,9 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
               new phrase: that copy is already on this page and this brief does not write more.
             */}
             <ButtonLink href="#cafe" variant="primary" data-event="enquiry_click_contact_hero">
-              Send a message
+              {/* Both labels are the heading of the section this jumps to, which changes with the
+                  same `cafeTopic` flag further down. AudienceDoors sends the cafe door here. */}
+              {cafeTopic ? "Train your cafe team" : "Send a message"}
             </ButtonLink>
             <WhatsAppButton event="whatsapp_click_contact" />
             {settings.address.mapsUrl ? (
@@ -211,9 +213,12 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
                 branded panel with the address set in type. It is a graphic, not a photograph, so
                 the "never put text over an image" rule is not in play.
               */}
+              {/* `lg:mt-4`: the section hairline spans the container now, and this panel's own top
+                  border sat 25px under it at half the width — near enough to read as one rule that
+                  had shifted. 16px more separates the panel from the rule above it. */}
               <div
                 data-placeholder="true"
-                className="relative flex aspect-photo flex-col justify-between overflow-hidden rounded-sm border border-white-2 bg-white-3 p-6 md:p-8"
+                className="relative flex aspect-photo flex-col justify-between overflow-hidden rounded-sm border border-white-2 bg-white-3 p-6 lg:mt-4 md:p-8"
               >
                 <div className="absolute inset-0 grid place-items-center" aria-hidden="true">
                   <LogoMark className="h-2/5 w-auto opacity-20" sizes="(min-width: 768px) 160px, 96px" />
