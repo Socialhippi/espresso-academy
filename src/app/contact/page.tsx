@@ -58,6 +58,21 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         }
         actions={
           <>
+            {/*
+              The primary action, first, because there was not one in the first viewport.
+
+              A student arriving from a WhatsApp link lands here, and until now the first red pill
+              on the route was the form's own submit at y=3477 on a 390px screen — nine viewports
+              down. The hero's only actions were a black WhatsApp button and a secondary outline,
+              so design.md's "primary red pill" was absent from the fold on the one route people
+              are sent to directly.
+
+              It carries the heading of the section it jumps to, "Send a message", rather than a
+              new phrase: that copy is already on this page and this brief does not write more.
+            */}
+            <ButtonLink href="#cafe" variant="primary" data-event="enquiry_click_contact_hero">
+              Send a message
+            </ButtonLink>
             <WhatsAppButton event="whatsapp_click_contact" />
             {settings.address.mapsUrl ? (
               <ButtonLink href={settings.address.mapsUrl} variant="secondary" external>
