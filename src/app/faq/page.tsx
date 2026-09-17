@@ -44,7 +44,7 @@ export default async function FaqPage() {
           <h2 id="faq-heading" className="sr-only">
             Questions grouped by topic
           </h2>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <nav aria-label="Question topics" className="lg:col-span-3">
               <div className="md:sticky md:top-28">
                 <p className="type-label text-grey">Topics</p>

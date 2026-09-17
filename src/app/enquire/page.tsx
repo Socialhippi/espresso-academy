@@ -41,7 +41,7 @@ export default async function EnquirePage({ searchParams }: PageProps<"/enquire"
   return (
     <>
       <Container className="py-10 md:py-16">
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
           <div className="lg:col-span-5">
             <p className="eyebrow">Enquiry</p>
             <h1 className="mt-3 type-h1 text-black">Ask about a seat</h1>

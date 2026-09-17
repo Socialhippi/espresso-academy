@@ -183,7 +183,7 @@ export default async function AboutPage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="campus-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="02"
@@ -279,10 +279,10 @@ export default async function AboutPage() {
                   aspect="photo"
                   sizes={
                     (mosaic && index === 0) || (!mosaic && frames.length === 1)
-                      ? "(min-width: 1536px) 912px, (min-width: 1024px) 805px, (min-width: 768px) 62vw, 92vw"
+                      ? "(min-width: 768px) 62vw, 92vw"
                       : mosaic
-                        ? "(min-width: 1536px) 448px, (min-width: 1024px) 395px, (min-width: 768px) 30vw, 92vw"
-                        : "(min-width: 1536px) 672px, (min-width: 1024px) 592px, (min-width: 768px) 46vw, 92vw"
+                        ? "(min-width: 768px) 30vw, 92vw"
+                        : "(min-width: 768px) 46vw, 92vw"
                   }
                   className={mosaic && index === 0 ? "md:h-full" : undefined}
                   placeholderClassName={mosaic && index === 0 ? "md:h-full" : undefined}
@@ -351,7 +351,7 @@ export default async function AboutPage() {
       {/* The honesty paragraph, required by .claude/rules/content.md wherever certificates come up. */}
       <section className="section-y" aria-labelledby="honesty-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="05"

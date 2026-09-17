@@ -20,17 +20,18 @@ interface CourseCardProps {
   /**
    * What the card measures in the grid it is in. The default describes the three-up hub.
    *
-   * The related-course list on a course page is two-up, so each card is 584px at 1280 rather than
-   * 380px; against the hub's value the browser picked `w=384` for that box and upscaled it 1.52x,
-   * which was the only visibly soft image on the site. Widening the shared default instead would
-   * have over-served the hub by the same factor, so the grid that is different passes its own.
+   * Expressed in vw, because the layout is fluid: a card is four of twelve columns, which is 28.5%
+   * of the viewport at 1280 and 28.5% at 2309, so one number covers every width. It was a fixed
+   * 437px, and on a 2309px screen that told the browser to fetch a 1080px variant for a 658px box
+   * on a 2x display — a 1.22x upscale on every card in the hub.
+   *
+   * The related-course list is two-up rather than three, so it passes its own.
    */
   sizes?: string;
 }
 
 /** The three-up grid on /courses and /workshops, which is what most callers are. */
-const HUB_SIZES =
-  "(min-width: 1536px) 437px, (min-width: 1024px) 384px, (min-width: 768px) 45vw, 90vw";
+const HUB_SIZES = "(min-width: 1024px) 29vw, (min-width: 768px) 45vw, 92vw";
 
 /**
  * The whole card is one link, per .claude/rules/a11y.md. Hover underlines the title and shifts the

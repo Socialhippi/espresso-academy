@@ -107,7 +107,7 @@ function HeroSection({
   return (
     <section className={cn("section-y-sm", alt && "bg-white-3")}>
       <Container>
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
           <div className="lg:col-span-7">
             {eyebrow && <p className="eyebrow">{eyebrow}</p>}
             <h2 className={cn("type-h1 text-black", eyebrow && "mt-3")}>{heading}</h2>
@@ -129,7 +129,7 @@ function HeroSection({
                 slot={`section-${number}`}
                 fallbackAlt={heading}
                 aspect="photo"
-                sizes="(min-width: 1024px) 460px, 100vw"
+                sizes="(min-width: 1024px) 45vw, 92vw"
               />
             </div>
           )}
@@ -180,7 +180,7 @@ function OfferSection({
   return (
     <section className={cn("section-y-sm", alt && "bg-white-3")}>
       <Container>
-        <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
           <div className="lg:col-span-5">
             <SectionHeading rule={false} number={number} eyebrow={eyebrow ?? "What you get"} title={heading} />
           </div>
@@ -266,7 +266,7 @@ function FormSection({
   return (
     <section className="section-y-sm" id="enquire">
       <Container>
-        <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
           <div className="lg:col-span-5">
             <SectionHeading rule={false} number={number} eyebrow="Enquire" title={heading} />
             {body && <p className="mt-5 measure type-body text-grey">{body}</p>}

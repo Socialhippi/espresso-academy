@@ -79,7 +79,7 @@ export default async function HomePage() {
       {/* Asymmetric: the explanation holds the left, the ladder the right. */}
       <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="03"
@@ -132,7 +132,7 @@ export default async function HomePage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="faq-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="06"

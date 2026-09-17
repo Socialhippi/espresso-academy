@@ -86,7 +86,7 @@ export default async function GuidesPage() {
               </div>
             </div>
           ) : (
-            <ul className="mt-10 grid gap-10 md:grid-cols-2 lg:gap-12">
+            <ul className="mt-10 grid gap-[var(--gutter-grid)] md:grid-cols-2">
               {guides.map((guide, index) => (
                 <li key={guide.slug}>
                   <article className="group h-full">
@@ -97,7 +97,7 @@ export default async function GuidesPage() {
                         fallbackAlt={guide.title}
                         aspect="photo"
                         priority={index === 0}
-                        sizes="(min-width: 768px) 45vw, 90vw"
+                        sizes="(min-width: 768px) 45vw, 92vw"
                       />
                       <h3 className="mt-5 type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                         {guide.title}

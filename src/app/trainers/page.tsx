@@ -97,7 +97,7 @@ export default async function TrainersPage() {
              * there is one thing. The photo holds the left, the credentials and the bio hold the
              * right, and the deep profile is one link away.
              */
-            <div className="mt-10 grid gap-10 md:mt-14 lg:grid-cols-12 lg:gap-12">
+            <div className="mt-10 grid gap-10 md:mt-14 lg:grid-cols-12">
               <div className="lg:col-span-4">
                 <SanityPhoto
                   image={only.image}
@@ -105,7 +105,7 @@ export default async function TrainersPage() {
                   fallbackAlt={`${only.name}, trainer at Espresso Academy India`}
                   aspect="portrait"
                   priority
-                  sizes="(min-width: 1024px) 380px, 90vw"
+                  sizes="(min-width: 1024px) 29vw, 92vw"
                 />
               </div>
 

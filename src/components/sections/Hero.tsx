@@ -42,7 +42,7 @@ export function HomeHero({
   return (
     <section className="border-b border-white-2 pt-10 pb-14 md:pt-16 md:pb-24">
       <Container>
-        <div className="grid items-start gap-10 nav:grid-cols-12 nav:gap-12">
+        <div className="grid items-start gap-10 nav:grid-cols-12">
           <div className="nav:col-span-7">
             {eyebrow && <p className="eyebrow mb-4">{eyebrow}</p>}
             <h1 className="type-display text-black">
@@ -92,28 +92,16 @@ export function PageHero({
       <Container>
         {above}
         {/*
-          Without an aside, this block stops widening at 2xl.
-
-          The container steps to 1440px there so the card grids, the batch table and the
-          photographic sections can use it. A hero that is only words does not benefit: its intro
-          is capped at 68ch by `.measure` and stays 766px whatever the container does, so every
-          extra pixel of container became empty space to its right. Measured at 1920 after the
-          container widened: the intro ended at x=1038 and the content edge sat at x=1648, a 611px
-          void filling 44% of the row, against 434px before. A headline marooned in a half-empty
-          row is the "AI template" register design.md rules out.
-
-          `hero-column` is 1216px, the content width the container gives at lg, so this reproduces
-          the lg composition and nothing else changes: below 1536 the grid is already 1216 and the cap is
-          inert. The `<section>` keeps the full-width Container, so its border and any background
-          still span the page — only the text column stops.
-
-          The homepage hero is untouched. It has a photograph in the right column, so its twelve
-          columns have something to hold and the full 1440 is exactly what it wants.
+          No cap here any more. The page is fluid, so an aside-less hero is as wide as the section
+          and its intro is held by `.measure` in ch — which is the cap that should have been doing
+          the work all along. What is still true, and is item 4 of this brief, is that a text-only
+          hero leaves space to its right above about 2200px. That is noted rather than papered over
+          with a pixel ceiling.
         */}
         <div
           className={cn(
-            "gap-10 nav:gap-12",
-            aside ? "grid nav:grid-cols-12" : "2xl:hero-column",
+            "gap-10 nav:gap-[var(--gutter-grid)]",
+            aside ? "grid nav:grid-cols-12" : undefined,
             above ? "mt-6 md:mt-8" : undefined,
           )}
         >

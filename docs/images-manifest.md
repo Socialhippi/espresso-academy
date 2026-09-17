@@ -12,7 +12,17 @@ Photos from the client's shoot drop into `public/images/` with these exact names
 | courses-hub | public/images/courses-hub.jpg | 3:2 | Courses hub hero. The hero runs full width until this file lands, rather than holding an empty frame open |
 | og-default | generated | 1200x630 | Open Graph |
 
-Rules: JPEG or WebP, sRGB, max 2400px on the long edge, under 600KB each. No AI-generated people.
+Rules: JPEG or WebP, sRGB, **at least 3200px on the long edge**, under 900KB each. No AI-generated
+people.
+
+The old cap was 2400px, sized for a 1200px fixed container where 2400 covered a 2x display exactly.
+The layout is fluid now with no ceiling, so an image column is a share of the viewport: the hero is
+37% of it, which is 854px at 2309 and 1310px at 3440, and a 2x display needs double that. Measured
+against the files in hand at 3440 and 2x, the hero upscales 1.09x and the 1800px course photographs
+1.13x to 1.74x; `about/campus-1.jpg`, which runs two thirds of the width, upscales 2.36x. Nothing
+upscales at any width on a 1x display, and nothing upscales at 2x below about 1900px, so this
+affects large retina desktops only — but it is the reason to ask for bigger originals from here on.
+3200px covers 3440 at 2x for every slot except a full-bleed one.
 
 Alt text lives in the `ALT` map in `src/lib/photos.ts`, beside the rule that turns a slot into a
 path. It moved there from content/data.ts because build 2 stopped `src/` importing that file: the

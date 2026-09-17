@@ -214,7 +214,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               slot="courses-hub"
               aspect="photo"
               priority
-              sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 92vw"
+              sizes="(min-width: 1128px) 37vw, 92vw"
             />
           ) : undefined
         }
@@ -285,9 +285,9 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               </div>
             </div>
           ) : (
-            <ul className="mt-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-6 grid-site">
               {courses.map((course) => (
-                <li key={course.slug}>
+                <li className="col-span-12 md:col-span-6 lg:col-span-4" key={course.slug}>
                   <CourseCard course={course} />
                 </li>
               ))}
@@ -303,7 +303,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       */}
       <section className="bg-white-3 section-y" aria-labelledby="choose-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="02"
@@ -358,7 +358,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
 
       <section className="bg-white-3 section-y-sm" aria-labelledby="fees-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="04"
@@ -539,7 +539,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             title="Courses and fees"
             id="courses-faq-heading"
           />
-          <FaqAccordion items={faqs} className="mt-10 max-w-4xl md:mt-14" />
+          <FaqAccordion items={faqs} className="mt-10 measure-wide md:mt-14" />
         </Container>
       </section>
 

@@ -132,7 +132,7 @@ function FallbackSections({
     <>
       <section className="section-y" aria-labelledby="how-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               {/*
                 No image frame here, and not a guarded one either.
@@ -200,7 +200,7 @@ function FallbackSections({
 
       <section className="section-y-sm bg-white-3" aria-labelledby="ask-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="02"
@@ -236,7 +236,7 @@ function FallbackSections({
 
       <section className="section-y" id="enquire" aria-labelledby="enquire-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="03"

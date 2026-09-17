@@ -186,7 +186,7 @@ export default async function CertificationPage({ params }: PageProps<"/certific
           <h2 id="answers-heading" className="sr-only">
             Questions about the {certification.name}
           </h2>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <nav aria-label="On this page" className="lg:col-span-4">
               <div className="md:sticky md:top-28">
                 <p className="type-label text-grey">On this page</p>
@@ -246,9 +246,9 @@ export default async function CertificationPage({ params }: PageProps<"/certific
                 /certifications/italian-barista-certificate: the first card's photograph starts
                 3307px down, 2463px below the fold. Same reasoning as the hub grid in
                 src/app/courses/page.tsx, which this repeats. */}
-            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-10 grid-site">
               {courses.map((course) => (
-                <li key={course.slug}>
+                <li className="col-span-12 md:col-span-6 lg:col-span-4" key={course.slug}>
                   <CourseCard course={course} />
                 </li>
               ))}
@@ -259,7 +259,7 @@ export default async function CertificationPage({ params }: PageProps<"/certific
 
       <section className="section-y-sm" aria-labelledby="cert-faq-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="08"

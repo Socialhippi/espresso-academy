@@ -115,7 +115,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             ]}
           />
 
-          <div className="mt-6 grid gap-10 md:mt-8 nav:grid-cols-12 nav:gap-12">
+          <div className="mt-6 grid gap-10 md:mt-8 nav:grid-cols-12">
             <div className="nav:col-span-7">
               <LevelBadge level={course.level} />
               <h1 className="mt-4 type-h1 text-black">{course.title}</h1>
@@ -146,7 +146,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 fallbackAlt={course.heroAlt}
                 aspect="photo"
                 priority
-                sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 92vw"
+                sizes="(min-width: 1128px) 37vw, 92vw"
                 /* Same role as the homepage hero picture, so the same 8px radius. Card photos stay
                    square on purpose: they sit flush inside a bordered card. */
                 className="rounded-sm"
@@ -395,7 +395,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             title="Next batches"
             id="dates-heading"
           />
-          <div className="mt-8 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="mt-8 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             {/* min-w-0: a grid item defaults to min-width:auto, so it cannot shrink below its
                 content's min-content width, and the batch table's is five columns wide. Without
                 this the scroll container inside it never gets to scroll and the whole document goes
@@ -412,7 +412,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <section className="section-y-sm" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number={next()}
@@ -461,7 +461,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
           />
           {/* Capped: at 1200px a question's chevron sits a thousand pixels from its text. */}
           <FaqAccordion
-            className="mt-8 max-w-4xl"
+            className="mt-8 measure-wide"
             items={course.faq.map((item) => ({ ...item, category: "courses" }))}
           />
         </Container>
@@ -485,14 +485,14 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
               and a third column at 1280 was always empty. While both cards were placeholders that
               read as white space; with photographs in them it reads as a third card that failed to
               load. Restore `lg:grid-cols-3` when the catalogue is bigger than three. */}
-          <ul className="mt-10 grid gap-8 md:grid-cols-2">
+          <ul className="mt-10 grid-site">
               {related.map((item) => (
-                <li key={item.slug}>
+                <li className="col-span-12 md:col-span-6" key={item.slug}>
                   {/* Two-up here, not the hub's three-up: each card is 584px at 1280, so the
                       hub's 380px made the browser fetch w=384 and upscale it 1.52x. */}
                   <CourseCard
                     course={item}
-                    sizes="(min-width: 1536px) 672px, (min-width: 1024px) 592px, (min-width: 768px) 45vw, 90vw"
+                    sizes="(min-width: 1024px) 45vw, (min-width: 768px) 45vw, 92vw"
                   />
                 </li>
               ))}

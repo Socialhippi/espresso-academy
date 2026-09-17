@@ -38,7 +38,7 @@ export function FinalCta({
   return (
     <section className={cn("dark-wash pt-16 pb-10 md:pt-32 md:pb-16", className)} aria-labelledby="final-cta-heading">
       <Container>
-        <div className="grid gap-10 hairline-on-dark pt-6 lg:grid-cols-12 lg:gap-12">
+        <div className="grid gap-10 hairline-on-dark pt-6 lg:grid-cols-12">
           {/* `reveal-heading` by hand rather than through SectionHeading: this block is an H1-scale
               heading on the one dark section, which SectionHeading does not render. Without it,
               section 07 was the only numbered section on any route whose heading did not arrive

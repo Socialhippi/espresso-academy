@@ -148,9 +148,9 @@ export default async function WorkshopsPage() {
                 /certifications/italian-barista-certificate: the first card's photograph starts
                 3307px down, 2463px below the fold. Same reasoning as the hub grid in
                 src/app/courses/page.tsx, which this repeats. */}
-            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-10 grid-site">
               {workshops.map((workshop) => (
-                <li key={workshop.slug}>
+                <li className="col-span-12 md:col-span-6 lg:col-span-4" key={workshop.slug}>
                   <CourseCard course={workshop} />
                 </li>
               ))}
@@ -161,7 +161,7 @@ export default async function WorkshopsPage() {
 
       <section className="section-y-sm" aria-labelledby="teams-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number={workshops.length > 0 ? "03" : "02"}

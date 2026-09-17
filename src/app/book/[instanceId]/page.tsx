@@ -73,7 +73,7 @@ export default async function BookPage({ params }: PageProps<"/book/[instanceId]
 
   return (
     <Container className="py-10 md:py-16">
-      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+      <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
         {/* The batch, on the left on desktop and above the form on mobile: someone about to pay
             should be able to check what they are paying for without scrolling past the form. */}
         <div className="lg:col-span-5">

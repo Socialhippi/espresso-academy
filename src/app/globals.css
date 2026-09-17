@@ -31,17 +31,17 @@
   /* type */
   --font-display: "Bebas Neue", "Impact", sans-serif;
   --font-sans: "Montserrat", "Helvetica Neue", Arial, sans-serif;
-  --text-display: 2.5rem;
+  --text-display: clamp(40px, 6.984px + 8.4656vw, 72px);
   --text-display--line-height: 0.95;
-  --text-h1: 2.25rem;
+  --text-h1: clamp(36px, 15.365px + 5.291vw, 56px);
   --text-h1--line-height: 1;
-  --text-h2: 1.75rem;
+  --text-h2: clamp(28px, 15.619px + 3.1746vw, 40px);
   --text-h2--line-height: 1.15;
-  --text-h3: 1.25rem;
+  --text-h3: clamp(20px, 15.873px + 1.0582vw, 24px);
   --text-h3--line-height: 1.2;
-  --text-body: 1rem;
+  --text-body: clamp(16px, 14.968px + 0.2646vw, 17px);
   --text-body--line-height: 1.6;
-  --text-label: 0.75rem;
+  --text-label: clamp(12px, 11.296px + 0.0916vw, 13.41px);
   --text-label--line-height: 1.2;
   --text-label--letter-spacing: 0.08em;
   /* radius, shadow, motion */
@@ -55,24 +55,35 @@
   --duration-base: 250ms;
   --duration-slow: 400ms;
   /* layout */
-  --container-site: 1200px;
+  /*
+   * No --container-site. The page is fluid: sections run the full viewport and the only horizontal
+   * constraint is the gutter below. What used to cap the measure is `.measure`, in ch, which is
+   * where a reading-width cap belongs — it tracks the font rather than the window.
+   */
+  --gutter-page: clamp(16px, 4vw, 120px);
+  /*
+   * The grid's own gutter, fluid on the same principle. 3.75vw puts it at 48px at 1280, which is
+   * the `lg:gap-12` the twelve-column grids used when they were fixed, so nothing moves at the
+   * width most of this was designed against.
+   */
+  --gutter-grid: clamp(24px, 3.75vw, 72px);
 }
 
 /* Desktop half of the scale, from the note at the foot of design/tokens.css
    ("display 4.5rem, h1 3.5rem, h2 2.5rem, h3 1.5rem, body 1.0625rem").
    Consumed by the .type-* utilities below so the scale lives in exactly one place. */
 @theme {
-  --text-display-lg: 4.5rem;
+  --text-display-lg: clamp(72px, 67.778px + 0.5497vw, 80.47px);
   --text-display-lg--line-height: 0.92;
-  --text-h1-lg: 3.5rem;
+  --text-h1-lg: clamp(56px, 52.717px + 0.4275vw, 62.59px);
   --text-h1-lg--line-height: 1;
-  --text-h2-lg: 2.5rem;
+  --text-h2-lg: clamp(40px, 37.655px + 0.3054vw, 44.71px);
   --text-h2-lg--line-height: 1.1;
-  --text-h3-lg: 1.5rem;
+  --text-h3-lg: clamp(24px, 22.593px + 0.1832vw, 26.82px);
   --text-h3-lg--line-height: 1.25;
-  --text-body-lg: 1.0625rem;
+  --text-body-lg: clamp(17px, 16.003px + 0.1298vw, 19px);
   --text-body-lg--line-height: 1.6;
-  --text-small: 0.875rem;
+  --text-small: clamp(14px, 13.179px + 0.1069vw, 15.65px);
   --text-small--line-height: 1.5;
 }
 
@@ -250,49 +261,31 @@
    --------------------------------------------------------------------------- */
 
 /*
- * The width a hero with no aside stops at.
+ * The page container: full width, fluid gutter, no ceiling.
  *
- * 1216px is the content width `container-site` gives at lg. A hero made only of words does not
- * benefit from the 2xl step — its intro is capped at 68ch by `.measure` and every extra pixel of
- * container became empty row — so the aside-less variant holds this instead. A utility rather than
- * an arbitrary value in a component, per CLAUDE.md non-negotiable 3.
- */
-@utility hero-column {
-  max-width: 1216px;
-}
-
-/*
- * 1200px container, 20px gutters on mobile and 32px from the md breakpoint, widening twice above
- * that.
+ * There was a 1200px measure here, then a 1280/1440 step, and both were the same mistake at
+ * different sizes — on a 2309px display the content held 1440px and left 869px of nothing, so the
+ * site read as a column with a margin rather than as a page. There is no max-width now. A section
+ * is as wide as the viewport and the only horizontal constraint is the gutter.
  *
- * The 1200px measure comes from design/tokens.css and is right up to about 1440px of viewport.
- * Past that it stops being a measure and starts being a column: at 1990px the container held
- * 1264px and used 63% of the window, at 2560px 49%, and the hero photograph sat at 472px in the
- * middle of a screen with room for half as much again. The page was reading as a half-width strip.
+ * `clamp(16px, 4vw, 120px)`: 16px at 390 where every pixel counts, 51px at 1280, 92px at 2309,
+ * and it stops growing at 3000 so a 3440 display does not get a 138px margin. The cap is on the
+ * gutter, never on the content.
  *
- * So the element's max-width steps up at lg and again at 2xl. The two lower steps are untouched:
- * 390px and 768px render exactly as before, which is where 64% of this audience is.
- *
- * Body copy does not widen with it. `.measure` (68ch) caps every prose block, and that cap is what
- * stops a wider container turning paragraphs into 150-character lines. What does widen is what
- * should: the hero, the stats row, the card grids, the batch table and the photographic sections,
- * all of which are grids or images inside this container and size themselves from it.
+ * What stops prose becoming unreadable is `.measure`, in ch — it tracks the font, so as the type
+ * scale grows with the viewport the measure grows with it and the line length in characters stays
+ * put. That is the cap that belongs in a fluid layout; a pixel ceiling on the container is not.
  */
 @utility container-site {
   width: 100%;
-  max-width: calc(var(--container-site) + 2 * 20px);
-  margin-inline: auto;
-  padding-inline: 20px;
-  @media (width >= 48rem) {
-    max-width: calc(var(--container-site) + 2 * 32px);
-    padding-inline: 32px;
-  }
-  @media (width >= 64rem) {
-    max-width: 1280px;
-  }
-  @media (width >= 96rem) {
-    max-width: 1440px;
-  }
+  padding-inline: var(--gutter-page);
+}
+
+/* The twelve-column grid every section lays out on, with the fluid gutter. */
+@utility grid-site {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  gap: var(--gutter-grid);
 }
 
 /* Wrapper for a table too wide for a phone.
@@ -487,6 +480,19 @@
 /* Body copy holds a comfortable measure. */
 @utility measure {
   max-width: 68ch;
+}
+
+/*
+ * A reading cap for a component that is wider than prose but still read line by line — the FAQ
+ * accordions, whose question and chevron sit at opposite ends of the row.
+ *
+ * In ch, not px, for the same reason `.measure` is: it tracks the font, so when the type scale
+ * grows with the viewport the cap grows with it and the line length in characters stays put. This
+ * replaced a `max-w-4xl`, which was a pixel ceiling doing a reading job — at 2309 an uncapped row
+ * would put a chevron two thousand pixels from the question it belongs to.
+ */
+@utility measure-wide {
+  max-width: 78ch;
 }
 
 @utility measure-tight {

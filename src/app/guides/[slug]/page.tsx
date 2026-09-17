@@ -81,7 +81,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
             ]}
           />
 
-          <div className="mt-6 grid gap-10 lg:grid-cols-12 lg:gap-12 md:mt-8">
+          <div className="mt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12 md:mt-8">
             <div className="lg:col-span-8">
               <p className="eyebrow">Guide</p>
               <h1 className="mt-3 type-h1 text-black">{guide.title}</h1>
@@ -128,7 +128,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
                 fallbackAlt={guide.title}
                 aspect="photo"
                 priority
-                sizes="(min-width: 1024px) 360px, 100vw"
+                sizes="(min-width: 1024px) 45vw, 92vw"
               />
 
               {(guide.primaryCourse || guide.primaryCertification) && (
@@ -163,7 +163,7 @@ export default async function GuidePage({ params }: PageProps<"/guides/[slug]">)
             </div>
           </div>
 
-          <div className="mt-12 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="mt-12 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-8">
               {guide.body && guide.body.length > 0 ? (
                 <PortableText value={guide.body} />

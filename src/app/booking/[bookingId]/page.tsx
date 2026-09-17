@@ -45,7 +45,7 @@ export default async function BookingPage({ params }: PageProps<"/booking/[booki
 
   return (
     <Container className="py-10 md:py-16">
-      <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+      <div className="grid gap-[var(--gutter-grid)] lg:grid-cols-12">
         <div className="lg:col-span-7">
           {paid ? (
             <>

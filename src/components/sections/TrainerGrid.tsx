@@ -25,7 +25,7 @@ export function TrainerCard({ trainer, className, priority = false }: TrainerCar
           fallbackAlt={`${trainer.name}, trainer at Espresso Academy India`}
           aspect="portrait"
           priority={priority}
-          sizes="(min-width: 1024px) 360px, (min-width: 768px) 30vw, 90vw"
+          sizes="(min-width: 1024px) 29vw, (min-width: 768px) 30vw, 92vw"
           className="rounded-sm"
         />
 

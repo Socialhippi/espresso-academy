@@ -99,7 +99,7 @@ const components: PortableTextComponents = {
             slot="guide-image"
             fallbackAlt="Photograph from Espresso Academy India"
             aspect="photo"
-            sizes="(min-width: 1024px) 760px, 100vw"
+            sizes="(min-width: 1024px) 62vw, 92vw"
           />
           {image.alt && (
             <figcaption className="mt-3 type-small text-grey">{image.alt}</figcaption>

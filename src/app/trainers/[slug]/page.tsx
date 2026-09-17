@@ -65,7 +65,7 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
             ]}
           />
 
-          <div className="mt-6 grid gap-10 md:mt-8 lg:grid-cols-12 lg:gap-12">
+          <div className="mt-6 grid gap-10 md:mt-8 lg:grid-cols-12">
             <div className="lg:col-span-5">
               {/* Placeholder branch preserved by SanityPhoto: no photograph is invented. */}
               <SanityPhoto
@@ -74,7 +74,7 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
                 fallbackAlt={`${trainer.name}, trainer at Espresso Academy India`}
                 aspect="portrait"
                 priority
-                sizes="(min-width: 768px) 460px, 100vw"
+                sizes="(min-width: 1024px) 37vw, (min-width: 768px) 45vw, 92vw"
                 className="rounded-sm"
               />
             </div>
@@ -117,7 +117,7 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
 
       <section className="section-y-sm bg-white-3" aria-labelledby="philosophy-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="01"
@@ -167,9 +167,9 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
             }
           />
           {courses.length > 0 ? (
-            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            <ul className="mt-10 grid-site">
               {courses.map((course) => (
-                <li key={course.slug}>
+                <li className="col-span-12 md:col-span-6 lg:col-span-4" key={course.slug}>
                   <CourseCard course={course} />
                 </li>
               ))}

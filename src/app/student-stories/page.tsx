@@ -91,7 +91,7 @@ export default async function StudentStoriesPage() {
               </div>
             </div>
           ) : (
-            <ul className="mt-10 grid gap-10 md:grid-cols-2 lg:grid-cols-3 lg:gap-12">
+            <ul className="mt-10 grid gap-[var(--gutter-grid)] md:grid-cols-2 lg:grid-cols-3">
               {stories.map((story, index) => (
                 <li key={story.id}>
                   <figure className="flex h-full flex-col">
@@ -101,7 +101,7 @@ export default async function StudentStoriesPage() {
                       fallbackAlt={`${story.name}, a student at Espresso Academy India`}
                       aspect="portrait"
                       priority={index === 0}
-                      sizes="(min-width: 1024px) 360px, (min-width: 768px) 45vw, 90vw"
+                      sizes="(min-width: 1024px) 29vw, (min-width: 768px) 45vw, 92vw"
                     />
                     <blockquote className="mt-5 measure type-body text-black">
                       {story.quote}

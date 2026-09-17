@@ -145,7 +145,7 @@ export default async function CertificationsPage() {
       {/* The honesty clause. .claude/rules/content.md requires it on every certification page. */}
       <section className="section-y-sm bg-white-3" aria-labelledby="honesty-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="02"
@@ -180,10 +180,10 @@ export default async function CertificationsPage() {
             title="Which courses lead where"
             id="courses-heading"
           />
-          <div className="mt-10 grid gap-8 md:grid-cols-2">
+          <div className="mt-10 grid-site">
             {coursesByCertification.map(({ certification, courses }) => {
               return (
-                <div key={certification.slug} className="border border-white-2 p-6 md:p-8">
+                <div key={certification.slug} className="col-span-12 border border-white-2 p-6 md:col-span-6 md:p-8">
                   <h3 className="type-h3 text-black">{certification.name}</h3>
                   {courses.length > 0 ? (
                     <ul className="mt-5 flex flex-col gap-3">
@@ -218,7 +218,7 @@ export default async function CertificationsPage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="04"
@@ -240,7 +240,7 @@ export default async function CertificationsPage() {
 
       <section className="section-y-sm" aria-labelledby="certs-faq-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number="05"

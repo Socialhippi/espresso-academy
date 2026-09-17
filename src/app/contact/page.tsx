@@ -87,7 +87,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
 
       <section className="section-y-sm" aria-labelledby="details-heading">
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="01"
@@ -268,7 +268,7 @@ export default async function ContactPage({ searchParams }: PageProps<"/contact"
         aria-labelledby="cafe-heading"
       >
         <Container>
-          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-5">
               <SectionHeading rule={false}
                 number="02"
