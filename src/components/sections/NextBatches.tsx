@@ -53,17 +53,27 @@ export async function NextBatches({ count = 4, className, number = "02", compact
           <ul className="mt-10 divide-y divide-white-2 border-y border-white-2 md:mt-14">
             {next.map(({ course, instance, startDate }) => (
               <li key={instance.id} className="flex flex-col gap-2 py-5 md:flex-row md:items-baseline md:gap-8">
+                {/*
+                  Columns, not `justify-between`.
+
+                  `justify-between` distributes whatever slack the row has, which was fine while
+                  the container was 1200px and became absurd when it widened to 1440: the date
+                  ended at x=838 and the schedule began at x=1475, a 637px gap down the middle of
+                  a row with four things in it, and Book sat about 1340px from the date it books.
+                  Twelve columns give each field a fixed share, so the row reads the same at 1280
+                  and at 2560 and only the columns breathe.
+                */}
                 <Link
                   href={`/courses/${course.slug}`}
-                  className="group flex flex-1 flex-col gap-2 md:flex-row md:items-baseline md:justify-between md:gap-8"
+                  className="group flex flex-1 flex-col gap-2 md:grid md:grid-cols-12 md:items-baseline md:gap-8"
                 >
-                  <time dateTime={startDate} className="type-numeral text-h2 text-black md:w-64">
+                  <time dateTime={startDate} className="type-numeral text-h2 text-black md:col-span-4">
                     {formatDateRange(instance.startDate, instance.endDate)}
                   </time>
-                  <span className="flex-1 type-body text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                  <span className="type-body text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4 md:col-span-5">
                     {course.title}
                   </span>
-                  <span className="type-small text-grey">
+                  <span className="type-small text-grey md:col-span-3">
                     {instance.schedule ?? formatDate(startDate)}
                   </span>
                 </Link>
