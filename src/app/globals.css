@@ -249,7 +249,23 @@
    Layout utilities
    --------------------------------------------------------------------------- */
 
-/* 1200px container, 20px gutters on mobile and 32px from the md breakpoint. */
+/*
+ * 1200px container, 20px gutters on mobile and 32px from the md breakpoint, widening twice above
+ * that.
+ *
+ * The 1200px measure comes from design/tokens.css and is right up to about 1440px of viewport.
+ * Past that it stops being a measure and starts being a column: at 1990px the container held
+ * 1264px and used 63% of the window, at 2560px 49%, and the hero photograph sat at 472px in the
+ * middle of a screen with room for half as much again. The page was reading as a half-width strip.
+ *
+ * So the element's max-width steps up at lg and again at 2xl. The two lower steps are untouched:
+ * 390px and 768px render exactly as before, which is where 64% of this audience is.
+ *
+ * Body copy does not widen with it. `.measure` (68ch) caps every prose block, and that cap is what
+ * stops a wider container turning paragraphs into 150-character lines. What does widen is what
+ * should: the hero, the stats row, the card grids, the batch table and the photographic sections,
+ * all of which are grids or images inside this container and size themselves from it.
+ */
 @utility container-site {
   width: 100%;
   max-width: calc(var(--container-site) + 2 * 20px);
@@ -258,6 +274,12 @@
   @media (width >= 48rem) {
     max-width: calc(var(--container-site) + 2 * 32px);
     padding-inline: 32px;
+  }
+  @media (width >= 64rem) {
+    max-width: 1280px;
+  }
+  @media (width >= 96rem) {
+    max-width: 1440px;
   }
 }
 

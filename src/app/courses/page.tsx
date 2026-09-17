@@ -214,7 +214,7 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
               slot="courses-hub"
               aspect="photo"
               priority
-              sizes="(min-width: 1080px) 480px, 92vw"
+              sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 92vw"
             />
           ) : undefined
         }

@@ -279,10 +279,10 @@ export default async function AboutPage() {
                   aspect="photo"
                   sizes={
                     (mosaic && index === 0) || (!mosaic && frames.length === 1)
-                      ? "(min-width: 1280px) 795px, (min-width: 768px) 62vw, 92vw"
+                      ? "(min-width: 1536px) 912px, (min-width: 1024px) 805px, (min-width: 768px) 62vw, 92vw"
                       : mosaic
-                        ? "(min-width: 1280px) 389px, (min-width: 768px) 30vw, 92vw"
-                        : "(min-width: 1280px) 592px, (min-width: 768px) 46vw, 92vw"
+                        ? "(min-width: 1536px) 448px, (min-width: 1024px) 395px, (min-width: 768px) 30vw, 92vw"
+                        : "(min-width: 1536px) 672px, (min-width: 1024px) 592px, (min-width: 768px) 46vw, 92vw"
                   }
                   className={mosaic && index === 0 ? "md:h-full" : undefined}
                   placeholderClassName={mosaic && index === 0 ? "md:h-full" : undefined}

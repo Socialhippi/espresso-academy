@@ -146,7 +146,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 fallbackAlt={course.heroAlt}
                 aspect="photo"
                 priority
-                sizes="(min-width: 1080px) 480px, 92vw"
+                sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 92vw"
                 /* Same role as the homepage hero picture, so the same 8px radius. Card photos stay
                    square on purpose: they sit flush inside a bordered card. */
                 className="rounded-sm"
@@ -492,7 +492,7 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                       hub's 380px made the browser fetch w=384 and upscale it 1.52x. */}
                   <CourseCard
                     course={item}
-                    sizes="(min-width: 1024px) 590px, (min-width: 768px) 45vw, 90vw"
+                    sizes="(min-width: 1536px) 672px, (min-width: 1024px) 592px, (min-width: 768px) 45vw, 90vw"
                   />
                 </li>
               ))}

@@ -29,7 +29,8 @@ interface CourseCardProps {
 }
 
 /** The three-up grid on /courses and /workshops, which is what most callers are. */
-const HUB_SIZES = "(min-width: 1024px) 380px, (min-width: 768px) 45vw, 90vw";
+const HUB_SIZES =
+  "(min-width: 1536px) 437px, (min-width: 1024px) 384px, (min-width: 768px) 45vw, 90vw";
 
 /**
  * The whole card is one link, per .claude/rules/a11y.md. Hover underlines the title and shifts the

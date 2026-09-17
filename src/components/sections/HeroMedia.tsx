@@ -136,7 +136,7 @@ export function HeroMedia({
           width={1200}
           height={800}
           priority
-          sizes="(min-width: 1080px) 480px, 100vw"
+          sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 100vw"
           className={cn(frame, "hero-still")}
         />
       </div>
@@ -159,7 +159,7 @@ export function HeroMedia({
         width={1200}
         height={800}
         priority
-        sizes="(min-width: 1080px) 480px, 100vw"
+        sizes="(min-width: 1536px) 545px, (min-width: 1128px) 480px, 100vw"
         className={cn(frame, "hero-media-in")}
       />
     );
