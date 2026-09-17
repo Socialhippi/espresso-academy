@@ -183,9 +183,9 @@ export default async function AboutPage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="campus-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="02"
                 eyebrow="Campus"
                 title="Where you will be"
@@ -351,9 +351,9 @@ export default async function AboutPage() {
       {/* The honesty paragraph, required by .claude/rules/content.md wherever certificates come up. */}
       <section className="section-y" aria-labelledby="honesty-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="05"
                 eyebrow="Straight answer"
                 title="About the certificates"

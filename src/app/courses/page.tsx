@@ -303,9 +303,9 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       */}
       <section className="bg-white-3 section-y" aria-labelledby="choose-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="02"
                 eyebrow="How to choose"
                 title="Which one is yours"
@@ -358,9 +358,9 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
 
       <section className="bg-white-3 section-y-sm" aria-labelledby="fees-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="04"
                 eyebrow="Fees"
                 title="What each course costs"

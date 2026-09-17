@@ -161,9 +161,9 @@ export default async function WorkshopsPage() {
 
       <section className="section-y-sm" aria-labelledby="teams-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number={workshops.length > 0 ? "03" : "02"}
                 eyebrow="Teams"
                 title="Booking for more than one person"

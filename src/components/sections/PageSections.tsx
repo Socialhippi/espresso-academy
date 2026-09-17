@@ -180,9 +180,9 @@ function OfferSection({
   return (
     <section className={cn("section-y-sm", alt && "bg-white-3")}>
       <Container>
-        <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+        <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">
-            <SectionHeading number={number} eyebrow={eyebrow ?? "What you get"} title={heading} />
+            <SectionHeading rule={false} number={number} eyebrow={eyebrow ?? "What you get"} title={heading} />
           </div>
           <div className="lg:col-span-7">
             {body && <p className="measure type-body text-grey">{body}</p>}
@@ -266,9 +266,9 @@ function FormSection({
   return (
     <section className="section-y-sm" id="enquire">
       <Container>
-        <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+        <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
           <div className="lg:col-span-5">
-            <SectionHeading number={number} eyebrow="Enquire" title={heading} />
+            <SectionHeading rule={false} number={number} eyebrow="Enquire" title={heading} />
             {body && <p className="mt-5 measure type-body text-grey">{body}</p>}
           </div>
           <div className="lg:col-span-7">

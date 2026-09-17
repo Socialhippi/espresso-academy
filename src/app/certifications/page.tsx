@@ -145,9 +145,9 @@ export default async function CertificationsPage() {
       {/* The honesty clause. .claude/rules/content.md requires it on every certification page. */}
       <section className="section-y-sm bg-white-3" aria-labelledby="honesty-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="02"
                 eyebrow="Straight answer"
                 title="What a certificate is actually worth"
@@ -218,9 +218,9 @@ export default async function CertificationsPage() {
 
       <section className="section-y-sm bg-white-3" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="04"
                 eyebrow="Levels"
                 title="The IBC ladder"
@@ -240,9 +240,9 @@ export default async function CertificationsPage() {
 
       <section className="section-y-sm" aria-labelledby="certs-faq-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="05"
                 eyebrow="Questions"
                 title="About certificates"

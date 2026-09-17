@@ -412,9 +412,9 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
 
       <section className="section-y-sm" aria-labelledby="ladder-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number={next()}
                 eyebrow="Ladder"
                 title="Where this sits"

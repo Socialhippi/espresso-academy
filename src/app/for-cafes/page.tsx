@@ -132,7 +132,7 @@ function FallbackSections({
     <>
       <section className="section-y" aria-labelledby="how-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
               {/*
                 No image frame here, and not a guarded one either.
@@ -156,6 +156,7 @@ function FallbackSections({
                 on the page with no alt and no layout decision behind it.
               */}
               <SectionHeading
+                rule={false}
                 number="01"
                 eyebrow="How it works"
                 title="Built around your bar"
@@ -199,9 +200,9 @@ function FallbackSections({
 
       <section className="section-y-sm bg-white-3" aria-labelledby="ask-heading">
         <Container>
-          <div className="grid gap-8 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-8 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="02"
                 eyebrow="What to send"
                 title="What the academy needs to quote"
@@ -235,9 +236,9 @@ function FallbackSections({
 
       <section className="section-y" id="enquire" aria-labelledby="enquire-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-5">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="03"
                 eyebrow="Enquire"
                 title="Ask for a proposal"

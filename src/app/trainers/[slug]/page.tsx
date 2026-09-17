@@ -117,9 +117,9 @@ export default async function TrainerPage({ params }: PageProps<"/trainers/[slug
 
       <section className="section-y-sm bg-white-3" aria-labelledby="philosophy-heading">
         <Container>
-          <div className="grid gap-10 lg:grid-cols-12 lg:gap-12">
+          <div className="hairline pt-6 grid gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="lg:col-span-4">
-              <SectionHeading
+              <SectionHeading rule={false}
                 number="01"
                 eyebrow="Approach"
                 title="How they teach"
