@@ -11,7 +11,7 @@ import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { PageHero } from "@/components/sections/Hero";
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FinalCta } from "@/components/sections/FinalCta";
-import { Placeholder } from "@/components/site/Placeholder";
+import { SlotPhoto } from "@/components/site/SlotPhoto";
 import { CourseCard } from "@/components/course/CourseCard";
 import { LevelLadder } from "@/components/course/LevelLadder";
 import {
@@ -29,6 +29,7 @@ import {
   type SkillArea,
 } from "@/lib/content";
 import { EX_GST, feeInclGst, formatDuration, formatFeeAmount, INCL_GST } from "@/lib/format";
+import { publicPhoto } from "@/lib/photos";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { courseListNode, faqNode, graph, webPageNode } from "@/lib/seo/schema";
 
@@ -196,11 +197,26 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             </ButtonLink>
           </>
         }
-        /* Portrait while it sits above the words, 3:2 once it sits beside them: a 4:5 frame in the
-           five-column aside runs 588px tall at 1280 and overshoots the copy by ~190px, which is the
-           same void it was meant to avoid, moved to the other side. Matches the homepage hero. */
+        /*
+         * 3:2, matching the homepage hero, and rendered only when the file exists.
+         *
+         * An empty frame here was honest while every frame on the route was empty. With three
+         * finished course photographs below it, it became the largest and highest image on the
+         * page and the only blank one: at 390 it took half a viewport between the call to action
+         * and the first card, and it stopped reading as "the shoot is in progress" and started
+         * reading as "somebody forgot this one". The hero simply goes full width until
+         * public/images/courses-hub.jpg lands, at which point the aside returns with no further
+         * change. docs/images-manifest.md names the file.
+         */
         aside={
-          <Placeholder slot="courses-hub" aspect="portrait" priority className="md:aspect-photo" />
+          publicPhoto("courses-hub") ? (
+            <SlotPhoto
+              slot="courses-hub"
+              aspect="photo"
+              priority
+              sizes="(min-width: 1080px) 480px, 92vw"
+            />
+          ) : undefined
         }
       />
 

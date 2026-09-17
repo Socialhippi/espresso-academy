@@ -5,12 +5,14 @@ import { SectionHeading } from "@/components/site/SectionHeading";
 import { ButtonLink } from "@/components/site/Button";
 import { TbcPill } from "@/components/site/TbcPill";
 import { Placeholder } from "@/components/site/Placeholder";
+import { SlotPhoto } from "@/components/site/SlotPhoto";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
 import { JsonLd } from "@/components/site/JsonLd";
 import { PageHero } from "@/components/sections/Hero";
 import { TrainerGrid } from "@/components/sections/TrainerGrid";
 import { FinalCta } from "@/components/sections/FinalCta";
 import { getTrainers, getSiteSettings } from "@/lib/content";
+import { publicPhoto } from "@/lib/photos";
 import { cn } from "@/lib/utils";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { graph, webPageNode } from "@/lib/seo/schema";
@@ -59,8 +61,44 @@ const galleryslots = [
   "about-campus-6",
 ];
 
+/**
+ * The gallery's own description has to be true of the gallery under it.
+ *
+ * It said the files were being prepared, which was right while all six frames were empty and wrong
+ * the moment one photograph landed: a reader looking at a real picture of the campus was being
+ * told there were none. Counting the files rather than editing the sentence means it stays true at
+ * every count, including the one where the shoot is complete and the apology should disappear.
+ */
+function galleryDescription(filled: number): string {
+  if (filled === 0) {
+    return "Photographs from the campus. The files are being prepared, so these are labelled placeholders rather than stock images.";
+  }
+  if (filled === galleryslots.length) return "Photographs from the campus.";
+  /* No longer "the empty frames are placeholders": there are no empty frames once one photograph
+     has landed, because the gallery renders what exists. */
+  return "Photographs from the campus. The rest of the shoot is being prepared.";
+}
+
 export default async function AboutPage() {
   const [trainers, settings] = await Promise.all([getTrainers(), getSiteSettings()]);
+
+  /*
+   * The gallery shows the photographs that exist, not a frame per slot.
+   *
+   * Six frames holding one photograph and five placeholders measured 54% empty by area at 1280,
+   * and the bottom row was three identical grey tiles — the silhouette of a grid that failed to
+   * load rather than of a shoot in progress. One photograph presented as one deliberate frame is
+   * the honest version of the same fact, and the mosaic returns on its own as files land.
+   *
+   * The fallback matters: with nothing at all, the six placeholders are still the right thing,
+   * because each one prints the slot name the academy owes and the section would otherwise be a
+   * heading over nothing. Which files are outstanding is recorded in docs/STATUS.md and
+   * docs/images-manifest.md, where it belongs, rather than in the marketing page.
+   */
+  const filled = galleryslots.filter((slot) => publicPhoto(slot) !== null);
+  const showingPlaceholders = filled.length === 0;
+  const frames = showingPlaceholders ? galleryslots : filled;
+  const mosaic = frames.length >= 3;
 
   return (
     <>
@@ -206,31 +244,78 @@ export default async function AboutPage() {
             eyebrow="Gallery"
             title="Inside the academy"
             id="gallery-heading"
-            description="Photographs from the campus. The files are being prepared, so these are labelled placeholders rather than stock images."
+            description={galleryDescription(filled.length)}
           />
           {/* A mosaic, not an even grid: the trainer grid directly below is already three even
               columns, and two equal grids back to back is the layout repetition the de-template
-              pass exists to remove. */}
+              pass exists to remove. It needs three photographs to be a mosaic; below that the
+              frames are sized to the count instead. */}
           <ul className="mt-10 grid gap-4 md:grid-cols-6">
-            {galleryslots.map((slot, index) => (
+            {frames.map((slot, index) => (
               <li
                 key={slot}
-                /* Only three frames on a phone: six stacked placeholders above the three trainer
-                   cards turned 42% of the page into identical empty boxes. All six return with
-                   the photography, where they are worth the scroll. */
+                /* Only three frames on a phone while these are placeholders: six stacked empty
+                   boxes above the three trainer cards turned 42% of the page into grey. */
+                /* One frame takes the lead cell the mosaic gave its first picture, two split the
+                   row. A single photograph at the full 1200px is 800px tall and swallows the
+                   section; at the lead size it is the same frame the design always had. */
                 className={cn(
-                  index === 0 ? "md:col-span-4 md:row-span-2" : "md:col-span-2",
-                  index > 2 && "max-md:hidden",
+                  mosaic
+                    ? index === 0
+                      ? "md:col-span-4 md:row-span-2"
+                      : "md:col-span-2"
+                    : frames.length === 1
+                      ? "md:col-span-4"
+                      : "md:col-span-3",
+                  showingPlaceholders && index > 2 && "max-md:hidden",
                 )}
               >
-                <Placeholder
+                <SlotPhoto
                   slot={slot}
-                  aspect={index === 0 ? "wide" : "photo"}
-                  className={index === 0 ? "md:h-full" : undefined}
+                  /* 3:2 everywhere, which is what docs/images-manifest.md asks the academy for.
+                     The lead frame was 16:9, and against a 3:2 file `object-cover` took 7.8% off
+                     the top — which on campus-1 is exactly where the fleur-de-lis is, so the
+                     academy's own mark was cut off on every phone. */
+                  aspect="photo"
+                  sizes={
+                    (mosaic && index === 0) || (!mosaic && frames.length === 1)
+                      ? "(min-width: 1280px) 795px, (min-width: 768px) 62vw, 92vw"
+                      : mosaic
+                        ? "(min-width: 1280px) 389px, (min-width: 768px) 30vw, 92vw"
+                        : "(min-width: 1280px) 592px, (min-width: 768px) 46vw, 92vw"
+                  }
+                  className={mosaic && index === 0 ? "md:h-full" : undefined}
+                  placeholderClassName={mosaic && index === 0 ? "md:h-full" : undefined}
                 />
               </li>
             ))}
           </ul>
+
+          {/*
+            The academy's own promise, put where the person it is for can act on it.
+
+            docs/images-manifest.md records the client confirming on 8 September that students
+            photographed in the shoot may appear on the site and that the academy takes an image
+            down on request. A privacy-policy footnote is not where someone who has just seen their
+            own face goes looking; the page carrying the photographs is. It renders only once a
+            photograph does, because a takedown offer under six empty frames is a promise about
+            nothing.
+          */}
+          {filled.length > 0 && (
+            <p className="mt-6 measure type-body text-grey">
+              {/* Only the academy's own commitment, which docs/images-manifest.md sources to the
+                  client on 8 September. Who is in the photographs, and on what release, is not in
+                  content/facts.md, so this does not say. */}
+              If you are in one of these photographs and would rather not be,{" "}
+              <Link
+                href="/contact"
+                className="text-red underline decoration-1 underline-offset-4 hover:text-red-deep"
+              >
+                tell the academy
+              </Link>{" "}
+              and it comes off the site.
+            </p>
+          )}
         </Container>
       </section>
 

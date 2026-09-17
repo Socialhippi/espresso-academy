@@ -24,6 +24,17 @@ interface CourseCardProps {
  * arrow 4px; nothing scales. The level badge sits under the photo rather than over it, because
  * text never sits on top of an image.
  *
+ * The hover reveal is the card's own affordance and never its content. .claude/rules/a11y.md says
+ * "No hover-only content", so every word on this card is present at every moment: on a phone that
+ * cannot hover, and to a screen reader that does not. What arrives is a red rule drawing out from
+ * under the arrow across the foot of the card: design.md's "underline draws".
+ *
+ * Every part of that state is driven by `:hover` and `:focus-visible` together — the rule, the
+ * black border, the title underline and the arrow. It was not: a design review measured the two
+ * and found a keyboard got the rule and the ring while a pointer also got the border, the
+ * underline and the 4px shift. Three of the five signals were pointer-only, on a card whose whole
+ * job is to say "this is a link".
+ *
  * A course with a bookable batch also gets a second link below the card body, outside the card
  * link because a link cannot contain a link. It is the only card state that shows one: everything
  * else has nothing to charge for, and the card link already leads to the page that asks. Without
@@ -58,7 +69,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
        tray under it. */
     <article
       className={cn(
-        "flex h-full flex-col border border-white-2 bg-white transition-[border-color] duration-200 has-[a:hover]:border-black",
+        "flex h-full flex-col border border-white-2 bg-white transition-[border-color] duration-200 has-[a:focus-visible]:border-black has-[a:hover]:border-black",
         className,
       )}
     >
@@ -67,7 +78,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         // `group/card`, not `group`: on the bare name the book band below counted as part of the
         // group, so hovering it underlined the title and shifted the arrow — the card signalling
         // "open the course page" while the pointer was on a link to a checkout.
-        className="group/card flex flex-1 flex-col"
+        className="card-link group/card flex flex-1 flex-col"
       >
         <div className="relative">
           <SanityPhoto
@@ -84,7 +95,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
         <div className="flex flex-1 flex-col p-6">
           <LevelBadge level={course.level} className="self-start" />
 
-          <h3 className="mt-4 type-h3 text-black group-hover/card:underline group-hover/card:decoration-1 group-hover/card:underline-offset-4">
+          <h3 className="mt-4 type-h3 text-black group-focus-visible/card:underline group-focus-visible/card:decoration-1 group-focus-visible/card:underline-offset-4 group-hover/card:underline group-hover/card:decoration-1 group-hover/card:underline-offset-4">
             {course.title}
           </h3>
 
@@ -157,7 +168,7 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
               )}
             </div>
             <ArrowRight
-              className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover/card:translate-x-1"
+              className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-focus-visible/card:translate-x-1 group-hover/card:translate-x-1"
               aria-hidden="true"
             />
           </div>
@@ -167,6 +178,11 @@ export function CourseCard({ course, className, priority = false }: CourseCardPr
               {formatFeeAmount(total)} {INCL_GST}
             </p>
           )}
+
+          {/* Last in the body, so the rule closes the card under whichever line the card ended on.
+              Decoration, and announced as nothing: it says "this card is a link", which the card
+              already said in the accessibility tree. */}
+          <span aria-hidden="true" className="card-rail mt-4" />
         </div>
       </Link>
 

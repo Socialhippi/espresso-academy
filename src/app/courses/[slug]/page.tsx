@@ -8,8 +8,8 @@ import { ButtonLink } from "@/components/site/Button";
 import { WhatsAppButton } from "@/components/site/WhatsAppButton";
 import { TbcPill } from "@/components/site/TbcPill";
 import { LevelBadge } from "@/components/site/LevelBadge";
+import { SanityPhoto } from "@/components/site/SanityPhoto";
 import { Breadcrumbs } from "@/components/site/Breadcrumbs";
-import { Placeholder } from "@/components/site/Placeholder";
 import { JsonLd } from "@/components/site/JsonLd";
 import { FaqAccordion } from "@/components/sections/FaqAccordion";
 import { FinalCta } from "@/components/sections/FinalCta";
@@ -135,7 +135,22 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
             </div>
 
             <div className="nav:col-span-5">
-              <Placeholder slot={`course-${course.slug}`} aspect="photo" />
+              {/*
+                The same component as the hub card, so a course's photograph arrives here by being
+                uploaded or committed once, not twice. `priority`: at 1280 this is the picture
+                beside the H1, above the fold, and it is the only image on the route that can be.
+              */}
+              <SanityPhoto
+                image={course.heroImage}
+                slot={`course-${course.slug}`}
+                fallbackAlt={course.heroAlt}
+                aspect="photo"
+                priority
+                sizes="(min-width: 1080px) 480px, 92vw"
+                /* Same role as the homepage hero picture, so the same 8px radius. Card photos stay
+                   square on purpose: they sit flush inside a bordered card. */
+                className="rounded-sm"
+              />
             </div>
           </div>
 
@@ -197,33 +212,66 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
              * /courses/brewing were retired when revision 2 of facts.md folded them into the IBC,
              * and they now redirect to #day-4 and #day-2 here. Someone who searched for a latte
              * art course lands on the latte art day rather than on a page that mentions it
-             * somewhere. `:target` in globals.css already clears the sticky header.
+             * somewhere. `:target` in globals.css already clears the sticky header, and now marks
+             * the arrived-at day by turning its numeral red.
+             *
+             * A timeline rather than a grid of tiles, because the days are a sequence and the
+             * course is sold as one: day 1 is green coffee and day 4 is latte art, and a
+             * two-column grid asked a reader to work that order out from the labels. The rail is a
+             * 1px white-2 hairline with a Bebas numeral on it — design.md's numeral, not an icon in
+             * a circle, which is the first thing in its "must never look like" list.
+             *
+             * The topics run in two columns from sm so a four-day syllabus of eight topics a day
+             * does not turn the section into a 1600px scroll.
              */
-            <ol className="mt-10 grid gap-px border border-white-2 bg-white-2 md:mt-14 lg:grid-cols-2">
-              {course.days.map((day) => (
-                <li
-                  key={day.number}
-                  id={`day-${day.number}`}
-                  className="day-card bg-white p-6 md:p-8"
-                >
-                  <p className="type-label text-grey">Day {day.number}</p>
-                  <h3 className="mt-2 type-h3 text-black">{day.title}</h3>
-                  <ul className="mt-5 flex flex-col gap-3">
-                    {day.topics.map((topic) => (
-                      <li key={topic} className="flex gap-3 type-body text-grey">
-                        {/* A 1px red rule rather than a tick: the ticks in the "who this is for"
-                            panel above mean "this applies to you", and reusing them here would
-                            make a syllabus look like a checklist of promises. */}
-                        <span
-                          className="mt-3 h-px w-3 shrink-0 bg-red"
-                          aria-hidden="true"
-                        />
-                        {topic}
-                      </li>
-                    ))}
-                  </ul>
-                </li>
-              ))}
+            <ol className="mt-10 md:mt-14">
+              {course.days.map((day, index) => {
+                const isLast = index === (course.days?.length ?? 0) - 1;
+                return (
+                  <li
+                    key={day.number}
+                    id={`day-${day.number}`}
+                    /* `day-card` stays: globals.css marks the day arrived at by anchor with an
+                       inset red rule, and /courses/latte-art still redirects to #day-4. */
+                    className="day-card flex gap-4 md:gap-8"
+                  >
+                    <div className="flex flex-col items-center" aria-hidden="true">
+                      <span className="day-node grid size-12 shrink-0 place-items-center border border-white-2 bg-white type-numeral text-h3-lg text-black">
+                        {day.number}
+                      </span>
+                      {!isLast && <span className="w-px flex-1 bg-white-2" />}
+                    </div>
+
+                    <div className={isLast ? "min-w-0 flex-1" : "min-w-0 flex-1 pb-10 md:pb-14"}>
+                      <p className="type-label text-grey">Day {day.number}</p>
+                      <h3 className="mt-2 type-h3 text-black">{day.title}</h3>
+                      {/* Multi-column rather than a two-column grid. A grid equalises row
+                          heights, so one topic that wraps to two lines opened a hole beside it in
+                          every day that had one; columns pack the list and read top-to-bottom down
+                          the first column, which is how a list is read. The spacing is bottom
+                          padding, not top margin, because a top margin on the first item of the
+                          second column would push it out of line with the first. */}
+                      <ul className="mt-5 sm:columns-2 sm:gap-x-8">
+                        {day.topics.map((topic) => (
+                          <li
+                            key={topic}
+                            className="flex gap-3 break-inside-avoid pb-3 type-body text-grey"
+                          >
+                            {/* A 1px red rule rather than a tick: the ticks in the "who this is
+                                for" panel above mean "this applies to you", and reusing them here
+                                would make a syllabus look like a checklist of promises. */}
+                            <span
+                              className="mt-3 h-px w-3 shrink-0 bg-red"
+                              aria-hidden="true"
+                            />
+                            {topic}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </li>
+                );
+              })}
             </ol>
           ) : (
             /* TODO(client): course.days. No day-by-day outline has been supplied for this course. */
@@ -433,7 +481,11 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
                 </ButtonLink>
               }
             />
-            <ul className="mt-10 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+            {/* Two columns, not three. The catalogue is three courses, so `related` is always exactly 2,
+              and a third column at 1280 was always empty. While both cards were placeholders that
+              read as white space; with photographs in them it reads as a third card that failed to
+              load. Restore `lg:grid-cols-3` when the catalogue is bigger than three. */}
+          <ul className="mt-10 grid gap-8 md:grid-cols-2">
               {related.map((item) => (
                 <li key={item.slug}>
                   <CourseCard course={item} />

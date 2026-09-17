@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { Placeholder } from "@/components/site/Placeholder";
 import { imageAlt, imageLqip, imageUrl, sanityLoader, type SanityImage } from "@/lib/sanity/image";
+import { publicPhoto, publicPhotoAlt } from "@/lib/photos";
 import { cn } from "@/lib/utils";
 
 interface SanityPhotoProps {
@@ -30,13 +31,19 @@ const ASPECT_CLASS: Record<SanityPhotoProps["aspect"], string> = {
 };
 
 /**
- * One photo slot: the Sanity image when there is one, the branded placeholder when there is not.
+ * One photo slot: the Sanity image, then the academy's file in public/, then the placeholder.
  *
  * Every card in build 1 wrote this `? :` out by hand, which was fine while `heroImage` was a
  * string path. It is an object now, with an alt, a blur hash and a CDN that does the resizing, and
  * writing that out per card is three chances to forget the blur or the sizes attribute. The
  * placeholder branch is unchanged: no photograph is ever invented, and the slot name still prints
  * so the academy can see which file is missing.
+ *
+ * The middle branch is the manifest's promise kept for slots that are also Sanity documents. A
+ * course's photograph may arrive either way — uploaded to the Studio, or dropped into
+ * public/images/courses/<slug>.jpg — and the Studio wins, because an upload is the academy
+ * choosing this picture for this course while a file in the repository is whatever was last
+ * committed. Neither route needs a call site to change.
  */
 export function SanityPhoto({
   image,
@@ -52,6 +59,20 @@ export function SanityPhoto({
   const src = imageUrl(image, dimensions);
 
   if (!src) {
+    const file = publicPhoto(slot);
+    if (file) {
+      return (
+        <Image
+          src={file}
+          alt={publicPhotoAlt(slot, fallbackAlt)}
+          width={dimensions.width}
+          height={dimensions.height}
+          priority={priority}
+          sizes={sizes}
+          className={cn(ASPECT_CLASS[aspect], "w-full object-cover", className)}
+        />
+      );
+    }
     return <Placeholder slot={slot} aspect={aspect} className={placeholderClassName} />;
   }
 

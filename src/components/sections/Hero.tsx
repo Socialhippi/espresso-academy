@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
-import Image from "next/image";
 import { Container } from "@/components/site/Container";
-import { Placeholder } from "@/components/site/Placeholder";
+import { HeroMedia } from "@/components/sections/HeroMedia";
 import { cn } from "@/lib/utils";
 
 interface HomeHeroProps {
@@ -12,15 +11,22 @@ interface HomeHeroProps {
   titleAccent: string;
   subline: ReactNode;
   actions: ReactNode;
-  /** Real photo path when the client has sent one; otherwise the branded placeholder. */
+  /**
+   * Real photo path when the client has sent one. The reel outranks it on desktop when
+   * public/video/hero.mp4 exists; see HeroMedia for why, and for where the still still shows.
+   */
   image?: string | null;
   imageAlt?: string;
 }
 
 /**
- * The homepage hero. Asymmetric on desktop: the words hold the left seven columns and the photo
- * the right five, so the composition never reads as a centred SaaS masthead. The photo sits
+ * The homepage hero. Asymmetric on desktop: the words hold the left seven columns and the picture
+ * the right five, so the composition never reads as a centred SaaS masthead. The picture sits
  * beside the words, never behind them: text never sits on top of an image.
+ *
+ * The right column is a HeroMedia, which is the same frame whether it holds the client's reel, a
+ * still photograph or the branded placeholder. Nothing about this layout changes when the footage
+ * arrives, and nothing here has to be edited to let it in.
  *
  * This is the one place in the site allowed to use the red gradient on text (design.md).
  */
@@ -50,19 +56,7 @@ export function HomeHero({
           </div>
 
           <div className="nav:col-span-5">
-            {image ? (
-              <Image
-                src={image}
-                alt={imageAlt}
-                width={1200}
-                height={800}
-                priority
-                sizes="(min-width: 1080px) 480px, 100vw"
-                className="aspect-portrait w-full rounded-sm object-cover md:aspect-photo"
-              />
-            ) : (
-              <Placeholder slot="hero" aspect="portrait" priority className="md:aspect-photo" />
-            )}
+            <HeroMedia image={image} alt={imageAlt} slot="hero" />
           </div>
         </div>
       </Container>

@@ -31,9 +31,26 @@ no code change. They are ordered by what they cost while they are missing.
    and none is assigned to a course; the Studio will not let an editor publish a course without
    one.
 8. **Balance payment mechanics**: due on or before day 1, and cash, UPI or card at the academy.
-9. **Photographs** for every slot in `docs/images-manifest.md`. Nothing has arrived, so every
-   frame is a branded placeholder naming its slot. A Drive folder was supplied; student releases
-   for the people pictured are still outstanding.
+9. **Photographs** for the slots still empty in `docs/images-manifest.md`. Six landed on
+   15 September 2026 and are live: the home hero, all three course photos, the lead frame of the
+   About gallery, and the for-cafes section. Still missing: `about/campus-2.jpg` to `campus-6.jpg`,
+   `contact.jpg`, `courses-hub.jpg` and `trainers/nageswara-rao-k.jpg`, each of which keeps a
+   branded placeholder printing its own slot name.
+
+   Two of the six do not show what their slot is named for, and rather than re-describe them to
+   suit the page, both are questions for the academy:
+   - The **IBC Basic** photo is a certificate being handed over, not a class in progress, **and the
+     certificate in it is mosaicked out** — a hard block roughly 350x420px dead centre of a
+     1400x933 frame, with a visible edge. It is the card image for the course the academy sells
+     most, on the page whose entire promise is that certificate. A reader who notices asks what is
+     being hidden. This is the single highest-priority photography question: an unredacted frame,
+     or another photograph from the same handover. A day of teaching would be stronger still.
+   - The **IBC Advanced Roasting** photo has no roaster, no curve and no cupping table in it. It is
+     a student at the bench. On a two-day roasting course it is the weakest of the six, and the
+     Day 1 Bullet roast is the obvious picture nobody has sent.
+
+   The trainer portrait is the other conspicuous gap: Nageswara Rao K is the only trainer on the
+   site and his card is a placeholder on `/trainers`, `/about` and every course he is assigned to.
 10. **Legal copy**: privacy and terms. Both are still placeholder text. `/refund-policy` is no
     longer, apart from the clause in item 4.
 11. **Testimonials with written permission.** The stories section stays empty until then, and the
@@ -1875,13 +1892,28 @@ an account or a decision from the academy first, not development:
   traffic: the honeypot, the two-second floor and Turnstile are what actually stop a bot, and a
   per-IP number tight enough to interest an attacker also turns away a student behind Indian
   carrier CGNAT. A shared store is one file away if it is ever needed.
+- **The `priority` prop on `next/image` is deprecated in Next 16**, in favour of `preload`
+  (`node_modules/next/dist/docs/01-app/03-api-reference/02-components/image.md`). It still works
+  and emits no build warning, so nothing is broken. It is used in `HeroMedia`, `SanityPhoto`,
+  `SlotPhoto`, `Placeholder` and their call sites, and migrating it is a mechanical rename that
+  deserves its own commit rather than riding along with a visual change, where a regression in
+  either would be hard to attribute. Worth doing before launch.
+- **`/for-cafes` is slow on the deployment and nothing here explains it.** Measured warm on
+  15 September, before the photographs were pushed: performance 80, LCP 4.75s, FCP 1.9s, against
+  100 and 1.0s for its neighbours. Time to first byte was 30ms, so it is not the origin and not a
+  cold function; the LCP breakdown puts 1390ms into element render delay against 99ms on /about.
+  Recorded in `docs/audits/perf-photos.md`. Needs its own investigation.
 - **LCP on the deployment is not one number.** The warm nightly of 7 September has every route
   between 1.8s and 2.4s, inside the ≤2.5s budget; this workstation measured the same commit the
   same morning at 2.4s to 3.0s; the cold nightlies before the warm-up fix reached 3.2s. Every one
   of those is Lighthouse's simulated throttling on a text LCP that re-registers when Montserrat
   arrives, so the figure tracks the machine more than the site. Performance is ≥95 on every route
   on every reading, so the score target is met on all of them. The lever that would end the
-  argument is the client's photography: an image LCP can be preloaded and served as AVIF.
+  argument was the client's photography: an image LCP can be preloaded and served as AVIF.
+  **That lever has now been pulled, and it worked.** With six photographs in place, the routes
+  whose LCP element is a photograph measure 2.5 to 2.6s on this workstation while the routes still
+  ending on a paragraph measure 3.1s in the same run — including `/calendar` and `/enquire`, which
+  this work never touched and which stand as the control. See `docs/audits/perf-photos.md`.
 - **Two moderate dependency advisories** remain, both inside the Sanity CLI's tree, reaching nothing
   the site ships. `pnpm audit --audit-level high` is clean, which is what CI gates on.
 - **HSTS is written but commented out** in `src/middleware.ts`. It must not be enabled until the
