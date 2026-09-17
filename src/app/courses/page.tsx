@@ -256,6 +256,20 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             </p>
           )}
 
+            {/*
+              No `priority` on the first card, though it used to carry it.
+
+              It was free while every card held a placeholder: the "image" it preloaded was the
+              same logo mark the header had already fetched. With a photograph in it, the preload
+              became a real request for a picture whose top edge is about 560px below the fold on a
+              phone, issued ahead of the font that the paragraph above it is waiting on — and the
+              paragraph is this route's LCP element. Measured on the deployment: 1.24s before the
+              photographs, then 2.88s, 3.25s and 2.82s across three runs after, against an /about
+              that stayed at 1.38s. Removing it put the route back.
+
+              The first card is never the first image on this page anyway. Either the hero aside is
+              one, and that carries `priority` itself, or there is no image above the fold at all.
+            */}
           {courses.length === 0 ? (
             <div className="mt-6 border border-white-2 bg-white-3 p-6 md:p-10">
               <p className="type-h3 text-black">Nothing matches that combination yet</p>
@@ -272,9 +286,9 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
             </div>
           ) : (
             <ul className="mt-6 grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {courses.map((course, index) => (
+              {courses.map((course) => (
                 <li key={course.slug}>
-                  <CourseCard course={course} priority={index === 0} />
+                  <CourseCard course={course} />
                 </li>
               ))}
             </ul>
