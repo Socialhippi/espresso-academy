@@ -102,6 +102,14 @@ export const booking = defineType({
     defineField({ name: "source", type: "attributionSource" }),
     defineField({ name: "createdAt", type: "datetime", readOnly: true }),
     defineField({ name: "paidAt", type: "datetime", readOnly: true }),
+    defineField({
+      name: "notifiedAt",
+      title: "Notified at",
+      type: "datetime",
+      readOnly: true,
+      description:
+        "When the confirmation actually went out. Set by whichever of the verify call and the payment.captured webhook claims it first, and only kept when at least one email was delivered — so an empty value on a paid booking means nobody was told, and it is safe to resend.",
+    }),
     defineField({ name: "notes", type: "text", rows: 3, description: "The only free field. Anything the academy needs to remember about this booking." }),
   ],
   preview: {

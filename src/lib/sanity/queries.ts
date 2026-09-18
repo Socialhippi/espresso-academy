@@ -318,6 +318,8 @@ export const bookingByOrderIdQuery = /* groq */ `
   *[_type == "booking" && razorpayOrderId == $orderId][0] {
     "id": _id,
     status,
+    "overbooked": coalesce(overbooked, false),
+    notifiedAt,
     amount,
     "paymentType": coalesce(paymentType, "advance"),
     courseFeeExGst,

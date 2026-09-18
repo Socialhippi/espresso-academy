@@ -102,6 +102,10 @@ export async function getBooking(id: string): Promise<BookingRecord | null> {
 export interface BookingByOrder {
   id: string;
   status: BookingStatus;
+  /** Set when the seat could not be taken because the batch was already full. */
+  overbooked: boolean;
+  /** When the confirmation went out, or null when nobody has been told yet. */
+  notifiedAt: string | null;
   amount: number | null;
   paymentType: PaymentType;
   courseFeeExGst: number | null;
