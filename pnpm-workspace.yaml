@@ -12,3 +12,12 @@ overrides:
   # is a patch bump inside the same major, so there is no reason to carry it as an accepted risk.
   # pnpm 11 reads overrides here rather than from package.json.
   js-yaml@<3.15.1: '>=3.15.1'
+
+  # smol-toml <=1.7.0, denial of service via a malformed TOML document (GHSA-7w5x-hrqm-74c2).
+  # Same shape and same path as the js-yaml entry above: reached only through
+  # sanity > @sanity/cli > @vercel/frameworks, which parses local project files and never anything
+  # a visitor supplies. @sanity/cli already resolves 1.8.0 for itself; it was @vercel/frameworks
+  # holding a second copy at 1.5.2. Nothing here ships to the browser or to a server route, so the
+  # real exposure is a developer's own machine — but it is a patch bump inside the same major and
+  # it is the only thing standing between this repository and a green CI run.
+  smol-toml@<1.7.1: '>=1.7.1'
