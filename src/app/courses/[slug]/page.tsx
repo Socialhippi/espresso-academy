@@ -420,47 +420,41 @@ export default async function CoursePage({ params }: PageProps<"/courses/[slug]"
         </Container>
       </section>
 
-      {/* The one black section on this route, mid-page and below the fold. Same move and same
-          reasoning as src/app/page.tsx: FinalCta cannot be it, because it sits on the black
-          Footer and the two together read as a long dark tail rather than as a section. */}
-      <section className="section-y dark-wash" aria-labelledby="ladder-heading">
+      <section className="section-y-sm" aria-labelledby="ladder-heading">
         <Container>
-          <div className="hairline-on-dark pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
+          <div className="hairline pt-6 grid gap-[var(--gutter-grid)] lg:grid-cols-12">
             <div className="lg:col-span-4">
               <SectionHeading rule={false}
                 number={next()}
                 eyebrow="Ladder"
                 title="Where this sits"
                 id="ladder-heading"
-                onDark
               />
               {nextCourse ? (
                 <Link
                   href={`/courses/${nextCourse.slug}`}
-                  className="group mt-8 flex items-center justify-between gap-4 border border-black-2 p-5 transition-[color,background-color,border-color] duration-200 hover:border-white"
+                  className="group mt-8 flex items-center justify-between gap-4 border border-white-2 p-5 transition-[color,background-color,border-color] duration-200 hover:border-black"
                 >
                   <span>
-                    <span className="block type-label text-grey-2">Next in the ladder</span>
-                    <span className="mt-2 block type-h3 text-white group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
+                    <span className="block type-label text-grey">Next in the ladder</span>
+                    <span className="mt-2 block type-h3 text-black group-hover:underline group-hover:decoration-1 group-hover:underline-offset-4">
                       {nextCourse.title}
                     </span>
                   </span>
-                  {/* White, not red: design.md forbids red on black at 2.47:1, and that applies to
-                      a 24px glyph carrying the card's direction as much as to text. */}
                   <ArrowRight
-                    className="size-6 shrink-0 text-white transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
+                    className="size-6 shrink-0 text-red transition-transform duration-200 ease-out-brand group-hover:translate-x-1"
                     aria-hidden="true"
                   />
                 </Link>
               ) : (
-                <p className="mt-8 type-body text-grey-2">
+                <p className="mt-8 type-body text-grey">
                   This is the top rung of its ladder. After it, the useful next step is a different
                   skill area rather than a higher level.
                 </p>
               )}
             </div>
             <div className="lg:col-span-8">
-              <LevelLadder current={course.level} onDark />
+              <LevelLadder current={course.level} />
             </div>
           </div>
         </Container>

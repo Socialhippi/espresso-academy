@@ -60,6 +60,11 @@ no code change. They are ordered by what they cost while they are missing.
 12. **Logo as SVG, ideally a horizontal lockup**, and sign-off on the header composition.
 13. **The correct "Forest Green" hex**, and the meaning of the client's "authorised IBM trainer"
     line on Nageswara Rao K, which is almost certainly IBC.
+14. **A dark photograph for the black section.** See "design.md rule suspended" below. The one
+    black section design.md asks for needs a photographic ground, not a flat fill, and none of the
+    five live photographs is dark enough to carry white type: the darkest is the IBC Basic cupping
+    frame at mean luminance 52, and the other four sit at 74 or above. A low-key frame from the
+    next shoot — the roaster, the bar under working light, a cupping table — unblocks it.
 
 Answered by revision 2, and now live on the site: the three-course catalogue, the day-by-day
 syllabus, the IBC Basic fee, the ₹5,000 advance and the reschedule and no-refund terms, four batch
@@ -68,6 +73,45 @@ dates, the WhatsApp number, the email address, the opening hours, the plot numbe
 
 The detailed table, with the exact field behind each row, is under "Needs client" further down.
 `node scripts/stale-content.mjs` prints the same list live from Sanity, so it cannot go stale.
+
+## design.md rule suspended: "exactly one black section per page"
+
+**Suspended 18 September 2026, pending a dark photograph from the client's next shoot.**
+
+`.claude/rules/design.md` (Layout) says: *"Exactly one black section per page (with a subtle
+#640000 radial glow at 25%), placed below the fold."* That rule is **not being enforced** and the
+`design-reviewer` subagent should not raise it until this note is removed.
+
+What happened. A design review found that the only black section on `/`, `/courses` and the course
+pages was `FinalCta`, which is the last section on every route and sits directly on the black
+`Footer` — two black blocks touching, which reads as the footer starting early rather than as a
+dark section. The fix moved the black ground to the mid-page level ladder and turned `FinalCta`
+white. It was **rejected on review**: a flat black band reads as brochure and does not suit the
+brand. It was reverted in full on all three routes.
+
+The rejection is about the *fill*, not about the idea. A dark section grounded in a photograph is a
+different object from a flat `#171717` rectangle, and that is what the rule was written for
+("photography full-bleed", same file). So the rule waits for the photograph rather than being
+rewritten or quietly ignored.
+
+Where that leaves the site today, all of it deliberate:
+
+- `FinalCta` is dark again and still abuts the black `Footer`. That is the known cost of the
+  revert, not an oversight.
+- The three routes have no mid-page dark band, so the white/white-3 alternation carries the whole
+  rhythm. `white #FEFCFF` against `white-3 #F4F3F5` is about a 2% luminance step and does not read
+  as alternation at a glance.
+- `LevelLadder`, `SectionHeading` and the `secondary-on-dark`, `tertiary-on-dark` and `light`
+  button variants all still carry working `onDark` support. Nothing was deleted, so the section can
+  be rebuilt on a photographic ground without re-plumbing anything.
+
+**To lift the suspension:** land a dark photograph in `docs/images-manifest.md`, build the section
+over it, confirm `node scripts/check-brand-contrast.mjs` still reports no forbidden pair (red on
+black is 2.47:1 and forbidden), and delete this section.
+
+Related art-direction work — two options for breaking the seven-band section uniform and two for
+the homepage hierarchy — was compiled and then dropped on 18 September in favour of launch. Nothing
+from it was committed.
 
 ## On every machine that has this repository
 

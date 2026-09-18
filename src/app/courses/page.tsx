@@ -342,21 +342,17 @@ export default async function CoursesPage({ searchParams }: PageProps<"/courses"
       </section>
 
       {/* Full width. The section above it is already a 4/8 split, and the ladder's badges want the
-          horizontal room.
-
-          The one black section on this route, for the reasons in src/app/page.tsx: it was FinalCta,
-          which touches the black Footer and therefore reads as no dark section at all. */}
-      <section className="section-y dark-wash" aria-labelledby="ladder-heading">
+          horizontal room. */}
+      <section className="section-y" aria-labelledby="ladder-heading">
         <Container>
           <SectionHeading
             number="03"
             eyebrow="Levels"
             title="Where each course sits"
             id="ladder-heading"
-            onDark
             description="One ladder. IBC Basic first, then either Advanced course, or both. Neither Advanced course requires the other."
           />
-          <LevelLadder current={activeLevel ?? undefined} onDark className="mt-10" />
+          <LevelLadder current={activeLevel ?? undefined} className="mt-10" />
         </Container>
       </section>
 
