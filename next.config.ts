@@ -1,5 +1,7 @@
 import type { NextConfig } from "next";
 
+import { LEGACY_REDIRECTS } from "./src/lib/legacy-redirects";
+
 const nextConfig: NextConfig = {
   turbopack: {
     resolveAlias: {
@@ -37,7 +39,9 @@ const nextConfig: NextConfig = {
     const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID;
     const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET;
     const token = process.env.SANITY_API_READ_TOKEN;
-    if (!projectId || !dataset) return [];
+    /* The legacy map is unconditional: it must not depend on Sanity being configured or reachable. */
+    const legacy = LEGACY_REDIRECTS.map((rule) => ({ ...rule }));
+    if (!projectId || !dataset) return legacy;
 
     const query = encodeURIComponent(
       '*[_type == "redirect" && defined(from) && defined(to)]{from, to, "permanent": coalesce(permanent, true), statusCode}',
@@ -58,14 +62,19 @@ const nextConfig: NextConfig = {
        * what the academy's SEO consultant will look for; everything else keeps the boolean, which
        * Next renders as 308.
        */
-      return (body.result ?? []).map((rule) =>
-        typeof rule.statusCode === "number"
-          ? { source: rule.from, destination: rule.to, statusCode: rule.statusCode }
-          : { source: rule.from, destination: rule.to, permanent: rule.permanent },
-      );
+      /* Legacy first: Next takes the first match, and these are exact paths the academy has no
+         reason to override from the Studio. */
+      return [
+        ...legacy,
+        ...(body.result ?? []).map((rule) =>
+          typeof rule.statusCode === "number"
+            ? { source: rule.from, destination: rule.to, statusCode: rule.statusCode }
+            : { source: rule.from, destination: rule.to, permanent: rule.permanent },
+        ),
+      ];
     } catch (error) {
       console.warn("[redirects] Could not read redirects from Sanity:", String(error));
-      return [];
+      return legacy;
     }
   },
   // Trailing slashes off so the canonical URL and the served URL always match.
