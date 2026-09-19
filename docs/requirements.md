@@ -123,8 +123,34 @@ at 21st.dev. Never commit that key — `.gitleaks.toml` scans for exactly this.
 
 The working folder is ~3.3GB, of which `node_modules` (998MB), `.next` (1.8GB) and
 `.playwright-mcp` (46MB) are regenerable build output. Transfers of that size fail often, and they
-carry a `node_modules` that will not work on the far machine anyway. Clone instead — the tracked
-source is a few MB, and every section above reconstructs the rest.
+carry a `node_modules` that will not work on the far machine anyway. Clone instead, and let every
+section above reconstruct the rest.
+
+Budget for the clone: `.git` is ~412MB, because `docs/screens` is 49MB of tracked PNGs that have
+been recommitted across design passes. `git clone --depth 1` avoids that history if you only need
+to work, at the cost of `git log` and `git bisect`.
+
+### Claude Code plugins and skills
+
+Installed at user level in `~/.claude`, so neither a clone nor a folder copy carries them. Four
+plugins, all from the official marketplace, and three of them scoped to this project's **absolute
+path** — a clone at a different path will not pick them up even on the same machine.
+
+```
+/plugin marketplace add anthropics/claude-plugins-official
+/plugin install frontend-design@claude-plugins-official
+/plugin install typescript-lsp@claude-plugins-official
+/plugin install code-review@claude-plugins-official
+/plugin install commit-commands@claude-plugins-official
+```
+
+`frontend-design` is not optional: CLAUDE.md delegates craft guidance to it, subject to
+design/tokens.css and .claude/rules/design.md overriding any palette, font or radius it suggests.
+
+Do not copy `~/.claude` wholesale — it is 1.6GB, of which `~/.claude/skills` alone is 1.3GB. Install
+what you use. The four agents this project relies on (`content-editor`, `design-reviewer`,
+`qa-runner`, `seo-auditor`) live in `.claude/agents/` and **are** tracked, so they arrive with the
+clone.
 
 ### Logins
 
