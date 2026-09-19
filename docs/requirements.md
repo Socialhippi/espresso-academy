@@ -67,15 +67,38 @@ live in `~/Library/Caches/ms-playwright`, outside the project — a fresh machin
 
 Four gitignored things. The first cannot be regenerated from the repo at all.
 
-| Path                          | Contents                                                                                          | How to restore                                                                                           |
-| ----------------------------- | ------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- |
-| `.env.local`                  | 25 keys — Razorpay pair + webhook secret, Sanity read/write tokens, Resend, Turnstile             | `vercel env pull .env.local`, or copy via a password manager. **Never over chat or email.**              |
-| `.claude/skills/`             | StyleSeed, 23 `ss-*` skills, pinned to engine 4.2.0 / `sha256:2ac39abb2241` on the `edge` channel | `npx skills add bitjaru/styleseed` — edge drifts, so re-read its rules after. **Never run `/ss-setup`.** |
-| `.claude/settings.local.json` | MCP enable list and extra Bash permissions                                                        | Recreate by hand or you will be re-prompted all session                                                  |
-| `.vercel/`                    | Project link                                                                                      | `vercel link`                                                                                            |
+| Path                          | Contents                                                                                          | How to restore                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| `.env.local`                  | 25 keys — Razorpay pair + webhook secret, Sanity read/write tokens, Resend, Turnstile             | `vercel env pull .env.local --environment=preview` (see below), or copy via a password manager. **Never over chat or email.** |
+| `.claude/skills/`             | StyleSeed, 23 `ss-*` skills, pinned to engine 4.2.0 / `sha256:2ac39abb2241` on the `edge` channel | `npx skills add bitjaru/styleseed` — edge drifts, so re-read its rules after. **Never run `/ss-setup`.**                      |
+| `.claude/settings.local.json` | MCP enable list and extra Bash permissions                                                        | Recreate by hand or you will be re-prompted all session                                                                       |
+| `.vercel/`                    | Project link                                                                                      | `vercel link`                                                                                                                 |
 
 `CLAUDE.md`, `.mcp.json`, `.claude/rules/`, `.claude/agents/` and `.githooks/` **are** tracked and
 arrive with the clone.
+
+### Pulling `.env.local` from Vercel
+
+```bash
+vercel login
+vercel link                                          # .vercel/ is gitignored, so relink
+vercel env pull .env.local --environment=preview
+```
+
+**`--environment` is not optional here.** The project has no Development environment — all 20
+variables are Preview and/or Production — and `vercel env pull` defaults to Development. Without
+the flag it writes a near-empty file and exits 0.
+
+**Pull preview, never production.** Production is where live Razorpay keys go while Preview stays
+on test keys (RUNBOOK, "switching from test keys to live keys", step 2). A production pull puts live
+payment credentials in a local dev file, where a mis-click in checkout is a real charge.
+
+The pulled file is more complete than a hand-carried one: it includes `RESEND_FROM_EMAIL`, which is
+set on Vercel but absent from at least one local copy. Two things it will not contain:
+
+- `TWENTYFIRST_API_KEY` — the `magic` MCP server. Re-add by hand only if you enable that server.
+- `NEXT_PUBLIC_SITE_URL` — Production-only by design. Leave it unset; the build falls back to the
+  deployment's own URL so canonicals describe themselves.
 
 ### Logins
 
