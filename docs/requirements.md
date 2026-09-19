@@ -71,7 +71,7 @@ Four gitignored things. The first cannot be regenerated from the repo at all.
 | ----------------------------- | ------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | `.env.local`                  | 25 keys — Razorpay pair + webhook secret, Sanity read/write tokens, Resend, Turnstile             | `vercel env pull .env.local --environment=preview` (see below), or copy via a password manager. **Never over chat or email.** |
 | `.claude/skills/`             | StyleSeed, 23 `ss-*` skills, pinned to engine 4.2.0 / `sha256:2ac39abb2241` on the `edge` channel | `npx skills add bitjaru/styleseed` — edge drifts, so re-read its rules after. **Never run `/ss-setup`.**                      |
-| `.claude/settings.local.json` | MCP enable list and extra Bash permissions                                                        | Recreate by hand or you will be re-prompted all session                                                                       |
+| `.claude/settings.local.json` | MCP enable list and extra Bash permissions                                                        | Recreate from the block below                                                                                                 |
 | `.vercel/`                    | Project link                                                                                      | `vercel link`                                                                                                                 |
 
 `CLAUDE.md`, `.mcp.json`, `.claude/rules/`, `.claude/agents/` and `.githooks/` **are** tracked and
@@ -99,6 +99,32 @@ set on Vercel but absent from at least one local copy. Two things it will not co
 - `TWENTYFIRST_API_KEY` — the `magic` MCP server. Re-add by hand only if you enable that server.
 - `NEXT_PUBLIC_SITE_URL` — Production-only by design. Leave it unset; the build falls back to the
   deployment's own URL so canonicals describe themselves.
+
+### Recreating `.claude/settings.local.json`
+
+Gitignored because it is per-machine, but it holds no secrets. A known-good copy:
+
+```json
+{
+  "permissions": {
+    "allow": ["Bash(gh auth *)", "Bash(gh secret *)", "Bash(gh run *)", "Bash(grep -Ev \"^$\")"]
+  },
+  "enabledMcpjsonServers": ["playwright", "context7", "vercel", "shadcn"],
+  "disabledMcpjsonServers": ["magic"],
+  "enableAllProjectMcpServers": true
+}
+```
+
+`magic` is disabled deliberately: its `TWENTYFIRST_API_KEY` is the one value in `.env.local` that is
+not stored in Vercel, so a fresh clone cannot obtain it. Leave the server off, or regenerate a key
+at 21st.dev. Never commit that key — `.gitleaks.toml` scans for exactly this.
+
+### A clone is preferable to copying the folder
+
+The working folder is ~3.3GB, of which `node_modules` (998MB), `.next` (1.8GB) and
+`.playwright-mcp` (46MB) are regenerable build output. Transfers of that size fail often, and they
+carry a `node_modules` that will not work on the far machine anyway. Clone instead — the tracked
+source is a few MB, and every section above reconstructs the rest.
 
 ### Logins
 
